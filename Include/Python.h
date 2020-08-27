@@ -54,6 +54,16 @@
 #include <stddef.h>
 #endif
 
+/* for iOS system. Overrides exit(), abort() and the like */ 
+#include <TargetConditionals.h> 
+#if TARGET_OS_IPHONE
+#include "ios_error.h"
+#undef iswprint
+#undef getwchar
+#undef putwchar
+#define isatty ios_isatty
+#endif
+
 /* CAUTION:  Build setups should ensure that NDEBUG is defined on the
  * compiler command line when building Python in release mode; else
  * assert() calls won't be removed.

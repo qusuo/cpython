@@ -61,7 +61,8 @@ CROSS_COMPILING = ("_PYTHON_HOST_PLATFORM" in os.environ)
 HOST_PLATFORM = get_platform()
 MS_WINDOWS = (HOST_PLATFORM == 'win32')
 CYGWIN = (HOST_PLATFORM == 'cygwin')
-MACOS = (HOST_PLATFORM == 'darwin')
+MACOS = (HOST_PLATFORM == 'darwin') 
+IPHONE = (HOST_PLATFORM == 'darwin-arm64')
 AIX = (HOST_PLATFORM.startswith('aix'))
 VXWORKS = ('vxworks' in HOST_PLATFORM)
 
@@ -139,6 +140,17 @@ def sysroot_paths(make_vars, subdirs):
         var = sysconfig.get_config_var(var_name)
         if var is not None:
             m = re.search(r'--sysroot=([^"]\S*|"[^"]+")', var)
+            if m is not None:
+                sysroot = m.group(1).strip('"')
+                for subdir in subdirs:
+                    if os.path.isabs(subdir):
+                        subdir = subdir[1:]
+                    path = os.path.join(sysroot, subdir)
+                    if os.path.isdir(path):
+                        dirs.append(path)
+                break
+            # iOS: cross-compiling is with -isysroot:
+            m = re.search(r'-isysroot ([^"]\S*|"[^"]+")', var)
             if m is not None:
                 sysroot = m.group(1).strip('"')
                 for subdir in subdirs:
@@ -1618,7 +1630,7 @@ class PyBuildExt(build_ext):
                         version = line.split()[2]
                         break
             if version >= version_req:
-                if (self.compiler.find_library_file(self.lib_dirs, 'z')):
+                if (self.compiler.find_library_file(self.lib_dirs, 'z') or IPHONE):
                     if MACOS:
                         zlib_extra_link_args = ('-Wl,-search_paths_first',)
                     else:
@@ -1650,7 +1662,7 @@ class PyBuildExt(build_ext):
                            extra_link_args=extra_link_args))
 
         # Gustavo Niemeyer's bz2 module.
-        if (self.compiler.find_library_file(self.lib_dirs, 'bz2')):
+        if (self.compiler.find_library_file(self.lib_dirs, 'bz2') or IPHONE):
             if MACOS:
                 bz2_extra_link_args = ('-Wl,-search_paths_first',)
             else:
