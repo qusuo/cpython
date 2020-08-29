@@ -939,8 +939,17 @@ calculate_program_macos(wchar_t **abs_path_p)
        will fail if a relative path was used. but in that case,
        absolutize() should help us out below
      */
+    #ifdef __IPHONE_OS_VERSION_MAX_ALLOWED
+    // Doesn't apply on iOS, though, since _NSGetExecutablePath gives the parent app
+    // This solution is a bit extreme, but the sandbox is really limiting:
+    char *iospath = Py_GETENV("PYTHONHOME");
+    char *prog = Py_GETENV("PYTHONEXECUTABLE");
+    sprintf(execpath, "%s/bin/%s", iospath, prog);
+    if (execpath[0] == SEP)
+#else
     if (_NSGetExecutablePath(execpath, &nsexeclength) != 0
         || (wchar_t)execpath[0] != SEP)
+#endif
     {
         /* _NSGetExecutablePath() failed or the path is relative */
         return _PyStatus_OK();
