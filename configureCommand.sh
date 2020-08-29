@@ -1,16 +1,19 @@
 #! /bin/sh
 
-# Change prefix to avoid issues with Lib / lib
+# Changed install prefix so multiple install coexist
 PREFIX=$PWD
 XCFRAMEWORKS_DIR=$PREFIX/../Python-aux/
-export PATH=$PREFIX/install_macosx/bin:$PATH
+export PATH=$PREFIX/install/bin:$PATH
+export PYTHONPYCACHEPREFIX=$PREFIX/__pycache__
 OSX_SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
 IOS_SDKROOT=$(xcrun --sdk iphoneos --show-sdk-path)
 SIM_SDKROOT=$(xcrun --sdk iphonesimulator --show-sdk-path)
 
 # 1) compile for OSX (required)
 
-env CC=clang CXX=clang++ CPPFLAGS="-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/" CFLAGS="-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/" CXXFLAGS="-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/" LDFLAGS="-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/" LDSHARED="clang -v -undefined error -dynamiclib -isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/ -lz -L. -lpython3.9" ./configure --prefix=$PREFIX/install_macosx --with-system-ffi --enable-shared
+find . -name \*.o -delete
+env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L. -lpython3.9" ./configure --prefix=$PREFIX/install --with-system-ffi --enable-shared >& configure_osx.log
+# enable-framework incompatible with local install
 make >& make_osx.log
 make install >& make_install_osx.log
 
@@ -19,16 +22,28 @@ make install >& make_install_osx.log
 # 2.1) download and install required packages: 
 # to do later, after several cycles of debug.
 # curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libffi.xcframework.zip
+export PYTHONHOME=$PREFIX/install
+mkdir -p Frameworks_iphoneos
+mkdir -p Frameworks_iphoneos/include
+mkdir -p Frameworks_iphoneos/lib
+cp -r $XCFRAMEWORKS_DIR/libffi.xcframework/ios-arm64/Headers/* $PREFIX/Frameworks_iphoneos/include/ffi/
+cp -r $XCFRAMEWORKS_DIR/crypto.xcframework/ios-arm64/Headers/* $PREFIX/Frameworks_iphoneos/include/crypto/
+cp -r $XCFRAMEWORKS_DIR/openssl.xcframework/ios-arm64/Headers/* $PREFIX/Frameworks_iphoneos/include/openssl/
+# Need to copy all libs after each make clean: 
+cp $XCFRAMEWORKS_DIR/crypto.xcframework/ios-arm64/libcrypto.a $PREFIX/Frameworks_iphoneos/lib/
+cp $XCFRAMEWORKS_DIR/openssl.xcframework/ios-arm64/libssl.a $PREFIX/Frameworks_iphoneos/lib/
+cp $XCFRAMEWORKS_DIR/libffi.xcframework/ios-arm64/libffi.a $PREFIX/Frameworks_iphoneos/lib/
+find . -name \*.o -delete
 
 # preadv / pwritev are iOS 14+ only
 env CC=clang CXX=clang++ \
-	CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/" \
-	CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/" \
-	CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/" \
-	LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot/Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/ -F/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphoneos -framework ios_system -L/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphoneos/lib" \
-	LDSHARED="clang -v -undefined error -dynamiclib -isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/ -lz -L. -lpython3.9  -F/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphoneos -framework ios_system -L/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphoneos" \
+	CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT" \
+	CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT" \
+	CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT" \
+	LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" \
+	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -L. -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" \
 	PLATFORM=iphoneos \
-	./configure --prefix=$PREFIX/install_iphoneos --enable-shared \
+	./configure --prefix=$PREFIX/install --enable-shared \
 	--host arm-apple-darwin --build x86_64-apple-darwin --enable-ipv6 \
 	--with-openssl=$PREFIX/Frameworks_iphoneos \
 	with_system_ffi=yes \
@@ -36,19 +51,48 @@ env CC=clang CXX=clang++ \
 	ac_cv_file__dev_ptc=no \
 	ac_cv_func_getentropy=no \
 	ac_cv_func_sendfile=no \
-	ac_cv_func_clock_settime=no
+	ac_cv_func_clock_settime=no >& configure_ios.log
+# --enable-framework fails with iOS compilers
+make >& make_ios.log
+# Don't install for iOS
 
-cp -r ../Python-aux/libffi.xcframework/ios-arm64/Headers/* $PREFIX/Frameworks_iphoneos/include/ffi/
-cp -r ../Python-aux/crypto.xcframework/ios-arm64/Headers/* $PREFIX/Frameworks_iphoneos/include/crypto/
-cp -r ../Python-aux/openssl.xcframework/ios-arm64/Headers/* $PREFIX/Frameworks_iphoneos/include/openssl/
+# 3) compile for Simulator:
+
+# 3.1) download and install required packages: 
+mkdir -p Frameworks_iphonesimulator
+mkdir -p Frameworks_iphonesimulator/include
+mkdir -p Frameworks_iphonesimulator/lib
+cp -r $XCFRAMEWORKS_DIR/libffi.xcframework/ios-x86_64-simulator/Headers/* $PREFIX/Frameworks_iphonesimulator/include/ffi/
+cp -r $XCFRAMEWORKS_DIR/crypto.xcframework/ios-x86_64-simulator/Headers/* $PREFIX/Frameworks_iphonesimulator/include/crypto/
+cp -r $XCFRAMEWORKS_DIR/openssl.xcframework/ios-x86_64-simulator/Headers/* $PREFIX/Frameworks_iphonesimulator/include/openssl/
 # Need to copy all libs after each make clean: 
-cp ../Python-aux/crypto.xcframework/ios-arm64/libcrypto.a Frameworks_iphoneos/lib/
-cp ../Python-aux/openssl.xcframework/ios-arm64/libssl.a Frameworks_iphoneos/lib/
-cp ../Python-aux/libffi.xcframework/ios-arm64/libffi.a Frameworks_iphoneos/lib/
+cp $XCFRAMEWORKS_DIR/crypto.xcframework/ios-x86_64-simulator/libcrypto.a $PREFIX/Frameworks_iphonesimulator/lib/
+cp $XCFRAMEWORKS_DIR/openssl.xcframework/ios-x86_64-simulator/libssl.a $PREFIX/Frameworks_iphonesimulator/lib/
+cp $XCFRAMEWORKS_DIR/libffi.xcframework/ios-x86_64-simulator/libffi.a $PREFIX/Frameworks_iphonesimulator/lib/
 find . -name \*.o -delete
-make
 
-# Now create frameworks from dynamic libraries & incorporate changes into code.
+# preadv / pwritev are iOS 14+ only
+env CC=clang CXX=clang++ \
+	CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT" \
+	CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT" \
+	CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT" \
+	LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib" \
+	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $SIM_SDKROOT -lz -L. -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib" \
+	PLATFORM=iphonesimulator \
+	./configure --prefix=$PREFIX/install --enable-shared \
+	--host x86_64-apple-darwin --build x86_64-apple-darwin --enable-ipv6 \
+	--with-openssl=$PREFIX/Frameworks_iphonesimulator \
+	cross_compiling=yes \
+	with_system_ffi=yes \
+	ac_cv_file__dev_ptmx=no \
+	ac_cv_file__dev_ptc=no \
+	ac_cv_func_getentropy=no \
+	ac_cv_func_sendfile=no \
+	ac_cv_func_clock_settime=no >& configure_simulator.log
+make >& make_simulator.log
+
+
+# TODO: create frameworks from dynamic libraries & incorporate changes into code.
 
 # Python build finished successfully!
 # The necessary bits to build these optional modules were not found:
@@ -65,13 +109,8 @@ make
 # time                                                           
 
 
-make install
-
-# Also need to build for simulator 
-
-Questions / todo: 
-- openssl using a static library, with 1.1.1
-- load xcframeworks / move relevant libraries in place
-- merge with ios_system changes 
-- generate multiple frameworks 
-- generate xcframeworks
+# Questions / todo: 
+# - load xcframeworks / move relevant libraries in place
+# - merge with ios_system changes 
+# - generate multiple frameworks 
+# - generate xcframeworks
