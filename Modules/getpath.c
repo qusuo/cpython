@@ -583,7 +583,11 @@ calculate_prefix(PyCalculatePath *calculate, _PyPathConfig *pathconfig)
 
     if (!calculate->prefix_found) {
         if (calculate->warnings) {
+#if !TARGET_OS_IPHONE
             fprintf(stderr,
+#else
+            fprintf(thread_stderr,
+#endif
                 "Could not find platform independent libraries <prefix>\n");
         }
 
@@ -806,7 +810,11 @@ calculate_exec_prefix(PyCalculatePath *calculate, _PyPathConfig *pathconfig)
 
     if (!calculate->exec_prefix_found) {
         if (calculate->warnings) {
+#if !TARGET_OS_IPHONE
             fprintf(stderr,
+#else
+            fprintf(thread_stderr,
+#endif
                 "Could not find platform dependent libraries <exec_prefix>\n");
         }
 
@@ -1546,7 +1554,11 @@ calculate_path(PyCalculatePath *calculate, _PyPathConfig *pathconfig)
     if ((!calculate->prefix_found || !calculate->exec_prefix_found)
         && calculate->warnings)
     {
+#if !TARGET_OS_IPHONE
         fprintf(stderr,
+#else
+        fprintf(thread_stderr,
+#endif
                 "Consider setting $PYTHONHOME to <prefix>[:<exec_prefix>]\n");
     }
 

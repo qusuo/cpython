@@ -68,7 +68,11 @@ fixstate(grammar *g, state *s)
     s->s_accept = 0;
     accel = (int *) PyObject_MALLOC(nl * sizeof(int));
     if (accel == NULL) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "no mem to build parser accelerators\n");
+#else
+        fprintf(thread_stderr, "no mem to build parser accelerators\n");
+#endif
         exit(1);
     }
     for (k = 0; k < nl; k++)
@@ -111,7 +115,11 @@ fixstate(grammar *g, state *s)
         int i;
         s->s_accel = (int *) PyObject_MALLOC((nl-k) * sizeof(int));
         if (s->s_accel == NULL) {
+#if !TARGET_OS_IPHONE
             fprintf(stderr, "no mem to add parser accelerators\n");
+#else
+            fprintf(thread_stderr, "no mem to add parser accelerators\n");
+#endif
             exit(1);
         }
         s->s_lower = k;

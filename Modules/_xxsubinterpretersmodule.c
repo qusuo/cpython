@@ -1915,7 +1915,11 @@ error:
     Py_XDECREF(excval);
     Py_XDECREF(tb);
     if (sharedexc == NULL) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "RunFailedError: script raised an uncaught exception");
+#else
+        fprintf(thread_stderr, "RunFailedError: script raised an uncaught exception");
+#endif
         PyErr_Clear();
         sharedexc = NULL;
     }

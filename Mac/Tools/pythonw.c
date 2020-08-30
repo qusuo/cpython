@@ -121,6 +121,9 @@ setup_spawnattr(posix_spawnattr_t* spawnattr)
     cpu_types[0] = CPU_TYPE_POWERPC;
 #elif defined(__i386__)
     cpu_types[0] = CPU_TYPE_X86;
+
+#elif defined(__arm64__)
+      cpu_types[0] = CPU_TYPE_ARM64; 
 #else
 #       error "Unknown CPU"
 #endif
@@ -131,7 +134,11 @@ setup_spawnattr(posix_spawnattr_t* spawnattr)
         /* NOTREACHTED */
     }
     if (count != ocount) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "posix_spawnattr_setbinpref failed to copy\n");
+#else
+        fprintf(thread_stderr, "posix_spawnattr_setbinpref failed to copy\n");
+#endif
         exit(1);
         /* NOTREACHTED */
     }

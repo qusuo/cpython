@@ -792,7 +792,11 @@ PyThreadState_Clear(PyThreadState *tstate)
            previous value. It is more likely with daemon threads, but it can
            happen with regular threads if threading._shutdown() fails
            (ex: interrupted by CTRL+C). */
+#if !TARGET_OS_IPHONE
         fprintf(stderr,
+#else
+        fprintf(thread_stderr,
+#endif
           "PyThreadState_Clear: warning: thread still has a frame\n");
     }
 
@@ -811,7 +815,11 @@ PyThreadState_Clear(PyThreadState *tstate)
 
     /* The stack of exception states should contain just this thread. */
     if (verbose && tstate->exc_info != &tstate->exc_state) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr,
+#else
+        fprintf(thread_stderr,
+#endif
           "PyThreadState_Clear: warning: thread still has a generator\n");
     }
 

@@ -168,7 +168,11 @@ static int test_pre_initialization_api(void)
     _Py_EMBED_PREINIT_CHECK("Checking Py_DecodeLocale\n");
     wchar_t *program = Py_DecodeLocale("./spam", NULL);
     if (program == NULL) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "Fatal error: cannot decode program name\n");
+#else
+        fprintf(thread_stderr, "Fatal error: cannot decode program name\n");
+#endif
         return 1;
     }
     _Py_EMBED_PREINIT_CHECK("Checking Py_SetProgramName\n");
@@ -247,7 +251,11 @@ static void bpo20891_thread(void *lockp)
 
     PyGILState_STATE state = PyGILState_Ensure();
     if (!PyGILState_Check()) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "PyGILState_Check failed!");
+#else
+        fprintf(thread_stderr, "PyGILState_Check failed!");
+#endif
         abort();
     }
 
@@ -267,7 +275,11 @@ static int test_bpo20891(void)
        crash. */
     PyThread_type_lock lock = PyThread_allocate_lock();
     if (!lock) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "PyThread_allocate_lock failed!");
+#else
+        fprintf(thread_stderr, "PyThread_allocate_lock failed!");
+#endif
         return 1;
     }
 
@@ -275,7 +287,11 @@ static int test_bpo20891(void)
 
     unsigned long thrd = PyThread_start_new_thread(bpo20891_thread, &lock);
     if (thrd == PYTHREAD_INVALID_THREAD_ID) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "PyThread_start_new_thread failed!");
+#else
+        fprintf(thread_stderr, "PyThread_start_new_thread failed!");
+#endif
         return 1;
     }
     PyThread_acquire_lock(lock, WAIT_LOCK);
@@ -1409,12 +1425,20 @@ static int test_init_setpath(void)
 {
     char *env = getenv("TESTPATH");
     if (!env) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "missing TESTPATH env var\n");
+#else
+        fprintf(thread_stderr, "missing TESTPATH env var\n");
+#endif
         return 1;
     }
     wchar_t *path = Py_DecodeLocale(env, NULL);
     if (path == NULL) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "failed to decode TESTPATH\n");
+#else
+        fprintf(thread_stderr, "failed to decode TESTPATH\n");
+#endif
         return 1;
     }
     Py_SetPath(path);
@@ -1442,12 +1466,20 @@ static int test_init_setpath_config(void)
 
     char *env = getenv("TESTPATH");
     if (!env) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "missing TESTPATH env var\n");
+#else
+        fprintf(thread_stderr, "missing TESTPATH env var\n");
+#endif
         return 1;
     }
     wchar_t *path = Py_DecodeLocale(env, NULL);
     if (path == NULL) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "failed to decode TESTPATH\n");
+#else
+        fprintf(thread_stderr, "failed to decode TESTPATH\n");
+#endif
         return 1;
     }
     Py_SetPath(path);
@@ -1471,12 +1503,20 @@ static int test_init_setpythonhome(void)
 {
     char *env = getenv("TESTHOME");
     if (!env) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "missing TESTHOME env var\n");
+#else
+        fprintf(thread_stderr, "missing TESTHOME env var\n");
+#endif
         return 1;
     }
     wchar_t *home = Py_DecodeLocale(env, NULL);
     if (home == NULL) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "failed to decode TESTHOME\n");
+#else
+        fprintf(thread_stderr, "failed to decode TESTHOME\n");
+#endif
         return 1;
     }
     Py_SetPythonHome(home);

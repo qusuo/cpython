@@ -39,7 +39,11 @@ s_push(stack *s, const dfa *d, node *parent)
 {
     stackentry *top;
     if (s->s_top == s->s_base) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "s_push: parser stack overflow\n");
+#else
+        fprintf(thread_stderr, "s_push: parser stack overflow\n");
+#endif
         return E_NOMEM;
     }
     top = --s->s_top;

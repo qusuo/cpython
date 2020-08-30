@@ -3684,7 +3684,11 @@ main_loop:
         _unknown_opcode:
 #endif
         default:
+#if !TARGET_OS_IPHONE
             fprintf(stderr,
+#else
+            fprintf(thread_stderr,
+#endif
                 "XXX lineno: %d, opcode: %d\n",
                 PyFrame_GetLineNumber(f),
                 opcode);

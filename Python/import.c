@@ -1766,7 +1766,11 @@ import_find_and_load(PyThreadState *tstate, PyObject *abs_name)
         static int header = 1;
         if (header) {
             fputs("import time: self [us] | cumulative | imported package\n",
+#if !TARGET_OS_IPHONE
                   stderr);
+#else
+			thread_stderr);
+#endif
             header = 0;
         }
 
@@ -1790,7 +1794,11 @@ import_find_and_load(PyThreadState *tstate, PyObject *abs_name)
         _PyTime_t cum = _PyTime_GetPerfCounter() - t1;
 
         import_level--;
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "import time: %9ld | %10ld | %*s%s\n",
+#else
+        fprintf(thread_stderr, "import time: %9ld | %10ld | %*s%s\n",
+#endif
                 (long)_PyTime_AsMicroseconds(cum - accumulated, _PyTime_ROUND_CEILING),
                 (long)_PyTime_AsMicroseconds(cum, _PyTime_ROUND_CEILING),
                 import_level*2, "", PyUnicode_AsUTF8(abs_name));

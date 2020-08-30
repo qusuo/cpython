@@ -791,7 +791,11 @@ static unsigned long
 ENTROPY_DEBUG(const char *label, unsigned long entropy) {
   const char *const EXPAT_ENTROPY_DEBUG = getenv("EXPAT_ENTROPY_DEBUG");
   if (EXPAT_ENTROPY_DEBUG && ! strcmp(EXPAT_ENTROPY_DEBUG, "1")) {
+#if !TARGET_OS_IPHONE
     fprintf(stderr, "Entropy: %s --> 0x%0*lx (%lu bytes)\n", label,
+#else
+    fprintf(thread_stderr, "Entropy: %s --> 0x%0*lx (%lu bytes)\n", label,
+#endif
             (int)sizeof(entropy) * 2, entropy, (unsigned long)sizeof(entropy));
   }
   return entropy;
