@@ -5311,6 +5311,10 @@ os_execv_impl(PyObject *module, path_t *path, PyObject *argv)
     execv(path->narrow, argvlist);
 #endif
     _Py_END_SUPPRESS_IPH
+#if TARGET_OS_IPHONE
+        // iOS: we return now
+        Py_RETURN_NONE;
+#endif
 
     /* If we get here it's definitely an error */
 
@@ -5391,6 +5395,13 @@ os_execve_impl(PyObject *module, path_t *path, PyObject *argv, PyObject *env)
         execve(path->narrow, argvlist, envlist);
 #endif
     _Py_END_SUPPRESS_IPH
+#if TARGET_OS_IPHONE
+        while (--envc >= 0)
+            PyMem_DEL(envlist[envc]);
+        PyMem_DEL(envlist);
+        // iOS: we return now
+        Py_RETURN_NONE;
+#endif    	
 
     /* If we get here it's definitely an error */
 
@@ -6251,14 +6262,22 @@ os_fork_impl(PyObject *module)
         return NULL;
     }
     PyOS_BeforeFork();
+#if !TARGET_OS_IPHONE // on iOS, go through both branches:
     pid = fork();
     if (pid == 0) {
+#else
+    pid = ios_fork();
+#endif
         /* child: this clobbers and resets the import lock. */
         PyOS_AfterFork_Child();
+#if !TARGET_OS_IPHONE // on iOS, go through both branches:
     } else {
+#endif
         /* parent: release the import lock. */
         PyOS_AfterFork_Parent();
+#if !TARGET_OS_IPHONE // on iOS, go through both branches:
     }
+#endif
     if (pid == -1)
         return posix_error();
     return PyLong_FromPid(pid);
@@ -7939,6 +7958,7 @@ os_waitpid_impl(PyObject *module, pid_t pid, int options)
     do {
         Py_BEGIN_ALLOW_THREADS
         res = waitpid(pid, &status, options);
+        // TODO: on iOS, this is where we should restore the working directory.
         Py_END_ALLOW_THREADS
     } while (res < 0 && errno == EINTR && !(async_err = PyErr_CheckSignals()));
     if (res < 0)

@@ -555,9 +555,34 @@ PyModule_GetState(PyObject* m)
 void
 _PyModule_Clear(PyObject *m)
 {
+#if TARGET_OS_IPHONE
+    // Modules created with Cython + PEP489 have strange issues with number of references
+    // which prevent the freefunc function from being called.
+    // We explicitly call the freefunc function here, before the dictionary is cleared.
+    // (otherwise, "name" is gone)
+    // This only applies to pandas and numpy, other modules can be compiled without PEP489
+    // See also import.c / PyImport_Cleanup()
+    // TODO: check this is still required with Python 3.9
+    int moduleNeedsCleanup = 0;
+    PyModuleObject *mod = (PyModuleObject *)m;
+    const char* utf8name = PyUnicode_AsUTF8(mod->md_name);
+    if ((strncmp(utf8name, "pandas.", 7) == 0) || (strncmp(utf8name, "numpy.", 6) == 0)) {
+        // iOS, debug:
+        // fprintf(stderr, "Module = %x name = %s refCount = %zd ", mod, utf8name, m->ob_refcnt);
+        if (mod->md_def && mod->md_def->m_free) {
+            // fprintf(stderr, "module has a free function: %x", mod->md_def->m_free);
+            moduleNeedsCleanup = 1;
+        }
+        // fprintf(stderr, "\n");
+    }
+#endif
     PyObject *d = ((PyModuleObject *)m)->md_dict;
     if (d != NULL)
         _PyModule_ClearDict(d);
+#if TARGET_OS_IPHONE
+    // Cleanup module after clearing dictionary:
+    if (moduleNeedsCleanup) mod->md_def->m_free(mod);
+#endif
 }
 
 void

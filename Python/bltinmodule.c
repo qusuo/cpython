@@ -1980,7 +1980,11 @@ builtin_input_impl(PyObject *module, PyObject *prompt)
         Py_DECREF(tmp);
         if (fd < 0 && PyErr_Occurred())
             return NULL;
+#if !TARGET_OS_IPHONE
         tty = fd == fileno(stdin) && isatty(fd);
+#else
+        tty = fd == fileno(thread_stdin) && isatty(fd);
+#endif
     }
     if (tty) {
         tmp = _PyObject_CallMethodIdNoArgs(fout, &PyId_fileno);
@@ -1993,7 +1997,11 @@ builtin_input_impl(PyObject *module, PyObject *prompt)
             Py_DECREF(tmp);
             if (fd < 0 && PyErr_Occurred())
                 return NULL;
+#if !TARGET_OS_IPHONE
             tty = fd == fileno(stdout) && isatty(fd);
+#else
+            tty = fd == fileno(thread_stdout) && ios_isatty(fd);
+#endif
         }
     }
 

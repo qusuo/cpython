@@ -5152,21 +5152,33 @@ datetime_utcfromtimestamp(PyObject *cls, PyObject *args)
 }
 
 /* Return new datetime from _strptime.strptime_datetime(). */
+#ifdef TARGET_OS_IPHONE
+// Need to have static identifiers outside functions in iOS_system
+_Py_IDENTIFIER(_strptime_datetime);
+#endif
 static PyObject *
 datetime_strptime(PyObject *cls, PyObject *args)
 {
     static PyObject *module = NULL;
     PyObject *string, *format;
+#ifndef TARGET_OS_IPHONE
     _Py_IDENTIFIER(_strptime_datetime);
+#endif
 
     if (!PyArg_ParseTuple(args, "UU:strptime", &string, &format))
         return NULL;
 
+#ifndef TARGET_OS_IPHONE
     if (module == NULL) {
         module = PyImport_ImportModuleNoBlock("_strptime");
         if (module == NULL)
             return NULL;
     }
+#else
+    module = PyImport_ImportModuleNoBlock("_strptime");
+    if (module == NULL)
+        return NULL;
+#endif
     return _PyObject_CallMethodIdObjArgs(module, &PyId__strptime_datetime,
                                          cls, string, format, NULL);
 }

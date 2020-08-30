@@ -15,6 +15,7 @@ find . -name \*.o -delete
 env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L. -lpython3.9" ./configure --prefix=$PREFIX/install --with-system-ffi --enable-shared >& configure_osx.log
 # enable-framework incompatible with local install
 make >& make_osx.log
+cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9
 make install >& make_install_osx.log
 
 # 2) compile for iOS:
@@ -54,6 +55,7 @@ env CC=clang CXX=clang++ \
 	ac_cv_func_clock_settime=no >& configure_ios.log
 # --enable-framework fails with iOS compilers
 make >& make_ios.log
+cp libpython3.9.dylib build/lib.darwin-arm64-3.9
 # Don't install for iOS
 
 # 3) compile for Simulator:
@@ -90,7 +92,8 @@ env CC=clang CXX=clang++ \
 	ac_cv_func_sendfile=no \
 	ac_cv_func_clock_settime=no >& configure_simulator.log
 make >& make_simulator.log
-
+cp libpython3.9.dylib build/lib.darwin-x86_64-3.9
+# Don't install for iOS
 
 # TODO: create frameworks from dynamic libraries & incorporate changes into code.
 

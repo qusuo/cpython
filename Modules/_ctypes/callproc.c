@@ -74,6 +74,9 @@
 /* AIX needs alloca.h for alloca() */
 #include <alloca.h>
 #endif
+#if TARGET_OS_IPHONE
+#include <sys/param.h> // for MAXPATHLEN
+#endif
 
 #ifdef _Py_MEMORY_SANITIZER
 #include <sanitizer/msan_interface.h>
@@ -1398,6 +1401,10 @@ copy_com_pointer(PyObject *self, PyObject *args)
 }
 #else
 
+#if TARGET_OS_IPHONE
+    extern void Py_GetArgcArgv(int *argc, wchar_t ***argv);
+#endif
+
 static PyObject *py_dl_open(PyObject *self, PyObject *args)
 {
     PyObject *name, *name2;
@@ -1420,10 +1427,31 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
         name_str = NULL;
         name2 = NULL;
     }
+
+#if TARGET_OS_IPHONE
+    // iOS: create the name of the framework from the name of the library.
+    if ((name_str != NULL) && (name_str[0] != '/')) {
+        char newPathString[MAXPATHLEN];
+        int argc;
+        wchar_t **argv_orig;
+        Py_GetArgcArgv(&argc, &argv_orig);
+        wchar_t pythonName[12];
+        wcscpy(pythonName, argv_orig[0]);
+        if ((wcscmp(pythonName, L"python3") == 0) || (wcscmp(pythonName, L"python") == 0)) {
+            wcscpy(pythonName, L"python3_ios");
+        }
+        sprintf(newPathString, "%s/Frameworks/%S-%s.framework/%S-%s", getenv("APPDIR"), pythonName, name_str, pythonName, name_str);
+        handle = ctypes_dlopen(newPathString, mode);
+    } else {
+#endif
     if (PySys_Audit("ctypes.dlopen", "O", name) < 0) {
         return NULL;
     }
     handle = ctypes_dlopen(name_str, mode);
+#if TARGET_OS_IPHONE
+    }
+#endif
+
     Py_XDECREF(name2);
     if (!handle) {
         const char *errmsg = ctypes_dlerror();

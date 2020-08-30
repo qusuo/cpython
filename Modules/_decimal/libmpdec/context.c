@@ -31,7 +31,9 @@
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
-
+#include <signal.h>
+// iOS:
+#include <TargetConditionals.h>
 
 void
 mpd_dflt_traphandler(mpd_context_t *ctx)
@@ -53,8 +55,11 @@ mpd_setminalloc(mpd_ssize_t n)
     static int minalloc_is_set = 0;
 
     if (minalloc_is_set) {
+        // iOS: silence this warning.
+#ifndef TARGET_OS_IPHONE
         mpd_err_warn("mpd_setminalloc: ignoring request to set "
                      "MPD_MINALLOC a second time\n");
+#endif
         return;
     }
     if (n < MPD_MINALLOC_MIN || n > MPD_MINALLOC_MAX) {

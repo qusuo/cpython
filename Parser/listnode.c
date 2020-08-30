@@ -14,7 +14,11 @@ static void listnode(FILE *, node *);
 void
 PyNode_ListTree(node *n)
 {
+#if !TARGET_OS_IPHONE
     listnode(stdout, n);
+#else
+    listnode(thread_stdout, n);
+#endif
 }
 
 static void

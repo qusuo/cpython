@@ -605,6 +605,19 @@ _PyImport_Cleanup(PyThreadState *tstate)
             }
             _PyModule_Clear(mod);
             Py_DECREF(mod);
+#if TARGET_OS_IPHONE
+            // Modules created with Cython + PEP489 have strange issues with number of references
+            // which prevent the freefunc function from being called.
+            // We explicitly call the freefunc function here, before the dictionary is cleared.
+            // (otherwise, "name" is gone)
+            // This here is just for debugging, the module erasure is done in moduleobject.c
+            // TODO (3.9): check that this is still required.
+            const char* utf8name = PyUnicode_AsUTF8(name);
+            if ((strncmp(utf8name, "pandas.", 7) == 0) || (strncmp(utf8name, "numpy.", 6) == 0)) {
+                // fprintf(stderr, "We have a module = %x name = %s refCount = %zd\n", mod, utf8name, mod->ob_refcnt);
+                // if (mod->md_def && mod->md_def->m_free) mod->md_def->m_free(mod);
+            }
+#endif
         }
         Py_DECREF(weaklist);
     }
@@ -2253,6 +2266,9 @@ _imp.create_dynamic
 
 Create an extension module.
 [clinic start generated code]*/
+#if TARGET_OS_IPHONE
+    extern void Py_GetArgcArgv(int *argc, wchar_t ***argv);
+#endif
 
 static PyObject *
 _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
@@ -2271,6 +2287,31 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
         Py_DECREF(name);
         return NULL;
     }
+#if TARGET_OS_IPHONE
+    // fprintf(stderr, "_imp_create_dynamic_impl, name = ");
+    // PyObject_Print(name, stderr, 0);
+    // PyObject_Print(name, stderr, Py_PRINT_RAW);
+    // fprintf(stderr, " path = ");
+    // PyObject_Print(path, stderr, 0);
+    // PyObject_Print(path, stderr, Py_PRINT_RAW);
+    // fprintf(stderr, " file = ");
+    // PyObject_Print(file, stderr, 0);
+    // fprintf(stderr, " \n");
+    char newPathString[MAXPATHLEN];
+    int argc;
+    wchar_t **argv_orig;
+    Py_GetArgcArgv(&argc, &argv_orig);
+    const char* nameC = PyUnicode_AsUTF8(name);
+    wchar_t pythonName[12];
+    wcscpy(pythonName, argv_orig[0]);
+    if ((wcscmp(pythonName, L"python3") == 0) || (wcscmp(pythonName, L"python") == 0)) {
+        wcscpy(pythonName, L"python3_ios");
+    }
+    sprintf(newPathString, "%s/Frameworks/%S-%s.framework/%S-%s", getenv("APPDIR"), pythonName, nameC, pythonName, nameC);
+    // fprintf(stderr, "New path: %s\n", newPathString);
+    path = PyUnicode_FromString(newPathString);
+    PyObject_SetAttrString(spec, "origin", path);
+#endif
 
     mod = _PyImport_FindExtensionObject(name, path);
     if (mod != NULL || PyErr_Occurred()) {
