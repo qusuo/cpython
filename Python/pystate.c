@@ -881,6 +881,10 @@ _PyThreadState_Delete(PyThreadState *tstate, int check_current)
         }
     }
     tstate_delete_common(tstate, gilstate);
+#if TARGET_OS_IPHONE
+    // iOS, test:
+    tstate->interp = NULL; 
+#endif	
     PyMem_RawFree(tstate);
 }
 

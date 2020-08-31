@@ -80,6 +80,10 @@ _PyRuntime_Initialize(void)
     }
     runtime_initialized = 1;
 
+#if TARGET_OS_IPHONE
+	// iOS, initialize everything in _PyRuntime:
+	memset(&_PyRuntime, 0, sizeof(_PyRuntimeState)); 
+#endif
     return _PyRuntimeState_Init(&_PyRuntime);
 }
 
@@ -1427,6 +1431,20 @@ Py_FinalizeEx(void)
 
     /* Disable signal handling */
     PyOS_FiniInterrupts();
+#if TARGET_OS_IPHONE
+	// iOS:
+    // TODO: check if still required with _PyThreadState_DeleteExcept above
+    struct sigaction query_action;
+    if ((sigaction (SIGUSR2, NULL, &query_action) >= 0) &&
+        (query_action.sa_handler != SIG_DFL) &&
+        (query_action.sa_handler != SIG_IGN)) {
+        /* A programmer-defined signal handler is in effect. */
+        query_action.sa_handler(SIGUSR2); // close these pysleep() (if any)
+        // kill(getpid(), SIGINT); // infinite loop?
+        (void)signal(SIGUSR2, SIG_DFL);
+    }
+	// kill(getpid(), SIGUSR1); // close these pysleep() (if any)
+#endif
 
     /* Collect garbage.  This may call finalizers; it's nice to call these
      * before all modules are destroyed.

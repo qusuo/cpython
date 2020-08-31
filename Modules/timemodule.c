@@ -27,6 +27,9 @@
 #if defined(_AIX)
 #   include <sys/thread.h>
 #endif
+#if TARGET_OS_IPHONE
+#include <signal.h>
+#endif
 
 #if defined(__WATCOMC__) && !defined(__QNX__)
 #  include <i86.h>
@@ -101,10 +104,20 @@ Return the current time in nanoseconds since the Epoch.");
 #  endif
 #endif
 
+#if TARGET_OS_IPHONE
+// iOS: no static variables inside functions
+static int _PyTime_GetClockWithInfo_initialized = 0;
+#endif
+
 static int
 _PyTime_GetClockWithInfo(_PyTime_t *tp, _Py_clock_info_t *info)
 {
+#if !TARGET_OS_IPHONE
     static int initialized = 0;
+#else
+	int initialized = _PyTime_GetClockWithInfo_initialized;
+#endif
+	
     clock_t ticks;
 
     if (!initialized) {
@@ -1862,6 +1875,20 @@ static struct PyModuleDef_Slot time_slots[] = {
     {0, NULL}
 };
 
+// IPHONE/iOS additions:
+static int
+timemodule_clear(PyObject *mod) {
+	_PyTime_GetClockWithInfo_initialized = 0;
+	initialized = 0; 
+    return 0;
+}
+
+static void
+timemodule_free(PyObject *mod) {
+    timemodule_clear(mod);
+}
+// end iPHONE/iOS additions
+
 static struct PyModuleDef timemodule = {
     PyModuleDef_HEAD_INIT,
     "time",
@@ -1870,8 +1897,9 @@ static struct PyModuleDef timemodule = {
     time_methods,
     time_slots,
     NULL,
-    NULL,
-    NULL
+    // IPHONE/iOS additions: need to cleanup when leaving:
+    timemodule_clear,
+    (freefunc)timemodule_free,
 };
 
 PyMODINIT_FUNC
@@ -1905,9 +1933,34 @@ pysleep(_PyTime_t secs)
         if (_PyTime_AsTimeval(secs, &timeout, _PyTime_ROUND_CEILING) < 0)
             return -1;
 
+#if !TARGET_OS_IPHONE
         Py_BEGIN_ALLOW_THREADS
         err = select(0, (fd_set *)0, (fd_set *)0, (fd_set *)0, &timeout);
         Py_END_ALLOW_THREADS
+#else 
+		// iOS: we use the signal-interruptable pselect() rather than the 
+		// select() call present in the source, so we can interrupt these
+		// waiting calls when we leave.
+		// We also check that the interpreter has not been changed.
+        // And we use SIGUSR2 because clang/llvm uses SIGUSR1...
+        sigset_t sigmask = SIGUSR2;
+		sigemptyset(&sigmask);
+		sigaddset(&sigmask, SIGUSR2);
+		
+		struct timespec timeout2;
+		timeout2.tv_sec = timeout.tv_sec;
+		timeout2.tv_nsec = 1000 * timeout.tv_usec;
+
+		Py_BEGIN_ALLOW_THREADS
+		PyInterpreterState *before = PyInterpreterState_Main();
+
+		err = pselect(0, (fd_set *)0, (fd_set *)0, (fd_set *)0, &timeout2, &sigmask);
+		PyInterpreterState *after = PyInterpreterState_Main();
+		if (before != after) {
+			pthread_exit(NULL); 
+		}
+		Py_END_ALLOW_THREADS
+#endif
 
         if (err == 0)
             break;

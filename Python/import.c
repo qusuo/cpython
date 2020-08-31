@@ -21,6 +21,9 @@
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
+#if TARGET_OS_IPHONE
+#include <sys/param.h> // for MAXPATHLEN
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
