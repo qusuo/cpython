@@ -50,10 +50,15 @@ PyFile_FromFd(int fd, const char *name, const char *mode, int buffering, const c
     return stream;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(readline);
+#endif
 PyObject *
 PyFile_GetLine(PyObject *f, int n)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(readline);
+#endif
     PyObject *result;
 
     if (f == NULL) {
@@ -115,11 +120,16 @@ PyFile_GetLine(PyObject *f, int n)
 
 /* Interfaces to write objects/strings to file-like objects */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(write);
+#endif
 int
 PyFile_WriteObject(PyObject *v, PyObject *f, int flags)
 {
     PyObject *writer, *value, *result;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(write);
+#endif
 
     if (f == NULL) {
         PyErr_SetString(PyExc_TypeError, "writeobject with NULL file");
@@ -176,12 +186,17 @@ PyFile_WriteString(const char *s, PyObject *f)
    -1 is returned on failure.
 */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(fileno);
+#endif
 int
 PyObject_AsFileDescriptor(PyObject *o)
 {
     int fd;
     PyObject *meth;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(fileno);
+#endif
 
     if (PyLong_Check(o)) {
         fd = _PyLong_AsInt(o);

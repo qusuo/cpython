@@ -654,6 +654,9 @@ struct argument {
 /*
  * Convert a single Python object into a PyCArgObject and return it.
  */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_as_parameter_);
+#endif
 static int ConvParam(PyObject *obj, Py_ssize_t index, struct argument *pa)
 {
     StgDictObject *dict;
@@ -728,7 +731,9 @@ static int ConvParam(PyObject *obj, Py_ssize_t index, struct argument *pa)
 #endif
 
     {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(_as_parameter_);
+#endif
         PyObject *arg;
         if (_PyObject_LookupAttrId(obj, &PyId__as_parameter_, &arg) < 0) {
             return -1;
@@ -1770,12 +1775,18 @@ resize(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__new__);
+_Py_IDENTIFIER(__setstate__);
+#endif
 static PyObject *
 unpickle(PyObject *self, PyObject *args)
 {
     PyObject *typ, *state, *meth, *obj, *result;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__new__);
     _Py_IDENTIFIER(__setstate__);
+#endif
 
     if (!PyArg_ParseTuple(args, "OO!", &typ, &PyTuple_Type, &state))
         return NULL;

@@ -867,11 +867,16 @@ is not present, current time as returned by localtime() is used.\n\
 \n" STRFTIME_FORMAT_CODES);
 #endif /* HAVE_STRFTIME */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_strptime_time);
+#endif
 static PyObject *
 time_strptime(PyObject *self, PyObject *args)
 {
     PyObject *module, *func, *result;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_strptime_time);
+#endif
 
     module = PyImport_ImportModuleNoBlock("_strptime");
     if (!module)
@@ -1878,7 +1883,9 @@ static struct PyModuleDef_Slot time_slots[] = {
 // IPHONE/iOS additions:
 static int
 timemodule_clear(PyObject *mod) {
+#if TARGET_OS_IPHONE
 	_PyTime_GetClockWithInfo_initialized = 0;
+#endif
 	initialized = 0; 
     return 0;
 }

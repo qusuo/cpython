@@ -278,10 +278,15 @@ MakeFields(PyObject *type, CFieldObject *descr,
 
 /* Iterate over the names in the type's _anonymous_ attribute, if present,
  */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_anonymous_);
+#endif
 static int
 MakeAnonFields(PyObject *type)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_anonymous_);
+#endif
     PyObject *anon;
     PyObject *anon_names;
     Py_ssize_t i;
@@ -334,12 +339,19 @@ MakeAnonFields(PyObject *type)
   Retrieve the (optional) _pack_ attribute from a type, the _fields_ attribute,
   and create an StgDictObject.  Used for Structure and Union subclasses.
 */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_swappedbytes_);
+_Py_IDENTIFIER(_use_broken_old_ctypes_structure_semantics_);
+_Py_IDENTIFIER(_pack_);
+#endif
 int
 PyCStructUnionType_update_stgdict(PyObject *type, PyObject *fields, int isStruct)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_swappedbytes_);
     _Py_IDENTIFIER(_use_broken_old_ctypes_structure_semantics_);
     _Py_IDENTIFIER(_pack_);
+#endif
     StgDictObject *stgdict, *basedict;
     Py_ssize_t len, offset, size, align, i;
     Py_ssize_t union_size, total_align;

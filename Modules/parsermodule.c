@@ -1148,6 +1148,11 @@ static struct PyModuleDef parsermodule = {
 
 PyMODINIT_FUNC PyInit_parser(void);  /* supply a prototype */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(pickle);
+_Py_IDENTIFIER(sequence2st);
+_Py_IDENTIFIER(_pickler);
+#endif
 PyMODINIT_FUNC
 PyInit_parser(void)
 {
@@ -1197,9 +1202,11 @@ PyInit_parser(void)
     copyreg = PyImport_ImportModuleNoBlock("copyreg");
     if (copyreg != NULL) {
         PyObject *func, *pickler;
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(pickle);
         _Py_IDENTIFIER(sequence2st);
         _Py_IDENTIFIER(_pickler);
+#endif
 
         func = _PyObject_GetAttrId(copyreg, &PyId_pickle);
         pickle_constructor = _PyObject_GetAttrId(module, &PyId_sequence2st);

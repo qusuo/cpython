@@ -1231,11 +1231,16 @@ call_dst(PyObject *tzinfo, PyObject *tzinfoarg)
  * returns NULL.  If the result is a string, we ensure it is a Unicode
  * string.
  */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(tzname);
+#endif
 static PyObject *
 call_tzname(PyObject *tzinfo, PyObject *tzinfoarg)
 {
     PyObject *result;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(tzname);
+#endif
 
     assert(tzinfo != NULL);
     assert(check_tzinfo_subclass(tzinfo) >= 0);
@@ -1418,13 +1423,18 @@ format_utcoffset(char *buf, size_t buflen, const char *sep,
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(replace);
+#endif
 static PyObject *
 make_Zreplacement(PyObject *object, PyObject *tzinfoarg)
 {
     PyObject *temp;
     PyObject *tzinfo = get_tzinfo_member(object);
     PyObject *Zreplacement = PyUnicode_FromStringAndSize(NULL, 0);
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(replace);
+#endif
 
     if (Zreplacement == NULL)
         return NULL;
@@ -1655,6 +1665,9 @@ wrap_strftime(PyObject *object, PyObject *format, PyObject *timetuple,
  * from C.  Perhaps they should be.
  */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(time);
+#endif
 /* Call time.time() and return its result (a Python float). */
 static PyObject *
 time_time(void)
@@ -1663,7 +1676,9 @@ time_time(void)
     PyObject *time = PyImport_ImportModuleNoBlock("time");
 
     if (time != NULL) {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(time);
+#endif
 
         result = _PyObject_CallMethodIdNoArgs(time, &PyId_time);
         Py_DECREF(time);
@@ -1674,12 +1689,17 @@ time_time(void)
 /* Build a time.struct_time.  The weekday and day number are automatically
  * computed from the y,m,d args.
  */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(struct_time);
+#endif
 static PyObject *
 build_struct_time(int y, int m, int d, int hh, int mm, int ss, int dstflag)
 {
     PyObject *time;
     PyObject *result;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(struct_time);
+#endif
     PyObject *args;
 
 
@@ -2881,12 +2901,17 @@ date_fromtimestamp(PyObject *cls, PyObject *obj)
  * only way to be sure of that is to *call* time.time().  That's not
  * generally the same as calling C's time.
  */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(fromtimestamp);
+#endif
 static PyObject *
 date_today(PyObject *cls, PyObject *dummy)
 {
     PyObject *time;
     PyObject *result;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(fromtimestamp);
+#endif
 
     time = time_time();
     if (time == NULL)
@@ -3175,6 +3200,9 @@ date_ctime(PyDateTime_Date *self, PyObject *Py_UNUSED(ignored))
     return format_ctime(self, 0, 0, 0);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(timetuple);
+#endif
 static PyObject *
 date_strftime(PyDateTime_Date *self, PyObject *args, PyObject *kw)
 {
@@ -3184,7 +3212,10 @@ date_strftime(PyDateTime_Date *self, PyObject *args, PyObject *kw)
     PyObject *result;
     PyObject *tuple;
     PyObject *format;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(timetuple);
+#endif
+
     static char *keywords[] = {"format", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kw, "U:strftime", keywords,
@@ -3736,13 +3767,19 @@ Fail:
  * pickling -- tzinfo itself is supposed to be uninstantiable.
  */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__getinitargs__);
+_Py_IDENTIFIER(__getstate__);
+#endif
 static PyObject *
 tzinfo_reduce(PyObject *self, PyObject *Py_UNUSED(ignored))
 {
     PyObject *args, *state;
     PyObject *getinitargs, *getstate;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__getinitargs__);
     _Py_IDENTIFIER(__getstate__);
+#endif
 
     if (_PyObject_LookupAttrId(self, &PyId___getinitargs__, &getinitargs) < 0) {
         return NULL;

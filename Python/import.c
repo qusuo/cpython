@@ -91,6 +91,9 @@ _PyImportHooks_Init(PyThreadState *tstate)
                         "or path_importer_cache failed");
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(zipimporter);
+#endif
 PyStatus
 _PyImportZip_Init(PyThreadState *tstate)
 {
@@ -117,7 +120,9 @@ _PyImportZip_Init(PyThreadState *tstate)
         }
     }
     else {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(zipimporter);
+#endif
         PyObject *zipimporter = _PyObject_GetAttrId(zipimport,
                                                     &PyId_zipimporter);
         Py_DECREF(zipimport);
@@ -383,13 +388,18 @@ import_get_module(PyThreadState *tstate, PyObject *name)
 }
 
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_lock_unlock_module);
+#endif
 static int
 import_ensure_initialized(PyThreadState *tstate, PyObject *mod, PyObject *name)
 {
     PyInterpreterState *interp = tstate->interp;
     PyObject *spec;
 
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_lock_unlock_module);
+#endif
 
     /* Optimization: only call _bootstrap._lock_unlock_module() if
        __spec__._initializing is true.
@@ -430,6 +440,9 @@ static const char * const sys_files[] = {
 
 /* Un-initialize things, as good as we can */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(clear);
+#endif
 void
 _PyImport_Cleanup(PyThreadState *tstate)
 {
@@ -555,7 +568,9 @@ _PyImport_Cleanup(PyThreadState *tstate)
         PyDict_Clear(modules);
     }
     else {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(clear);
+#endif
         if (_PyObject_CallMethodIdNoArgs(modules, &PyId_clear) == NULL) {
             PyErr_WriteUnraisable(NULL);
         }
@@ -968,6 +983,9 @@ PyImport_ExecCodeModuleEx(const char *name, PyObject *co, const char *pathname)
         name, co, pathname, (char *)NULL);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_get_sourcefile);
+#endif
 PyObject *
 PyImport_ExecCodeModuleWithPathnames(const char *name, PyObject *co,
                                      const char *pathname,
@@ -995,7 +1013,9 @@ PyImport_ExecCodeModuleWithPathnames(const char *name, PyObject *co,
     }
     else if (cpathobj != NULL) {
         PyInterpreterState *interp = _PyInterpreterState_GET();
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(_get_sourcefile);
+#endif
 
         if (interp == NULL) {
             Py_FatalError("no current interpreter");
@@ -1022,10 +1042,15 @@ error:
     return m;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__builtins__);
+#endif
 static PyObject *
 module_dict_for_exec(PyThreadState *tstate, PyObject *name)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__builtins__);
+#endif
     PyObject *m, *d = NULL;
 
     m = import_add_module(tstate, name);
@@ -1070,13 +1095,18 @@ exec_code_in_module(PyThreadState *tstate, PyObject *name,
     return m;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_fix_up_module);
+#endif
 PyObject*
 PyImport_ExecCodeModuleObject(PyObject *name, PyObject *co, PyObject *pathname,
                               PyObject *cpathname)
 {
     PyThreadState *tstate = _PyThreadState_GET();
     PyObject *d, *external, *res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_fix_up_module);
+#endif
 
     d = module_dict_for_exec(tstate, name);
     if (d == NULL) {
@@ -1582,12 +1612,19 @@ done:
 }
 
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__package__);
+_Py_IDENTIFIER(__name__);
+_Py_IDENTIFIER(parent);
+#endif
 static PyObject *
 resolve_name(PyThreadState *tstate, PyObject *name, PyObject *globals, int level)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__package__);
     _Py_IDENTIFIER(__name__);
     _Py_IDENTIFIER(parent);
+#endif
     PyObject *abs_name;
     PyObject *package = NULL;
     PyObject *spec;
@@ -1737,10 +1774,15 @@ resolve_name(PyThreadState *tstate, PyObject *name, PyObject *globals, int level
     return NULL;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_find_and_load);
+#endif
 static PyObject *
 import_find_and_load(PyThreadState *tstate, PyObject *abs_name)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_find_and_load);
+#endif
     PyObject *mod = NULL;
     PyInterpreterState *interp = tstate->interp;
     int import_time = _PyInterpreterState_GetConfig(interp)->import_time;
@@ -1829,13 +1871,19 @@ PyImport_GetModule(PyObject *name)
     return mod;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_handle_fromlist);
+#endif
 PyObject *
 PyImport_ImportModuleLevelObject(PyObject *name, PyObject *globals,
                                  PyObject *locals, PyObject *fromlist,
                                  int level)
 {
     PyThreadState *tstate = _PyThreadState_GET();
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_handle_fromlist);
+#endif
+
     PyObject *abs_name = NULL;
     PyObject *final_mod = NULL;
     PyObject *mod = NULL;
@@ -1999,11 +2047,17 @@ PyImport_ImportModuleLevel(const char *name, PyObject *globals, PyObject *locals
 /* Re-import a module of any kind and return its module object, WITH
    INCREMENTED REFERENCE COUNT */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(importlib);
+_Py_IDENTIFIER(reload);
+#endif
 PyObject *
 PyImport_ReloadModule(PyObject *m)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(importlib);
     _Py_IDENTIFIER(reload);
+#endif
     PyObject *reloaded_module = NULL;
     PyObject *importlib = _PyImport_GetModuleId(&PyId_importlib);
     if (importlib == NULL) {

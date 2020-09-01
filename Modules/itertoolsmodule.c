@@ -366,10 +366,15 @@ _grouper_next(_grouperobject *igo)
     return r;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(iter);
+#endif
 static PyObject *
 _grouper_reduce(_grouperobject *lz, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(iter);
+#endif
     if (((groupbyobject *)lz->parent)->currgrouper != lz) {
         return Py_BuildValue("N(())", _PyEval_GetBuiltinId(&PyId_iter));
     }
@@ -874,13 +879,18 @@ itertools.tee
 Returns a tuple of n independent iterators.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__copy__);
+#endif
 static PyObject *
 itertools_tee_impl(PyObject *module, PyObject *iterable, Py_ssize_t n)
 /*[clinic end generated code: output=1c64519cd859c2f0 input=c99a1472c425d66d]*/
 {
     Py_ssize_t i;
     PyObject *it, *copyable, *copyfunc, *result;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__copy__);
+#endif
 
     if (n < 0) {
         PyErr_SetString(PyExc_ValueError, "n must be >= 0");
@@ -1036,6 +1046,9 @@ cycle_next(cycleobject *lz)
     return item;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__setstate__);
+#endif
 static PyObject *
 cycle_reduce(cycleobject *lz, PyObject *Py_UNUSED(ignored))
 {
@@ -1045,7 +1058,9 @@ cycle_reduce(cycleobject *lz, PyObject *Py_UNUSED(ignored))
         if (it == NULL)
             return NULL;
         if (lz->index != 0) {
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(__setstate__);
+#endif
             PyObject *res = _PyObject_CallMethodId(it, &PyId___setstate__,
                                                    "n", lz->index);
             if (res == NULL) {
@@ -4385,10 +4400,15 @@ typedef struct {
 
 static PyTypeObject ziplongest_type;
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(fillvalue);
+#endif
 static PyObject *
 zip_longest_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(fillvalue);
+#endif
     ziplongestobject *lz;
     Py_ssize_t i;
     PyObject *ittuple;  /* tuple of iterators */

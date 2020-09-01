@@ -103,11 +103,17 @@ PrintError(const char *msg, ...)
  * after checking for PyObject_IsTrue(), but this would probably be somewhat
  * slower.
  */
+#if TARGET_OS_IPHONE
+// No static variables inside functions 
+_Py_IDENTIFIER(_needs_com_addref_);
+#endif
 static void
 TryAddRef(StgDictObject *dict, CDataObject *obj)
 {
     IUnknown *punk;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_needs_com_addref_);
+#endif
 
     if (!_PyDict_GetItemIdWithError((PyObject *)dict, &PyId__needs_com_addref_)) {
         if (PyErr_Occurred()) {

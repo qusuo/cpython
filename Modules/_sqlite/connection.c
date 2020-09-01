@@ -682,11 +682,16 @@ error:
     PyGILState_Release(threadstate);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(finalize);
+#endif
 void _pysqlite_final_callback(sqlite3_context* context)
 {
     PyObject* function_result;
     PyObject** aggregate_instance;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(finalize);
+#endif
     int ok;
     PyObject *exception, *value, *tb;
     int restore;
@@ -1163,6 +1168,9 @@ static PyObject* pysqlite_connection_get_in_transaction(pysqlite_Connection* sel
     Py_RETURN_FALSE;
 }
 
+#if TARGET_OS_IPHONE
+// _Py_IDENTIFIER(upper); // name collision
+#endif
 static int
 pysqlite_connection_set_isolation_level(pysqlite_Connection* self, PyObject* isolation_level, void *Py_UNUSED(ignored))
 {
@@ -1438,10 +1446,15 @@ finally:
  * Class method of Connection to call the Python function _iterdump
  * of the sqlite3 module.
  */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_iterdump);
+#endif
 static PyObject *
 pysqlite_connection_iterdump(pysqlite_Connection* self, PyObject* args)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_iterdump);
+#endif
     PyObject* retval = NULL;
     PyObject* module = NULL;
     PyObject* module_dict;
@@ -1630,6 +1643,9 @@ pysqlite_connection_backup(pysqlite_Connection *self, PyObject *args, PyObject *
 }
 #endif
 
+#if TARGET_OS_IPHONE
+    _Py_IDENTIFIER(upper);
+#endif
 static PyObject *
 pysqlite_connection_create_collation(pysqlite_Connection* self, PyObject* args)
 {
@@ -1638,7 +1654,9 @@ pysqlite_connection_create_collation(pysqlite_Connection* self, PyObject* args)
     PyObject* name;
     PyObject* retval;
     Py_ssize_t i, len;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(upper);
+#endif
     const char *uppercase_name_str;
     int rc;
     unsigned int kind;

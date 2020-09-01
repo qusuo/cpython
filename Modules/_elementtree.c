@@ -1222,6 +1222,9 @@ _elementtree.Element.find
 
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(find);
+#endif
 static PyObject *
 _elementtree_Element_find_impl(ElementObject *self, PyObject *path,
                                PyObject *namespaces)
@@ -1231,7 +1234,9 @@ _elementtree_Element_find_impl(ElementObject *self, PyObject *path,
     elementtreestate *st = ET_STATE_GLOBAL;
 
     if (checkpath(path) || namespaces != Py_None) {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(find);
+#endif
         return _PyObject_CallMethodIdObjArgs(
             st->elementpath_obj, &PyId_find, self, path, namespaces, NULL
             );
@@ -1265,6 +1270,9 @@ _elementtree.Element.findtext
 
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(findtext);
+#endif
 static PyObject *
 _elementtree_Element_findtext_impl(ElementObject *self, PyObject *path,
                                    PyObject *default_value,
@@ -1272,7 +1280,9 @@ _elementtree_Element_findtext_impl(ElementObject *self, PyObject *path,
 /*[clinic end generated code: output=83b3ba4535d308d2 input=b53a85aa5aa2a916]*/
 {
     Py_ssize_t i;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(findtext);
+#endif
     elementtreestate *st = ET_STATE_GLOBAL;
 
     if (checkpath(path) || namespaces != Py_None)
@@ -1319,6 +1329,9 @@ _elementtree.Element.findall
 
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(findall);
+#endif
 static PyObject *
 _elementtree_Element_findall_impl(ElementObject *self, PyObject *path,
                                   PyObject *namespaces)
@@ -1329,7 +1342,9 @@ _elementtree_Element_findall_impl(ElementObject *self, PyObject *path,
     elementtreestate *st = ET_STATE_GLOBAL;
 
     if (checkpath(path) || namespaces != Py_None) {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(findall);
+#endif
         return _PyObject_CallMethodIdObjArgs(
             st->elementpath_obj, &PyId_findall, self, path, namespaces, NULL
             );
@@ -1367,13 +1382,18 @@ _elementtree.Element.iterfind
 
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(iterfind);
+#endif
 static PyObject *
 _elementtree_Element_iterfind_impl(ElementObject *self, PyObject *path,
                                    PyObject *namespaces)
 /*[clinic end generated code: output=ecdd56d63b19d40f input=abb974e350fb65c7]*/
 {
     PyObject* tag = path;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(iterfind);
+#endif
     elementtreestate *st = ET_STATE_GLOBAL;
 
     return _PyObject_CallMethodIdObjArgs(
@@ -2612,6 +2632,10 @@ treebuilder_extend_element_text_or_tail(PyObject *element, PyObject **data,
     }
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(text);
+_Py_IDENTIFIER(tail);
+#endif
 LOCAL(int)
 treebuilder_flush_data(TreeBuilderObject* self)
 {
@@ -2621,24 +2645,33 @@ treebuilder_flush_data(TreeBuilderObject* self)
 
     if (!self->last_for_tail) {
         PyObject *element = self->last;
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(text);
+#endif
         return treebuilder_extend_element_text_or_tail(
                 element, &self->data,
                 &((ElementObject *) element)->text, &PyId_text);
     }
     else {
         PyObject *element = self->last_for_tail;
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(tail);
+#endif
         return treebuilder_extend_element_text_or_tail(
                 element, &self->data,
                 &((ElementObject *) element)->tail, &PyId_tail);
     }
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(append);
+#endif
 static int
 treebuilder_add_subelement(PyObject *element, PyObject *child)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(append);
+#endif
     if (Element_CheckExact(element)) {
         ElementObject *elem = (ElementObject *) element;
         return element_add_subelement(elem, child);
@@ -3494,6 +3527,9 @@ expat_comment_handler(XMLParserObject* self, const XML_Char* comment_in)
     }
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(doctype);
+#endif
 static void
 expat_start_doctype_handler(XMLParserObject *self,
                             const XML_Char *doctype_name,
@@ -3501,7 +3537,9 @@ expat_start_doctype_handler(XMLParserObject *self,
                             const XML_Char *pubid,
                             int has_internal_subset)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(doctype);
+#endif
     PyObject *doctype_name_obj, *sysid_obj, *pubid_obj;
     PyObject *res;
 

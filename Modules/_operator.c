@@ -1648,6 +1648,9 @@ done:
     return repr;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(partial);
+#endif
 static PyObject *
 methodcaller_reduce(methodcallerobject *mc, PyObject *Py_UNUSED(ignored))
 {
@@ -1673,7 +1676,9 @@ methodcaller_reduce(methodcallerobject *mc, PyObject *Py_UNUSED(ignored))
         PyObject *constructor;
         PyObject *newargs[2];
 
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(partial);
+#endif
         functools = PyImport_ImportModule("functools");
         if (!functools)
             return NULL;

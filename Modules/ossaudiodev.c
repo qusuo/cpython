@@ -532,10 +532,15 @@ oss_self(PyObject *self, PyObject *unused)
     return self;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(close);
+#endif
 static PyObject *
 oss_exit(PyObject *self, PyObject *unused)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(close);
+#endif
 
     PyObject *ret = _PyObject_CallMethodIdNoArgs(self, &PyId_close);
     if (!ret)

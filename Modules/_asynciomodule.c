@@ -198,13 +198,19 @@ is_coroutine(PyObject *coro)
 }
 
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(get_loop);
+_Py_IDENTIFIER(_loop);
+#endif
 static PyObject *
 get_future_loop(PyObject *fut)
 {
     /* Implementation of `asyncio.futures._get_loop` */
 
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(get_loop);
     _Py_IDENTIFIER(_loop);
+#endif
     PyObject *getloop;
 
     if (Future_CheckExact(fut) || Task_CheckExact(fut)) {
@@ -472,12 +478,17 @@ future_schedule_callbacks(FutureObj *fut)
 }
 
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(get_debug);
+#endif
 static int
 future_init(FutureObj *fut, PyObject *loop)
 {
     PyObject *res;
     int is_true;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(get_debug);
+#endif
 
     // Same to FutureObj_clear() but not clearing fut->dict
     Py_CLEAR(fut->fut_loop);
@@ -1322,12 +1333,19 @@ FutureObj_set_cancel_message(FutureObj *fut, PyObject *msg,
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(PENDING);
+_Py_IDENTIFIER(CANCELLED);
+_Py_IDENTIFIER(FINISHED);
+#endif
 static PyObject *
 FutureObj_get_state(FutureObj *fut, void *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(PENDING);
     _Py_IDENTIFIER(CANCELLED);
     _Py_IDENTIFIER(FINISHED);
+#endif
     PyObject *ret = NULL;
 
     ENSURE_FUTURE_ALIVE(fut)
@@ -1383,10 +1401,15 @@ _asyncio_Future__repr_info_impl(FutureObj *self)
     return PyObject_CallOneArg(asyncio_future_repr_info_func, (PyObject *)self);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_repr_info);
+#endif
 static PyObject *
 FutureObj_repr(FutureObj *fut)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_repr_info);
+#endif
 
     ENSURE_FUTURE_ALIVE(fut)
 
@@ -1408,14 +1431,23 @@ FutureObj_repr(FutureObj *fut)
     return rstr;
 }
 
+#if TARGET_OS_IPHONE
+// _Py_IDENTIFIER(call_exception_handler); // name collision  
+// _Py_IDENTIFIER(message); // name collision
+_Py_IDENTIFIER(exception);
+_Py_IDENTIFIER(future);
+// _Py_IDENTIFIER(source_traceback); // name collision
+#endif
 static void
 FutureObj_finalize(FutureObj *fut)
 {
     _Py_IDENTIFIER(call_exception_handler);
     _Py_IDENTIFIER(message);
+    _Py_IDENTIFIER(source_traceback);
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(exception);
     _Py_IDENTIFIER(future);
-    _Py_IDENTIFIER(source_traceback);
+#endif
 
     PyObject *error_type, *error_value, *error_traceback;
     PyObject *context;
@@ -1959,10 +1991,15 @@ TaskWakeupMethWrapper_new(TaskObj *task)
 
 /* ----- Task introspection helpers */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(add);
+#endif
 static int
 register_task(PyObject *task)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(add);
+#endif
 
     PyObject *res = _PyObject_CallMethodIdOneArg(all_tasks,
                                                  &PyId_add, task);
@@ -1974,10 +2011,15 @@ register_task(PyObject *task)
 }
 
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(discard);
+#endif
 static int
 unregister_task(PyObject *task)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(discard);
+#endif
 
     PyObject *res = _PyObject_CallMethodIdOneArg(all_tasks,
                                                  &PyId_discard, task);
@@ -2420,13 +2462,21 @@ _asyncio_Task_set_name(TaskObj *self, PyObject *value)
     Py_RETURN_NONE;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(call_exception_handler);
+_Py_IDENTIFIER(task);
+_Py_IDENTIFIER(message);
+_Py_IDENTIFIER(source_traceback);
+#endif
 static void
 TaskObj_finalize(TaskObj *task)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(call_exception_handler);
     _Py_IDENTIFIER(task);
     _Py_IDENTIFIER(message);
     _Py_IDENTIFIER(source_traceback);
+#endif
 
     PyObject *context;
     PyObject *message = NULL;

@@ -116,13 +116,18 @@ PyMethod_New(PyObject *func, PyObject *self)
     return (PyObject *)im;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(getattr);
+#endif
 static PyObject *
 method_reduce(PyMethodObject *im, PyObject *Py_UNUSED(ignored))
 {
     PyObject *self = PyMethod_GET_SELF(im);
     PyObject *func = PyMethod_GET_FUNCTION(im);
     PyObject *funcname;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(getattr);
+#endif
 
     funcname = _PyObject_GetAttrId(func, &PyId___name__);
     if (funcname == NULL) {

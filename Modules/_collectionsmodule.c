@@ -1321,11 +1321,16 @@ deque_traverse(dequeobject *deque, visitproc visit, void *arg)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__dict__);
+#endif
 static PyObject *
 deque_reduce(dequeobject *deque, PyObject *Py_UNUSED(ignored))
 {
     PyObject *dict, *it;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__dict__);
+#endif
 
     if (_PyObject_LookupAttrId((PyObject *)deque, &PyId___dict__, &dict) < 0) {
         return NULL;
@@ -2011,6 +2016,9 @@ defdict_copy(defdictobject *dd, PyObject *Py_UNUSED(ignored))
     return new_defdict(dd, (PyObject*)dd);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(items);
+#endif
 static PyObject *
 defdict_reduce(defdictobject *dd, PyObject *Py_UNUSED(ignored))
 {
@@ -2040,7 +2048,9 @@ defdict_reduce(defdictobject *dd, PyObject *Py_UNUSED(ignored))
     PyObject *items;
     PyObject *iter;
     PyObject *result;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(items);
+#endif
 
     if (dd->default_factory == NULL || dd->default_factory == Py_None)
         args = PyTuple_New(0);
@@ -2281,13 +2291,19 @@ _collections._count_elements
 Count elements in the iterable, updating the mapping
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(get);
+_Py_IDENTIFIER(__setitem__);
+#endif
 static PyObject *
 _collections__count_elements_impl(PyObject *module, PyObject *mapping,
                                   PyObject *iterable)
 /*[clinic end generated code: output=7e0c1789636b3d8f input=e79fad04534a0b45]*/
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(get);
     _Py_IDENTIFIER(__setitem__);
+#endif
     PyObject *it, *oldval;
     PyObject *newval = NULL;
     PyObject *key = NULL;

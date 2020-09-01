@@ -1422,6 +1422,9 @@ _PyErr_WriteUnraisableDefaultHook(PyObject *args)
    error message.
 
    An exception must be set when calling this function. */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(unraisablehook);
+#endif
 void
 _PyErr_WriteUnraisableMsg(const char *err_msg_str, PyObject *obj)
 {
@@ -1472,7 +1475,9 @@ _PyErr_WriteUnraisableMsg(const char *err_msg_str, PyObject *obj)
         goto error;
     }
 
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(unraisablehook);
+#endif
     PyObject *hook = _PySys_GetObjectId(&PyId_unraisablehook);
     if (hook == NULL) {
         Py_DECREF(hook_args);
@@ -1546,16 +1551,26 @@ PyErr_SyntaxLocation(const char *filename, int lineno)
    If the exception is not a SyntaxError, also sets additional attributes
    to make printing of exceptions believe it is a syntax error. */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(filename);
+_Py_IDENTIFIER(lineno);
+_Py_IDENTIFIER(msg);
+_Py_IDENTIFIER(offset);
+_Py_IDENTIFIER(print_file_and_line);
+_Py_IDENTIFIER(text);
+#endif
 void
 PyErr_SyntaxLocationObject(PyObject *filename, int lineno, int col_offset)
 {
     PyObject *exc, *v, *tb, *tmp;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(filename);
     _Py_IDENTIFIER(lineno);
     _Py_IDENTIFIER(msg);
     _Py_IDENTIFIER(offset);
     _Py_IDENTIFIER(print_file_and_line);
     _Py_IDENTIFIER(text);
+#endif
     PyThreadState *tstate = _PyThreadState_GET();
 
     /* add attributes for the line number and filename for the error */

@@ -170,10 +170,15 @@ meth_dealloc(PyCFunctionObject *m)
     PyObject_GC_Del(m);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(getattr);
+#endif
 static PyObject *
 meth_reduce(PyCFunctionObject *m, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(getattr);
+#endif
 
     if (m->m_self == NULL || PyModule_Check(m->m_self))
         return PyUnicode_FromString(m->m_ml->ml_name);
@@ -205,6 +210,9 @@ meth_get__name__(PyCFunctionObject *m, void *closure)
     return PyUnicode_FromString(m->m_ml->ml_name);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__qualname__);
+#endif
 static PyObject *
 meth_get__qualname__(PyCFunctionObject *m, void *closure)
 {
@@ -217,7 +225,9 @@ meth_get__qualname__(PyCFunctionObject *m, void *closure)
        Otherwise return type(m.__self__).__qualname__ + '.' + m.__name__
        (e.g. [].append.__qualname__ == 'list.append') */
     PyObject *type, *type_qualname, *res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__qualname__);
+#endif
 
     if (m->m_self == NULL || PyModule_Check(m->m_self))
         return PyUnicode_FromString(m->m_ml->ml_name);

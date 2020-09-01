@@ -268,6 +268,9 @@ reversed.__new__ as reversed_new
 Return a reverse iterator over the values of the given sequence.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__reversed__);
+#endif
 static PyObject *
 reversed_new_impl(PyTypeObject *type, PyObject *seq)
 /*[clinic end generated code: output=f7854cc1df26f570 input=aeb720361e5e3f1d]*/
@@ -275,7 +278,9 @@ reversed_new_impl(PyTypeObject *type, PyObject *seq)
     Py_ssize_t n;
     PyObject *reversed_meth;
     reversedobject *ro;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__reversed__);
+#endif
 
     reversed_meth = _PyObject_LookupSpecial(seq, &PyId___reversed__);
     if (reversed_meth == Py_None) {

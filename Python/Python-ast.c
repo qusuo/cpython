@@ -232,10 +232,15 @@ get_ast_state(PyObject *module)
     return (astmodulestate*)state;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_ast);
+#endif
 static astmodulestate*
 get_global_ast_state(void)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_ast);
+#endif
     PyObject *name = _PyUnicode_FromId(&PyId__ast);  // borrowed reference
     if (name == NULL) {
         return NULL;

@@ -552,6 +552,9 @@ compiler_unit_free(struct compiler_unit *u)
     PyObject_Free(u);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__class__);
+#endif
 static int
 compiler_enter_scope(struct compiler *c, identifier name,
                      int scope_type, void *key, int lineno)
@@ -584,7 +587,9 @@ compiler_enter_scope(struct compiler *c, identifier name,
     }
     if (u->u_ste->ste_needs_class_closure) {
         /* Cook up an implicit __class__ cell. */
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__class__);
+#endif
         PyObject *name;
         int res;
         assert(u->u_scope_type == COMPILER_SCOPE_CLASS);

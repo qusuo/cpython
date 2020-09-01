@@ -2127,6 +2127,9 @@ dict_length(PyDictObject *mp)
     return mp->ma_used;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__missing__);
+#endif
 static PyObject *
 dict_subscript(PyDictObject *mp, PyObject *key)
 {
@@ -2147,7 +2150,9 @@ dict_subscript(PyDictObject *mp, PyObject *key)
         if (!PyDict_CheckExact(mp)) {
             /* Look up __missing__ method if we're a subclass. */
             PyObject *missing, *res;
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(__missing__);
+#endif
             missing = _PyObject_LookupSpecial((PyObject *)mp, &PyId___missing__);
             if (missing != NULL) {
                 res = PyObject_CallOneArg(missing, key);
@@ -2344,13 +2349,18 @@ dict_fromkeys_impl(PyTypeObject *type, PyObject *iterable, PyObject *value)
 }
 
 /* Single-arg dict update; used by dict_update_common and operators. */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(keys);
+#endif
 static int
 dict_update_arg(PyObject *self, PyObject *arg)
 {
     if (PyDict_CheckExact(arg)) {
         return PyDict_Merge(self, arg, 1);
     }
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(keys);
+#endif
     PyObject *func;
     if (_PyObject_LookupAttrId(arg, &PyId_keys, &func) < 0) {
         return -1;
@@ -4024,10 +4034,15 @@ dict___reversed___impl(PyDictObject *self)
     return dictiter_new(self, &PyDictRevIterKey_Type);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(iter);
+#endif
 static PyObject *
 dictiter_reduce(dictiterobject *di, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(iter);
+#endif
     /* copy the iterator state */
     dictiterobject tmp = *di;
     Py_XINCREF(tmp.di_dict);
@@ -4283,6 +4298,9 @@ dictviews_to_set(PyObject *self)
     return PySet_New(left);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(difference_update);
+#endif
 static PyObject*
 dictviews_sub(PyObject *self, PyObject *other)
 {
@@ -4291,7 +4309,9 @@ dictviews_sub(PyObject *self, PyObject *other)
         return NULL;
     }
 
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(difference_update);
+#endif
     PyObject *tmp = _PyObject_CallMethodIdOneArg(
             result, &PyId_difference_update, other);
     if (tmp == NULL) {
@@ -4306,6 +4326,9 @@ dictviews_sub(PyObject *self, PyObject *other)
 static int
 dictitems_contains(_PyDictViewObject *dv, PyObject *obj);
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(intersection);
+#endif
 PyObject *
 _PyDictView_Intersect(PyObject* self, PyObject *other)
 {
@@ -4329,7 +4352,9 @@ _PyDictView_Intersect(PyObject* self, PyObject *other)
     /* if other is a set and self is smaller than other,
        reuse set intersection logic */
     if (Py_IS_TYPE(other, &PySet_Type) && len_self <= PyObject_Size(other)) {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(intersection);
+#endif
         return _PyObject_CallMethodIdObjArgs(other, &PyId_intersection, self, NULL);
     }
 
@@ -4406,6 +4431,9 @@ dictviews_or(PyObject* self, PyObject *other)
     return result;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(symmetric_difference_update);
+#endif
 static PyObject*
 dictviews_xor(PyObject* self, PyObject *other)
 {
@@ -4414,7 +4442,9 @@ dictviews_xor(PyObject* self, PyObject *other)
         return NULL;
     }
 
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(symmetric_difference_update);
+#endif
     PyObject *tmp = _PyObject_CallMethodIdOneArg(
             result, &PyId_symmetric_difference_update, other);
     if (tmp == NULL) {

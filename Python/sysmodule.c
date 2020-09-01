@@ -152,7 +152,9 @@ should_audit(PyInterpreterState *is)
             || PyDTrace_AUDIT_ENABLED());
 }
 
-
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__cantrace__);
+#endif
 static int
 sys_audit_tstate(PyThreadState *ts, const char *event,
                  const char *argFormat, va_list vargs)
@@ -233,7 +235,9 @@ sys_audit_tstate(PyThreadState *ts, const char *event,
         ts->tracing++;
         ts->use_tracing = 0;
         while ((hook = PyIter_Next(hooks)) != NULL) {
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(__cantrace__);
+#endif
             PyObject *o;
             int canTrace = _PyObject_LookupAttrId(hook, &PyId___cantrace__, &o);
             if (o) {

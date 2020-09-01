@@ -620,6 +620,9 @@ typedef struct {
     PyObject *refs;  /* a list */
 } RFILE;
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(readinto);
+#endif
 static const char *
 r_string(Py_ssize_t n, RFILE *p)
 {
@@ -660,7 +663,9 @@ r_string(Py_ssize_t n, RFILE *p)
         read = fread(p->buf, 1, n, p->fp);
     }
     else {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(readinto);
+#endif
         PyObject *res, *mview;
         Py_buffer buf;
 
@@ -1619,6 +1624,9 @@ ValueError exception is raised - but garbage data will also be written
 to the file. The object will not be properly read back by load().
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(write);
+#endif
 static PyObject *
 marshal_dump_impl(PyObject *module, PyObject *value, PyObject *file,
                   int version)
@@ -1627,7 +1635,9 @@ marshal_dump_impl(PyObject *module, PyObject *value, PyObject *file,
     /* XXX Quick hack -- need to do this differently */
     PyObject *s;
     PyObject *res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(write);
+#endif
 
     s = PyMarshal_WriteObjectToString(value, version);
     if (s == NULL)
@@ -1654,12 +1664,17 @@ Note: If an object containing an unsupported type was marshalled with
 dump(), load() will substitute None for the unmarshallable type.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(read);
+#endif
 static PyObject *
 marshal_load(PyObject *module, PyObject *file)
 /*[clinic end generated code: output=f8e5c33233566344 input=c85c2b594cd8124a]*/
 {
     PyObject *data, *result;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(read);
+#endif
     RFILE rf;
 
     /*

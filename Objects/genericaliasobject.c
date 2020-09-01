@@ -33,13 +33,21 @@ ga_traverse(PyObject *self, visitproc visit, void *arg)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__module__);
+_Py_IDENTIFIER(__qualname__);
+_Py_IDENTIFIER(__origin__);
+_Py_IDENTIFIER(__args__);
+#endif
 static int
 ga_repr_item(_PyUnicodeWriter *writer, PyObject *p)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__module__);
     _Py_IDENTIFIER(__qualname__);
     _Py_IDENTIFIER(__origin__);
     _Py_IDENTIFIER(__args__);
+#endif
     PyObject *qualname = NULL;
     PyObject *module = NULL;
     PyObject *r = NULL;
@@ -193,6 +201,9 @@ tuple_add(PyObject *self, Py_ssize_t len, PyObject *item)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+// _Py_IDENTIFIER(__parameters__); // name collision
+#endif
 static PyObject *
 make_parameters(PyObject *args)
 {
@@ -213,7 +224,9 @@ make_parameters(PyObject *args)
             iparam += tuple_add(parameters, iparam, t);
         }
         else {
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(__parameters__);
+#endif
             PyObject *subparams;
             if (_PyObject_LookupAttrId(t, &PyId___parameters__, &subparams) < 0) {
                 Py_DECREF(parameters);
@@ -252,10 +265,15 @@ make_parameters(PyObject *args)
    params is (T, S), and argitems is (str, int), return list[str].
    If obj doesn't have a __parameters__ attribute or that's not
    a non-empty tuple, return a new reference to obj. */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__parameters__);
+#endif
 static PyObject *
 subs_tvars(PyObject *obj, PyObject *params, PyObject **argitems)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__parameters__);
+#endif
     PyObject *subparams;
     if (_PyObject_LookupAttrId(obj, &PyId___parameters__, &subparams) < 0) {
         return NULL;

@@ -517,11 +517,16 @@ PyObject *PyCodec_Decode(PyObject *object,
     return _PyCodec_DecodeInternal(object, decoder, encoding, errors);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_is_text_encoding);
+#endif
 /* Text encoding/decoding API */
 PyObject * _PyCodec_LookupTextEncoding(const char *encoding,
                                        const char *alternate_command)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_is_text_encoding);
+#endif
     PyObject *codec;
     PyObject *attr;
     int is_text_codec;

@@ -2388,6 +2388,12 @@ _PyType_CalculateMetaclass(PyTypeObject *metatype, PyObject *bases)
     return winner;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__qualname__);
+_Py_IDENTIFIER(__slots__);
+_Py_IDENTIFIER(__classcell__);
+_Py_IDENTIFIER(__mro_entries__);
+#endif
 static PyObject *
 type_new(PyTypeObject *metatype, PyObject *args, PyObject *kwds)
 {
@@ -2398,9 +2404,11 @@ type_new(PyTypeObject *metatype, PyObject *args, PyObject *kwds)
     PyMemberDef *mp;
     Py_ssize_t i, nbases, nslots, slotoffset, name_size;
     int j, may_add_dict, may_add_weak, add_dict, add_weak;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__qualname__);
     _Py_IDENTIFIER(__slots__);
     _Py_IDENTIFIER(__classcell__);
+#endif
 
     assert(args != NULL && PyTuple_Check(args));
     assert(kwds == NULL || PyDict_Check(kwds));
@@ -2420,7 +2428,9 @@ type_new(PyTypeObject *metatype, PyObject *args, PyObject *kwds)
         nbases = 1;
     }
     else {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__mro_entries__);
+#endif
         for (i = 0; i < nbases; i++) {
             tmp = PyTuple_GET_ITEM(bases, i);
             if (PyType_Check(tmp)) {
@@ -3548,12 +3558,17 @@ type_prepare(PyObject *self, PyObject *const *args, Py_ssize_t nargs,
    Return 0 on success, -1 on error.
 */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__bases__);
+#endif
 static int
 merge_class_dict(PyObject *dict, PyObject *aclass)
 {
     PyObject *classdict;
     PyObject *bases;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__bases__);
+#endif
 
     assert(PyDict_Check(dict));
     assert(aclass);
@@ -4235,12 +4250,17 @@ static PyGetSetDef object_getsets[] = {
    - the __newobj__ function (which is used as a token but never called)
 */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(copyreg);
+#endif
 static PyObject *
 import_copyreg(void)
 {
     PyObject *copyreg_str;
     PyObject *copyreg_module;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(copyreg);
+#endif
 
     copyreg_str = _PyUnicode_FromId(&PyId_copyreg);
     if (copyreg_str == NULL) {
@@ -4261,13 +4281,19 @@ import_copyreg(void)
     return PyImport_Import(copyreg_str);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__slotnames__);
+_Py_IDENTIFIER(_slotnames);
+#endif
 static PyObject *
 _PyType_GetSlotNames(PyTypeObject *cls)
 {
     PyObject *copyreg;
     PyObject *slotnames;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__slotnames__);
     _Py_IDENTIFIER(_slotnames);
+#endif
 
     assert(PyType_Check(cls));
 
@@ -4314,12 +4340,17 @@ _PyType_GetSlotNames(PyTypeObject *cls)
     return slotnames;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__getstate__);
+#endif
 static PyObject *
 _PyObject_GetState(PyObject *obj, int required)
 {
     PyObject *state;
     PyObject *getstate;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__getstate__);
+#endif
 
     if (_PyObject_LookupAttrId(obj, &PyId___getstate__, &getstate) < 0) {
         return NULL;
@@ -4455,12 +4486,18 @@ _PyObject_GetState(PyObject *obj, int required)
     return state;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__getnewargs_ex__);
+_Py_IDENTIFIER(__getnewargs__);
+#endif
 static int
 _PyObject_GetNewArguments(PyObject *obj, PyObject **args, PyObject **kwargs)
 {
     PyObject *getnewargs, *getnewargs_ex;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__getnewargs_ex__);
     _Py_IDENTIFIER(__getnewargs__);
+#endif
 
     if (args == NULL || kwargs == NULL) {
         PyErr_BadInternalCall();
@@ -4551,6 +4588,9 @@ _PyObject_GetNewArguments(PyObject *obj, PyObject **args, PyObject **kwargs)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(items);
+#endif
 static int
 _PyObject_GetItemsIter(PyObject *obj, PyObject **listitems,
                        PyObject **dictitems)
@@ -4576,7 +4616,9 @@ _PyObject_GetItemsIter(PyObject *obj, PyObject **listitems,
     }
     else {
         PyObject *items;
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(items);
+#endif
 
         items = _PyObject_CallMethodIdNoArgs(obj, &PyId_items);
         if (items == NULL) {
@@ -4596,6 +4638,10 @@ _PyObject_GetItemsIter(PyObject *obj, PyObject **listitems,
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__newobj__);
+_Py_IDENTIFIER(__newobj_ex__);
+#endif
 static PyObject *
 reduce_newobj(PyObject *obj)
 {
@@ -4622,7 +4668,9 @@ reduce_newobj(PyObject *obj)
     }
     hasargs = (args != NULL);
     if (kwargs == NULL || PyDict_GET_SIZE(kwargs) == 0) {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__newobj__);
+#endif
         PyObject *cls;
         Py_ssize_t i, n;
 
@@ -4651,8 +4699,9 @@ reduce_newobj(PyObject *obj)
         Py_XDECREF(args);
     }
     else if (args != NULL) {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__newobj_ex__);
-
+#endif
         newobj = _PyObject_GetAttrId(copyreg, &PyId___newobj_ex__);
         Py_DECREF(copyreg);
         if (newobj == NULL) {
@@ -4753,13 +4802,18 @@ object.__reduce_ex__
 Helper for pickle.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__reduce__);
+#endif
 static PyObject *
 object___reduce_ex___impl(PyObject *self, int protocol)
 /*[clinic end generated code: output=2e157766f6b50094 input=f326b43fb8a4c5ff]*/
 {
     static PyObject *objreduce;
     PyObject *reduce, *res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__reduce__);
+#endif
 
     if (objreduce == NULL) {
         objreduce = _PyDict_GetItemId(PyBaseObject_Type.tp_dict,
@@ -5169,11 +5223,16 @@ inherit_special(PyTypeObject *type, PyTypeObject *base)
         type->tp_flags |= Py_TPFLAGS_DICT_SUBCLASS;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__eq__);
+#endif
 static int
 overrides_hash(PyTypeObject *type)
 {
     PyObject *dict = type->tp_dict;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__eq__);
+#endif
 
     assert(dict != NULL);
     if (_PyDict_GetItemId(dict, &PyId___eq__) != NULL)
@@ -6454,13 +6513,18 @@ slot_sq_ass_item(PyObject *self, Py_ssize_t index, PyObject *value)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__contains__);
+#endif
 static int
 slot_sq_contains(PyObject *self, PyObject *value)
 {
     PyThreadState *tstate = _PyThreadState_GET();
     PyObject *func, *res;
     int result = -1, unbound;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__contains__);
+#endif
 
     func = lookup_maybe_method(self, &PyId___contains__, &unbound);
     if (func == Py_None) {
@@ -6525,10 +6589,15 @@ static PyObject *slot_nb_power(PyObject *, PyObject *, PyObject *);
 SLOT1BINFULL(slot_nb_power_binary, slot_nb_power,
              nb_power, "__pow__", "__rpow__")
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__pow__);
+#endif
 static PyObject *
 slot_nb_power(PyObject *self, PyObject *other, PyObject *modulus)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__pow__);
+#endif
 
     if (modulus == Py_None)
         return slot_nb_power_binary(self, other);
@@ -6547,13 +6616,18 @@ SLOT0(slot_nb_negative, "__neg__")
 SLOT0(slot_nb_positive, "__pos__")
 SLOT0(slot_nb_absolute, "__abs__")
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__bool__);
+#endif
 static int
 slot_nb_bool(PyObject *self)
 {
     PyObject *func, *value;
     int result, unbound;
     int using_len = 0;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__bool__);
+#endif
 
     func = lookup_maybe_method(self, &PyId___bool__, &unbound);
     if (func == NULL) {
@@ -6601,10 +6675,15 @@ error:
 }
 
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__index__);
+#endif
 static PyObject *
 slot_nb_index(PyObject *self)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__index__);
+#endif
     PyObject *stack[1] = {self};
     return vectorcall_method(&PyId___index__, stack, 1);
 }
@@ -6625,11 +6704,16 @@ SLOT1(slot_nb_inplace_multiply, "__imul__", PyObject *)
 SLOT1(slot_nb_inplace_matrix_multiply, "__imatmul__", PyObject *)
 SLOT1(slot_nb_inplace_remainder, "__imod__", PyObject *)
 /* Can't use SLOT1 here, because nb_inplace_power is ternary */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__ipow__);
+#endif
 static PyObject *
 slot_nb_inplace_power(PyObject *self, PyObject * arg1, PyObject *arg2)
 {
     PyObject *stack[2] = {self, arg1};
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__ipow__);
+#endif
     return vectorcall_method(&PyId___ipow__, stack, 2);
 }
 SLOT1(slot_nb_inplace_lshift, "__ilshift__", PyObject *)
@@ -6643,11 +6727,16 @@ SLOT1BIN(slot_nb_true_divide, nb_true_divide, "__truediv__", "__rtruediv__")
 SLOT1(slot_nb_inplace_floor_divide, "__ifloordiv__", PyObject *)
 SLOT1(slot_nb_inplace_true_divide, "__itruediv__", PyObject *)
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__repr__);
+#endif
 static PyObject *
 slot_tp_repr(PyObject *self)
 {
     PyObject *func, *res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__repr__);
+#endif
     int unbound;
 
     func = lookup_maybe_method(self, &PyId___repr__, &unbound);
@@ -6711,11 +6800,16 @@ slot_tp_hash(PyObject *self)
     return h;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__call__);
+#endif
 static PyObject *
 slot_tp_call(PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyThreadState *tstate = _PyThreadState_GET();
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__call__);
+#endif
     int unbound;
 
     PyObject *meth = lookup_method(self, &PyId___call__, &unbound);
@@ -6771,12 +6865,17 @@ call_attribute(PyObject *self, PyObject *attr, PyObject *name)
     return res;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__getattr__);
+#endif
 static PyObject *
 slot_tp_getattr_hook(PyObject *self, PyObject *name)
 {
     PyTypeObject *tp = Py_TYPE(self);
     PyObject *getattr, *getattribute, *res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__getattr__);
+#endif
 
     /* speed hack: we could use lookup_maybe, but that would resolve the
        method fully for each attribute lookup for classes with
@@ -6814,13 +6913,19 @@ slot_tp_getattr_hook(PyObject *self, PyObject *name)
     return res;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__delattr__);
+_Py_IDENTIFIER(__setattr__);
+#endif
 static int
 slot_tp_setattro(PyObject *self, PyObject *name, PyObject *value)
 {
     PyObject *stack[3];
     PyObject *res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__delattr__);
     _Py_IDENTIFIER(__setattr__);
+#endif
 
     stack[0] = self;
     stack[1] = name;
@@ -6864,12 +6969,17 @@ slot_tp_richcompare(PyObject *self, PyObject *other, int op)
     return res;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__iter__);
+#endif
 static PyObject *
 slot_tp_iter(PyObject *self)
 {
     int unbound;
     PyObject *func, *res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__iter__);
+#endif
 
     func = lookup_maybe_method(self, &PyId___iter__, &unbound);
     if (func == Py_None) {
@@ -6898,20 +7008,30 @@ slot_tp_iter(PyObject *self)
     return PySeqIter_New(self);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__next__);
+#endif
 static PyObject *
 slot_tp_iternext(PyObject *self)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__next__);
+#endif
     PyObject *stack[1] = {self};
     return vectorcall_method(&PyId___next__, stack, 1);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__get__);
+#endif
 static PyObject *
 slot_tp_descr_get(PyObject *self, PyObject *obj, PyObject *type)
 {
     PyTypeObject *tp = Py_TYPE(self);
     PyObject *get;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__get__);
+#endif
 
     get = _PyType_LookupId(tp, &PyId___get__);
     if (get == NULL) {
@@ -6928,13 +7048,19 @@ slot_tp_descr_get(PyObject *self, PyObject *obj, PyObject *type)
     return PyObject_CallFunctionObjArgs(get, self, obj, type, NULL);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__delete__);
+_Py_IDENTIFIER(__set__);
+#endif
 static int
 slot_tp_descr_set(PyObject *self, PyObject *target, PyObject *value)
 {
     PyObject* stack[3];
     PyObject *res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__delete__);
     _Py_IDENTIFIER(__set__);
+#endif
 
     stack[0] = self;
     stack[1] = target;
@@ -6951,12 +7077,17 @@ slot_tp_descr_set(PyObject *self, PyObject *target, PyObject *value)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__init__);
+#endif
 static int
 slot_tp_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyThreadState *tstate = _PyThreadState_GET();
 
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__init__);
+#endif
     int unbound;
     PyObject *meth = lookup_method(self, &PyId___init__, &unbound);
     if (meth == NULL) {
@@ -7000,10 +7131,15 @@ slot_tp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return result;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__del__);
+#endif
 static void
 slot_tp_finalize(PyObject *self)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__del__);
+#endif
     int unbound;
     PyObject *del, *res;
     PyObject *error_type, *error_value, *error_traceback;
@@ -7026,12 +7162,17 @@ slot_tp_finalize(PyObject *self)
     PyErr_Restore(error_type, error_value, error_traceback);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__await__);
+#endif
 static PyObject *
 slot_am_await(PyObject *self)
 {
     int unbound;
     PyObject *func, *res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__await__);
+#endif
 
     func = lookup_maybe_method(self, &PyId___await__, &unbound);
     if (func != NULL) {
@@ -7045,12 +7186,17 @@ slot_am_await(PyObject *self)
     return NULL;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__aiter__);
+#endif
 static PyObject *
 slot_am_aiter(PyObject *self)
 {
     int unbound;
     PyObject *func, *res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__aiter__);
+#endif
 
     func = lookup_maybe_method(self, &PyId___aiter__, &unbound);
     if (func != NULL) {
@@ -7064,12 +7210,17 @@ slot_am_aiter(PyObject *self)
     return NULL;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__anext__);
+#endif
 static PyObject *
 slot_am_anext(PyObject *self)
 {
     int unbound;
     PyObject *func, *res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__anext__);
+#endif
 
     func = lookup_maybe_method(self, &PyId___anext__, &unbound);
     if (func != NULL) {

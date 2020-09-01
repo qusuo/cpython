@@ -138,6 +138,9 @@ A closed file cannot be used for further I/O operations.  close() may be
 called more than once without error.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(close);
+#endif
 static PyObject *
 _io_FileIO_close_impl(fileio *self)
 /*[clinic end generated code: output=7737a319ef3bad0b input=f35231760d54a522]*/
@@ -145,7 +148,9 @@ _io_FileIO_close_impl(fileio *self)
     PyObject *res;
     PyObject *exc, *val, *tb;
     int rc;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(close);
+#endif
     res = _PyObject_CallMethodIdOneArg((PyObject*)&PyRawIOBase_Type,
                                        &PyId_close, (PyObject *)self);
     if (!self->closefd) {

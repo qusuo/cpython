@@ -573,12 +573,19 @@ def _PyObject_FunctionStr(x):
         pass
     return qualname
 */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__module__);
+_Py_IDENTIFIER(__qualname__);
+_Py_IDENTIFIER(builtins);
+#endif
 PyObject *
 _PyObject_FunctionStr(PyObject *x)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__module__);
     _Py_IDENTIFIER(__qualname__);
     _Py_IDENTIFIER(builtins);
+#endif
     assert(!PyErr_Occurred());
     PyObject *qualname;
     int ret = _PyObject_LookupAttrId(x, &PyId___qualname__, &qualname);

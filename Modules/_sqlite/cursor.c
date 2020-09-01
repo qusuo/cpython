@@ -94,13 +94,18 @@ static void pysqlite_cursor_dealloc(pysqlite_Cursor* self)
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
+#if TARGET_OS_IPHONE
+    _Py_IDENTIFIER(upper);
+#endif
 static PyObject *
 _pysqlite_get_converter(const char *keystr, Py_ssize_t keylen)
 {
     PyObject *key;
     PyObject *upcase_key;
     PyObject *retval;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(upper);
+#endif
 
     key = PyUnicode_FromStringAndSize(keystr, keylen);
     if (!key) {

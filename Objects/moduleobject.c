@@ -49,12 +49,18 @@ PyModuleDef_Init(struct PyModuleDef* def)
     return (PyObject*)def;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__package__);
+_Py_IDENTIFIER(__loader__);
+#endif
 static int
 module_init_dict(PyModuleObject *mod, PyObject *md_dict,
                  PyObject *name, PyObject *doc)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__package__);
     _Py_IDENTIFIER(__loader__);
+#endif
 
     if (md_dict == NULL)
         return -1;
@@ -497,10 +503,15 @@ PyModule_GetName(PyObject *m)
     return PyUnicode_AsUTF8(name);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__file__);
+#endif
 PyObject*
 PyModule_GetFilenameObject(PyObject *m)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__file__);
+#endif
     PyObject *d;
     PyObject *fileobj;
     if (!PyModule_Check(m)) {
@@ -717,11 +728,16 @@ module_repr(PyModuleObject *m)
 /* Check if the "_initializing" attribute of the module spec is set to true.
    Clear the exception and return 0 if spec is NULL.
  */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_initializing);
+#endif
 int
 _PyModuleSpec_IsInitializing(PyObject *spec)
 {
     if (spec != NULL) {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(_initializing);
+#endif
         PyObject *value = _PyObject_GetAttrId(spec, &PyId__initializing);
         if (value != NULL) {
             int initializing = PyObject_IsTrue(value);
@@ -735,6 +751,9 @@ _PyModuleSpec_IsInitializing(PyObject *spec)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__getattr__);
+#endif
 static PyObject*
 module_getattro(PyModuleObject *m, PyObject *name)
 {
@@ -745,7 +764,9 @@ module_getattro(PyModuleObject *m, PyObject *name)
     }
     PyErr_Clear();
     if (m->md_dict) {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__getattr__);
+#endif
         getattr = _PyDict_GetItemId(m->md_dict, &PyId___getattr__);
         if (getattr) {
             return PyObject_CallOneArg(getattr, name);
@@ -813,11 +834,17 @@ module_clear(PyModuleObject *m)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__dict__);
+_Py_IDENTIFIER(__dir__);
+#endif
 static PyObject *
 module_dir(PyObject *self, PyObject *args)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__dict__);
     _Py_IDENTIFIER(__dir__);
+#endif
     PyObject *result = NULL;
     PyObject *dict = _PyObject_GetAttrId(self, &PyId___dict__);
 

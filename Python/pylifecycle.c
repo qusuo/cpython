@@ -1820,6 +1820,13 @@ is_valid_fd(int fd)
 }
 
 /* returns Py_None if the fd is not valid */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(open);
+_Py_IDENTIFIER(isatty);
+_Py_IDENTIFIER(TextIOWrapper);
+_Py_IDENTIFIER(mode);
+_Py_IDENTIFIER(raw);
+#endif
 static PyObject*
 create_stdio(const PyConfig *config, PyObject* io,
     int fd, int write_mode, const char* name,
@@ -1830,10 +1837,12 @@ create_stdio(const PyConfig *config, PyObject* io,
     const char* newline;
     PyObject *line_buffering, *write_through;
     int buffering, isatty;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(open);
     _Py_IDENTIFIER(isatty);
     _Py_IDENTIFIER(TextIOWrapper);
     _Py_IDENTIFIER(mode);
+#endif
     const int buffered_stdio = config->buffered_stdio;
 
     if (!is_valid_fd(fd))
@@ -1860,7 +1869,9 @@ create_stdio(const PyConfig *config, PyObject* io,
         goto error;
 
     if (buffering) {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(raw);
+#endif
         raw = _PyObject_GetAttrId(buf, &PyId_raw);
         if (raw == NULL)
             goto error;
@@ -2469,10 +2480,15 @@ call_py_exitfuncs(PyThreadState *tstate)
    the threading module was imported in the first place.
    The shutdown routine will wait until all non-daemon
    "threading" threads have completed. */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_shutdown);
+#endif
 static void
 wait_for_thread_shutdown(PyThreadState *tstate)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_shutdown);
+#endif
     PyObject *result;
     PyObject *threading = _PyImport_GetModuleId(&PyId_threading);
     if (threading == NULL) {

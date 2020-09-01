@@ -569,11 +569,16 @@ method_get_text_signature(PyMethodDescrObject *descr, void *closure)
     return _PyType_GetTextSignatureFromInternalDoc(descr->d_method->ml_name, descr->d_method->ml_doc);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__qualname__);
+#endif
 static PyObject *
 calculate_qualname(PyDescrObject *descr)
 {
     PyObject *type_qualname, *res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__qualname__);
+#endif
 
     if (descr->d_name == NULL || !PyUnicode_Check(descr->d_name)) {
         PyErr_SetString(PyExc_TypeError,
@@ -1070,6 +1075,9 @@ static PySequenceMethods mappingproxy_as_sequence = {
     0,                                          /* sq_inplace_repeat */
 };
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(get);
+#endif
 static PyObject *
 mappingproxy_get(mappingproxyobject *pp, PyObject *const *args, Py_ssize_t nargs)
 {
@@ -1083,44 +1091,71 @@ mappingproxy_get(mappingproxyobject *pp, PyObject *const *args, Py_ssize_t nargs
     {
         return NULL;
     }
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(get);
+#endif
     return _PyObject_VectorcallMethodId(&PyId_get, newargs,
                                         3 | PY_VECTORCALL_ARGUMENTS_OFFSET,
                                         NULL);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(keys);
+#endif
 static PyObject *
 mappingproxy_keys(mappingproxyobject *pp, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(keys);
+#endif
     return _PyObject_CallMethodIdNoArgs(pp->mapping, &PyId_keys);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(values);
+#endif
 static PyObject *
 mappingproxy_values(mappingproxyobject *pp, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(values);
+#endif
     return _PyObject_CallMethodIdNoArgs(pp->mapping, &PyId_values);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(items);
+#endif
 static PyObject *
 mappingproxy_items(mappingproxyobject *pp, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(items);
+#endif
     return _PyObject_CallMethodIdNoArgs(pp->mapping, &PyId_items);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(copy);
+#endif
 static PyObject *
 mappingproxy_copy(mappingproxyobject *pp, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(copy);
+#endif
     return _PyObject_CallMethodIdNoArgs(pp->mapping, &PyId_copy);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__reversed__);
+#endif
 static PyObject *
 mappingproxy_reversed(mappingproxyobject *pp, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__reversed__);
+#endif
     return _PyObject_CallMethodIdNoArgs(pp->mapping, &PyId___reversed__);
 }
 
@@ -1674,6 +1709,9 @@ class C(object):
         del self._x
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__doc__);
+#endif
 static int
 property_init_impl(propertyobject *self, PyObject *fget, PyObject *fset,
                    PyObject *fdel, PyObject *doc)
@@ -1699,7 +1737,9 @@ property_init_impl(propertyobject *self, PyObject *fget, PyObject *fset,
 
     /* if no docstring given and the getter has one, use that one */
     if ((doc == NULL || doc == Py_None) && fget != NULL) {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__doc__);
+#endif
         PyObject *get_doc;
         int rc = _PyObject_LookupAttrId(fget, &PyId___doc__, &get_doc);
         if (rc <= 0) {

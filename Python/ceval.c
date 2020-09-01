@@ -886,6 +886,19 @@ eval_frame_handle_pending(PyThreadState *tstate)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+#ifdef LLTRACE
+_Py_IDENTIFIER(__ltrace__);
+#endif
+_Py_IDENTIFIER(displayhook);
+_Py_IDENTIFIER(send);
+_Py_IDENTIFIER(__build_class__);
+_Py_IDENTIFIER(__annotations__);
+_Py_IDENTIFIER(__aenter__);
+_Py_IDENTIFIER(__aexit__);
+_Py_IDENTIFIER(__enter__);
+_Py_IDENTIFIER(__exit__);
+#endif
 PyObject* _Py_HOT_FUNCTION
 _PyEval_EvalFrameDefault(PyThreadState *tstate, PyFrameObject *f, int throwflag)
 {
@@ -919,7 +932,9 @@ _PyEval_EvalFrameDefault(PyThreadState *tstate, PyFrameObject *f, int throwflag)
     _PyOpcache *co_opcache;
 
 #ifdef LLTRACE
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__ltrace__);
+#endif
 #endif
 
 /* Computed GOTOs, or
@@ -1981,7 +1996,9 @@ main_loop:
         }
 
         case TARGET(PRINT_EXPR): {
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(displayhook);
+#endif
             PyObject *value = POP();
             PyObject *hook = _PySys_GetObjectId(&PyId_displayhook);
             PyObject *res;
@@ -2171,7 +2188,9 @@ main_loop:
             if (PyGen_CheckExact(receiver) || PyCoro_CheckExact(receiver)) {
                 retval = _PyGen_Send((PyGenObject *)receiver, v);
             } else {
+#if !TARGET_OS_IPHONE
                 _Py_IDENTIFIER(send);
+#endif
                 if (v == Py_None)
                     retval = Py_TYPE(receiver)->tp_iternext(receiver);
                 else
@@ -2282,8 +2301,9 @@ main_loop:
         }
 
         case TARGET(LOAD_BUILD_CLASS): {
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(__build_class__);
-
+#endif
             PyObject *bc;
             if (PyDict_CheckExact(f->f_builtins)) {
                 bc = _PyDict_GetItemIdWithError(f->f_builtins, &PyId___build_class__);
@@ -2822,7 +2842,9 @@ main_loop:
         }
 
         case TARGET(SETUP_ANNOTATIONS): {
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(__annotations__);
+#endif
             int err;
             PyObject *ann_dict;
             if (f->f_locals == NULL) {
@@ -3306,8 +3328,10 @@ main_loop:
         }
 
         case TARGET(BEFORE_ASYNC_WITH): {
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(__aenter__);
             _Py_IDENTIFIER(__aexit__);
+#endif
             PyObject *mgr = TOP();
             PyObject *enter = special_lookup(tstate, mgr, &PyId___aenter__);
             PyObject *res;
@@ -3341,8 +3365,10 @@ main_loop:
         }
 
         case TARGET(SETUP_WITH): {
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(__enter__);
             _Py_IDENTIFIER(__exit__);
+#endif
             PyObject *mgr = TOP();
             PyObject *enter = special_lookup(tstate, mgr, &PyId___enter__);
             PyObject *res;
@@ -5144,11 +5170,16 @@ _PyEval_SliceIndexNotNone(PyObject *v, Py_ssize_t *pi)
     return 1;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__import__);
+#endif
 static PyObject *
 import_name(PyThreadState *tstate, PyFrameObject *f,
             PyObject *name, PyObject *fromlist, PyObject *level)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__import__);
+#endif
     PyObject *import_func, *res;
     PyObject* stack[5];
 
@@ -5187,6 +5218,9 @@ import_name(PyThreadState *tstate, PyFrameObject *f,
     return res;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__spec__);
+#endif
 static PyObject *
 import_from(PyThreadState *tstate, PyObject *v, PyObject *name)
 {
@@ -5241,7 +5275,9 @@ import_from(PyThreadState *tstate, PyObject *v, PyObject *name)
         PyErr_SetImportError(errmsg, pkgname, NULL);
     }
     else {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__spec__);
+#endif
         PyObject *spec = _PyObject_GetAttrId(v, &PyId___spec__);
         const char *fmt =
             _PyModuleSpec_IsInitializing(spec) ?
@@ -5261,11 +5297,17 @@ import_from(PyThreadState *tstate, PyObject *v, PyObject *name)
     return NULL;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__all__);
+_Py_IDENTIFIER(__dict__);
+#endif
 static int
 import_all_from(PyThreadState *tstate, PyObject *locals, PyObject *v)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__all__);
     _Py_IDENTIFIER(__dict__);
+#endif
     PyObject *all, *dict, *name, *value;
     int skip_leading_underscores = 0;
     int pos, err;

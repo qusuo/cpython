@@ -71,11 +71,17 @@ pysqlite_microprotocols_add(PyTypeObject *type, PyObject *proto, PyObject *cast)
 
 /* pysqlite_microprotocols_adapt - adapt an object to the built-in protocol */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__adapt__);
+_Py_IDENTIFIER(__conform__);
+#endif
 PyObject *
 pysqlite_microprotocols_adapt(PyObject *obj, PyObject *proto, PyObject *alt)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__adapt__);
     _Py_IDENTIFIER(__conform__);
+#endif
     PyObject *adapter, *key, *adapted;
 
     /* we don't check for exact type conformance as specified in PEP 246

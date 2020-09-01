@@ -513,10 +513,15 @@ dbm__enter__(PyObject *self, PyObject *args)
     return self;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(close);
+#endif
 static PyObject *
 dbm__exit__(PyObject *self, PyObject *args)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(close);
+#endif
     return _PyObject_CallMethodIdNoArgs(self, &PyId_close);
 }
 

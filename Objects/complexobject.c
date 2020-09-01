@@ -280,11 +280,16 @@ PyComplex_ImagAsDouble(PyObject *op)
     }
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__complex__);
+#endif
 static PyObject *
 try_complex_special_method(PyObject *op)
 {
     PyObject *f;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__complex__);
+#endif
 
     f = _PyObject_LookupSpecial(op, &PyId___complex__);
     if (f) {

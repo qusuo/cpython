@@ -1188,11 +1188,16 @@ Return the ceiling of x as an Integral.
 This is the smallest integer >= x.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__ceil__);
+#endif
 static PyObject *
 math_ceil(PyObject *module, PyObject *number)
 /*[clinic end generated code: output=6c3b8a78bc201c67 input=2725352806399cab]*/
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__ceil__);
+#endif
 
     if (!PyFloat_CheckExact(number)) {
         PyObject *method = _PyObject_LookupSpecial(number, &PyId___ceil__);
@@ -1251,11 +1256,16 @@ Return the floor of x as an Integral.
 This is the largest integer <= x.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__floor__);
+#endif
 static PyObject *
 math_floor(PyObject *module, PyObject *number)
 /*[clinic end generated code: output=c6a65c4884884b8a input=63af6b5d7ebcc3d6]*/
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__floor__);
+#endif
 
     if (!PyFloat_CheckExact(number)) {
         PyObject *method = _PyObject_LookupSpecial(number, &PyId___floor__);
@@ -2120,11 +2130,16 @@ Truncates the Real x to the nearest Integral toward 0.
 Uses the __trunc__ magic method.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__trunc__);
+#endif
 static PyObject *
 math_trunc(PyObject *module, PyObject *x)
 /*[clinic end generated code: output=34b9697b707e1031 input=2168b34e0a09134d]*/
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__trunc__);
+#endif
     PyObject *trunc, *result;
 
     if (PyFloat_CheckExact(x)) {

@@ -214,6 +214,9 @@ _Pickle_ClearState(PickleState *st)
 }
 
 /* Initialize the given pickle module state. */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(getattr);
+#endif
 static int
 _Pickle_InitState(PickleState *st)
 {
@@ -221,7 +224,9 @@ _Pickle_InitState(PickleState *st)
     PyObject *compat_pickle = NULL;
     PyObject *codecs = NULL;
     PyObject *functools = NULL;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(getattr);
+#endif
 
     st->getattr = _PyEval_GetBuiltinId(&PyId_getattr);
     if (st->getattr == NULL)
@@ -1168,10 +1173,15 @@ _Pickler_SetProtocol(PicklerObject *self, PyObject *protocol, int fix_imports)
 
 /* Returns -1 (with an exception set) on failure, 0 on success. This may
    be called once on a freshly created Pickler. */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(write);
+#endif
 static int
 _Pickler_SetOutputStream(PicklerObject *self, PyObject *file)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(write);
+#endif
     assert(file != NULL);
     if (_PyObject_LookupAttrId(file, &PyId_write, &self->write) < 0) {
         return -1;
@@ -1629,13 +1639,21 @@ _Unpickler_New(void)
 
 /* Returns -1 (with an exception set) on failure, 0 on success. This may
    be called once on a freshly created Unpickler. */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(peek);
+_Py_IDENTIFIER(read);
+_Py_IDENTIFIER(readinto);
+_Py_IDENTIFIER(readline);
+#endif
 static int
 _Unpickler_SetInputStream(UnpicklerObject *self, PyObject *file)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(peek);
     _Py_IDENTIFIER(read);
     _Py_IDENTIFIER(readinto);
     _Py_IDENTIFIER(readline);
+#endif
 
     /* Optional file methods */
     if (_PyObject_LookupAttrId(file, &PyId_peek, &self->peek) < 0) {
@@ -1903,6 +1921,11 @@ _checkmodule(PyObject *module_name, PyObject *module,
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__module__);
+_Py_IDENTIFIER(modules);
+_Py_IDENTIFIER(__main__);
+#endif
 static PyObject *
 whichmodule(PyObject *global, PyObject *dotted_path)
 {
@@ -1910,9 +1933,11 @@ whichmodule(PyObject *global, PyObject *dotted_path)
     PyObject *module = NULL;
     Py_ssize_t i;
     PyObject *modules;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__module__);
     _Py_IDENTIFIER(modules);
     _Py_IDENTIFIER(__main__);
+#endif
 
     if (_PyObject_LookupAttrId(global, &PyId___module__, &module_name) < 0) {
         return NULL;
@@ -2401,6 +2426,9 @@ _save_bytes_data(PicklerObject *self, PyObject *obj, const char *data,
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(latin1);
+#endif
 static int
 save_bytes(PicklerObject *self, PyObject *obj)
 {
@@ -2428,7 +2456,9 @@ save_bytes(PicklerObject *self, PyObject *obj)
                 PyUnicode_DecodeLatin1(PyBytes_AS_STRING(obj),
                                        PyBytes_GET_SIZE(obj),
                                        "strict");
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(latin1);
+#endif
 
             if (unicode_str == NULL)
                 return -1;
@@ -3297,6 +3327,9 @@ batch_dict_exact(PicklerObject *self, PyObject *obj)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(items);
+#endif
 static int
 save_dict(PicklerObject *self, PyObject *obj)
 {
@@ -3336,7 +3369,9 @@ save_dict(PicklerObject *self, PyObject *obj)
             status = batch_dict_exact(self, obj);
             Py_LeaveRecursiveCall();
         } else {
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(items);
+#endif
 
             items = _PyObject_CallMethodIdNoArgs(obj, &PyId_items);
             if (items == NULL)
@@ -3578,6 +3613,10 @@ fix_imports(PyObject **module_name, PyObject **global_name)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+// _Py_IDENTIFIER(__name__); // name collision
+_Py_IDENTIFIER(__qualname__);
+#endif
 static int
 save_global(PicklerObject *self, PyObject *obj, PyObject *name)
 {
@@ -3590,8 +3629,10 @@ save_global(PicklerObject *self, PyObject *obj, PyObject *name)
     PyObject *cls;
     PickleState *st = _Pickle_GetGlobalState();
     int status = 0;
-    _Py_IDENTIFIER(__name__);
+    _Py_IDENTIFIER(__name__); // name collision
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__qualname__);
+#endif
 
     const char global_op = GLOBAL;
 
@@ -3920,11 +3961,16 @@ save_pers(PicklerObject *self, PyObject *obj)
     return status;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__class__);
+#endif
 static PyObject *
 get_class(PyObject *obj)
 {
     PyObject *cls;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__class__);
+#endif
 
     if (_PyObject_LookupAttrId(obj, &PyId___class__, &cls) == 0) {
         cls = (PyObject *) Py_TYPE(obj);
@@ -3936,6 +3982,12 @@ get_class(PyObject *obj)
 /* We're saving obj, and args is the 2-thru-5 tuple returned by the
  * appropriate __reduce__ method for obj.
  */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__name__);
+_Py_IDENTIFIER(__newobj_ex__);
+_Py_IDENTIFIER(__newobj__);
+_Py_IDENTIFIER(__new__);
+#endif
 static int
 save_reduce(PicklerObject *self, PyObject *args, PyObject *obj)
 {
@@ -4009,17 +4061,23 @@ save_reduce(PicklerObject *self, PyObject *args, PyObject *obj)
 
     if (self->proto >= 2) {
         PyObject *name;
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__name__);
+#endif
 
         if (_PyObject_LookupAttrId(callable, &PyId___name__, &name) < 0) {
             return -1;
         }
         if (name != NULL && PyUnicode_Check(name)) {
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(__newobj_ex__);
+#endif
             use_newobj_ex = _PyUnicode_EqualToASCIIId(
                     name, &PyId___newobj_ex__);
             if (!use_newobj_ex) {
+#if !TARGET_OS_IPHONE
                 _Py_IDENTIFIER(__newobj__);
+#endif
                 use_newobj = _PyUnicode_EqualToASCIIId(name, &PyId___newobj__);
             }
         }
@@ -4072,7 +4130,9 @@ save_reduce(PicklerObject *self, PyObject *args, PyObject *obj)
             PyObject *newargs;
             PyObject *cls_new;
             Py_ssize_t i;
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(__new__);
+#endif
 
             newargs = PyTuple_New(PyTuple_GET_SIZE(args) + 2);
             if (newargs == NULL)
@@ -4255,6 +4315,10 @@ save_reduce(PicklerObject *self, PyObject *args, PyObject *obj)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__reduce__);
+_Py_IDENTIFIER(__reduce_ex__);
+#endif
 static int
 save(PicklerObject *self, PyObject *obj, int pers_save)
 {
@@ -4413,8 +4477,10 @@ save(PicklerObject *self, PyObject *obj, int pers_save)
         goto done;
     }
     else {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__reduce__);
         _Py_IDENTIFIER(__reduce_ex__);
+#endif
 
         /* XXX: If the __reduce__ method is defined, __reduce_ex__ is
            automatically defined as __reduce__. While this is convenient, this
@@ -4484,13 +4550,18 @@ save(PicklerObject *self, PyObject *obj, int pers_save)
     return status;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(reducer_override);
+#endif
 static int
 dump(PicklerObject *self, PyObject *obj)
 {
     const char stop_op = STOP;
     int status = -1;
     PyObject *tmp;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(reducer_override);
+#endif
 
     if (_PyObject_LookupAttrId((PyObject *)self, &PyId_reducer_override,
                                &tmp) < 0) {
@@ -4722,14 +4793,20 @@ is None or smaller than 5.
 
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(persistent_id);
+_Py_IDENTIFIER(dispatch_table);
+#endif
 static int
 _pickle_Pickler___init___impl(PicklerObject *self, PyObject *file,
                               PyObject *protocol, int fix_imports,
                               PyObject *buffer_callback)
 /*[clinic end generated code: output=0abedc50590d259b input=a7c969699bf5dad3]*/
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(persistent_id);
     _Py_IDENTIFIER(dispatch_table);
+#endif
 
     /* In case of multiple __init__() calls, clear previous content. */
     if (self->write != NULL)
@@ -5121,10 +5198,15 @@ static PyTypeObject Pickler_Type = {
    overridden by a subclass. Although, this could become rather hackish. A
    simpler optimization would be to call the C function when self is not a
    subclass instance. */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(find_class);
+#endif
 static PyObject *
 find_class(UnpicklerObject *self, PyObject *module_name, PyObject *global_name)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(find_class);
+#endif
 
     return _PyObject_CallMethodIdObjArgs((PyObject *)self, &PyId_find_class,
                                          module_name, global_name, NULL);
@@ -5806,6 +5888,10 @@ load_frozenset(UnpicklerObject *self)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__getinitargs__);
+_Py_IDENTIFIER(__new__);
+#endif
 static PyObject *
 instantiate(PyObject *cls, PyObject *args)
 {
@@ -5814,8 +5900,10 @@ instantiate(PyObject *cls, PyObject *args)
        into a newly created tuple. */
     assert(PyTuple_Check(args));
     if (!PyTuple_GET_SIZE(args) && PyType_Check(cls)) {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__getinitargs__);
         _Py_IDENTIFIER(__new__);
+#endif
         PyObject *func;
         if (_PyObject_LookupAttrId(cls, &PyId___getinitargs__, &func) < 0) {
             return NULL;
@@ -6478,6 +6566,10 @@ load_memoize(UnpicklerObject *self)
     return _Unpickler_MemoPut(self, self->memo_len, value);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(extend);
+_Py_IDENTIFIER(append);
+#endif
 static int
 do_append(UnpicklerObject *self, Py_ssize_t x)
 {
@@ -6509,7 +6601,9 @@ do_append(UnpicklerObject *self, Py_ssize_t x)
     }
     else {
         PyObject *extend_func;
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(extend);
+#endif
 
         if (_PyObject_LookupAttrId(list, &PyId_extend, &extend_func) < 0) {
             return -1;
@@ -6528,7 +6622,9 @@ do_append(UnpicklerObject *self, Py_ssize_t x)
         }
         else {
             PyObject *append_func;
+#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(append);
+#endif
 
             /* Even if the PEP 307 requires extend() and append() methods,
                fall back on append() if the object has no extend() method
@@ -6625,6 +6721,9 @@ load_setitems(UnpicklerObject *self)
     return do_setitems(self, i);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(add);
+#endif
 static int
 load_additems(UnpicklerObject *self)
 {
@@ -6656,7 +6755,9 @@ load_additems(UnpicklerObject *self)
     }
     else {
         PyObject *add_func;
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(add);
+#endif
 
         add_func = _PyObject_GetAttrId(set, &PyId_add);
         if (add_func == NULL)
@@ -6680,13 +6781,19 @@ load_additems(UnpicklerObject *self)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__setstate__);
+_Py_IDENTIFIER(__dict__);
+#endif
 static int
 load_build(UnpicklerObject *self)
 {
     PyObject *state, *inst, *slotstate;
     PyObject *setstate;
     int status = 0;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__setstate__);
+#endif
 
     /* Stack is ... instance, state.  We want to leave instance at
      * the stack top, possibly mutated via instance.__setstate__(state).
@@ -6736,7 +6843,9 @@ load_build(UnpicklerObject *self)
         PyObject *dict;
         PyObject *d_key, *d_value;
         Py_ssize_t i;
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__dict__);
+#endif
 
         if (!PyDict_Check(state)) {
             PickleState *st = _Pickle_GetGlobalState();
@@ -7289,13 +7398,18 @@ respectively.  The *encoding* can be 'bytes' to read these 8-bit
 string instances as bytes objects.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(persistent_load);
+#endif
 static int
 _pickle_Unpickler___init___impl(UnpicklerObject *self, PyObject *file,
                                 int fix_imports, const char *encoding,
                                 const char *errors, PyObject *buffers)
 /*[clinic end generated code: output=09f0192649ea3f85 input=ca4c1faea9553121]*/
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(persistent_load);
+#endif
 
     /* In case of multiple __init__() calls, clear previous content. */
     if (self->read != NULL)

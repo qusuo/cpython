@@ -2115,11 +2115,16 @@ bytearray_hex_impl(PyByteArrayObject *self, PyObject *sep, int bytes_per_sep)
     return _Py_strhex_with_sep(argbuf, arglen, sep, bytes_per_sep);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__dict__);
+#endif
 static PyObject *
 _common_reduce(PyByteArrayObject *self, int proto)
 {
     PyObject *dict;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__dict__);
+#endif
     char *buf;
 
     if (_PyObject_LookupAttrId((PyObject *)self, &PyId___dict__, &dict) < 0) {
@@ -2431,10 +2436,15 @@ bytearrayiter_length_hint(bytesiterobject *it, PyObject *Py_UNUSED(ignored))
 PyDoc_STRVAR(length_hint_doc,
     "Private method returning an estimate of len(list(it)).");
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(iter);
+#endif
 static PyObject *
 bytearrayiter_reduce(bytesiterobject *it, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(iter);
+#endif
     if (it->it_seq != NULL) {
         return Py_BuildValue("N(O)n", _PyEval_GetBuiltinId(&PyId_iter),
                              it->it_seq, it->it_index);

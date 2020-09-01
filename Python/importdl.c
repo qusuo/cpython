@@ -32,13 +32,18 @@ static const char * const nonascii_prefix = "PyInitU";
  * The hook_prefix pointer is set to either ascii_only_prefix or
  * nonascii_prefix, as appropriate.
  */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(replace);
+#endif
 static PyObject *
 get_encoded_name(PyObject *name, const char **hook_prefix) {
     PyObject *tmp;
     PyObject *encoded = NULL;
     PyObject *modname = NULL;
     Py_ssize_t name_len, lastdot;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(replace);
+#endif
 
     /* Get the short name (substring after last dot) */
     name_len = PyUnicode_GetLength(name);

@@ -753,10 +753,15 @@ PyDoc_STRVAR(length_hint_doc, "Private method returning an estimate of len(list(
 
 static PyObject *setiter_iternext(setiterobject *si);
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(iter);
+#endif
 static PyObject *
 setiter_reduce(setiterobject *si, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(iter);
+#endif
     /* copy the iterator state */
     setiterobject tmp = *si;
     Py_XINCREF(tmp.si_set);
@@ -1903,11 +1908,16 @@ PyDoc_STRVAR(discard_doc,
 \n\
 If the element is not a member, do nothing.");
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__dict__);
+#endif
 static PyObject *
 set_reduce(PySetObject *so, PyObject *Py_UNUSED(ignored))
 {
     PyObject *keys=NULL, *args=NULL, *result=NULL, *dict=NULL;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__dict__);
+#endif
 
     keys = PySequence_List((PyObject *)so);
     if (keys == NULL)

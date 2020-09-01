@@ -109,11 +109,16 @@ _io._IOBase.tell
 Return current stream position.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(seek);
+#endif
 static PyObject *
 _io__IOBase_tell_impl(PyObject *self)
 /*[clinic end generated code: output=89a1c0807935abe2 input=04e615fec128801f]*/
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(seek);
+#endif
 
     return _PyObject_CallMethodId(self, &PyId_seek, "ii", 0, 1);
 }
@@ -253,13 +258,18 @@ _io__IOBase_close_impl(PyObject *self)
 
 /* Finalization and garbage collection support */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_finalizing);
+#endif
 static void
 iobase_finalize(PyObject *self)
 {
     PyObject *res;
     PyObject *error_type, *error_value, *error_traceback;
     int closed;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_finalizing);
+#endif
 
     /* Save the current exception, if any. */
     PyErr_Fetch(&error_type, &error_value, &error_traceback);
@@ -680,6 +690,9 @@ lines will be read if the total size (in bytes/characters) of all
 lines so far exceeds hint.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(extend);
+#endif
 static PyObject *
 _io__IOBase_readlines_impl(PyObject *self, Py_ssize_t hint)
 /*[clinic end generated code: output=2f50421677fa3dea input=9400c786ea9dc416]*/
@@ -695,7 +708,9 @@ _io__IOBase_readlines_impl(PyObject *self, Py_ssize_t hint)
         /* XXX special-casing this made sense in the Python version in order
            to remove the bytecode interpretation overhead, but it could
            probably be removed here. */
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(extend);
+#endif
         PyObject *ret = _PyObject_CallMethodIdObjArgs(result, &PyId_extend,
                                                       self, NULL);
 
@@ -910,6 +925,9 @@ _io._RawIOBase.read
     /
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(readall);
+#endif
 static PyObject *
 _io__RawIOBase_read_impl(PyObject *self, Py_ssize_t n)
 /*[clinic end generated code: output=6cdeb731e3c9f13c input=b6d0dcf6417d1374]*/
@@ -917,7 +935,9 @@ _io__RawIOBase_read_impl(PyObject *self, Py_ssize_t n)
     PyObject *b, *res;
 
     if (n < 0) {
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(readall);
+#endif
 
         return _PyObject_CallMethodIdNoArgs(self, &PyId_readall);
     }

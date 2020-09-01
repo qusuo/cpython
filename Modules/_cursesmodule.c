@@ -2011,6 +2011,9 @@ Write all data associated with the window into the provided file object.
 This information can be later retrieved using the getwin() function.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(write);
+#endif
 static PyObject *
 _curses_window_putwin(PyCursesWindowObject *self, PyObject *file)
 /*[clinic end generated code: output=3a25e2a5e7a040ac input=0608648e09c8ea0a]*/
@@ -2032,7 +2035,9 @@ _curses_window_putwin(PyCursesWindowObject *self, PyObject *file)
     while (1) {
         char buf[BUFSIZ];
         Py_ssize_t n = fread(buf, 1, BUFSIZ, fp);
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(write);
+#endif
 
         if (n <= 0)
             break;
@@ -2898,6 +2903,9 @@ The routine then creates and initializes a new window using that data,
 returning the new window object.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(read);
+#endif
 static PyObject *
 _curses_getwin(PyObject *module, PyObject *file)
 /*[clinic end generated code: output=a79e0df3379af756 input=f713d2bba0e4c929]*/
@@ -2906,7 +2914,9 @@ _curses_getwin(PyObject *module, PyObject *file)
     PyObject *data;
     size_t datalen;
     WINDOW *win;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(read);
+#endif
     PyObject *res = NULL;
 
     PyCursesInitialised;
@@ -3792,13 +3802,19 @@ _curses_qiflush_impl(PyObject *module, int flag)
 /* Internal helper used for updating curses.LINES, curses.COLS, _curses.LINES
  * and _curses.COLS */
 #if defined(HAVE_CURSES_RESIZETERM) || defined(HAVE_CURSES_RESIZE_TERM)
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(LINES);
+_Py_IDENTIFIER(COLS);
+#endif
 static int
 update_lines_cols(void)
 {
     PyObject *o;
     PyObject *m = PyImport_ImportModuleNoBlock("curses");
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(LINES);
     _Py_IDENTIFIER(COLS);
+#endif
 
     if (!m)
         return 0;

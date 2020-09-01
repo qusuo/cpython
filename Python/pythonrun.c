@@ -176,6 +176,10 @@ static int PARSER_FLAGS(PyCompilerFlags *flags)
 
 /* A PyRun_InteractiveOneObject() auxiliary function that does not print the
  * error on failure. */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(encoding);
+_Py_IDENTIFIER(__main__);
+#endif
 static int
 PyRun_InteractiveOneObjectEx(FILE *fp, PyObject *filename,
                              PyCompilerFlags *flags)
@@ -186,8 +190,10 @@ PyRun_InteractiveOneObjectEx(FILE *fp, PyObject *filename,
     const char *ps1 = "", *ps2 = "", *enc = NULL;
     int errcode = 0;
     int use_peg = _PyInterpreterState_GET()->config._use_peg_parser;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(encoding);
     _Py_IDENTIFIER(__main__);
+#endif
 
     mod_name = _PyUnicode_FromId(&PyId___main__); /* borrowed */
     if (mod_name == NULL) {
@@ -488,17 +494,26 @@ PyRun_SimpleStringFlags(const char *command, PyCompilerFlags *flags)
     return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(msg);
+_Py_IDENTIFIER(filename);
+_Py_IDENTIFIER(lineno);
+_Py_IDENTIFIER(offset);
+_Py_IDENTIFIER(text);
+#endif
 static int
 parse_syntax_error(PyObject *err, PyObject **message, PyObject **filename,
                    Py_ssize_t *lineno, Py_ssize_t *offset, PyObject **text)
 {
     Py_ssize_t hold;
     PyObject *v;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(msg);
     _Py_IDENTIFIER(filename);
     _Py_IDENTIFIER(lineno);
     _Py_IDENTIFIER(offset);
     _Py_IDENTIFIER(text);
+#endif
 
     *message = NULL;
     *filename = NULL;
@@ -629,6 +644,9 @@ print_error_text(PyObject *f, Py_ssize_t offset, PyObject *text_obj)
 }
 
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(code);
+#endif
 int
 _Py_HandleSystemExit(int *exitcode_p)
 {
@@ -659,7 +677,9 @@ _Py_HandleSystemExit(int *exitcode_p)
 
     if (PyExceptionInstance_Check(value)) {
         /* The error code should be in the `code' attribute. */
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(code);
+#endif
         PyObject *code = _PyObject_GetAttrId(value, &PyId_code);
         if (code) {
             Py_DECREF(value);
@@ -832,12 +852,18 @@ PyErr_Print(void)
     PyErr_PrintEx(1);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(print_file_and_line);
+_Py_IDENTIFIER(__module__);
+#endif
 static void
 print_exception(PyObject *f, PyObject *value)
 {
     int err = 0;
     PyObject *type, *tb;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(print_file_and_line);
+#endif
 
     if (!PyExceptionInstance_Check(value)) {
         err = PyFile_WriteString("TypeError: print_exception(): Exception expected for value, ", f);
@@ -897,7 +923,9 @@ print_exception(PyObject *f, PyObject *value)
     else {
         PyObject* moduleName;
         const char *className;
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__module__);
+#endif
         assert(PyExceptionClass_Check(type));
         className = PyExceptionClass_Name(type);
         if (className != NULL) {

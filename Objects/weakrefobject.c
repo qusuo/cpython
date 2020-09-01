@@ -158,11 +158,16 @@ weakref_hash(PyWeakReference *self)
 }
 
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__name__);
+#endif
 static PyObject *
 weakref_repr(PyWeakReference *self)
 {
     PyObject *name, *repr;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__name__);
+#endif
     PyObject* obj = PyWeakref_GET_OBJECT(self);
 
     if (obj == Py_None) {
@@ -479,6 +484,7 @@ proxy_checkref(PyWeakReference *proxy)
         return res; \
     }
 
+#if !TARGET_OS_IPHONE
 #define WRAP_METHOD(method, special) \
     static PyObject * \
     method(PyObject *proxy, PyObject *Py_UNUSED(ignored)) { \
@@ -489,6 +495,18 @@ proxy_checkref(PyWeakReference *proxy)
             Py_DECREF(proxy); \
             return res; \
         }
+#else
+#define WRAP_METHOD(method, special) \
+    _Py_IDENTIFIER(special); \
+    static PyObject * \
+    method(PyObject *proxy, PyObject *Py_UNUSED(ignored)) { \
+            UNWRAP(proxy); \
+            Py_INCREF(proxy); \
+            PyObject* res = _PyObject_CallMethodIdNoArgs(proxy, &PyId_##special); \
+            Py_DECREF(proxy); \
+            return res; \
+        }
+#endif
 
 
 /* direct slots */

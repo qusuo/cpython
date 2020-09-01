@@ -1349,11 +1349,16 @@ requiring allocation in multiples of the system memory page size\n\
 (4 KiB pages are common; using multiples of 4096 for the stack size is\n\
 the suggested approach in the absence of more specific information).");
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(name);
+#endif
 static int
 thread_excepthook_file(PyObject *file, PyObject *exc_type, PyObject *exc_value,
                        PyObject *exc_traceback, PyObject *thread)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(name);
+#endif
     /* print(f"Exception in thread {thread.name}:", file=file) */
     if (PyFile_WriteString("Exception in thread ", file) < 0) {
         return -1;

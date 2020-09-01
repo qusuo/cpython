@@ -944,10 +944,15 @@ odict_sizeof(PyODictObject *od, PyObject *Py_UNUSED(ignored))
 
 PyDoc_STRVAR(odict_reduce__doc__, "Return state information for pickling");
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__dict__);
+#endif
 static PyObject *
 odict_reduce(register PyODictObject *od, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__dict__);
+#endif
     PyObject *dict = NULL, *result = NULL;
     PyObject *items_iter, *items, *args = NULL;
 
@@ -1841,10 +1846,15 @@ done:
 
 PyDoc_STRVAR(reduce_doc, "Return state information for pickling");
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(iter);
+#endif
 static PyObject *
 odictiter_reduce(odictiterobject *di, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(iter);
+#endif
     /* copy the iterator state */
     odictiterobject tmp = *di;
     Py_XINCREF(tmp.di_odict);
@@ -2239,6 +2249,9 @@ Done:
         return 0;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(keys);
+#endif
 static int
 mutablemapping_update_arg(PyObject *self, PyObject *arg)
 {
@@ -2252,7 +2265,9 @@ mutablemapping_update_arg(PyObject *self, PyObject *arg)
         Py_DECREF(items);
         return res;
     }
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(keys);
+#endif
     PyObject *func;
     if (_PyObject_LookupAttrId(arg, &PyId_keys, &func) < 0) {
         return -1;

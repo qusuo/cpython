@@ -1045,10 +1045,15 @@ tupleiter_len(tupleiterobject *it, PyObject *Py_UNUSED(ignored))
 
 PyDoc_STRVAR(length_hint_doc, "Private method returning an estimate of len(list(it)).");
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(iter);
+#endif
 static PyObject *
 tupleiter_reduce(tupleiterobject *it, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(iter);
+#endif
     if (it->it_seq)
         return Py_BuildValue("N(O)n", _PyEval_GetBuiltinId(&PyId_iter),
                              it->it_seq, it->it_index);

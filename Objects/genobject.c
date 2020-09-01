@@ -293,11 +293,16 @@ PyDoc_STRVAR(close_doc,
  *   close a subiterator being delegated to by yield-from.
  */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(close);
+#endif
 static int
 gen_close_iter(PyObject *yf)
 {
     PyObject *retval = NULL;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(close);
+#endif
 
     if (PyGen_CheckExact(yf) || PyCoro_CheckExact(yf)) {
         retval = gen_close((PyGenObject *)yf, NULL);
@@ -387,12 +392,17 @@ PyDoc_STRVAR(throw_doc,
 "throw(typ[,val[,tb]]) -> raise exception in generator,\n\
 return next yielded value or raise StopIteration.");
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(throw);
+#endif
 static PyObject *
 _gen_throw(PyGenObject *gen, int close_on_genexit,
            PyObject *typ, PyObject *val, PyObject *tb)
 {
     PyObject *yf = _PyGen_yf(gen);
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(throw);
+#endif
 
     if (yf) {
         PyObject *ret;

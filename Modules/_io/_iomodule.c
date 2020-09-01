@@ -227,6 +227,12 @@ opened in a text mode, and for bytes a BytesIO can be used like a file
 opened in a binary mode.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_blksize);
+_Py_IDENTIFIER(isatty);
+_Py_IDENTIFIER(mode);
+_Py_IDENTIFIER(close);
+#endif
 static PyObject *
 _io_open_impl(PyObject *module, PyObject *file, const char *mode,
               int buffering, const char *encoding, const char *errors,
@@ -244,10 +250,12 @@ _io_open_impl(PyObject *module, PyObject *file, const char *mode,
 
     PyObject *raw, *modeobj = NULL, *buffer, *wrapper, *result = NULL, *path_or_fd = NULL;
 
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_blksize);
     _Py_IDENTIFIER(isatty);
     _Py_IDENTIFIER(mode);
     _Py_IDENTIFIER(close);
+#endif
 
     is_number = PyNumber_Check(file);
 

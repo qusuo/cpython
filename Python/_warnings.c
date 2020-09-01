@@ -149,11 +149,16 @@ error:
 
 /*************************************************************************/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(match);
+#endif
 static int
 check_matched(PyObject *obj, PyObject *arg)
 {
     PyObject *result;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(match);
+#endif
     int rc;
 
     /* A 'None' filter always matches */
@@ -183,12 +188,17 @@ check_matched(PyObject *obj, PyObject *arg)
    Returns a new reference.
    A NULL return value can mean false or an error.
 */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(warnings);
+#endif
 static PyObject *
 get_warnings_attr(_Py_Identifier *attr_id, int try_import)
 {
     PyObject *warnings_str;
     PyObject *warnings_module, *obj;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(warnings);
+#endif
 
     warnings_str = _PyUnicode_FromId(&PyId_warnings);
     if (warnings_str == NULL) {
@@ -226,11 +236,16 @@ get_warnings_attr(_Py_Identifier *attr_id, int try_import)
 }
 
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(onceregistry);
+#endif
 static PyObject *
 get_once_registry(WarningsState *st)
 {
     PyObject *registry;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(onceregistry);
+#endif
 
     registry = get_warnings_attr(&PyId_onceregistry, 0);
     if (registry == NULL) {
@@ -252,11 +267,16 @@ get_once_registry(WarningsState *st)
 }
 
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(defaultaction);
+#endif
 static PyObject *
 get_default_action(WarningsState *st)
 {
     PyObject *default_action;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(defaultaction);
+#endif
 
     default_action = get_warnings_attr(&PyId_defaultaction, 0);
     if (default_action == NULL) {
@@ -280,6 +300,9 @@ get_default_action(WarningsState *st)
 
 
 /* The item is a new reference. */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(filters);
+#endif
 static PyObject*
 get_filter(PyObject *category, PyObject *text, Py_ssize_t lineno,
            PyObject *module, PyObject **item)
@@ -287,7 +310,9 @@ get_filter(PyObject *category, PyObject *text, Py_ssize_t lineno,
     PyObject *action;
     Py_ssize_t i;
     PyObject *warnings_filters;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(filters);
+#endif
     WarningsState *st = warnings_get_state();
     if (st == NULL) {
         return NULL;
@@ -381,11 +406,16 @@ get_filter(PyObject *category, PyObject *text, Py_ssize_t lineno,
 }
 
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(version);
+#endif
 static int
 already_warned(PyObject *registry, PyObject *key, int should_set)
 {
     PyObject *version_obj, *already_warned;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(version);
+#endif
 
     if (key == NULL)
         return -1;
@@ -558,14 +588,20 @@ error:
     PyErr_Clear();
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_showwarnmsg);
+_Py_IDENTIFIER(WarningMessage);
+#endif
 static int
 call_show_warning(PyObject *category, PyObject *text, PyObject *message,
                   PyObject *filename, int lineno, PyObject *lineno_obj,
                   PyObject *sourceline, PyObject *source)
 {
     PyObject *show_fn, *msg, *res, *warnmsg_cls = NULL;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_showwarnmsg);
     _Py_IDENTIFIER(WarningMessage);
+#endif
 
     /* If the source parameter is set, try to get the Python implementation.
        The Python implementation is able to log the traceback where the source
@@ -829,11 +865,16 @@ next_external_frame(PyFrameObject *frame)
 
 /* filename, module, and registry are new refs, globals is borrowed */
 /* Returns 0 on error (no new refs), 1 on success */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__warningregistry__);
+#endif
 static int
 setup_context(Py_ssize_t stack_level, PyObject **filename, int *lineno,
               PyObject **module, PyObject **registry)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__warningregistry__);
+#endif
     PyObject *globals;
 
     /* Setup globals, filename and lineno. */
@@ -984,11 +1025,17 @@ warnings_warn_impl(PyObject *module, PyObject *message, PyObject *category,
     return do_warn(message, category, stacklevel, source);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(get_source);
+_Py_IDENTIFIER(__loader__);
+#endif
 static PyObject *
 get_source_line(PyObject *module_globals, int lineno)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(get_source);
     _Py_IDENTIFIER(__loader__);
+#endif
     PyObject *loader;
     PyObject *module_name;
     PyObject *get_source;
@@ -1295,6 +1342,9 @@ exit:
     return ret;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_warn_unawaited_coroutine);
+#endif
 void
 _PyErr_WarnUnawaitedCoroutine(PyObject *coro)
 {
@@ -1317,7 +1367,9 @@ _PyErr_WarnUnawaitedCoroutine(PyObject *coro)
        Since this is called from __del__ context, it's careful to never raise
        an exception.
     */
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_warn_unawaited_coroutine);
+#endif
     int warned = 0;
     PyObject *fn = get_warnings_attr(&PyId__warn_unawaited_coroutine, 1);
     if (fn) {

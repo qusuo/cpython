@@ -3369,11 +3369,17 @@ listreviter_setstate(listreviterobject *it, PyObject *state)
 
 /* common pickling support */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(iter);
+_Py_IDENTIFIER(reversed);
+#endif
 static PyObject *
 listiter_reduce_general(void *_it, int forward)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(iter);
     _Py_IDENTIFIER(reversed);
+#endif
     PyObject *list;
 
     /* the objects are not the same, index is of different types! */

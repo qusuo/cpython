@@ -3556,10 +3556,15 @@ test_pytime_object_to_timespec(PyObject *self, PyObject *args)
     return Py_BuildValue("Nl", _PyLong_FromTime_t(sec), nsec);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__tp_del__);
+#endif
 static void
 slot_tp_del(PyObject *self)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__tp_del__);
+#endif
     PyObject *del, *res;
     PyObject *error_type, *error_value, *error_traceback;
 

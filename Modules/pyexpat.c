@@ -802,13 +802,19 @@ pyexpat.xmlparser.ParseFile
 Parse XML data from file-like object.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+// No static variables inside functions
+_Py_IDENTIFIER(read);
+#endif
 static PyObject *
 pyexpat_xmlparser_ParseFile(xmlparseobject *self, PyObject *file)
 /*[clinic end generated code: output=2adc6a13100cc42b input=fbb5a12b6038d735]*/
 {
     int rv = 1;
     PyObject *readmethod = NULL;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(read);
+#endif
 
     if (_PyObject_LookupAttrId(file, &PyId_read, &readmethod) < 0) {
         return NULL;

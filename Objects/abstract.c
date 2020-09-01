@@ -85,12 +85,17 @@ _PyObject_HasLen(PyObject *o) {
    this function returns -1.
 */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__length_hint__);
+#endif
 Py_ssize_t
 PyObject_LengthHint(PyObject *o, Py_ssize_t defaultvalue)
 {
     PyObject *hint, *result;
     Py_ssize_t res;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__length_hint__);
+#endif
     if (_PyObject_HasLen(o)) {
         res = PyObject_Length(o);
         if (res < 0) {
@@ -142,6 +147,9 @@ PyObject_LengthHint(PyObject *o, Py_ssize_t defaultvalue)
     return res;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__class_getitem__);
+#endif
 PyObject *
 PyObject_GetItem(PyObject *o, PyObject *key)
 {
@@ -176,7 +184,9 @@ PyObject_GetItem(PyObject *o, PyObject *key)
 
     if (PyType_Check(o)) {
         PyObject *meth, *result;
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__class_getitem__);
+#endif
 
         // Special case type[int], but disallow other types so str[int] fails
         if ((PyTypeObject*)o == &PyType_Type) {
@@ -755,13 +765,18 @@ PyBuffer_Release(Py_buffer *view)
     Py_DECREF(obj);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__format__);
+#endif
 PyObject *
 PyObject_Format(PyObject *obj, PyObject *format_spec)
 {
     PyObject *meth;
     PyObject *empty = NULL;
     PyObject *result = NULL;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__format__);
+#endif
 
     if (format_spec != NULL && !PyUnicode_Check(format_spec)) {
         PyErr_Format(PyExc_SystemError,
@@ -1407,6 +1422,9 @@ PyNumber_AsSsize_t(PyObject *item, PyObject *err)
 }
 
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__trunc__);
+#endif
 PyObject *
 PyNumber_Long(PyObject *o)
 {
@@ -1414,7 +1432,9 @@ PyNumber_Long(PyObject *o)
     PyNumberMethods *m;
     PyObject *trunc_func;
     Py_buffer view;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__trunc__);
+#endif
 
     if (o == NULL) {
         return null_error();
@@ -2301,10 +2321,15 @@ method_output_as_list(PyObject *o, _Py_Identifier *meth_id)
     return result;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(keys);
+#endif
 PyObject *
 PyMapping_Keys(PyObject *o)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(keys);
+#endif
 
     if (o == NULL) {
         return null_error();
@@ -2315,10 +2340,15 @@ PyMapping_Keys(PyObject *o)
     return method_output_as_list(o, &PyId_keys);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(items);
+#endif
 PyObject *
 PyMapping_Items(PyObject *o)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(items);
+#endif
 
     if (o == NULL) {
         return null_error();
@@ -2329,10 +2359,15 @@ PyMapping_Items(PyObject *o)
     return method_output_as_list(o, &PyId_items);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(values);
+#endif
 PyObject *
 PyMapping_Values(PyObject *o)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(values);
+#endif
 
     if (o == NULL) {
         return null_error();
@@ -2369,10 +2404,15 @@ PyMapping_Values(PyObject *o)
  * When there's no exception to propagate, it's customary for the caller to
  * set a TypeError.
  */
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__bases__);
+#endif
 static PyObject *
 abstract_get_bases(PyObject *cls)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__bases__);
+#endif
     PyObject *bases;
 
     Py_ALLOW_RECURSION
@@ -2443,12 +2483,17 @@ check_class(PyObject *cls, const char *error)
     return -1;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__class__);
+#endif
 static int
 object_isinstance(PyObject *inst, PyObject *cls)
 {
     PyObject *icls;
     int retval;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__class__);
+#endif
 
     if (PyType_Check(cls)) {
         retval = PyObject_TypeCheck(inst, (PyTypeObject *)cls);
@@ -2481,10 +2526,15 @@ object_isinstance(PyObject *inst, PyObject *cls)
     return retval;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__instancecheck__);
+#endif
 static int
 object_recursive_isinstance(PyThreadState *tstate, PyObject *inst, PyObject *cls)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__instancecheck__);
+#endif
 
     /* Quick test for an exact match */
     if (Py_IS_TYPE(inst, (PyTypeObject *)cls)) {
@@ -2570,10 +2620,15 @@ recursive_issubclass(PyObject *derived, PyObject *cls)
     return abstract_issubclass(derived, cls);
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(__subclasscheck__);
+#endif
 static int
 object_issubclass(PyThreadState *tstate, PyObject *derived, PyObject *cls)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(__subclasscheck__);
+#endif
     PyObject *checker;
 
     /* We know what type's __subclasscheck__ does. */

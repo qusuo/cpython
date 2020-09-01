@@ -1366,12 +1366,18 @@ static PyTypeObject Writer_Type = {
     0,                                      /*tp_getset*/
 };
 
+#if TARGET_OS_IPHONE
+// No static variables inside functions
+_Py_IDENTIFIER(write);
+#endif
 static PyObject *
 csv_writer(PyObject *module, PyObject *args, PyObject *keyword_args)
 {
     PyObject * output_file, * dialect = NULL;
     WriterObj * self = PyObject_GC_New(WriterObj, &Writer_Type);
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(write);
+#endif
 
     if (!self)
         return NULL;

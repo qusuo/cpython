@@ -1430,6 +1430,9 @@ array.array.fromfile
 Read n objects from the file object f and append them to the end of the array.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(read);
+#endif
 static PyObject *
 array_array_fromfile_impl(arrayobject *self, PyObject *f, Py_ssize_t n)
 /*[clinic end generated code: output=ec9f600e10f53510 input=e188afe8e58adf40]*/
@@ -1437,7 +1440,9 @@ array_array_fromfile_impl(arrayobject *self, PyObject *f, Py_ssize_t n)
     PyObject *b, *res;
     Py_ssize_t itemsize = self->ob_descr->itemsize;
     Py_ssize_t nbytes;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(read);
+#endif
     int not_enough_bytes;
 
     if (n < 0) {
@@ -1487,6 +1492,9 @@ array.array.tofile
 Write all items (as machine values) to the file object f.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(write);
+#endif
 static PyObject *
 array_array_tofile(arrayobject *self, PyObject *f)
 /*[clinic end generated code: output=3a2cfa8128df0777 input=b0669a484aab0831]*/
@@ -1505,7 +1513,9 @@ array_array_tofile(arrayobject *self, PyObject *f)
         char* ptr = self->ob_item + i*BLOCKSIZE;
         Py_ssize_t size = BLOCKSIZE;
         PyObject *bytes, *res;
+#if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(write);
+#endif
 
         if (i*BLOCKSIZE + size > nbytes)
             size = nbytes - i*BLOCKSIZE;
@@ -2140,6 +2150,10 @@ array.array.__reduce_ex__
 Return state information for pickling.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(_array_reconstructor);
+_Py_IDENTIFIER(__dict__);
+#endif
 static PyObject *
 array_array___reduce_ex__(arrayobject *self, PyObject *value)
 /*[clinic end generated code: output=051e0a6175d0eddb input=c36c3f85de7df6cd]*/
@@ -2151,8 +2165,10 @@ array_array___reduce_ex__(arrayobject *self, PyObject *value)
     int mformat_code;
     static PyObject *array_reconstructor = NULL;
     long protocol;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(_array_reconstructor);
     _Py_IDENTIFIER(__dict__);
+#endif
 
     if (array_reconstructor == NULL) {
         PyObject *array_module = PyImport_ImportModule("array");
@@ -2901,11 +2917,16 @@ array.arrayiterator.__reduce__
 Return state information for pickling.
 [clinic start generated code]*/
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(iter);
+#endif
 static PyObject *
 array_arrayiterator___reduce___impl(arrayiterobject *self)
 /*[clinic end generated code: output=7898a52e8e66e016 input=a062ea1e9951417a]*/
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(iter);
+#endif
     PyObject *func = _PyEval_GetBuiltinId(&PyId_iter);
     if (self->ao == NULL) {
         return Py_BuildValue("N(())", func);

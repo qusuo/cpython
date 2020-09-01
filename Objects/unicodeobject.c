@@ -15767,10 +15767,15 @@ unicodeiter_len(unicodeiterobject *it, PyObject *Py_UNUSED(ignored))
 
 PyDoc_STRVAR(length_hint_doc, "Private method returning an estimate of len(list(it)).");
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(iter);
+#endif
 static PyObject *
 unicodeiter_reduce(unicodeiterobject *it, PyObject *Py_UNUSED(ignored))
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(iter);
+#endif
     if (it->it_seq != NULL) {
         return Py_BuildValue("N(O)n", _PyEval_GetBuiltinId(&PyId_iter),
                              it->it_seq, it->it_index);

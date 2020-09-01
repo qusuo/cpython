@@ -190,13 +190,18 @@ PyDoc_STRVAR(module_register_adapter_doc,
 \n\
 Registers an adapter with pysqlite's adapter registry. Non-standard.");
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(upper);
+#endif
 static PyObject* module_register_converter(PyObject* self, PyObject* args)
 {
     PyObject* orig_name;
     PyObject* name = NULL;
     PyObject* callable;
     PyObject* retval = NULL;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(upper);
+#endif
 
     if (!PyArg_ParseTuple(args, "UO", &orig_name, &callable)) {
         return NULL;

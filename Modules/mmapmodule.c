@@ -687,10 +687,15 @@ mmap__enter__method(mmap_object *self, PyObject *args)
     return (PyObject *)self;
 }
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(close);
+#endif
 static PyObject *
 mmap__exit__method(PyObject *self, PyObject *args)
 {
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(close);
+#endif
 
     return _PyObject_CallMethodIdNoArgs(self, &PyId_close);
 }
