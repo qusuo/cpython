@@ -42,7 +42,13 @@ let package = Package(
         ),
         .target(
             name: "install",
-            path: "install"
+            path: "install",
+            resources: [
+                .copy("lib"),
+                .copy("bin"),
+                .copy("share"),
+                .copy("include")
+            ]
         )
     ]
 )
