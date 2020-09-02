@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "Python",
     products: [
-        .library(name: "Python", targets: ["python3_ios", "pythonA", "pythonB", "pythonC", "pythonD", "pythonE"])
+        .library(name: "Python", targets: ["python3_ios", "pythonA", "pythonB", "pythonC", "pythonD", "pythonE", "install"])
     ],
     dependencies: [
     ],
@@ -13,7 +13,10 @@ let package = Package(
         .binaryTarget(
             name: "python3_ios",
             url: "https://github.com/holzschu/cpython/releases/download/v1.0/python3_ios.xcframework.zip",
-            checksum: "fe31b43cceafdc7b16ab7c5fcb9f1af19e22341eeb5fc6d4c84373b596277a56"
+            checksum: "fe31b43cceafdc7b16ab7c5fcb9f1af19e22341eeb5fc6d4c84373b596277a56",
+            resources: [
+              .copy("install")
+            ]
         ),
         .binaryTarget(
             name: "pythonA",
