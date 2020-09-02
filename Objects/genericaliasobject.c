@@ -224,9 +224,7 @@ make_parameters(PyObject *args)
             iparam += tuple_add(parameters, iparam, t);
         }
         else {
-#if !TARGET_OS_IPHONE
             _Py_IDENTIFIER(__parameters__);
-#endif
             PyObject *subparams;
             if (_PyObject_LookupAttrId(t, &PyId___parameters__, &subparams) < 0) {
                 Py_DECREF(parameters);
