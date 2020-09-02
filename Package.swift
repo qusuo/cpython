@@ -45,7 +45,7 @@ let package = Package(
             resources: [
                 .copy("install")
             ],
-            path: "."
+            path: "install"
         )
     ]
 )
