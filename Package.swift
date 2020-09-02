@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "Python",
     products: [
-        .library(name: "Python", targets: ["python3_ios", "pythonA", "pythonB", "pythonC", "pythonD", "pythonE", "install"])
+        .library(name: "Python", targets: ["python3_ios", "pythonA", "pythonB", "pythonC", "pythonD", "pythonE", "files"])
     ],
     dependencies: [
     ],
@@ -41,7 +41,7 @@ let package = Package(
             checksum: "2c717361d89810f37f287ec5b2890d9a3dcd187bda5dae24dffb2d0709b9423f"
         ),
         .target(
-            name: "install", 
+            name: "files", 
             resources: [
                 .copy("install")
             ]
