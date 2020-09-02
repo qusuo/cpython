@@ -3,7 +3,7 @@
 # Changed install prefix so multiple install coexist
 PREFIX=$PWD
 XCFRAMEWORKS_DIR=$PREFIX/../Python-aux/
-export PATH=$PREFIX/install/bin:$PATH
+export PATH=$PREFIX/Library/bin:$PATH
 export PYTHONPYCACHEPREFIX=$PREFIX/__pycache__
 OSX_SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
 IOS_SDKROOT=$(xcrun --sdk iphoneos --show-sdk-path)
@@ -12,7 +12,7 @@ SIM_SDKROOT=$(xcrun --sdk iphonesimulator --show-sdk-path)
 # 1) compile for OSX (required)
 
 find . -name \*.o -delete
-env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L. -lpython3.9" ./configure --prefix=$PREFIX/install --with-system-ffi --enable-shared >& configure_osx.log
+env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L. -lpython3.9" ./configure --prefix=$PREFIX/Library --with-system-ffi --enable-shared >& configure_osx.log
 # enable-framework incompatible with local install
 rm -rf build/lib.macosx-10.15-x86_64-3.9
 make >& make_osx.log
@@ -25,7 +25,7 @@ make install >& make_install_osx.log
 # 2.1) download and install required packages: 
 # to do later, after several cycles of debug.
 # curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libffi.xcframework.zip
-export PYTHONHOME=$PREFIX/install
+export PYTHONHOME=$PREFIX/Library
 mkdir -p Frameworks_iphoneos
 mkdir -p Frameworks_iphoneos/include
 mkdir -p Frameworks_iphoneos/lib
@@ -46,7 +46,7 @@ env CC=clang CXX=clang++ \
 	LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" \
 	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -L. -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" \
 	PLATFORM=iphoneos \
-	./configure --prefix=$PREFIX/install --enable-shared \
+	./configure --prefix=$PREFIX/Library --enable-shared \
 	--host arm-apple-darwin --build x86_64-apple-darwin --enable-ipv6 \
 	--with-openssl=$PREFIX/Frameworks_iphoneos \
 	--without-computed-gotos \
@@ -86,7 +86,7 @@ env CC=clang CXX=clang++ \
 	LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib" \
 	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $SIM_SDKROOT -lz -L. -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib" \
 	PLATFORM=iphonesimulator \
-	./configure --prefix=$PREFIX/install --enable-shared \
+	./configure --prefix=$PREFIX/Library --enable-shared \
 	--host x86_64-apple-darwin --build x86_64-apple-darwin --enable-ipv6 \
 	--with-openssl=$PREFIX/Frameworks_iphonesimulator \
 	--without-computed-gotos \
