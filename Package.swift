@@ -42,10 +42,7 @@ let package = Package(
         ),
         .target(
             name: "install",
-            path: "install",
-            resources: [
-                .copy("install")
-            ]
+            path: "install"
         )
     ]
 )
