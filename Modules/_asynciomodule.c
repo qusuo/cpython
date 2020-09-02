@@ -1443,11 +1443,11 @@ FutureObj_finalize(FutureObj *fut)
 {
     _Py_IDENTIFIER(call_exception_handler);
     _Py_IDENTIFIER(message);
-    _Py_IDENTIFIER(source_traceback);
 #if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(exception);
     _Py_IDENTIFIER(future);
 #endif
+    _Py_IDENTIFIER(source_traceback);
 
     PyObject *error_type, *error_value, *error_traceback;
     PyObject *context;

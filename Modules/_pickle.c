@@ -5890,7 +5890,7 @@ load_frozenset(UnpicklerObject *self)
 
 #if TARGET_OS_IPHONE
 _Py_IDENTIFIER(__getinitargs__);
-_Py_IDENTIFIER(__new__);
+// _Py_IDENTIFIER(__new__); // name collision
 #endif
 static PyObject *
 instantiate(PyObject *cls, PyObject *args)
@@ -5902,8 +5902,8 @@ instantiate(PyObject *cls, PyObject *args)
     if (!PyTuple_GET_SIZE(args) && PyType_Check(cls)) {
 #if !TARGET_OS_IPHONE
         _Py_IDENTIFIER(__getinitargs__);
-        _Py_IDENTIFIER(__new__);
 #endif
+        _Py_IDENTIFIER(__new__);
         PyObject *func;
         if (_PyObject_LookupAttrId(cls, &PyId___getinitargs__, &func) < 0) {
             return NULL;

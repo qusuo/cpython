@@ -409,12 +409,18 @@ error:
 
    Return 1 on success, 0 on failure. */
 
+#if TARGET_OS_IPHONE
+_Py_IDENTIFIER(open);
+_Py_IDENTIFIER(readline);
+#endif
 static int
 fp_setreadl(struct tok_state *tok, const char* enc)
 {
     PyObject *readline, *io, *stream;
+#if !TARGET_OS_IPHONE
     _Py_IDENTIFIER(open);
     _Py_IDENTIFIER(readline);
+#endif
     int fd;
     long pos;
 

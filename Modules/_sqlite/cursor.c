@@ -95,7 +95,7 @@ static void pysqlite_cursor_dealloc(pysqlite_Cursor* self)
 }
 
 #if TARGET_OS_IPHONE
-    _Py_IDENTIFIER(upper);
+_Py_IDENTIFIER(upper);
 #endif
 static PyObject *
 _pysqlite_get_converter(const char *keystr, Py_ssize_t keylen)

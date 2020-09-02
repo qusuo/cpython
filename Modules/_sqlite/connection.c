@@ -1644,7 +1644,7 @@ pysqlite_connection_backup(pysqlite_Connection *self, PyObject *args, PyObject *
 #endif
 
 #if TARGET_OS_IPHONE
-    _Py_IDENTIFIER(upper);
+_Py_IDENTIFIER(upper);
 #endif
 static PyObject *
 pysqlite_connection_create_collation(pysqlite_Connection* self, PyObject* args)

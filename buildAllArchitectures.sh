@@ -14,7 +14,9 @@ SIM_SDKROOT=$(xcrun --sdk iphonesimulator --show-sdk-path)
 find . -name \*.o -delete
 env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L. -lpython3.9" ./configure --prefix=$PREFIX/install --with-system-ffi --enable-shared >& configure_osx.log
 # enable-framework incompatible with local install
+rm -rf build/lib.macosx-10.15-x86_64-3.9
 make >& make_osx.log
+mkdir -p build/lib.macosx-10.15-x86_64-3.9
 cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9
 make install >& make_install_osx.log
 
@@ -47,6 +49,7 @@ env CC=clang CXX=clang++ \
 	./configure --prefix=$PREFIX/install --enable-shared \
 	--host arm-apple-darwin --build x86_64-apple-darwin --enable-ipv6 \
 	--with-openssl=$PREFIX/Frameworks_iphoneos \
+	--without-computed-gotos \
 	with_system_ffi=yes \
 	ac_cv_file__dev_ptmx=no \
 	ac_cv_file__dev_ptc=no \
@@ -54,7 +57,9 @@ env CC=clang CXX=clang++ \
 	ac_cv_func_sendfile=no \
 	ac_cv_func_clock_settime=no >& configure_ios.log
 # --enable-framework fails with iOS compilers
+rm -rf build/lib.darwin-arm64-3.9
 make >& make_ios.log
+mkdir -p  build/lib.darwin-arm64-3.9
 cp libpython3.9.dylib build/lib.darwin-arm64-3.9
 # Don't install for iOS
 
@@ -84,6 +89,7 @@ env CC=clang CXX=clang++ \
 	./configure --prefix=$PREFIX/install --enable-shared \
 	--host x86_64-apple-darwin --build x86_64-apple-darwin --enable-ipv6 \
 	--with-openssl=$PREFIX/Frameworks_iphonesimulator \
+	--without-computed-gotos \
 	cross_compiling=yes \
 	with_system_ffi=yes \
 	ac_cv_file__dev_ptmx=no \
@@ -91,7 +97,9 @@ env CC=clang CXX=clang++ \
 	ac_cv_func_getentropy=no \
 	ac_cv_func_sendfile=no \
 	ac_cv_func_clock_settime=no >& configure_simulator.log
+rm -rf build/lib.darwin-x86_64-3.9
 make >& make_simulator.log
+mkdir -p build/lib.darwin-x86_64-3.9
 cp libpython3.9.dylib build/lib.darwin-x86_64-3.9
 # Don't install for iOS
 
