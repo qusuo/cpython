@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "Python",
     products: [
-        .library(name: "Python", targets: ["python3_ios", "pythonA", "pythonB", "pythonC", "pythonD", "pythonE", "files"])
+        .library(name: "Python", targets: ["python3_ios", "pythonA", "pythonB", "pythonC", "pythonD", "pythonE"])
     ],
     dependencies: [
     ],
@@ -39,12 +39,6 @@ let package = Package(
             name: "pythonE",
             url: "https://github.com/holzschu/cpython/releases/download/v1.0/pythonE.xcframework.zip",
             checksum: "2c717361d89810f37f287ec5b2890d9a3dcd187bda5dae24dffb2d0709b9423f"
-        ),
-        .target(
-            name: "files", 
-            resources: [
-                .copy("install")
-            ]
         )
     ]
 )
@@ -56,3 +50,11 @@ b8c246c01ba3b081b482f189e3deff027c05a8907e24faa4a4c89f19a9d2ddc8
 1e6798bbcaccdc7e504198531f88b55e84baace50cc8edd2e559e000987a936e
 2c717361d89810f37f287ec5b2890d9a3dcd187bda5dae24dffb2d0709b9423f
 */
+/*
+.target(
+            name: "files", 
+            resources: [
+                .copy("install")
+            ]
+        )
+*/ 
