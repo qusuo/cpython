@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "Python",
     products: [
-        .library(name: "Python", targets: ["python3_ios", "pythonA", "pythonB", "pythonC", "pythonD", "pythonE"])
+        .library(name: "Python", targets: ["python3_ios", "pythonA", "pythonB", "pythonC", "pythonD", "pythonE", "install"])
     ],
     dependencies: [
     ],
@@ -13,7 +13,7 @@ let package = Package(
         .binaryTarget(
             name: "python3_ios",
             url: "https://github.com/holzschu/cpython/releases/download/v1.0/python3_ios.xcframework.zip",
-            checksum: "fe31b43cceafdc7b16ab7c5fcb9f1af19e22341eeb5fc6d4c84373b596277a56",
+            checksum: "fe31b43cceafdc7b16ab7c5fcb9f1af19e22341eeb5fc6d4c84373b596277a56"
         ),
         .binaryTarget(
             name: "pythonA",
@@ -39,6 +39,12 @@ let package = Package(
             name: "pythonE",
             url: "https://github.com/holzschu/cpython/releases/download/v1.0/pythonE.xcframework.zip",
             checksum: "2c717361d89810f37f287ec5b2890d9a3dcd187bda5dae24dffb2d0709b9423f"
+        ),
+        .target(
+            name: "install", 
+            resources: [
+                .copy("install")
+            ]
         )
     ]
 )
@@ -51,10 +57,4 @@ b8c246c01ba3b081b482f189e3deff027c05a8907e24faa4a4c89f19a9d2ddc8
 2c717361d89810f37f287ec5b2890d9a3dcd187bda5dae24dffb2d0709b9423f
 */
 /*
-.target(
-            name: "files", 
-            resources: [
-                .copy("install")
-            ]
-        )
 */ 
