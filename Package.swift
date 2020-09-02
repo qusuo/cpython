@@ -41,10 +41,11 @@ let package = Package(
             checksum: "2c717361d89810f37f287ec5b2890d9a3dcd187bda5dae24dffb2d0709b9423f"
         ),
         .target(
-            name: "install", 
+            name: "install",
             resources: [
                 .copy("install")
-            ]
+            ],
+            path: "."
         )
     ]
 )
