@@ -10,8 +10,8 @@ build_time_vars = {'ABIFLAGS': '',
  'BASECFLAGS': '-Wno-unused-result -Wsign-compare -Wunreachable-code',
  'BASECPPFLAGS': '',
  'BASEMODLIBS': '',
- 'BINDIR': '/Users/holzschu/src/Xcode_iPad/cpython/install/bin',
- 'BINLIBDEST': '/Users/holzschu/src/Xcode_iPad/cpython/install/lib/python3.9',
+ 'BINDIR': '/Users/holzschu/src/Xcode_iPad/cpython/Library/bin',
+ 'BINLIBDEST': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9',
  'BLDLIBRARY': '-L. -lpython3.9',
  'BLDSHARED': 'clang -v -undefined error -dynamiclib -isysroot '
               '/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk '
@@ -44,7 +44,7 @@ build_time_vars = {'ABIFLAGS': '',
  'CONFIGURE_LDFLAGS': '-isysroot '
                       '/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk',
  'CONFIGURE_LDFLAGS_NODIST': '',
- 'CONFIG_ARGS': "'--prefix=/Users/holzschu/src/Xcode_iPad/cpython/install' "
+ 'CONFIG_ARGS': "'--prefix=/Users/holzschu/src/Xcode_iPad/cpython/Library' "
                 "'--with-system-ffi' '--enable-shared' 'CC=clang' "
                 "'CFLAGS=-isysroot "
                 "/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk' "
@@ -52,8 +52,8 @@ build_time_vars = {'ABIFLAGS': '',
                 "/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk' "
                 "'CPPFLAGS=-isysroot "
                 "/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk'",
- 'CONFINCLUDEDIR': '/Users/holzschu/src/Xcode_iPad/cpython/install/include',
- 'CONFINCLUDEPY': '/Users/holzschu/src/Xcode_iPad/cpython/install/include/python3.9',
+ 'CONFINCLUDEDIR': '/Users/holzschu/src/Xcode_iPad/cpython/Library/include',
+ 'CONFINCLUDEPY': '/Users/holzschu/src/Xcode_iPad/cpython/Library/include/python3.9',
  'COREPYTHONPATH': '',
  'COVERAGE_INFO': '/Users/holzschu/src/Xcode_iPad/cpython/coverage.info',
  'COVERAGE_REPORT': '/Users/holzschu/src/Xcode_iPad/cpython/lcov-report',
@@ -62,13 +62,13 @@ build_time_vars = {'ABIFLAGS': '',
  'CPPFLAGS': '-I. -I./Include -isysroot '
              '/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk',
  'CXX': 'clang++',
- 'DESTDIRS': '/Users/holzschu/src/Xcode_iPad/cpython/install '
-             '/Users/holzschu/src/Xcode_iPad/cpython/install/lib '
-             '/Users/holzschu/src/Xcode_iPad/cpython/install/lib/python3.9 '
-             '/Users/holzschu/src/Xcode_iPad/cpython/install/lib/python3.9/lib-dynload',
- 'DESTLIB': '/Users/holzschu/src/Xcode_iPad/cpython/install/lib/python3.9',
+ 'DESTDIRS': '/Users/holzschu/src/Xcode_iPad/cpython/Library '
+             '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib '
+             '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9 '
+             '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9/lib-dynload',
+ 'DESTLIB': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9',
  'DESTPATH': '',
- 'DESTSHARED': '/Users/holzschu/src/Xcode_iPad/cpython/install/lib/python3.9/lib-dynload',
+ 'DESTSHARED': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9/lib-dynload',
  'DFLAGS': '',
  'DIRMODE': 755,
  'DIST': 'README.rst ChangeLog configure configure.ac acconfig.h pyconfig.h.in '
@@ -526,12 +526,12 @@ build_time_vars = {'ABIFLAGS': '',
  'HAVE_ZLIB_COPY': 1,
  'HAVE__GETPTY': 0,
  'HOST_GNU_TYPE': 'x86_64-apple-darwin19.6.0',
- 'INCLDIRSTOMAKE': '/Users/holzschu/src/Xcode_iPad/cpython/install/include '
-                   '/Users/holzschu/src/Xcode_iPad/cpython/install/include '
-                   '/Users/holzschu/src/Xcode_iPad/cpython/install/include/python3.9 '
-                   '/Users/holzschu/src/Xcode_iPad/cpython/install/include/python3.9',
- 'INCLUDEDIR': '/Users/holzschu/src/Xcode_iPad/cpython/install/include',
- 'INCLUDEPY': '/Users/holzschu/src/Xcode_iPad/cpython/install/include/python3.9',
+ 'INCLDIRSTOMAKE': '/Users/holzschu/src/Xcode_iPad/cpython/Library/include '
+                   '/Users/holzschu/src/Xcode_iPad/cpython/Library/include '
+                   '/Users/holzschu/src/Xcode_iPad/cpython/Library/include/python3.9 '
+                   '/Users/holzschu/src/Xcode_iPad/cpython/Library/include/python3.9',
+ 'INCLUDEDIR': '/Users/holzschu/src/Xcode_iPad/cpython/Library/include',
+ 'INCLUDEPY': '/Users/holzschu/src/Xcode_iPad/cpython/Library/include/python3.9',
  'INSTALL': '/usr/bin/install -c',
  'INSTALL_DATA': '/usr/bin/install -c -m 644',
  'INSTALL_PROGRAM': '/usr/bin/install -c',
@@ -554,14 +554,14 @@ build_time_vars = {'ABIFLAGS': '',
              '/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk',
  'LDVERSION': '3.9',
  'LIBC': '',
- 'LIBDEST': '/Users/holzschu/src/Xcode_iPad/cpython/install/lib/python3.9',
- 'LIBDIR': '/Users/holzschu/src/Xcode_iPad/cpython/install/lib',
+ 'LIBDEST': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9',
+ 'LIBDIR': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib',
  'LIBFFI_INCLUDEDIR': '/usr/local/lib/libffi-3.2.1/include',
  'LIBM': '',
  'LIBOBJDIR': 'Python/',
  'LIBOBJS': '',
- 'LIBPC': '/Users/holzschu/src/Xcode_iPad/cpython/install/lib/pkgconfig',
- 'LIBPL': '/Users/holzschu/src/Xcode_iPad/cpython/install/lib/python3.9/config-3.9-darwin',
+ 'LIBPC': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/pkgconfig',
+ 'LIBPL': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9/config-3.9-darwin',
  'LIBPYTHON': '',
  'LIBRARY': 'libpython3.9.a',
  'LIBRARY_OBJS': '\\',
@@ -579,13 +579,13 @@ build_time_vars = {'ABIFLAGS': '',
  'LOCALMODLIBS': '',
  'MACHDEP': 'darwin',
  'MACHDEP_OBJS': '',
- 'MACHDESTLIB': '/Users/holzschu/src/Xcode_iPad/cpython/install/lib/python3.9',
+ 'MACHDESTLIB': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9',
  'MACOSX_DEPLOYMENT_TARGET': '10.15',
  'MAINCC': 'clang',
  'MAJOR_IN_MKDEV': 0,
  'MAJOR_IN_SYSMACROS': 0,
  'MAKESETUP': './Modules/makesetup',
- 'MANDIR': '/Users/holzschu/src/Xcode_iPad/cpython/install/share/man',
+ 'MANDIR': '/Users/holzschu/src/Xcode_iPad/cpython/Library/share/man',
  'MKDIR_P': './install-sh -c -d',
  'MODBUILT_NAMES': 'posix  errno  pwd  _sre  _codecs  _weakref  _functools  '
                    '_operator  _collections  _abc  itertools  atexit  _signal  '
@@ -708,7 +708,7 @@ build_time_vars = {'ABIFLAGS': '',
  'RESSRCDIR': 'Mac/Resources/framework',
  'RETSIGTYPE': 'void',
  'RUNSHARED': 'DYLD_LIBRARY_PATH=/Users/holzschu/src/Xcode_iPad/cpython',
- 'SCRIPTDIR': '/Users/holzschu/src/Xcode_iPad/cpython/install/lib',
+ 'SCRIPTDIR': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib',
  'SETPGRP_HAVE_ARG': 0,
  'SGI_ABI': '@SGI_ABI@',
  'SHELL': '/bin/sh',
@@ -777,7 +777,7 @@ build_time_vars = {'ABIFLAGS': '',
  'XMLLIBSUBDIRS': 'xml xml/dom xml/etree xml/parsers xml/sax',
  'abs_builddir': '/Users/holzschu/src/Xcode_iPad/cpython',
  'abs_srcdir': '/Users/holzschu/src/Xcode_iPad/cpython',
- 'datarootdir': '/Users/holzschu/src/Xcode_iPad/cpython/install/share',
- 'exec_prefix': '/Users/holzschu/src/Xcode_iPad/cpython/install',
- 'prefix': '/Users/holzschu/src/Xcode_iPad/cpython/install',
+ 'datarootdir': '/Users/holzschu/src/Xcode_iPad/cpython/Library/share',
+ 'exec_prefix': '/Users/holzschu/src/Xcode_iPad/cpython/Library',
+ 'prefix': '/Users/holzschu/src/Xcode_iPad/cpython/Library',
  'srcdir': '.'}

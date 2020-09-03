@@ -4687,7 +4687,15 @@ os_uname_impl(PyObject *module)
     SET(1, u.nodename);
     SET(2, u.release);
     SET(3, u.version);
+    // IPHONE simulator appears like MacOSX, with no differences
+#if TARGET_OS_SIMULATOR
+	char* u_machine = getenv("SIMULATOR_MODEL_IDENTIFIER");
+	if (u_machine != NULL)
+		SET(4, u_machine)
+	else 
+#endif
     SET(4, u.machine);
+		
 
 #undef SET
 
