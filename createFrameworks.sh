@@ -49,8 +49,10 @@ do
 	plutil -replace CFBundleSupportedPlatforms.0 -string "MacOSX" build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 	plutil -remove CFBundleSupportedPlatforms.1 build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 # Create the 3-architecture XCFramework:
-    rm -rf $framework.xcframework
-	xcodebuild -create-xcframework -framework build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output $framework.xcframework
+    rm -rf  XcFrameworks/$framework.xcframework
+	xcodebuild -create-xcframework -framework build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output XcFrameworks/$framework.xcframework
+	rm -f XcFrameworks/$framework.xcframework.zip
+	zip -rq XcFrameworks/$framework.xcframework.zip XcFrameworks/$framework.xcframework
 done
 
 # Cleanup install directory from binary files:
@@ -62,10 +64,3 @@ rm -f Library/lib/libpython3.9.dylib
 rm -f Library/bin/python3.9
 rm -f Library/bin/python3
 
-for framework in python3_ios pythonA pythonB pythonC pythonD pythonE
-do 
-	echo $framework
-   rm -f $framework.xcframework.zip
-   zip -rq $framework.xcframework.zip $framework.xcframework
-   swift package compute-checksum $framework.xcframework.zip
-done
