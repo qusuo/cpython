@@ -1,5 +1,6 @@
 #! /bin/sh
 
+curl -OL https://github.com/holzschu/ios_system/releases/download/2.6/ios_error.h
 mkdir -p Python-aux
 pushd Python-aux
 curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libffi.xcframework.zip
