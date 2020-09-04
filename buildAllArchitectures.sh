@@ -2,7 +2,7 @@
 
 # Changed install prefix so multiple install coexist
 PREFIX=$PWD
-XCFRAMEWORKS_DIR=$PREFIX/../Python-aux/
+XCFRAMEWORKS_DIR=$PREFIX/Python-aux/
 export PATH=$PREFIX/Library/bin:$PATH
 export PYTHONPYCACHEPREFIX=$PREFIX/__pycache__
 OSX_SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
@@ -22,9 +22,6 @@ make install >& make_install_osx.log
 
 # 2) compile for iOS:
 
-# 2.1) download and install required packages: 
-# to do later, after several cycles of debug.
-# curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libffi.xcframework.zip
 export PYTHONHOME=$PREFIX/Library
 mkdir -p Frameworks_iphoneos
 mkdir -p Frameworks_iphoneos/include
