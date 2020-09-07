@@ -25,7 +25,9 @@ typedef struct _PyPathConfig {
        are ignored when their value are equal to -1 (unset). */
     int isolated;
     int site_import;
-    /* Set when a venv is detected */
+#endif
+#if TARGET_OS_IPHONE || defined(MS_WINDOWS)
+    /* Set when a venv is detected or (iOS) which version of Python is running */
     wchar_t *base_executable;
 #endif
 } _PyPathConfig;

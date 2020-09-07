@@ -57,7 +57,7 @@ pathconfig_clear(_PyPathConfig *config)
     CLEAR(config->module_search_path);
     CLEAR(config->program_name);
     CLEAR(config->home);
-#ifdef MS_WINDOWS
+#if TARGET_OS_IPHONE || defined(MS_WINDOWS)
     CLEAR(config->base_executable);
 #endif
 
@@ -88,6 +88,8 @@ pathconfig_copy(_PyPathConfig *config, const _PyPathConfig *config2)
 #ifdef MS_WINDOWS
     config->isolated = config2->isolated;
     config->site_import = config2->site_import;
+#endif
+#if TARGET_OS_IPHONE || defined(MS_WINDOWS)
     COPY_ATTR(base_executable);
 #endif
 
@@ -169,7 +171,7 @@ pathconfig_set_from_config(_PyPathConfig *pathconfig, const PyConfig *config)
     COPY_CONFIG(exec_prefix, exec_prefix);
     COPY_CONFIG(program_name, program_name);
     COPY_CONFIG(home, home);
-#ifdef MS_WINDOWS
+#if TARGET_OS_IPHONE || defined(MS_WINDOWS)
     COPY_CONFIG(base_executable, base_executable);
 #endif
 
@@ -313,7 +315,24 @@ config_calculate_pathconfig(PyConfig *config)
             } \
         }
 
-#ifdef MS_WINDOWS
+#if TARGET_OS_IPHONE || defined(MS_WINDOWS)
+	// On iOS, base_executable stores argv[0], the name of the actual version of Python 
+	// that is running. We use it to load the relevant modules.
+#if TARGET_OS_IPHONE
+	wchar_t pythonName[12];
+	if (config->_orig_argv.length > 0) {
+		wcscpy(pythonName, config->_orig_argv.items[0]);
+	} else {
+		wcscpy(pythonName, L"python");
+		fprintf(stderr, "Warning: _orig_argv has null length\n");
+	}
+	if ((wcscmp(pythonName, L"python3") == 0) || (wcscmp(pythonName, L"python") == 0)) {
+		wcscpy(pythonName, L"python3_ios");
+	}
+	if (copy_wstr(&config->base_executable, pythonName) < 0) {
+		goto no_memory;
+	}
+#else // MS_WINDOWS code
     if (config->executable != NULL && config->base_executable == NULL) {
         /* If executable is set explicitly in the configuration,
            ignore calculated base_executable: _PyConfig_InitPathConfig()
@@ -322,6 +341,7 @@ config_calculate_pathconfig(PyConfig *config)
     else {
         COPY_ATTR(base_executable, base_executable);
     }
+#endif
 #endif
 
     COPY_ATTR(program_full_path, executable);
@@ -432,7 +452,7 @@ pathconfig_global_init(void)
     assert(_Py_path_config.module_search_path != NULL);
     assert(_Py_path_config.program_name != NULL);
     /* home can be NULL */
-#ifdef MS_WINDOWS
+#if TARGET_OS_IPHONE || defined(MS_WINDOWS)
     assert(_Py_path_config.base_executable != NULL);
 #endif
 }

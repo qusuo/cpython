@@ -467,6 +467,7 @@ def venv(known_paths):
 
     env = os.environ
     if sys.platform == 'darwin' and '__PYVENV_LAUNCHER__' in env:
+        print("Resetting sys._base_executable in venv", file=sys.stderr)
         executable = sys._base_executable = os.environ['__PYVENV_LAUNCHER__']
     else:
         executable = sys.executable

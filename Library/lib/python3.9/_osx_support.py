@@ -73,6 +73,10 @@ def _read_output(commandstring):
 
 def _find_build_tool(toolname):
     """Find a build tool on current path or using xcrun"""
+    # iOS: xcrun is not installed, some binaries have no PATH: 
+    if (sys.platform == 'darwin' and os.uname().machine.startswith('iP')):
+        return (_find_executable(toolname) or toolname)
+    
     return (_find_executable(toolname)
                 or _read_output("/usr/bin/xcrun -find %s" % (toolname,))
                 or ''

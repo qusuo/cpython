@@ -1476,6 +1476,17 @@ class FileFinder:
                 if _path_isfile(full_path):
                     return self._get_spec(loader_class, fullname, full_path,
                                           None, target)
+            # iOS: check if a framework with proper name exists:
+            if sys.platform == 'darwin' and _os.uname().machine.startswith('iP'): 
+                if self.path.endswith("lib-dynload") and self.path.startswith(sys.prefix)  and suffix.endswith('.so'):
+                    pythonName = sys._base_executable # set in pathconfig.c
+                    frameworkName = pythonName + "-" + fullname
+                    home, tail = _path_split(sys.prefix)
+                    full_path = _path_join(home, "Frameworks", frameworkName + ".framework", frameworkName)
+                    _bootstrap._verbose_message('trying {}', full_path, verbosity=2)
+                    if _path_isfile(full_path):
+                        return self._get_spec(loader_class, fullname, full_path, None, target)
+            # end iOS
         if is_namespace:
             _bootstrap._verbose_message('possible namespace for {}', base_path)
             spec = _bootstrap.ModuleSpec(fullname, None)

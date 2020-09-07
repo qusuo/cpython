@@ -4,12 +4,13 @@
 #  name @rpath/ios_system.framework/ios_system (offset 24)
 #  name /usr/lib/libSystem.B.dylib (offset 24)
 #  name /System/Library/Frameworks/CoreFoundation.framework/CoreFoundation (offset 24)
+libpython=$PWD/Library/lib/libpython3.9.dylib
 
 for name in _asyncio _bisect _blake2 _bz2 _codecs_cn _codecs_hk _codecs_iso2022 _codecs_jp _codecs_kr _codecs_tw _contextvars _crypt _csv _ctypes _ctypes_test _datetime _dbm _decimal _elementtree _hashlib _heapq _json _lsprof _md5 _multibytecodec _multiprocessing _opcode _pickle _posixshmem _posixsubprocess _queue _random _sha1 _sha256 _sha3 _sha512 _socket _sqlite3 _ssl _statistics _struct _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz _zoneinfo array audioop binascii cmath fcntl grp math mmap parser pyexpat resource select syslog termios unicodedata xxlimited zlib
 do 
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
-		framework=${name}-${package}
+		framework=${package}-${name}
 		for architecture in lib.macosx-10.15-x86_64-3.9 lib.darwin-arm64-3.9 lib.darwin-x86_64-3.9
 		do
 			echo "Creating: " ${architecture}/Frameworks/${name}.framework
@@ -17,7 +18,7 @@ do
 			rm -rf $directory/$framework.framework
 			mkdir -p $directory
 			mkdir -p $directory/$framework.framework
-			libraryFile=build/${architecture}/libpython3.9.dylib
+			libraryFile=build/${architecture}/${name}.cpython-39-darwin.so
 			cp $libraryFile $directory/$framework.framework/$framework
 			cp plists/basic_Info.plist $directory/$framework.framework/Info.plist
 			plutil -replace CFBundleExecutable -string $framework $directory/$framework.framework/Info.plist
@@ -25,8 +26,10 @@ do
 			# underscore is not allowed in CFBundleIdentifier:
 			signature=${framework//_/-}
 			plutil -replace CFBundleIdentifier -string Nicolas-Holzschuch.$signature  $directory/$framework.framework/Info.plist
-			# change framework id:
+			# change framework id and libpython:
+			install_name_tool -change $libpython @rpath/${package}.framework/${package}  $directory/$framework.framework/$framework
 			install_name_tool -id @rpath/$framework.framework/$framework  $directory/$framework.framework/$framework
+			
 		done
 		# Edit the Info.plist file:
 		plutil -replace DTPlatformName -string "iphoneos" build/lib.darwin-arm64-3.9/Frameworks/$framework.framework/Info.plist
@@ -60,7 +63,7 @@ for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 do
 	for name in _asyncio _bisect _blake2 _bz2 _codecs_cn _codecs_hk _codecs_iso2022 _codecs_jp _codecs_kr _codecs_tw _contextvars _crypt _csv _ctypes _ctypes_test _datetime _dbm _decimal _elementtree _hashlib _heapq _json _lsprof _md5 _multibytecodec _multiprocessing _opcode _pickle _posixshmem _posixsubprocess _queue _random _sha1 _sha256 _sha3 _sha512 _socket _sqlite3 _ssl _statistics _struct _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz _zoneinfo array audioop binascii cmath fcntl grp math mmap parser pyexpat resource select syslog termios unicodedata xxlimited zlib
 	do 
-		framework=${name}-${package}
+		framework=${package}-${name}
 		echo $framework
 		rm -f XcFrameworks/$framework.xcframework.zip
 		zip -rq XcFrameworks/$framework.xcframework.zip XcFrameworks/$framework.xcframework

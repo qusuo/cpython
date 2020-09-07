@@ -19,6 +19,12 @@ make >& make_osx.log
 mkdir -p build/lib.macosx-10.15-x86_64-3.9
 cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9
 make install >& make_install_osx.log
+# When working on frozen importlib, need to compile twice:
+make regen-importlib >> make_install_osx.log 2>&1
+make >> make_osx.log 2>&1 
+mkdir -p build/lib.macosx-10.15-x86_64-3.9
+cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9
+make install >> make_install_osx.log 2>&1
 
 # 2) compile for iOS:
 
@@ -26,15 +32,16 @@ export PYTHONHOME=$PREFIX/Library
 mkdir -p Frameworks_iphoneos
 mkdir -p Frameworks_iphoneos/include
 mkdir -p Frameworks_iphoneos/lib
-cp -r $XCFRAMEWORKS_DIR/libffi.xcframework/ios-arm64/Headers $PREFIX/Frameworks_iphoneos/include/ffi/
+cp -r $XCFRAMEWORKS_DIR/libffi.xcframework/ios-arm64/Headers/ffi $PREFIX/Frameworks_iphoneos/include/ffi
+cp -r $XCFRAMEWORKS_DIR/libffi.xcframework/ios-arm64/Headers/ffi/* $PREFIX/Frameworks_iphoneos/include/ffi/
 cp -r $XCFRAMEWORKS_DIR/crypto.xcframework/ios-arm64/Headers $PREFIX/Frameworks_iphoneos/include/crypto/
 cp -r $XCFRAMEWORKS_DIR/openssl.xcframework/ios-arm64/Headers $PREFIX/Frameworks_iphoneos/include/openssl/
 # Need to copy all libs after each make clean: 
 cp $XCFRAMEWORKS_DIR/crypto.xcframework/ios-arm64/libcrypto.a $PREFIX/Frameworks_iphoneos/lib/
 cp $XCFRAMEWORKS_DIR/openssl.xcframework/ios-arm64/libssl.a $PREFIX/Frameworks_iphoneos/lib/
 cp $XCFRAMEWORKS_DIR/libffi.xcframework/ios-arm64/libffi.a $PREFIX/Frameworks_iphoneos/lib/
-cp -r $XCFRAMEWORKS_DIR/ios_system.xcframework/ios-arm64_armv7/ios_system.framework $PREFIX/Frameworks_iphoneos/
 find . -name \*.o -delete
+rm -f Programs/_testembed Programs/_freeze_importlib
 
 # preadv / pwritev are iOS 14+ only
 env CC=clang CXX=clang++ \
@@ -67,16 +74,16 @@ cp libpython3.9.dylib build/lib.darwin-arm64-3.9
 mkdir -p Frameworks_iphonesimulator
 mkdir -p Frameworks_iphonesimulator/include
 mkdir -p Frameworks_iphonesimulator/lib
-cp -r $XCFRAMEWORKS_DIR/libffi.xcframework/ios-x86_64-simulator/Headers $PREFIX/Frameworks_iphonesimulator/include/ffi/
+cp -r $XCFRAMEWORKS_DIR/libffi.xcframework/ios-x86_64-simulator/Headers/ffi $PREFIX/Frameworks_iphonesimulator/include/ffi
+cp -r $XCFRAMEWORKS_DIR/libffi.xcframework/ios-x86_64-simulator/Headers/ffi/* $PREFIX/Frameworks_iphonesimulator/include/ffi/
 cp -r $XCFRAMEWORKS_DIR/crypto.xcframework/ios-x86_64-simulator/Headers $PREFIX/Frameworks_iphonesimulator/include/crypto/
 cp -r $XCFRAMEWORKS_DIR/openssl.xcframework/ios-x86_64-simulator/Headers $PREFIX/Frameworks_iphonesimulator/include/openssl/
 # Need to copy all libs after each make clean: 
 cp $XCFRAMEWORKS_DIR/crypto.xcframework/ios-x86_64-simulator/libcrypto.a $PREFIX/Frameworks_iphonesimulator/lib/
 cp $XCFRAMEWORKS_DIR/openssl.xcframework/ios-x86_64-simulator/libssl.a $PREFIX/Frameworks_iphonesimulator/lib/
 cp $XCFRAMEWORKS_DIR/libffi.xcframework/ios-x86_64-simulator/libffi.a $PREFIX/Frameworks_iphonesimulator/lib/
-cp -r $XCFRAMEWORKS_DIR/ios_system.xcframework/ios-x86_64-simulator/ios_system.framework $PREFIX/Frameworks_iphonesimulator/
-
 find . -name \*.o -delete
+rm -f Programs/_testembed Programs/_freeze_importlib
 
 # preadv / pwritev are iOS 14+ only
 env CC=clang CXX=clang++ \

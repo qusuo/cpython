@@ -30,8 +30,8 @@ MODLIBS=           $(LOCALMODLIBS) $(BASEMODLIBS)
 VERSION=	3.9
 srcdir=		.
 
-abs_srcdir=	/Users/holzschu/src/Xcode_iPad/cpython
-abs_builddir=	/Users/holzschu/src/Xcode_iPad/cpython
+abs_srcdir=	/Users/holzschu/src/Xcode_iPad/a-Shell/cpython
+abs_builddir=	/Users/holzschu/src/Xcode_iPad/a-Shell/cpython
 
 
 CC=		clang
@@ -130,7 +130,7 @@ MULTIARCH=	darwin
 MULTIARCH_CPPFLAGS = -DMULTIARCH=\"darwin\"
 
 # Install prefix for architecture-independent files
-prefix=		/Users/holzschu/src/Xcode_iPad/cpython/Library
+prefix=		/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library
 
 # Install prefix for architecture-dependent files
 exec_prefix=	${prefix}
@@ -192,7 +192,7 @@ LIPO_32BIT_FLAGS=
 OTHER_LIBTOOL_OPT=
 
 # Environment to run shared python without installed libraries
-RUNSHARED=       DYLD_LIBRARY_PATH=/Users/holzschu/src/Xcode_iPad/cpython
+RUNSHARED=       DYLD_LIBRARY_PATH=/Users/holzschu/src/Xcode_iPad/a-Shell/cpython
 
 # ensurepip options
 ENSUREPIP=      upgrade
@@ -212,7 +212,7 @@ EXEMODE=	755
 FILEMODE=	644
 
 # configure script arguments
-CONFIG_ARGS=	 '--prefix=/Users/holzschu/src/Xcode_iPad/cpython/Library' '--with-system-ffi' '--enable-shared' 'CC=clang' 'CFLAGS=-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk' 'LDFLAGS=-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk' 'CPPFLAGS=-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk'
+CONFIG_ARGS=	 '--prefix=/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library' '--with-system-ffi' '--enable-shared' 'CC=clang' 'CFLAGS=-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk' 'LDFLAGS=-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk' 'CPPFLAGS=-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk'
 
 
 # Subdirectories with code
@@ -252,8 +252,8 @@ LIBOBJS=
 PYTHON=		python$(EXE)
 BUILDPYTHON=	python$(BUILDEXE)
 
-PYTHON_FOR_REGEN?=python3.9
-UPDATE_FILE=python3.9 $(srcdir)/Tools/scripts/update_file.py
+PYTHON_FOR_REGEN?=python3
+UPDATE_FILE=python3 $(srcdir)/Tools/scripts/update_file.py
 PYTHON_FOR_BUILD=./$(BUILDPYTHON) -E
 _PYTHON_HOST_PLATFORM=
 BUILD_GNU_TYPE=	x86_64-apple-darwin19.6.0
