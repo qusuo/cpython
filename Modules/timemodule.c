@@ -1885,6 +1885,7 @@ static int
 timemodule_clear(PyObject *mod) {
 #if TARGET_OS_IPHONE
 	_PyTime_GetClockWithInfo_initialized = 0;
+	memset(&StructTimeType, 0, sizeof(PyTypeObject));
 #endif
 	initialized = 0; 
     return 0;
