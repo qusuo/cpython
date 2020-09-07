@@ -1719,7 +1719,7 @@ build_struct_time(int y, int m, int d, int hh, int mm, int ss, int dstflag)
         return NULL;
     }
 
-    result = _PyObject_CallMethodIdOneArg(time, &PyId_struct_time, args);
+	result = _PyObject_CallMethodIdOneArg(time, &PyId_struct_time, args);
     Py_DECREF(time);
     Py_DECREF(args);
     return result;
@@ -5192,30 +5192,25 @@ datetime_utcfromtimestamp(PyObject *cls, PyObject *args)
 #ifdef TARGET_OS_IPHONE
 // Need to have static identifiers outside functions in iOS_system
 _Py_IDENTIFIER(_strptime_datetime);
+static PyObject *module = NULL;
 #endif
 static PyObject *
 datetime_strptime(PyObject *cls, PyObject *args)
 {
-    static PyObject *module = NULL;
     PyObject *string, *format;
 #ifndef TARGET_OS_IPHONE
     _Py_IDENTIFIER(_strptime_datetime);
+    static PyObject *module = NULL;
 #endif
 
     if (!PyArg_ParseTuple(args, "UU:strptime", &string, &format))
         return NULL;
 
-#ifndef TARGET_OS_IPHONE
     if (module == NULL) {
         module = PyImport_ImportModuleNoBlock("_strptime");
         if (module == NULL)
             return NULL;
     }
-#else
-    module = PyImport_ImportModuleNoBlock("_strptime");
-    if (module == NULL)
-        return NULL;
-#endif
     return _PyObject_CallMethodIdObjArgs(module, &PyId__strptime_datetime,
                                          cls, string, format, NULL);
 }
@@ -6548,6 +6543,20 @@ static PyDateTime_CAPI CAPI = {
     new_time_ex2
 };
 
+// IPHONE/iOS additions:
+static int
+datetimemodule_clear(PyObject *mod) {
+#if TARGET_OS_IPHONE
+	module = NULL;
+#endif
+    return 0;
+}
+
+static void
+datetimemodule_free(PyObject *mod) {
+    datetimemodule_clear(mod);
+}
+// end iPHONE/iOS additions
 
 
 static struct PyModuleDef datetimemodule = {
@@ -6558,8 +6567,9 @@ static struct PyModuleDef datetimemodule = {
     module_methods,
     NULL,
     NULL,
-    NULL,
-    NULL
+    // IPHONE/iOS additions: need to cleanup when leaving
+    datetimemodule_clear,
+    datetimemodule_free
 };
 
 PyMODINIT_FUNC

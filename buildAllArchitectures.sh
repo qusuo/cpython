@@ -15,16 +15,16 @@ find . -name \*.o -delete
 env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L. -lpython3.9" ./configure --prefix=$PREFIX/Library --with-system-ffi --enable-shared >& configure_osx.log
 # enable-framework incompatible with local install
 rm -rf build/lib.macosx-10.15-x86_64-3.9
-make >& make_osx.log
+make -j 4 >& make_osx.log
 mkdir -p build/lib.macosx-10.15-x86_64-3.9
 cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9
-make install >& make_install_osx.log
+make -j 4 install >& make_install_osx.log
 # When working on frozen importlib, need to compile twice:
-make regen-importlib >> make_install_osx.log 2>&1
-make >> make_osx.log 2>&1 
-mkdir -p build/lib.macosx-10.15-x86_64-3.9
-cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9
-make install >> make_install_osx.log 2>&1
+# make regen-importlib >> make_install_osx.log 2>&1
+# make >> make_osx.log 2>&1 
+# mkdir -p build/lib.macosx-10.15-x86_64-3.9
+# cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9
+# make install >> make_install_osx.log 2>&1
 
 # 2) compile for iOS:
 
@@ -63,7 +63,7 @@ env CC=clang CXX=clang++ \
 	ac_cv_func_clock_settime=no >& configure_ios.log
 # --enable-framework fails with iOS compilers
 rm -rf build/lib.darwin-arm64-3.9
-make >& make_ios.log
+make -j 4 >& make_ios.log
 mkdir -p  build/lib.darwin-arm64-3.9
 cp libpython3.9.dylib build/lib.darwin-arm64-3.9
 # Don't install for iOS
@@ -105,7 +105,7 @@ env CC=clang CXX=clang++ \
 	ac_cv_func_sendfile=no \
 	ac_cv_func_clock_settime=no >& configure_simulator.log
 rm -rf build/lib.darwin-x86_64-3.9
-make >& make_simulator.log
+make -j 4 >& make_simulator.log
 mkdir -p build/lib.darwin-x86_64-3.9
 cp libpython3.9.dylib build/lib.darwin-x86_64-3.9
 # Don't install for iOS
