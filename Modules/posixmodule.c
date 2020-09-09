@@ -2799,11 +2799,23 @@ os_access_impl(PyObject *module, path_t *path, int mode, int dir_fd,
             flags |= AT_SYMLINK_NOFOLLOW;
         if (effective_ids)
             flags |= AT_EACCESS;
+#if !TARGET_OS_IPHONE
         result = faccessat(dir_fd, path->narrow, mode, flags);
+#else
+		// iOS: App install resets the "x" bit inside Application, so
+		// we don't check for it.
+        result = faccessat(dir_fd, path->narrow, mode & !X_OK, flags);
+#endif
     }
     else
 #endif
+#if !TARGET_OS_IPHONE
         result = access(path->narrow, mode);
+#else
+		// iOS: App install resets the "x" bit inside Application, so
+		// we don't check for it.
+        result = access(path->narrow, mode & !X_OK);
+#endif
     Py_END_ALLOW_THREADS
     return_value = !result;
 #endif

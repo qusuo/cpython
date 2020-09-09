@@ -71,6 +71,7 @@ python3.9 -m pip install ptyprocess --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install jsonschema --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install mistune --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install traitlets --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install pexpect --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install ipython-genutils --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install jupyter-core --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install nbformat --upgrade >> make_install_osx.log 2>&1
