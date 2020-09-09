@@ -104,6 +104,10 @@ class UnixCCompiler(CCompiler):
             if output_file:
                 self.mkpath(os.path.dirname(output_file))
             try:
+                # iOS: since clang is not available, we send a nicer error message:
+                if (sys.platform == 'darwin' and os.uname().machine.startswith('iP')):
+                    raise DistutilsExecError("There are no preprocessors available on iOS, sorry. Command was: ", pp_args)                
+                #        
                 self.spawn(pp_args)
             except DistutilsExecError as msg:
                 raise CompileError(msg)
@@ -114,6 +118,10 @@ class UnixCCompiler(CCompiler):
             compiler_so = _osx_support.compiler_fixup(compiler_so,
                                                     cc_args + extra_postargs)
         try:
+            # iOS: since clang is not available, we send a nicer error message:
+            if (sys.platform == 'darwin' and os.uname().machine.startswith('iP')):
+                raise DistutilsExecError("There are no compilers available on iOS, sorry. Command was: ", cc_args) 
+            #
             self.spawn(compiler_so + cc_args + [src, '-o', obj] +
                        extra_postargs)
         except DistutilsExecError as msg:
@@ -139,6 +147,10 @@ class UnixCCompiler(CCompiler):
             # it for us, hence the check for leading colon.
             if self.ranlib:
                 try:
+                    # iOS: since clang is not available, we send a nicer error message:
+                    if (sys.platform == 'darwin' and os.uname().machine.startswith('iP')):
+                        raise DistutilsExecError("There are no static linkers available on iOS, sorry.")
+                    #
                     self.spawn(self.ranlib + [output_filename])
                 except DistutilsExecError as msg:
                     raise LibError(msg)
@@ -200,6 +212,10 @@ class UnixCCompiler(CCompiler):
 
                 if sys.platform == 'darwin':
                     linker = _osx_support.compiler_fixup(linker, ld_args)
+
+                # iOS: since clang is not available, we send a nicer error message:
+                if (sys.platform == 'darwin' and os.uname().machine.startswith('iP')):
+                    raise DistutilsExecError("There are no linkers available on iOS, sorry.")
 
                 self.spawn(linker + ld_args)
             except DistutilsExecError as msg:
