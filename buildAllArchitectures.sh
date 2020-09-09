@@ -19,6 +19,74 @@ make -j 4 >& make_osx.log
 mkdir -p build/lib.macosx-10.15-x86_64-3.9
 cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9
 make -j 4 install >& make_install_osx.log
+# Force reinstall and upgrade of pip, setuptools 
+python3.9 -m pip install pip --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install setuptools --upgrade >> make_install_osx.log 2>&1
+# Pure-python packages that do not depend on anything, keep latest version:
+# These are just patches of setup.py, no need to fork.
+# Order of packages: packages dependent on something after the one they depend on
+python3.9 -m pip install six --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install html5lib --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install urllib3 --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install webencodings --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install wheel --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install pygments --upgrade >> make_install_osx.log 2>&1
+# markupsafe: prevent compilation of extension:
+echo Installing MarkupSafe with no extensions >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p packages >> $PREFIX/make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip download --no-binary :all: markupsafe >> $PREFIX/make_install_osx.log 2>&1
+tar xvzf MarkupSafe*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+rm MarkupSafe*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+pushd MarkupSafe* >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak  's/run_setup(True)/run_setup(False)/g' setup.py  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+rm -rf MarkupSafe* >> $PREFIX/make_install_osx.log 2>&1
+popd >> $PREFIX/make_install_osx.log 2>&1
+echo Done installing MarkupSafe >> make_install_osx.log 2>&1
+# end markupsafe 
+python3.9 -m pip install jinja2 --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install attrs --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install appnope --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install packaging --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install bleach --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install entrypoints --upgrade >> make_install_osx.log 2>&1
+# pyrsistent: prevent compilation of extension:
+echo Installing pyrsistent with no extension >> make_install_osx.log 2>&1
+pushd packages >> make_install_osx.log 2>&1
+python3.9 -m pip download pyrsistent --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
+tar xvzf pyrsistent*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+rm pyrsistent*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+pushd pyrsistent* >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak 's/^if platform.python_implementation/#&/' setup.py  >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak 's/^    extensions = /#&/' setup.py  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+rm -rf pyrsistent* >> $PREFIX/make_install_osx.log 2>&1
+popd >> $PREFIX/make_install_osx.log 2>&1
+echo done installing pyrsistent >> make_install_osx.log 2>&1
+# end pyrsistent
+python3.9 -m pip install ptyprocess --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install jsonschema --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install mistune --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install traitlets --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install pexpect --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install ipython-genutils --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install jupyter-core --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install nbformat --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install pandocfilters --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install testpath --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install defusedxml --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install nbconvert --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install python-dateutil --upgrade >> make_install_osx.log 2>&1
+# This simple trick prevents tornado from installing extensions:
+CC=/bin/false python3.9 -m pip install tornado --upgrade  >> make_install_osx.log 2>&1
+python3.9 -m pip install terminado --upgrade >> make_install_osx.log 2>&1
+# NB: different from: pure-python packages that I have to edit (use git), 
+#                     non-pure python packages (configure and make)
+# break here when only installing packages:
+# exit 0
 # When working on frozen importlib, need to compile twice:
 # make regen-importlib >> make_install_osx.log 2>&1
 # make >> make_osx.log 2>&1 
