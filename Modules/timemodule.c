@@ -114,16 +114,19 @@ _PyTime_GetClockWithInfo(_PyTime_t *tp, _Py_clock_info_t *info)
 {
 #if !TARGET_OS_IPHONE
     static int initialized = 0;
-#else
-	int initialized = _PyTime_GetClockWithInfo_initialized;
 #endif
 	
     clock_t ticks;
 
+#if TARGET_OS_IPHONE
+    if (!_PyTime_GetClockWithInfo_initialized) {
+		_PyTime_GetClockWithInfo_initialized = 1;
+#else 
     if (!initialized) {
-        initialized = 1;
+		initialized = 1;
+#endif
 
-        /* must sure that _PyTime_MulDiv(ticks, SEC_TO_NS, CLOCKS_PER_SEC)
+		/* must sure that _PyTime_MulDiv(ticks, SEC_TO_NS, CLOCKS_PER_SEC)
            above cannot overflow */
         if ((_PyTime_t)CLOCKS_PER_SEC > _PyTime_MAX / SEC_TO_NS) {
             PyErr_SetString(PyExc_OverflowError,
@@ -1850,6 +1853,7 @@ time_exec(PyObject *module)
 #endif  /* defined(HAVE_CLOCK_GETTIME) || defined(HAVE_CLOCK_SETTIME) || defined(HAVE_CLOCK_GETRES) */
 
     if (!initialized) {
+		memset(&StructTimeType, 0, sizeof(PyTypeObject));
         if (PyStructSequence_InitType2(&StructTimeType,
                                        &struct_time_type_desc) < 0) {
             return -1;
@@ -1885,7 +1889,6 @@ static int
 timemodule_clear(PyObject *mod) {
 #if TARGET_OS_IPHONE
 	_PyTime_GetClockWithInfo_initialized = 0;
-	memset(&StructTimeType, 0, sizeof(PyTypeObject));
 #endif
 	initialized = 0; 
     return 0;

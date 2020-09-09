@@ -1208,13 +1208,11 @@ config_init_executable(PyConfig *config)
     const wchar_t *program_full_path = _Py_path_config.program_full_path;
 #if TARGET_OS_IPHONE
 	wchar_t execpath[MAXPATHLEN+1];
-    if (program_full_path == NULL) {
-		// we use getenv and not Py_GETENV because we do not want to ignore the environment here.
-		char *iospath = getenv("PYTHONHOME");
-		char *prog = getenv("PYTHONEXECUTABLE");
-		swprintf(execpath, MAXPATHLEN+1, L"%s/bin/%s", iospath, prog);
-	}
-	program_full_path = execpath;
+    // we use getenv and not Py_GETENV because we do not want to ignore the environment here.
+    char *iospath = getenv("PYTHONHOME");
+    char *prog = getenv("PYTHONEXECUTABLE");
+    swprintf(execpath, MAXPATHLEN+1, L"%s/bin/%s", iospath, prog);
+    program_full_path = execpath;
 #endif
     if (program_full_path != NULL) {
         PyStatus status = PyConfig_SetString(config,
@@ -2557,7 +2555,6 @@ PyStatus
 PyConfig_Read(PyConfig *config)
 {
     PyStatus status;
-
     status = _Py_PreInitializeFromConfig(config, NULL);
     if (_PyStatus_EXCEPTION(status)) {
         return status;
