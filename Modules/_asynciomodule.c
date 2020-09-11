@@ -3369,6 +3369,10 @@ module_free(void *m)
     module_free_freelists();
 
     module_initialized = 0;
+#if TARGET_OS_IPHONE
+    cached_running_holder = NULL;
+    cached_running_holder_tsid = 0;
+#endif
 }
 
 static int

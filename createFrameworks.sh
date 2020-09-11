@@ -58,8 +58,8 @@ done
 # Cleanup install directory from binary files:
 find Library -name __pycache__ -exec rm -rf {} \; >& find.log
 find Library -name \*.pyc -delete
-rm -f Library/lib/python3.9/lib-dynload/*.so
-rm -f Library/lib/python3.9/lib-dynload/*.dylib
+find Library -name \*.so -delete
+find Library -name \*.dylib -delete
 rm -f Library/lib/libpython3.9.dylib
 rm -f Library/bin/python3.9
 rm -f Library/bin/python3
