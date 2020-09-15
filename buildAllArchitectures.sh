@@ -114,8 +114,8 @@ python3.9 -m pip install prometheus-client --upgrade >> make_install_osx.log 2>&
 python3.9 -m pip install wcwidth --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install pickleshare --upgrade >> make_install_osx.log 2>&1
 # To get further, we need cffi:
-# OSX install of cffi: we need to recompile or it crashes. 
-# TODO: edit code if static variables inside function create problems.
+# OSX install of cffi: we need to recompile or Python crashes. 
+# TODO: edit cffi code if static variables inside function create problems.
 python3.9 -m pip uninstall cffi -y >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
 python3.9 -m pip download cffi --no-binary :all: >> make_install_osx.log 2>&1
@@ -150,8 +150,7 @@ echo Done installing PyZMQ with CFFI >> make_install_osx.log 2>&1
 # python3.9 -m pip install prompt-toolkit --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install ipython --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install nbconvert --upgrade >> make_install_osx.log 2>&1
-# argon2 for OSX: use precompiled binary 
-# exit 0
+# argon2 for OSX: use precompiled binary. This might cause a crash later, as with cffi.
 python3.9 -m pip uninstall argon2-cffi -y >> make_install_osx.log 2>&1
 python3.9 -m pip install argon2-cffi --upgrade >> make_install_osx.log 2>&1
 # Download argon2 now, while the dependencies are working
@@ -165,6 +164,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 # NB: different from: pure-python packages that I have to edit (use git), 
 #                     non-pure python packages (configure and make)
 # break here when only installing packages or experimenting:
+# exit 0
 
 # 2) compile for iOS:
 
