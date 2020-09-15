@@ -15,10 +15,18 @@ find . -name \*.o -delete
 env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L. -lpython3.9" ./configure --prefix=$PREFIX/Library --with-system-ffi --enable-shared >& configure_osx.log
 # enable-framework incompatible with local install
 rm -rf build/lib.macosx-10.15-x86_64-3.9
-make -j 4 >& make_osx.log
-mkdir -p build/lib.macosx-10.15-x86_64-3.9
-cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9
-make -j 4 install >& make_install_osx.log
+make >& make_osx.log
+mkdir -p build/lib.macosx-10.15-x86_64-3.9  > make_install_osx.log 2>&1
+cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log 2>&1
+make install  >> make_install_osx.log 2>&1
+export PYTHONHOME=$PREFIX/Library
+# When working on frozen importlib, need to compile twice:
+# make regen-importlib >> make_osx.log 2>&1
+# find . -name \*.o -delete  >> make_osx.log 2>&1
+# make >> make_osx.log 2>&1 
+# mkdir -p build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log 2>&1
+# cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log 2>&1
+# make install >> make_install_osx.log 2>&1
 # Force reinstall and upgrade of pip, setuptools 
 python3.9 -m pip install pip --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install setuptools --upgrade >> make_install_osx.log 2>&1
@@ -92,7 +100,6 @@ python3.9 -m pip install nbformat --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install pandocfilters --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install testpath --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install defusedxml --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install nbconvert --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install python-dateutil --upgrade >> make_install_osx.log 2>&1
 # Let jedi install the version of parso it needs (since the latest version is not OK)
 # python3.9 -m pip install parso --upgrade >> make_install_osx.log 2>&1
@@ -106,14 +113,22 @@ python3.9 -m pip install decorator --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install prometheus-client --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install wcwidth --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install pickleshare --upgrade >> make_install_osx.log 2>&1
-# Let ipython chose the version of prompt-toolkit it needs
-# python3.9 -m pip install prompt-toolkit --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install ipython --upgrade >> make_install_osx.log 2>&1
 # To get further, we need cffi:
-# OSX install of cffi: straight from the precompiled binary
+# OSX install of cffi: we need to recompile or it crashes. 
+# TODO: edit code if static variables inside function create problems.
 python3.9 -m pip uninstall cffi -y >> make_install_osx.log 2>&1
-python3.9 -m pip install cffi --upgrade >> make_install_osx.log 2>&1
+pushd packages >> make_install_osx.log 2>&1
+python3.9 -m pip download cffi --no-binary :all: >> make_install_osx.log 2>&1
+tar xvzf cffi*.tar.gz >> make_install_osx.log 2>&1
+rm cffi*.tar.gz >> make_install_osx.log 2>&1
+pushd cffi-* >> make_install_osx.log 2>&1
+rm -rf build/* >> make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ " python3 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip install cffi --upgrade >> make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ " python3 setup.py install  >> $PREFIX/make_install_osx.log 2>&1
 cp $PREFIX/Library/lib/python3.9/site-packages/_cffi_backend.cpython-39-darwin.so $PREFIX/build/lib.macosx-10.15-x86_64-3.9 >> make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
 # Now we can install PyZMQ. We need to compile it ourselves to make sure it uses CFFI as a backend:
 # (the wheel uses Cython)
 echo Installing PyZMQ for OSX  >> make_install_osx.log 2>&1
@@ -124,26 +139,35 @@ rm pyzmq*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd pyzmq* >> $PREFIX/make_install_osx.log 2>&1
 cp ../setup_pyzmq.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1 
+export PYZMQ_BACKEND=cffi
 env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ " PYZMQ_BACKEND=cffi python3 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 cp build/lib.macosx-10.15-x86_64-3.9/zmq/backend/cffi/_cffi_ext.cpython-39-darwin.so $PREFIX/build/lib.macosx-10.15-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ " PYZMQ_BACKEND=cffi python3 setup.py install  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 echo Done installing PyZMQ with CFFI >> make_install_osx.log 2>&1
+# Let ipython chose the version of prompt-toolkit it needs
+# python3.9 -m pip install prompt-toolkit --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install ipython --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install nbconvert --upgrade >> make_install_osx.log 2>&1
+# argon2 for OSX: use precompiled binary 
+# exit 0
+python3.9 -m pip uninstall argon2-cffi -y >> make_install_osx.log 2>&1
+python3.9 -m pip install argon2-cffi --upgrade >> make_install_osx.log 2>&1
+# Download argon2 now, while the dependencies are working
+cp $PREFIX/Library/lib/python3.9/site-packages/argon2/_ffi.abi3.so $PREFIX/build/lib.macosx-10.15-x86_64-3.9/argon2._ffi.abi3.so
+pushd packages >> make_install_osx.log 2>&1
+rm -rf argon2-cffi* >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip download argon2-cffi --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
+tar xvzf argon2-cffi*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+rm argon2-cffi*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
 # NB: different from: pure-python packages that I have to edit (use git), 
 #                     non-pure python packages (configure and make)
 # break here when only installing packages or experimenting:
-# exit 0
-# When working on frozen importlib, need to compile twice:
-# make regen-importlib >> make_install_osx.log 2>&1
-# make >> make_osx.log 2>&1 
-# mkdir -p build/lib.macosx-10.15-x86_64-3.9
-# cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9
-# make install >> make_install_osx.log 2>&1
 
 # 2) compile for iOS:
 
-export PYTHONHOME=$PREFIX/Library
 mkdir -p Frameworks_iphoneos
 mkdir -p Frameworks_iphoneos/include
 mkdir -p Frameworks_iphoneos/lib
@@ -159,7 +183,6 @@ cp $XCFRAMEWORKS_DIR/libffi.xcframework/ios-arm64/libffi.a $PREFIX/Frameworks_ip
 cp $XCFRAMEWORKS_DIR/libzmq.xcframework/ios-arm64/libzmq.a $PREFIX/Frameworks_iphoneos/lib/
 find . -name \*.o -delete
 rm -f Programs/_testembed Programs/_freeze_importlib
-
 # preadv / pwritev are iOS 14+ only
 env CC=clang CXX=clang++ \
 	CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT" \
@@ -180,7 +203,7 @@ env CC=clang CXX=clang++ \
 	ac_cv_func_clock_settime=no >& configure_ios.log
 # --enable-framework fails with iOS compilers
 rm -rf build/lib.darwin-arm64-3.9
-make -j 4 >& make_ios.log
+make >& make_ios.log
 mkdir -p  build/lib.darwin-arm64-3.9
 cp libpython3.9.dylib build/lib.darwin-arm64-3.9
 # Don't install for iOS
@@ -205,20 +228,29 @@ echo done compiling cffi >> $PREFIX/make_ios.log 2>&1
 # Now we can install PyZMQ. We need to compile it ourselves to make sure it uses CFFI as a backend:
 # (the wheel uses Cython)
 echo Installing PyZMQ for iOS  >> $PREFIX/make_ios.log 2>&1
-pushd packages  >> $PREFIX/make_simulator.log 2>&1
+pushd packages  >> $PREFIX/make_ios.log 2>&1
 pushd pyzmq* >> $PREFIX/make_ios.log 2>&1
 rm -rf build/* >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9 -lc++ -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.9" PLATFORM=iphoneos PYZMQ_BACKEND=cffi python3 setup.py build  >> $PREFIX/make_ios.log 2>&1
 cp build/lib.macosx-10.15-arm64-3.9/zmq/backend/cffi/_cffi_ext.cpython-39-darwin.so $PREFIX/build/lib.darwin-arm64-3.9/  >> $PREFIX/make_ios.log 2>&1
-popd  >> make_ios.log 2>&1
+popd  >> $PREFIX/make_ios.log 2>&1
 # Override zmq/backend/cffi with our own because we can only use cdef on iOS, not _verify  or _make_defines:
-cp zmq_backend_cffi/_cffi.py $PREFIX/Library/lib/python3.9/site-packages/zmq/backend/cffi/  >> make_ios.log 2>&1
-cp zmq_backend_cffi/defines.h $PREFIX/Library/lib/python3.9/site-packages/zmq/backend/cffi/  >> make_ios.log 2>&1
-cp zmq_backend_cffi/preprocessed.h $PREFIX/Library/lib/python3.9/site-packages/zmq/backend/cffi/  >> make_ios.log 2>&1
-cp zmq_backend_cffi/zmq.h $PREFIX/Library/lib/python3.9/site-packages/zmq/backend/cffi/  >> make_ios.log 2>&1
-popd  >> make_ios.log 2>&1
+cp zmq_backend_cffi/_cffi.py $PREFIX/Library/lib/python3.9/site-packages/zmq/backend/cffi/  >> $PREFIX/make_ios.log 2>&1
+cp zmq_backend_cffi/defines.h $PREFIX/Library/lib/python3.9/site-packages/zmq/backend/cffi/  >> $PREFIX/make_ios.log 2>&1
+cp zmq_backend_cffi/preprocessed.h $PREFIX/Library/lib/python3.9/site-packages/zmq/backend/cffi/  >> $PREFIX/make_ios.log 2>&1
+cp zmq_backend_cffi/zmq.h $PREFIX/Library/lib/python3.9/site-packages/zmq/backend/cffi/  >> $PREFIX/make_ios.log 2>&1
+popd  >> $PREFIX/make_ios.log 2>&1
 echo Done installing PyZMQ for iOS >> make_ios.log 2>&1
 # end pyzmq
+# Installing argon2-cffi:
+echo Installing argon2-cffi for iphoneos >> make_ios.log 2>&1
+pushd packages  >> $PREFIX/make_ios.log 2>&1
+pushd argon2-cffi* >> $PREFIX/make_ios.log 2>&1
+rm -rf build/* >> $PREFIX/make_ios.log 2>&1
+env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.9" PLATFORM=iphoneos ARGON2_CFFI_USE_SSE2=0 python3 setup.py build >> $PREFIX/make_ios.log 2>&1
+cp build/lib.macosx-10.15-arm64-3.9/argon2/_ffi.abi3.so $PREFIX/build/lib.darwin-arm64-3.9/argon2._ffi.abi3.so >> $PREFIX/make_ios.log 2>&1
+popd  >> $PREFIX/make_ios.log 2>&1
+popd  >> $PREFIX/make_ios.log 2>&1
 
 
 # 3) compile for Simulator:
@@ -260,7 +292,7 @@ env CC=clang CXX=clang++ \
 	ac_cv_func_sendfile=no \
 	ac_cv_func_clock_settime=no >& configure_simulator.log
 rm -rf build/lib.darwin-x86_64-3.9
-make -j 4 >& make_simulator.log
+make >& make_simulator.log
 mkdir -p build/lib.darwin-x86_64-3.9
 cp libpython3.9.dylib build/lib.darwin-x86_64-3.9
 # Don't install for iOS simulator
@@ -291,10 +323,19 @@ pushd pyzmq* >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/* >> $PREFIX/make_simulator.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0  -isysroot $SIM_SDKROOT -I$PREFIX" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0  -isysroot $SIM_SDKROOT -I$PREFIX" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0  -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $SIM_SDKROOT -lz -lpython3.9 -lc++ -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib -L$PREFIX/build/lib.darwin-x86_64-3.9" PLATFORM=iphonesimulator PYZMQ_BACKEND=cffi python3 setup.py build  >> $PREFIX/make_simulator.log 2>&1
 cp build/lib.macosx-10.15-x86_64-3.9/zmq/backend/cffi/_cffi_ext.cpython-39-darwin.so $PREFIX/build/lib.darwin-x86_64-3.9/  >> $PREFIX/make_simulator.log 2>&1
-popd  >> make_simulator.log 2>&1
-popd  >> make_simulator.log 2>&1
+popd  >> $PREFIX/make_simulator.log 2>&1
+popd  >> $PREFIX/make_simulator.log 2>&1
 echo Done installing PyZMQ for iOS >> make_simulator.log 2>&1
 # end pyzmq
+# Installing argon2-cffi:
+echo Installing argon2-cffi for iphonesimulator >> make_simulator.log 2>&1
+pushd packages >> $PREFIX/make_simulator.log 2>&1
+pushd argon2-cffi* >> $PREFIX/make_simulator.log 2>&1
+rm -rf build/* >> $PREFIX/make_simulator.log 2>&1
+env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $SIM_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib -L$PREFIX/build/lib.darwin-x86_64-3.9" PLATFORM=iphonesimulator ARGON2_CFFI_USE_SSE2=0 python3 setup.py build >> $PREFIX/make_simulator.log 2>&1
+cp build/lib.macosx-10.15-x86_64-3.9/argon2/_ffi.abi3.so $PREFIX/build/lib.darwin-x86_64-3.9/argon2._ffi.abi3.so  >> $PREFIX/make_simulator.log 2>&1
+popd  >> $PREFIX/make_simulator.log 2>&1
+popd  >> $PREFIX/make_simulator.log 2>&1
 
 
 # TODO: create frameworks from dynamic libraries & incorporate changes into code.
