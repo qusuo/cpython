@@ -104,27 +104,19 @@ Return the current time in nanoseconds since the Epoch.");
 #  endif
 #endif
 
-#if TARGET_OS_IPHONE
-// iOS: no static variables inside functions
-static int _PyTime_GetClockWithInfo_initialized = 0;
-#endif
-
 static int
 _PyTime_GetClockWithInfo(_PyTime_t *tp, _Py_clock_info_t *info)
 {
 #if !TARGET_OS_IPHONE
     static int initialized = 0;
+#else 
+    static __thread int initialized = 0;
 #endif
 	
     clock_t ticks;
 
-#if TARGET_OS_IPHONE
-    if (!_PyTime_GetClockWithInfo_initialized) {
-		_PyTime_GetClockWithInfo_initialized = 1;
-#else 
     if (!initialized) {
 		initialized = 1;
-#endif
 
 		/* must sure that _PyTime_MulDiv(ticks, SEC_TO_NS, CLOCKS_PER_SEC)
            above cannot overflow */
@@ -1887,9 +1879,6 @@ static struct PyModuleDef_Slot time_slots[] = {
 // IPHONE/iOS additions:
 static int
 timemodule_clear(PyObject *mod) {
-#if TARGET_OS_IPHONE
-	_PyTime_GetClockWithInfo_initialized = 0;
-#endif
 	initialized = 0; 
     return 0;
 }
@@ -1949,6 +1938,7 @@ pysleep(_PyTime_t secs)
         err = select(0, (fd_set *)0, (fd_set *)0, (fd_set *)0, &timeout);
         Py_END_ALLOW_THREADS
 #else 
+		// This is not used anymore. TODO: remove this code.
 		// iOS: we use the signal-interruptable pselect() rather than the 
 		// select() call present in the source, so we can interrupt these
 		// waiting calls when we leave.

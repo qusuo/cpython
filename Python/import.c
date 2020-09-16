@@ -626,11 +626,11 @@ _PyImport_Cleanup(PyThreadState *tstate)
 #if TARGET_OS_IPHONE
             // Modules created with Cython + PEP489 have strange issues with number of references
             // which prevent the freefunc function from being called.
-            // We explicitly call the freefunc function here, before the dictionary is cleared.
-            // (otherwise, "name" is gone)
             // This here is just for debugging, the module erasure is done in moduleobject.c
-            // TODO (3.9): check that this is still required.
             const char* utf8name = PyUnicode_AsUTF8(name);
+            if ((strncmp(utf8name, "_asyncio", 8) == 0)) {
+                // fprintf(stderr, "We have a module = %x name = %s refCount = %zd\n", mod, utf8name, mod->ob_refcnt);
+			}
             if ((strncmp(utf8name, "pandas.", 7) == 0) || (strncmp(utf8name, "numpy.", 6) == 0)) {
                 // fprintf(stderr, "We have a module = %x name = %s refCount = %zd\n", mod, utf8name, mod->ob_refcnt);
                 // if (mod->md_def && mod->md_def->m_free) mod->md_def->m_free(mod);

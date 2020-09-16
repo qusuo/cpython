@@ -573,11 +573,11 @@ _PyModule_Clear(PyObject *m)
     // (otherwise, "name" is gone)
     // This only applies to pandas and numpy, other modules can be compiled without PEP489
     // See also import.c / PyImport_Cleanup()
-    // TODO: check this is still required with Python 3.9
+    // Python 3.9: this is required for _asyncio (new). Must check for pandas and numpy.
     int moduleNeedsCleanup = 0;
     PyModuleObject *mod = (PyModuleObject *)m;
     const char* utf8name = PyUnicode_AsUTF8(mod->md_name);
-    if ((strncmp(utf8name, "pandas.", 7) == 0) || (strncmp(utf8name, "numpy.", 6) == 0)) {
+    if ((strncmp(utf8name, "_asyncio", 8) == 0) || (strncmp(utf8name, "pandas.", 7) == 0) || (strncmp(utf8name, "numpy.", 6) == 0)) {
         // iOS, debug:
         // fprintf(stderr, "Module = %x name = %s refCount = %zd ", mod, utf8name, m->ob_refcnt);
         if (mod->md_def && mod->md_def->m_free) {

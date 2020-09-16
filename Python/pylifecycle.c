@@ -1433,7 +1433,6 @@ Py_FinalizeEx(void)
     PyOS_FiniInterrupts();
 #if TARGET_OS_IPHONE
 	// iOS:
-    // TODO: check if still required with _PyThreadState_DeleteExcept above
     struct sigaction query_action;
     if ((sigaction (SIGUSR2, NULL, &query_action) >= 0) &&
         (query_action.sa_handler != SIG_DFL) &&

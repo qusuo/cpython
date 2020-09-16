@@ -56,7 +56,7 @@ mpd_setminalloc(mpd_ssize_t n)
 
     if (minalloc_is_set) {
         // iOS: silence this warning.
-#ifndef TARGET_OS_IPHONE
+#if !TARGET_OS_IPHONE
         mpd_err_warn("mpd_setminalloc: ignoring request to set "
                      "MPD_MINALLOC a second time\n");
 #endif
