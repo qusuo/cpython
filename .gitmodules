@@ -1,0 +1,6 @@
+[submodule "packages/mpmath"]
+	path = packages/mpmath
+	url = https://github.com/fredrik-johansson/mpmath.git
+[submodule "packages/nbconvert"]
+	path = packages/nbconvert
+	url = https://github.com/holzschu/nbconvert.git
