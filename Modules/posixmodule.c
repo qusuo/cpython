@@ -2804,7 +2804,7 @@ os_access_impl(PyObject *module, path_t *path, int mode, int dir_fd,
 #else
 		// iOS: App install resets the "x" bit inside Application, so
 		// we don't check for it.
-        result = faccessat(dir_fd, path->narrow, mode & !X_OK, flags);
+        result = faccessat(dir_fd, path->narrow, mode & ~X_OK, flags);
 #endif
     }
     else
@@ -2814,7 +2814,8 @@ os_access_impl(PyObject *module, path_t *path, int mode, int dir_fd,
 #else
 		// iOS: App install resets the "x" bit inside Application, so
 		// we don't check for it.
-        result = access(path->narrow, mode & !X_OK);
+		// Also, access() replies OK for directories that are not writeable.
+        result = access(path->narrow, mode & ~X_OK);
 #endif
     Py_END_ALLOW_THREADS
     return_value = !result;
