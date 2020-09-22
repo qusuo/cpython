@@ -235,13 +235,17 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Now install sympy:
 python3.9 -m pip install sympy --upgrade >> make_install_osx.log 2>&1
-# For jupyter:
+# For jupyter: I need to edit theses
+# ipykernel 
+# notebook
+# jupyter_client
 python3.9 -m pip install qtpy --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install qtconsole --upgrade >> make_install_osx.log 2>&1
 # Need clone: ipykernel, notebook, jupyter_client.
 # NB: different from: pure-python packages that I have to edit (use git), 
 #                     non-pure python packages (configure and make)
 # break here when only installing packages or experimenting:
+# TODO: edit URLs for manually installed packages
 # exit 0
 
 # 2) compile for iOS:

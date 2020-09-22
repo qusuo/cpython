@@ -5444,7 +5444,7 @@ void PyType_Reset(PyTypeObject* pt) {
     pt->tp_dict = 0;
     // TODO: should I call PyDict_Cleanup on the typeObjects tp_dict?
     // And reset the TP_FLAGS_READY flag:
-    pt->tp_flags &= !Py_TPFLAGS_READY;
+    pt->tp_flags &= ~Py_TPFLAGS_READY;
 }
 #endif
 
