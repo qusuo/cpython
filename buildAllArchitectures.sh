@@ -10,7 +10,6 @@ IOS_SDKROOT=$(xcrun --sdk iphoneos --show-sdk-path)
 SIM_SDKROOT=$(xcrun --sdk iphonesimulator --show-sdk-path)
 
 # 1) compile for OSX (required)
-
 find . -name \*.o -delete
 env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L. -lpython3.9" ./configure --prefix=$PREFIX/Library --with-system-ffi --enable-shared >& configure_osx.log
 # enable-framework incompatible with local install
@@ -147,10 +146,72 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 echo Done installing PyZMQ with CFFI >> make_install_osx.log 2>&1
-# Let ipython chose the version of prompt-toolkit it needs
-# python3.9 -m pip install prompt-toolkit --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install ipython --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install nbconvert --upgrade >> make_install_osx.log 2>&1
+# Let's install the proper version of prompt-toolkit for Ipython:
+python3.9 -m pip install prompt-toolkit==3.0.7 >> make_install_osx.log 2>&1
+# ipython: just two files to change, we use sed to patch it: 
+echo Installing IPython for OSX  >> make_install_osx.log 2>&1
+pushd packages >> make_install_osx.log 2>&1
+rm -rf ipython\*  >>  $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip download ipython --no-binary :all: >>  $PREFIX/make_install_osx.log 2>&1
+tar xzf ipython-7*.tar.gz  >>  $PREFIX/make_install_osx.log 2>&1
+rm ipython-7*.tar.gz  >>  $PREFIX/make_install_osx.log 2>&1
+pushd ipython-7* >>  $PREFIX/make_install_osx.log 2>&1
+# That's one large sed replace, but it's a single file in the repository.
+sed -i bak 's/^    system = system_piped/    # iOS: use system_ios instead\
+    def system_ios(self, cmd): \
+        cmd = self.var_expand(cmd, depth=1)\
+        p = subprocess.Popen(cmd, shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)\
+        os.set_blocking(p.stdout.fileno(), False)\
+        os.set_blocking(p.stderr.fileno(), False)\
+        while True:\
+            if (not p.stdout.closed):\
+                outline = p.stdout.readline()\
+            if (not p.stderr.closed):\
+                errline = p.stderr.readline()\
+            if (outline and outline != b""): \
+                print(outline.decode("UTF-8"),  end="\\r", flush=True)\
+            if (errline and errline != b""): \
+                print(errline.decode("UTF-8"),  end="\\r", file = sys.stderr, flush=True)\
+            outStreamClosed = p.stdout.closed or outline == b""\
+            errStreamClosed = p.stderr.closed or errline == b""\
+            # Additional test: check that the process is not still running:\
+            processTerminated = False\
+            try:\
+                pid, sts = os.waitpid(p.pid, os.WNOHANG)\
+                if pid != 0:\
+                    processTerminated = True\
+            except OSError as e:\
+                processTerminated = True\
+            if (errStreamClosed and outStreamClosed and processTerminated):\
+                break\
+        retcode = p.poll()\
+\
+        if retcode is not None: \
+            if retcode > 128:\
+                retcode = -(retcode - 128)\
+            self.user_ns["_exit_code"] = retcode \
+        else:\
+            self.user_ns["_exit_code"] = 0\
+\
+    if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
+        system = system_ios\
+    else:\
+        system = system_piped/' IPython/core/interactiveshell.py  >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak 's/^    system = InteractiveShell.system_raw/    system = InteractiveShell.system_ios/'  IPython/terminal/interactiveshell.py  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip install ipython --upgrade >> make_install_osx.log 2>&1
+# nbconvert: need to fork and clone. git clone https://github.com/jupyter/nbconvert.git
+# python3.9 -m pip install nbconvert --upgrade >> make_install_osx.log 2>&1
+echo Installing nbconvert, patched for iOS  >> make_install_osx.log 2>&1
+pushd packages >> make_install_osx.log 2>&1
+pushd nbconvert  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
 # argon2 for OSX: use precompiled binary. This might cause a crash later, as with cffi.
 python3.9 -m pip uninstall argon2-cffi -y >> make_install_osx.log 2>&1
 python3.9 -m pip install argon2-cffi --upgrade >> make_install_osx.log 2>&1
@@ -166,17 +227,22 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 # python3.9 -m pip install jupyter --upgrade >> make_install_osx.log 2>&1
 # install mpmath manually because the repository is 2 years ahead of Pipy:
 pushd packages >> make_install_osx.log 2>&1
-pushd mpmath >> make_install_osx.log 2>&1
-git pull  >> make_install_osx.log 2>&1
-python3.9 setup.py build  >> make_install_osx.log 2>&1
-python3.9 setup.py install  >> make_install_osx.log 2>&1
+pushd mpmath >> $PREFIX/make_install_osx.log 2>&1
+git pull  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py install  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Now install sympy:
 python3.9 -m pip install sympy --upgrade >> make_install_osx.log 2>&1
+# For jupyter:
+python3.9 -m pip install qtpy --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install qtconsole --upgrade >> make_install_osx.log 2>&1
+# Need clone: ipykernel, notebook, jupyter_client.
 # NB: different from: pure-python packages that I have to edit (use git), 
 #                     non-pure python packages (configure and make)
 # break here when only installing packages or experimenting:
+# exit 0
 
 # 2) compile for iOS:
 

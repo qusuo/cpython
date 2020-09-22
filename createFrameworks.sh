@@ -59,6 +59,7 @@ done
 find Library -name __pycache__ -exec rm -rf {} \; >& find.log
 find Library -name \*.pyc -delete
 find Library -name \*.so -delete
+find Library -name \*.a -delete
 find Library -name \*.dylib -delete
 rm -f Library/lib/libpython3.9.dylib
 rm -f Library/bin/python3.9

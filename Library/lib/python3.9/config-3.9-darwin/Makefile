@@ -30,8 +30,8 @@ MODLIBS=           $(LOCALMODLIBS) $(BASEMODLIBS)
 VERSION=	3.9
 srcdir=		.
 
-abs_srcdir=	/Users/holzschu/src/Xcode_iPad/cpython
-abs_builddir=	/Users/holzschu/src/Xcode_iPad/cpython
+abs_srcdir=	/Users/holzschu/src/Xcode_iPad/a-Shell/cpython
+abs_builddir=	/Users/holzschu/src/Xcode_iPad/a-Shell/cpython
 
 
 CC=		clang
@@ -48,7 +48,7 @@ GITTAG=		git --git-dir $(srcdir)/.git describe --all --always --dirty
 GITBRANCH=	git --git-dir $(srcdir)/.git name-rev --name-only HEAD
 PGO_PROF_GEN_FLAG=-fprofile-instr-generate
 PGO_PROF_USE_FLAG=-fprofile-instr-use=code.profclangd
-LLVM_PROF_MERGER=/Applications/Xcode-beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin//llvm-profdata merge -output=code.profclangd *.profclangr
+LLVM_PROF_MERGER=/usr/bin/xcrun llvm-profdata merge -output=code.profclangd *.profclangr
 LLVM_PROF_FILE=LLVM_PROFILE_FILE="code-%p.profclangr"
 LLVM_PROF_ERR=no
 DTRACE=         
@@ -81,7 +81,7 @@ MAKESETUP=      $(srcdir)/Modules/makesetup
 OPT=		-DNDEBUG -g -fwrapv -O3 -Wall
 BASECFLAGS=	 -Wno-unused-result -Wsign-compare -Wunreachable-code
 BASECPPFLAGS=	
-CONFIGURE_CFLAGS=	-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk
+CONFIGURE_CFLAGS=	-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
 # CFLAGS_NODIST is used for building the interpreter and stdlib C extensions.
 # Use it when a compiler flag should _not_ be part of the distutils CFLAGS
 # once Python is installed (Issue #21121).
@@ -90,8 +90,8 @@ CONFIGURE_CFLAGS_NODIST= -std=c99 -Wextra -Wno-unused-result -Wno-unused-paramet
 # Use it when a linker flag should _not_ be part of the distutils LDFLAGS
 # once Python is installed (bpo-35257)
 CONFIGURE_LDFLAGS_NODIST=
-CONFIGURE_CPPFLAGS=	-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk
-CONFIGURE_LDFLAGS=	-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk
+CONFIGURE_CPPFLAGS=	-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
+CONFIGURE_LDFLAGS=	-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
 # Avoid assigning CFLAGS, LDFLAGS, etc. so users can use them on the
 # command line to append to these values without stomping the pre-set
 # values.
@@ -130,7 +130,7 @@ MULTIARCH=	darwin
 MULTIARCH_CPPFLAGS = -DMULTIARCH=\"darwin\"
 
 # Install prefix for architecture-independent files
-prefix=		/Users/holzschu/src/Xcode_iPad/cpython/Library
+prefix=		/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library
 
 # Install prefix for architecture-dependent files
 exec_prefix=	${prefix}
@@ -157,9 +157,9 @@ CONFINCLUDEPY=	$(CONFINCLUDEDIR)/python$(LDVERSION)
 # Symbols used for using shared libraries
 SHLIB_SUFFIX=	.so
 EXT_SUFFIX=	.cpython-39-darwin.so
-LDSHARED=	clang -v -undefined error -dynamiclib -isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk -lz -L. -lpython3.9 $(PY_LDFLAGS)
-BLDSHARED=	clang -v -undefined error -dynamiclib -isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk -lz -L. -lpython3.9 $(PY_CORE_LDFLAGS)
-LDCXXSHARED=	clang -v -undefined error -dynamiclib -isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk -lz -L. -lpython3.9
+LDSHARED=	clang -v -undefined error -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk -lz -L. -lpython3.9 $(PY_LDFLAGS)
+BLDSHARED=	clang -v -undefined error -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk -lz -L. -lpython3.9 $(PY_CORE_LDFLAGS)
+LDCXXSHARED=	clang -v -undefined error -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk -lz -L. -lpython3.9
 DESTSHARED=	$(BINLIBDEST)/lib-dynload
 
 # List of exported symbols for AIX
@@ -192,7 +192,7 @@ LIPO_32BIT_FLAGS=
 OTHER_LIBTOOL_OPT=
 
 # Environment to run shared python without installed libraries
-RUNSHARED=       DYLD_LIBRARY_PATH=/Users/holzschu/src/Xcode_iPad/cpython
+RUNSHARED=       DYLD_LIBRARY_PATH=/Users/holzschu/src/Xcode_iPad/a-Shell/cpython
 
 # ensurepip options
 ENSUREPIP=      upgrade
@@ -212,7 +212,7 @@ EXEMODE=	755
 FILEMODE=	644
 
 # configure script arguments
-CONFIG_ARGS=	 '--prefix=/Users/holzschu/src/Xcode_iPad/cpython/Library' '--with-system-ffi' '--enable-shared' 'CC=clang' 'CFLAGS=-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk' 'LDFLAGS=-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk' 'CPPFLAGS=-isysroot /Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk'
+CONFIG_ARGS=	 '--prefix=/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library' '--with-system-ffi' '--enable-shared' 'CC=clang' 'CFLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk' 'LDFLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk' 'CPPFLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk'
 
 
 # Subdirectories with code
@@ -252,8 +252,8 @@ LIBOBJS=
 PYTHON=		python$(EXE)
 BUILDPYTHON=	python$(BUILDEXE)
 
-PYTHON_FOR_REGEN?=python3.9
-UPDATE_FILE=python3.9 $(srcdir)/Tools/scripts/update_file.py
+PYTHON_FOR_REGEN?=python3
+UPDATE_FILE=python3 $(srcdir)/Tools/scripts/update_file.py
 PYTHON_FOR_BUILD=./$(BUILDPYTHON) -E
 _PYTHON_HOST_PLATFORM=
 BUILD_GNU_TYPE=	x86_64-apple-darwin19.6.0

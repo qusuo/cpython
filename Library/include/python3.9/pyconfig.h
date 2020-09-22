@@ -771,7 +771,7 @@
 #define HAVE_PREAD 1
 
 /* Define to 1 if you have the `preadv' function. */
-#define HAVE_PREADV 1
+/* #undef HAVE_PREADV */
 
 /* Define to 1 if you have the `preadv2' function. */
 /* #undef HAVE_PREADV2 */
@@ -813,7 +813,7 @@
 #define HAVE_PWRITE 1
 
 /* Define to 1 if you have the `pwritev' function. */
-#define HAVE_PWRITEV 1
+/* #undef HAVE_PWRITEV */
 
 /* Define to 1 if you have the `pwritev2' function. */
 /* #undef HAVE_PWRITEV2 */

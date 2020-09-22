@@ -54,6 +54,7 @@
 #include <stddef.h>
 #endif
 
+#ifdef __APPLE__
 /* for iOS system. Overrides exit(), abort() and the like */ 
 #include <TargetConditionals.h> 
 #if TARGET_OS_IPHONE
@@ -62,6 +63,7 @@
 #undef getwchar
 #undef putwchar
 #define isatty ios_isatty
+#endif
 #endif
 
 /* CAUTION:  Build setups should ensure that NDEBUG is defined on the
