@@ -4,3 +4,6 @@
 [submodule "packages/nbconvert"]
 	path = packages/nbconvert
 	url = https://github.com/holzschu/nbconvert.git
+[submodule "packages/ipykernel"]
+	path = packages/ipykernel
+	url = https://github.com/holzschu/ipykernel.git
