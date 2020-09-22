@@ -146,6 +146,7 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 echo Done installing PyZMQ with CFFI >> make_install_osx.log 2>&1
+python3.9 -m pip install certifi >> make_install_osx.log 2>&1
 # Let's install the proper version of prompt-toolkit for Ipython:
 python3.9 -m pip install prompt-toolkit==3.0.7 >> make_install_osx.log 2>&1
 # ipython: just two files to change, we use sed to patch it: 
@@ -157,6 +158,7 @@ tar xzf ipython-7*.tar.gz  >>  $PREFIX/make_install_osx.log 2>&1
 rm ipython-7*.tar.gz  >>  $PREFIX/make_install_osx.log 2>&1
 pushd ipython-7* >>  $PREFIX/make_install_osx.log 2>&1
 # That's one large sed replace, but it's a single file in the repository.
+# We need system_ios to replace system_piped *and* system_raw.
 sed -i bak 's/^    system = system_piped/    # iOS: use system_ios instead\
     def system_ios(self, cmd): \
         cmd = self.var_expand(cmd, depth=1)\
@@ -236,12 +238,19 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 # Now install sympy:
 python3.9 -m pip install sympy --upgrade >> make_install_osx.log 2>&1
 # For jupyter: I need to edit theses
-# ipykernel 
-# notebook
-# jupyter_client
+# ipykernel (edited to cleanup sockets when we close a kernel)
+pushd packages >> make_install_osx.log 2>&1
+pushd ipykernel >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# depend on ipykernel:
 python3.9 -m pip install qtpy --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install qtconsole --upgrade >> make_install_osx.log 2>&1
-# Need clone: ipykernel, notebook, jupyter_client.
+# notebook
+# jupyter_client
+# Need to clone: notebook, jupyter_client.
 # NB: different from: pure-python packages that I have to edit (use git), 
 #                     non-pure python packages (configure and make)
 # break here when only installing packages or experimenting:
