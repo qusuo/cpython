@@ -135,7 +135,7 @@
 #define HAVE_CLOCK_GETTIME 1
 
 /* Define to 1 if you have the `clock_settime' function. */
-#define HAVE_CLOCK_SETTIME 1
+/* #undef HAVE_CLOCK_SETTIME */
 
 /* Define if the C compiler supports computed gotos. */
 #define HAVE_COMPUTED_GOTOS 1
@@ -255,7 +255,7 @@
 /* #undef HAVE_DEV_PTC */
 
 /* Define to 1 if you have the /dev/ptmx device file. */
-#define HAVE_DEV_PTMX 1
+/* #undef HAVE_DEV_PTMX */
 
 /* Define to 1 if you have the <direct.h> header file. */
 /* #undef HAVE_DIRECT_H */
@@ -425,7 +425,7 @@
 #define HAVE_GETC_UNLOCKED 1
 
 /* Define to 1 if you have the `getentropy' function. */
-#define HAVE_GETENTROPY 1
+/* #undef HAVE_GETENTROPY */
 
 /* Define to 1 if you have the `getgrgid_r' function. */
 #define HAVE_GETGRGID_R 1
@@ -894,7 +894,7 @@
 #define HAVE_SEM_UNLINK 1
 
 /* Define to 1 if you have the `sendfile' function. */
-#define HAVE_SENDFILE 1
+/* #undef HAVE_SENDFILE */
 
 /* Define to 1 if you have the `setegid' function. */
 #define HAVE_SETEGID 1
@@ -918,16 +918,16 @@
 #define HAVE_SETLOCALE 1
 
 /* Define to 1 if you have the `setpgid' function. */
-#define HAVE_SETPGID 1
+/* #undef HAVE_SETPGID */
 
 /* Define to 1 if you have the `setpgrp' function. */
-#define HAVE_SETPGRP 1
+/* #undef HAVE_SETPGRP */
 
 /* Define to 1 if you have the `setpriority' function. */
 #define HAVE_SETPRIORITY 1
 
 /* Define to 1 if you have the `setregid' function. */
-#define HAVE_SETREGID 1
+/* #undef HAVE_SETREGID */
 
 /* Define to 1 if you have the `setresgid' function. */
 /* #undef HAVE_SETRESGID */
@@ -936,13 +936,13 @@
 /* #undef HAVE_SETRESUID */
 
 /* Define to 1 if you have the `setreuid' function. */
-#define HAVE_SETREUID 1
+/* #undef HAVE_SETREUID */
 
 /* Define to 1 if you have the `setsid' function. */
-#define HAVE_SETSID 1
+/* #undef HAVE_SETSID */
 
 /* Define to 1 if you have the `setuid' function. */
-#define HAVE_SETUID 1
+/* #undef HAVE_SETUID */
 
 /* Define to 1 if you have the `setvbuf' function. */
 #define HAVE_SETVBUF 1
@@ -1495,7 +1495,7 @@
 /* #undef TM_IN_SYS_TIME */
 
 /* Define if you want to use computed gotos in ceval.c. */
-/* #undef USE_COMPUTED_GOTOS */
+#define USE_COMPUTED_GOTOS 0
 
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE
