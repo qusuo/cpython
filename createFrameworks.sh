@@ -64,4 +64,6 @@ find Library -name \*.dylib -delete
 rm -f Library/lib/libpython3.9.dylib
 rm -f Library/bin/python3.9
 rm -f Library/bin/python3
-
+# Create fake binaries for pip
+touch Library/bin/python3
+touch Library/bin/python3.9
