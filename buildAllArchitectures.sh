@@ -37,6 +37,7 @@ python3.9 -m pip install urllib3 --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install webencodings --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install wheel --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install pygments --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install Babel --upgrade >> make_install_osx.log 2>&1
 # markupsafe: prevent compilation of extension:
 echo Installing MarkupSafe with no extensions >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p packages >> $PREFIX/make_install_osx.log 2>&1
@@ -91,6 +92,8 @@ echo done installing pyrsistent >> make_install_osx.log 2>&1
 python3.9 -m pip install ptyprocess --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install jsonschema --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install mistune --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install docutils --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install m2r --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install traitlets --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install pexpect --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install ipython-genutils --upgrade >> make_install_osx.log 2>&1
@@ -200,6 +203,7 @@ sed -i bak 's/^    system = system_piped/    # iOS: use system_ios instead\
     else:\
         system = system_piped/' IPython/core/interactiveshell.py  >> $PREFIX/make_install_osx.log 2>&1
 sed -i bak 's/^    system = InteractiveShell.system_raw/    system = InteractiveShell.system_ios/'  IPython/terminal/interactiveshell.py  >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
@@ -210,6 +214,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 echo Installing nbconvert, patched for iOS  >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
 pushd nbconvert  >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
@@ -231,6 +236,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
 pushd mpmath >> $PREFIX/make_install_osx.log 2>&1
 git pull  >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 setup.py install  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
@@ -241,16 +247,34 @@ python3.9 -m pip install sympy --upgrade >> make_install_osx.log 2>&1
 # ipykernel (edited to cleanup sockets when we close a kernel)
 pushd packages >> make_install_osx.log 2>&1
 pushd ipykernel >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # depend on ipykernel:
 python3.9 -m pip install qtpy --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install qtconsole --upgrade >> make_install_osx.log 2>&1
 # notebook
+# notebook (heavily edited to adapt to touchscreens and iOS)
+pushd packages >> make_install_osx.log 2>&1
+pushd notebook >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
 # jupyter_client
-# Need to clone: notebook, jupyter_client.
+pushd packages >> make_install_osx.log 2>&1
+pushd jupyter_client >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# Now: jupyter
+python3.9 -m pip install jupyter --upgrade >> make_install_osx.log 2>&1
+# TODO: jupyterlab
 # NB: different from: pure-python packages that I have to edit (use git), 
 #                     non-pure python packages (configure and make)
 # break here when only installing packages or experimenting:
@@ -291,6 +315,14 @@ env CC=clang CXX=clang++ \
 	ac_cv_file__dev_ptc=no \
 	ac_cv_func_getentropy=no \
 	ac_cv_func_sendfile=no \
+	ac_cv_func_setregid=no \
+	ac_cv_func_setreuid=no \
+	ac_cv_func_setsid=no \
+	ac_cv_func_setpgid=no \
+	ac_cv_func_setpgrp=no \
+	ac_cv_func_setuid=no \
+    ac_cv_func_forkpty=no \
+    ac_cv_func_openpty=no \
 	ac_cv_func_clock_settime=no >& configure_ios.log
 # --enable-framework fails with iOS compilers
 rm -rf build/lib.darwin-arm64-3.9
@@ -378,6 +410,14 @@ env CC=clang CXX=clang++ \
 	ac_cv_file__dev_ptc=no \
 	ac_cv_func_getentropy=no \
 	ac_cv_func_sendfile=no \
+	ac_cv_func_setregid=no \
+	ac_cv_func_setreuid=no \
+	ac_cv_func_setsid=no \
+	ac_cv_func_setpgid=no \
+	ac_cv_func_setpgrp=no \
+	ac_cv_func_setuid=no \
+    ac_cv_func_forkpty=no \
+    ac_cv_func_openpty=no \
 	ac_cv_func_clock_settime=no >& configure_simulator.log
 rm -rf build/lib.darwin-x86_64-3.9
 make -j 4 >& make_simulator.log

@@ -66,3 +66,6 @@ rm -f Library/bin/python3.9
 rm -f Library/bin/python3
 rm -f packages/*.tar.gz
 rm -f packages/setuptools-*.zip
+# Create fake binaries for pip
+touch Library/bin/python3
+touch Library/bin/python3.9
