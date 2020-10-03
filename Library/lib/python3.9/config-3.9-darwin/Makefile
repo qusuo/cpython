@@ -252,8 +252,8 @@ LIBOBJS=
 PYTHON=		python$(EXE)
 BUILDPYTHON=	python$(BUILDEXE)
 
-PYTHON_FOR_REGEN?=python3.9
-UPDATE_FILE=python3.9 $(srcdir)/Tools/scripts/update_file.py
+PYTHON_FOR_REGEN?=python3
+UPDATE_FILE=python3 $(srcdir)/Tools/scripts/update_file.py
 PYTHON_FOR_BUILD=./$(BUILDPYTHON) -E
 _PYTHON_HOST_PLATFORM=
 BUILD_GNU_TYPE=	x86_64-apple-darwin19.6.0
