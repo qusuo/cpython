@@ -30,8 +30,8 @@ MODLIBS=           $(LOCALMODLIBS) $(BASEMODLIBS)
 VERSION=	3.9
 srcdir=		.
 
-abs_srcdir=	/Users/holzschu/src/Xcode_iPad/a-Shell/cpython
-abs_builddir=	/Users/holzschu/src/Xcode_iPad/a-Shell/cpython
+abs_srcdir=	/Users/holzschu/src/Xcode_iPad/cpython
+abs_builddir=	/Users/holzschu/src/Xcode_iPad/cpython
 
 
 CC=		clang
@@ -130,7 +130,7 @@ MULTIARCH=	darwin
 MULTIARCH_CPPFLAGS = -DMULTIARCH=\"darwin\"
 
 # Install prefix for architecture-independent files
-prefix=		/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library
+prefix=		/Users/holzschu/src/Xcode_iPad/cpython/Library
 
 # Install prefix for architecture-dependent files
 exec_prefix=	${prefix}
@@ -192,7 +192,7 @@ LIPO_32BIT_FLAGS=
 OTHER_LIBTOOL_OPT=
 
 # Environment to run shared python without installed libraries
-RUNSHARED=       DYLD_LIBRARY_PATH=/Users/holzschu/src/Xcode_iPad/a-Shell/cpython
+RUNSHARED=       DYLD_LIBRARY_PATH=/Users/holzschu/src/Xcode_iPad/cpython
 
 # ensurepip options
 ENSUREPIP=      upgrade

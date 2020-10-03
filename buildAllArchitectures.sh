@@ -300,7 +300,7 @@ python3.9 -m pip install jupyter --upgrade >> make_install_osx.log 2>&1
 #                     non-pure python packages (configure and make)
 # break here when only installing packages or experimenting:
 # TODO: edit URLs for manually installed packages
-# exit 0
+exit 0
 
 # 2) compile for iOS:
 
