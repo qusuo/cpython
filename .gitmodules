@@ -13,3 +13,6 @@
 [submodule "packages/jupyter_client"]
 	path = packages/jupyter_client
 	url = https://github.com/holzschu/jupyter_client.git
+[submodule "packages/numpy"]
+	path = packages/numpy
+	url = https://github.com/holzschu/numpy.git
