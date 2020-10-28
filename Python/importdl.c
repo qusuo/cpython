@@ -168,7 +168,6 @@ _PyImport_LoadDynamicModuleWithSpec(PyObject *spec, FILE *fp)
     }
     m = p0();
     _Py_PackageContext = oldcontext;
-
     if (m == NULL) {
         if (!PyErr_Occurred()) {
             PyErr_Format(

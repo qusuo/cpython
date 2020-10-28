@@ -113,6 +113,11 @@ static long dxp[256];
 #endif
 #define OPCACHE_STATS 0  /* Enable stats */
 
+#if TARGET_OS_IPHONE // Need to find those memory issues.  opcache makes it harder.
+#undef OPCACHE_MIN_RUNS
+#define OPCACHE_MIN_RUNS 0  /* disable opcache */
+#endif
+
 #if OPCACHE_STATS
 static size_t opcache_code_objects = 0;
 static size_t opcache_code_objects_extra_mem = 0;
@@ -5190,7 +5195,6 @@ import_name(PyThreadState *tstate, PyFrameObject *f,
         }
         return NULL;
     }
-
     /* Fast path for not overloaded __import__. */
     if (import_func == tstate->interp->import_func) {
         int ilevel = _PyLong_AsInt(level);

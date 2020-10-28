@@ -15645,7 +15645,7 @@ PyUnicode_InternFromString(const char *cp)
 }
 
 
-#if defined(WITH_VALGRIND) || defined(__INSURE__)
+#if defined(WITH_VALGRIND) || defined(__INSURE__) || TARGET_OS_IPHONE
 static void
 unicode_release_interned(void)
 {
@@ -16200,7 +16200,7 @@ void
 _PyUnicode_Fini(PyThreadState *tstate)
 {
     if (_Py_IsMainInterpreter(tstate)) {
-#if defined(WITH_VALGRIND) || defined(__INSURE__)
+#if defined(WITH_VALGRIND) || defined(__INSURE__) || TARGET_OS_IPHONE
         /* Insure++ is a memory analysis tool that aids in discovering
          * memory leaks and other memory problems.  On Python exit, the
          * interned string dictionaries are flagged as being in use at exit
@@ -16209,6 +16209,9 @@ _PyUnicode_Fini(PyThreadState *tstate)
          * memory debugging, it's a huge source of useless noise, so we
          * trade off slower shutdown for less distraction in the memory
          * reports.  -baw
+         */
+        /* on iOS, memory is not automatically reclaimed by the system, so we 
+         * use this mechanism to release it. 
          */
         unicode_release_interned();
 #endif /* __INSURE__ */

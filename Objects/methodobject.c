@@ -437,6 +437,7 @@ cfunction_vectorcall_FASTCALL(
         return NULL;
     }
     PyObject *result = meth(PyCFunction_GET_SELF(func), args, nargs);
+
     _Py_LeaveRecursiveCall(tstate);
     return result;
 }

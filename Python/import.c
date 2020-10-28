@@ -628,7 +628,7 @@ _PyImport_Cleanup(PyThreadState *tstate)
             // which prevent the freefunc function from being called.
             // This here is just for debugging, the module erasure is done in moduleobject.c
             const char* utf8name = PyUnicode_AsUTF8(name);
-            if ((strncmp(utf8name, "_asyncio", 8) == 0)) {
+            if (strncmp(utf8name, "_asyncio", 8) == 0) {
                 // fprintf(stderr, "We have a module = %x name = %s refCount = %zd\n", mod, utf8name, mod->ob_refcnt);
 			}
             if ((strncmp(utf8name, "pandas.", 7) == 0) || (strncmp(utf8name, "numpy.", 6) == 0)) {
@@ -1786,9 +1786,14 @@ import_find_and_load(PyThreadState *tstate, PyObject *abs_name)
     PyObject *mod = NULL;
     PyInterpreterState *interp = tstate->interp;
     int import_time = _PyInterpreterState_GetConfig(interp)->import_time;
+#if !TARGET_OS_IPHONE
     static int import_level;
     static _PyTime_t accumulated;
-
+#else
+    static __thread int import_level;
+    static __thread _PyTime_t accumulated;
+#endif
+    
     _PyTime_t t1 = 0, accumulated_copy = accumulated;
 
     PyObject *sys_path = PySys_GetObject("path");
@@ -1808,7 +1813,11 @@ import_find_and_load(PyThreadState *tstate, PyObject *abs_name)
      * _PyDict_GetItemIdWithError().
      */
     if (import_time) {
+#if !TARGET_OS_IPHONE
         static int header = 1;
+#else
+        static __thread int header = 1;
+#endif
         if (header) {
             fputs("import time: self [us] | cumulative | imported package\n",
 #if !TARGET_OS_IPHONE

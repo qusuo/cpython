@@ -5451,11 +5451,17 @@ void PyType_Reset(PyTypeObject* pt) {
 int
 PyType_Ready(PyTypeObject *type)
 {
+#if TARGET_OS_IPHONE
+	// fprintf(stderr, "Entering PyType_Ready, type= %s\n", type->tp_name);
+#endif
     PyObject *dict, *bases;
     PyTypeObject *base;
     Py_ssize_t i, n;
 
     if (type->tp_flags & Py_TPFLAGS_READY) {
+#if TARGET_OS_IPHONE
+		// fprintf(stderr, "type= %s is already ready\n", type->tp_name);
+#endif
         assert(_PyType_CheckConsistency(type));
         return 0;
     }
@@ -5528,8 +5534,9 @@ PyType_Ready(PyTypeObject *type)
             bases = PyTuple_New(0);
         else
             bases = PyTuple_Pack(1, base);
-        if (bases == NULL)
+        if (bases == NULL) {
             goto error;
+		}
         type->tp_bases = bases;
     }
 
@@ -5537,30 +5544,36 @@ PyType_Ready(PyTypeObject *type)
     dict = type->tp_dict;
     if (dict == NULL) {
         dict = PyDict_New();
-        if (dict == NULL)
+        if (dict == NULL) {
             goto error;
+		}
         type->tp_dict = dict;
     }
 
     /* Add type-specific descriptors to tp_dict */
-    if (add_operators(type) < 0)
+    if (add_operators(type) < 0) {
         goto error;
+	}
     if (type->tp_methods != NULL) {
-        if (add_methods(type, type->tp_methods) < 0)
+        if (add_methods(type, type->tp_methods) < 0) {
             goto error;
+		}
     }
     if (type->tp_members != NULL) {
-        if (add_members(type, type->tp_members) < 0)
+        if (add_members(type, type->tp_members) < 0) {
             goto error;
+		}
     }
     if (type->tp_getset != NULL) {
-        if (add_getset(type, type->tp_getset) < 0)
+        if (add_getset(type, type->tp_getset) < 0) {
             goto error;
+		}
     }
 
     /* Calculate method resolution order */
-    if (mro_internal(type, NULL) < 0)
+    if (mro_internal(type, NULL) < 0) {
         goto error;
+	}
 
     /* Inherit special flags from dominant base */
     if (type->tp_base != NULL)
@@ -5615,8 +5628,9 @@ PyType_Ready(PyTypeObject *type)
             const char *old_doc = _PyType_DocWithoutSignature(type->tp_name,
                 type->tp_doc);
             PyObject *doc = PyUnicode_FromString(old_doc);
-            if (doc == NULL)
+            if (doc == NULL) {
                 goto error;
+			}
             if (_PyDict_SetItemId(type->tp_dict, &PyId___doc__, doc) < 0) {
                 Py_DECREF(doc);
                 goto error;
@@ -5624,8 +5638,9 @@ PyType_Ready(PyTypeObject *type)
             Py_DECREF(doc);
         } else {
             if (_PyDict_SetItemId(type->tp_dict,
-                                  &PyId___doc__, Py_None) < 0)
+                                  &PyId___doc__, Py_None) < 0) {
                 goto error;
+			}
         }
     }
 
@@ -5667,17 +5682,25 @@ PyType_Ready(PyTypeObject *type)
     for (i = 0; i < n; i++) {
         PyObject *b = PyTuple_GET_ITEM(bases, i);
         if (PyType_Check(b) &&
-            add_subclass((PyTypeObject *)b, type) < 0)
+            add_subclass((PyTypeObject *)b, type) < 0) {
             goto error;
+		}
     }
 
     /* All done -- set the ready flag */
     type->tp_flags =
         (type->tp_flags & ~Py_TPFLAGS_READYING) | Py_TPFLAGS_READY;
     assert(_PyType_CheckConsistency(type));
+#if TARGET_OS_IPHONE
+	// fprintf(stderr, "type= %s is ready\n", type->tp_name);
+#endif
+    
     return 0;
 
   error:
+#if TARGET_OS_IPHONE
+	// fprintf(stderr, "Failure with type= %s in PyTypeReady\n", type->tp_name);
+#endif
     type->tp_flags &= ~Py_TPFLAGS_READYING;
     return -1;
 }

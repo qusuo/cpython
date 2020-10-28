@@ -323,8 +323,13 @@ _PyCode_InitOpcache(PyCodeObject *co)
 PyCodeObject *
 PyCode_NewEmpty(const char *filename, const char *funcname, int firstlineno)
 {
+#if !TARGET_OS_IPHONE
     static PyObject *emptystring = NULL;
     static PyObject *nulltuple = NULL;
+#else
+    static __thread PyObject *emptystring = NULL;
+    static __thread PyObject *nulltuple = NULL;
+#endif
     PyObject *filename_ob = NULL;
     PyObject *funcname_ob = NULL;
     PyCodeObject *result = NULL;
