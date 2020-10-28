@@ -16,3 +16,6 @@
 [submodule "packages/numpy"]
 	path = packages/numpy
 	url = https://github.com/holzschu/numpy.git
+[submodule "packages/cython"]
+	path = packages/cython
+	url = https://github.com/holzschu/cython.git
