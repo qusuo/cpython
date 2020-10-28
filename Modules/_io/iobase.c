@@ -1099,3 +1099,104 @@ PyTypeObject PyRawIOBase_Type = {
     0,                          /* tp_version_tag */
     0,                          /* tp_finalize */
 };
+
+#if TARGET_OS_IPHONE
+void reset_PyIOBase_Type() {
+	PyIOBase_Type.tp_name= "_io._IOBase";                 /* tp_name*/
+	PyIOBase_Type.tp_basicsize= sizeof(iobase);                /* tp_basicsize*/
+	PyIOBase_Type.tp_itemsize= 0;                             /* tp_itemsize*/
+	PyIOBase_Type.tp_dealloc= (destructor)iobase_dealloc;    /* tp_dealloc*/
+	PyIOBase_Type.tp_vectorcall_offset= 0;                             /* tp_vectorcall_offset*/
+	PyIOBase_Type.tp_getattr= 0;                             /* tp_getattr*/
+	PyIOBase_Type.tp_setattr= 0;                             /* tp_setattr*/
+	PyIOBase_Type.tp_as_async= 0;                             /* tp_as_async*/
+	PyIOBase_Type.tp_repr= 0;                             /* tp_repr*/
+	PyIOBase_Type.tp_as_number= 0;                             /* tp_as_number*/
+	PyIOBase_Type.tp_as_sequence= 0;                             /* tp_as_sequence*/
+	PyIOBase_Type.tp_as_mapping= 0;                             /* tp_as_mapping*/
+	PyIOBase_Type.tp_hash = 0;                             /* tp_hash */
+	PyIOBase_Type.tp_call= 0;                             /* tp_call*/
+	PyIOBase_Type.tp_str= 0;                             /* tp_str*/
+	PyIOBase_Type.tp_getattro= 0;                             /* tp_getattro*/
+	PyIOBase_Type.tp_setattro= 0;                             /* tp_setattro*/
+	PyIOBase_Type.tp_as_buffer= 0;                             /* tp_as_buffer*/
+	PyIOBase_Type.tp_flags= Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC;   /*tp_flags*/
+	PyIOBase_Type.tp_doc = iobase_doc;                    /* tp_doc */
+	PyIOBase_Type.tp_traverse = (traverseproc)iobase_traverse; /* tp_traverse */
+	PyIOBase_Type.tp_clear = (inquiry)iobase_clear;         /* tp_clear */
+	PyIOBase_Type.tp_richcompare = 0;                             /* tp_richcompare */
+	PyIOBase_Type.tp_weaklistoffset = offsetof(iobase, weakreflist); /* tp_weaklistoffset */
+	PyIOBase_Type.tp_iter = iobase_iter;                   /* tp_iter */
+	PyIOBase_Type.tp_iternext = iobase_iternext;               /* tp_iternext */
+	PyIOBase_Type.tp_methods = iobase_methods;                /* tp_methods */
+	PyIOBase_Type.tp_members = 0;                             /* tp_members */
+	PyIOBase_Type.tp_getset = iobase_getset;                 /* tp_getset */
+	PyIOBase_Type.tp_base = 0;                             /* tp_base */
+	PyIOBase_Type.tp_dict = 0;                             /* tp_dict */
+	PyIOBase_Type.tp_descr_get = 0;                             /* tp_descr_get */
+	PyIOBase_Type.tp_descr_set = 0;                             /* tp_descr_set */
+	PyIOBase_Type.tp_dictoffset = offsetof(iobase, dict);        /* tp_dictoffset */
+	PyIOBase_Type.tp_init = 0;                             /* tp_init */
+	PyIOBase_Type.tp_alloc = 0;                             /* tp_alloc */
+	PyIOBase_Type.tp_new = PyType_GenericNew;             /* tp_new */
+	PyIOBase_Type.tp_free = 0;                             /* tp_free */
+	PyIOBase_Type.tp_is_gc = 0;                             /* tp_is_gc */
+	PyIOBase_Type.tp_bases = 0;                             /* tp_bases */
+	PyIOBase_Type.tp_mro = 0;                             /* tp_mro */
+	PyIOBase_Type.tp_cache = 0;                             /* tp_cache */
+	PyIOBase_Type.tp_subclasses = 0;                             /* tp_subclasses */
+	PyIOBase_Type.tp_weaklist = 0;                             /* tp_weaklist */
+	PyIOBase_Type.tp_del = 0;                             /* tp_del */
+	PyIOBase_Type.tp_version_tag = 0;                             /* tp_version_tag */
+	PyIOBase_Type.tp_finalize = iobase_finalize;               /* tp_finalize */
+}
+void reset_PyRawIOBase_Type() {
+	PyRawIOBase_Type.tp_name= "_io._RawIOBase";           /* tp_name*/
+	PyRawIOBase_Type.tp_basicsize= 0;                          /* tp_basicsize*/
+	PyRawIOBase_Type.tp_itemsize= 0;                          /* tp_itemsize*/
+	PyRawIOBase_Type.tp_dealloc= 0;                          /* tp_dealloc*/
+	PyRawIOBase_Type.tp_vectorcall_offset= 0;                          /* tp_vectorcall_offset*/
+	PyRawIOBase_Type.tp_getattr= 0;                          /* tp_getattr*/
+	PyRawIOBase_Type.tp_setattr= 0;                          /* tp_setattr*/
+	PyRawIOBase_Type.tp_as_async= 0;                          /* tp_as_async*/
+	PyRawIOBase_Type.tp_repr= 0;                          /* tp_repr*/
+	PyRawIOBase_Type.tp_as_number= 0;                          /* tp_as_number*/
+	PyRawIOBase_Type.tp_as_sequence= 0;                          /* tp_as_sequence*/
+	PyRawIOBase_Type.tp_as_mapping= 0;                          /* tp_as_mapping*/
+	PyRawIOBase_Type.tp_hash = 0;                          /* tp_hash */
+	PyRawIOBase_Type.tp_call= 0;                          /* tp_call*/
+	PyRawIOBase_Type.tp_str= 0;                          /* tp_str*/
+	PyRawIOBase_Type.tp_getattro= 0;                          /* tp_getattro*/
+	PyRawIOBase_Type.tp_setattro= 0;                          /* tp_setattro*/
+	PyRawIOBase_Type.tp_as_buffer= 0;                          /* tp_as_buffer*/
+	PyRawIOBase_Type.tp_flags= Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;  /*tp_flags*/
+	PyRawIOBase_Type.tp_doc = rawiobase_doc;              /* tp_doc */
+	PyRawIOBase_Type.tp_traverse = 0;                          /* tp_traverse */
+	PyRawIOBase_Type.tp_clear = 0;                          /* tp_clear */
+	PyRawIOBase_Type.tp_richcompare = 0;                          /* tp_richcompare */
+	PyRawIOBase_Type.tp_weaklistoffset = 0;                          /* tp_weaklistoffset */
+	PyRawIOBase_Type.tp_iter = 0;                          /* tp_iter */
+	PyRawIOBase_Type.tp_iternext = 0;                          /* tp_iternext */
+	PyRawIOBase_Type.tp_methods = rawiobase_methods;          /* tp_methods */
+	PyRawIOBase_Type.tp_members = 0;                          /* tp_members */
+	PyRawIOBase_Type.tp_getset = 0;                          /* tp_getset */
+	PyRawIOBase_Type.tp_base = &PyIOBase_Type;             /* tp_base */
+	PyRawIOBase_Type.tp_dict = 0;                          /* tp_dict */
+	PyRawIOBase_Type.tp_descr_get = 0;                          /* tp_descr_get */
+	PyRawIOBase_Type.tp_descr_set = 0;                          /* tp_descr_set */
+	PyRawIOBase_Type.tp_dictoffset = 0;                          /* tp_dictoffset */
+	PyRawIOBase_Type.tp_init = 0;                          /* tp_init */
+	PyRawIOBase_Type.tp_alloc = 0;                          /* tp_alloc */
+	PyRawIOBase_Type.tp_new = 0;                          /* tp_new */
+	PyRawIOBase_Type.tp_free = 0;                          /* tp_free */
+	PyRawIOBase_Type.tp_is_gc = 0;                          /* tp_is_gc */
+	PyRawIOBase_Type.tp_bases = 0;                          /* tp_bases */
+	PyRawIOBase_Type.tp_mro = 0;                          /* tp_mro */
+	PyRawIOBase_Type.tp_cache = 0;                          /* tp_cache */
+	PyRawIOBase_Type.tp_subclasses = 0;                          /* tp_subclasses */
+	PyRawIOBase_Type.tp_weaklist = 0;                          /* tp_weaklist */
+	PyRawIOBase_Type.tp_del = 0;                          /* tp_del */
+	PyRawIOBase_Type.tp_version_tag = 0;                          /* tp_version_tag */
+	PyRawIOBase_Type.tp_finalize = 0;                          /* tp_finalize */
+}
+#endif

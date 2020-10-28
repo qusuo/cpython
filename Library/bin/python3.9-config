@@ -1,4 +1,4 @@
-#!/Users/holzschu/src/Xcode_iPad/cpython/Library/bin/python3.9
+#!/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/bin/python3.9
 # -*- python -*-
 
 # Keep this script in sync with python-config.sh.in

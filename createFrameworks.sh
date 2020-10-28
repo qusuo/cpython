@@ -69,3 +69,8 @@ rm -f packages/setuptools-*.zip
 # Create fake binaries for pip
 touch Library/bin/python3
 touch Library/bin/python3.9
+
+# change direct_url.json files to have a more meaningful URL:
+APP=$(basename `dirname $PWD`)
+find Library -type f -name direct_url.json -exec sed -i bak  "s/file:.*packages/${APP}/g" {} \; -print
+find Library -type f -name direct_url.jsonbak -delete

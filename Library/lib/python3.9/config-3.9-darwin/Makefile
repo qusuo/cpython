@@ -30,8 +30,8 @@ MODLIBS=           $(LOCALMODLIBS) $(BASEMODLIBS)
 VERSION=	3.9
 srcdir=		.
 
-abs_srcdir=	/Users/holzschu/src/Xcode_iPad/cpython
-abs_builddir=	/Users/holzschu/src/Xcode_iPad/cpython
+abs_srcdir=	/Users/holzschu/src/Xcode_iPad/a-Shell/cpython
+abs_builddir=	/Users/holzschu/src/Xcode_iPad/a-Shell/cpython
 
 
 CC=		clang
@@ -78,7 +78,7 @@ MKDIR_P=	./install-sh -c -d
 MAKESETUP=      $(srcdir)/Modules/makesetup
 
 # Compiler options
-OPT=		-DNDEBUG -g -fwrapv -O3 -Wall
+OPT=		-DNDEBUG -O3 -Wall
 BASECFLAGS=	 -Wno-unused-result -Wsign-compare -Wunreachable-code
 BASECPPFLAGS=	
 CONFIGURE_CFLAGS=	-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
@@ -119,7 +119,7 @@ PY_CORE_CFLAGS=	$(PY_STDMODULE_CFLAGS) -DPy_BUILD_CORE
 # Linker flags used for building the interpreter object files
 PY_CORE_LDFLAGS=$(PY_LDFLAGS) $(PY_LDFLAGS_NODIST)
 # Strict or non-strict aliasing flags used to compile dtoa.c, see above
-CFLAGS_ALIASING=-fno-strict-aliasing
+CFLAGS_ALIASING=
 
 
 # Machine-dependent subdirectories
@@ -130,7 +130,7 @@ MULTIARCH=	darwin
 MULTIARCH_CPPFLAGS = -DMULTIARCH=\"darwin\"
 
 # Install prefix for architecture-independent files
-prefix=		/Users/holzschu/src/Xcode_iPad/cpython/Library
+prefix=		/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library
 
 # Install prefix for architecture-dependent files
 exec_prefix=	${prefix}
@@ -192,7 +192,7 @@ LIPO_32BIT_FLAGS=
 OTHER_LIBTOOL_OPT=
 
 # Environment to run shared python without installed libraries
-RUNSHARED=       DYLD_LIBRARY_PATH=/Users/holzschu/src/Xcode_iPad/cpython
+RUNSHARED=       DYLD_LIBRARY_PATH=/Users/holzschu/src/Xcode_iPad/a-Shell/cpython
 
 # ensurepip options
 ENSUREPIP=      upgrade

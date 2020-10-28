@@ -552,6 +552,7 @@ def _init_module_attrs(spec, module, *, override=False):
                     module.__cached__ = spec.cached
                 except AttributeError:
                     pass
+
     return module
 
 

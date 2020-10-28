@@ -1164,3 +1164,84 @@ Py_EXPORTED_SYMBOL PyTypeObject _PyBytesIOBuffer_Type = {
     0,                                         /*tp_alloc*/
     0,                                         /*tp_new*/
 };
+
+#if TARGET_OS_IPHONE
+void reset_PyBytesIO_Type() {
+	PyBytesIO_Type.tp_name = "_io.BytesIO";                             /*tp_name*/
+	PyBytesIO_Type.tp_basicsize = sizeof(bytesio);                           /*tp_basicsize*/
+	PyBytesIO_Type.tp_itemsize = 0;                                         /*tp_itemsize*/
+	PyBytesIO_Type.tp_dealloc = (destructor)bytesio_dealloc;               /*tp_dealloc*/
+	PyBytesIO_Type.tp_vectorcall_offset = 0;                                         /*tp_vectorcall_offset*/
+	PyBytesIO_Type.tp_getattr = 0;                                         /*tp_getattr*/
+	PyBytesIO_Type.tp_setattr = 0;                                         /*tp_setattr*/
+	PyBytesIO_Type.tp_as_async = 0;                                         /*tp_as_async*/
+	PyBytesIO_Type.tp_repr = 0;                                         /*tp_repr*/
+	PyBytesIO_Type.tp_as_number = 0;                                         /*tp_as_number*/
+	PyBytesIO_Type.tp_as_sequence = 0;                                         /*tp_as_sequence*/
+	PyBytesIO_Type.tp_as_mapping = 0;                                         /*tp_as_mapping*/
+	PyBytesIO_Type.tp_hash = 0;                                         /*tp_hash*/
+	PyBytesIO_Type.tp_call = 0;                                         /*tp_call*/
+	PyBytesIO_Type.tp_str = 0;                                         /*tp_str*/
+	PyBytesIO_Type.tp_getattro = 0;                                         /*tp_getattro*/
+	PyBytesIO_Type.tp_setattro = 0;                                         /*tp_setattro*/
+	PyBytesIO_Type.tp_as_buffer = 0;                                         /*tp_as_buffer*/
+	PyBytesIO_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC; /*tp_flags*/
+	PyBytesIO_Type.tp_doc = _io_BytesIO___init____doc__;               /*tp_doc*/
+	PyBytesIO_Type.tp_traverse = (traverseproc)bytesio_traverse;            /*tp_traverse*/
+	PyBytesIO_Type.tp_clear = (inquiry)bytesio_clear;                    /*tp_clear*/
+	PyBytesIO_Type.tp_richcompare = 0;                                         /*tp_richcompare*/
+	PyBytesIO_Type.tp_weaklistoffset = offsetof(bytesio, weakreflist);            /*tp_weaklistoffset*/
+	PyBytesIO_Type.tp_iter = PyObject_SelfIter;                         /*tp_iter*/
+	PyBytesIO_Type.tp_iternext = (iternextfunc)bytesio_iternext;            /*tp_iternext*/
+	PyBytesIO_Type.tp_methods = bytesio_methods;                           /*tp_methods*/
+	PyBytesIO_Type.tp_members = 0;                                         /*tp_members*/
+	PyBytesIO_Type.tp_getset = bytesio_getsetlist;                        /*tp_getset*/
+	PyBytesIO_Type.tp_base = 0;                                         /*tp_base*/
+	PyBytesIO_Type.tp_dict = 0;                                         /*tp_dict*/
+	PyBytesIO_Type.tp_descr_get = 0;                                         /*tp_descr_get*/
+	PyBytesIO_Type.tp_descr_set = 0;                                         /*tp_descr_set*/
+	PyBytesIO_Type.tp_dictoffset = offsetof(bytesio, dict);                   /*tp_dictoffset*/
+	PyBytesIO_Type.tp_init = _io_BytesIO___init__;                      /*tp_init*/
+	PyBytesIO_Type.tp_alloc = 0;                                         /*tp_alloc*/
+	PyBytesIO_Type.tp_new = bytesio_new;                               /*tp_new*/
+}
+void reset__PyBytesIOBuffer_Type() {
+	_PyBytesIOBuffer_Type.tp_name = "_io._BytesIOBuffer";                      /*tp_name*/
+	_PyBytesIOBuffer_Type.tp_basicsize = sizeof(bytesiobuf);                        /*tp_basicsize*/
+	_PyBytesIOBuffer_Type.tp_itemsize = 0;                                         /*tp_itemsize*/
+	_PyBytesIOBuffer_Type.tp_dealloc = (destructor)bytesiobuf_dealloc;            /*tp_dealloc*/
+	_PyBytesIOBuffer_Type.tp_vectorcall_offset = 0;                                         /*tp_vectorcall_offset*/
+	_PyBytesIOBuffer_Type.tp_getattr = 0;                                         /*tp_getattr*/
+	_PyBytesIOBuffer_Type.tp_setattr = 0;                                         /*tp_setattr*/
+	_PyBytesIOBuffer_Type.tp_as_async = 0;                                         /*tp_as_async*/
+	_PyBytesIOBuffer_Type.tp_repr = 0;                                         /*tp_repr*/
+	_PyBytesIOBuffer_Type.tp_as_number = 0;                                         /*tp_as_number*/
+	_PyBytesIOBuffer_Type.tp_as_sequence = 0;                                         /*tp_as_sequence*/
+	_PyBytesIOBuffer_Type.tp_as_mapping = 0;                                         /*tp_as_mapping*/
+	_PyBytesIOBuffer_Type.tp_hash = 0;                                         /*tp_hash*/
+	_PyBytesIOBuffer_Type.tp_call = 0;                                         /*tp_call*/
+	_PyBytesIOBuffer_Type.tp_str = 0;                                         /*tp_str*/
+	_PyBytesIOBuffer_Type.tp_getattro = 0;                                         /*tp_getattro*/
+	_PyBytesIOBuffer_Type.tp_setattro = 0;                                         /*tp_setattro*/
+	_PyBytesIOBuffer_Type.tp_as_buffer = &bytesiobuf_as_buffer;                     /*tp_as_buffer*/
+	_PyBytesIOBuffer_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC;   /*tp_flags*/
+	_PyBytesIOBuffer_Type.tp_doc = 0;                                         /*tp_doc*/
+	_PyBytesIOBuffer_Type.tp_traverse = (traverseproc)bytesiobuf_traverse;         /*tp_traverse*/
+	_PyBytesIOBuffer_Type.tp_clear = 0;                                         /*tp_clear*/
+	_PyBytesIOBuffer_Type.tp_richcompare = 0;                                         /*tp_richcompare*/
+	_PyBytesIOBuffer_Type.tp_weaklistoffset = 0;                                         /*tp_weaklistoffset*/
+	_PyBytesIOBuffer_Type.tp_iter = 0;                                         /*tp_iter*/
+	_PyBytesIOBuffer_Type.tp_iternext = 0;                                         /*tp_iternext*/
+	_PyBytesIOBuffer_Type.tp_methods = 0;                                         /*tp_methods*/
+	_PyBytesIOBuffer_Type.tp_members = 0;                                         /*tp_members*/
+	_PyBytesIOBuffer_Type.tp_getset = 0;                                         /*tp_getset*/
+	_PyBytesIOBuffer_Type.tp_base = 0;                                         /*tp_base*/
+	_PyBytesIOBuffer_Type.tp_dict = 0;                                         /*tp_dict*/
+	_PyBytesIOBuffer_Type.tp_descr_get = 0;                                         /*tp_descr_get*/
+	_PyBytesIOBuffer_Type.tp_descr_set = 0;                                         /*tp_descr_set*/
+	_PyBytesIOBuffer_Type.tp_dictoffset = 0;                                         /*tp_dictoffset*/
+	_PyBytesIOBuffer_Type.tp_init = 0;                                         /*tp_init*/
+	_PyBytesIOBuffer_Type.tp_alloc = 0;                                         /*tp_alloc*/
+	_PyBytesIOBuffer_Type.tp_new = 0;                                         /*tp_new*/
+}
+#endif

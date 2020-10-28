@@ -1042,3 +1042,45 @@ PyTypeObject PyStringIO_Type = {
     0,                                         /*tp_alloc*/
     stringio_new,                              /*tp_new*/
 };
+
+#if TARGET_OS_IPHONE
+void reset_PyStringIO_Type() {
+	PyStringIO_Type.tp_name= "_io.StringIO";                            /*tp_name*/
+	PyStringIO_Type.tp_basicsize= sizeof(stringio);                          /*tp_basicsize*/
+	PyStringIO_Type.tp_itemsize= 0;                                         /*tp_itemsize*/
+	PyStringIO_Type.tp_dealloc= (destructor)stringio_dealloc;              /*tp_dealloc*/
+	PyStringIO_Type.tp_vectorcall_offset= 0;                                         /*tp_vectorcall_offset*/
+	PyStringIO_Type.tp_getattr= 0;                                         /*tp_getattr*/
+	PyStringIO_Type.tp_setattr= 0;                                         /*tp_setattr*/
+	PyStringIO_Type.tp_as_async= 0;                                         /*tp_as_async*/
+	PyStringIO_Type.tp_repr= 0;                                         /*tp_repr*/
+	PyStringIO_Type.tp_as_number= 0;                                         /*tp_as_number*/
+	PyStringIO_Type.tp_as_sequence= 0;                                         /*tp_as_sequence*/
+	PyStringIO_Type.tp_as_mapping= 0;                                         /*tp_as_mapping*/
+	PyStringIO_Type.tp_hash= 0;                                         /*tp_hash*/
+	PyStringIO_Type.tp_call= 0;                                         /*tp_call*/
+	PyStringIO_Type.tp_str= 0;                                         /*tp_str*/
+	PyStringIO_Type.tp_getattro= 0;                                         /*tp_getattro*/
+	PyStringIO_Type.tp_setattro= 0;                                         /*tp_setattro*/
+	PyStringIO_Type.tp_as_buffer= 0;                                         /*tp_as_buffer*/
+	PyStringIO_Type.tp_flags= Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC;   /*tp_flags*/
+	PyStringIO_Type.tp_doc= _io_StringIO___init____doc__;              /*tp_doc*/
+	PyStringIO_Type.tp_traverse= (traverseproc)stringio_traverse;           /*tp_traverse*/
+	PyStringIO_Type.tp_clear= (inquiry)stringio_clear;                   /*tp_clear*/
+	PyStringIO_Type.tp_richcompare= 0;                                         /*tp_richcompare*/
+	PyStringIO_Type.tp_weaklistoffset= offsetof(stringio, weakreflist);            /*tp_weaklistoffset*/
+	PyStringIO_Type.tp_iter= 0;                                         /*tp_iter*/
+	PyStringIO_Type.tp_iternext= (iternextfunc)stringio_iternext;           /*tp_iternext*/
+	PyStringIO_Type.tp_methods= stringio_methods;                          /*tp_methods*/
+	PyStringIO_Type.tp_members= 0;                                         /*tp_members*/
+	PyStringIO_Type.tp_getset= stringio_getset;                           /*tp_getset*/
+	PyStringIO_Type.tp_base= 0;                                         /*tp_base*/
+	PyStringIO_Type.tp_dict= 0;                                         /*tp_dict*/
+	PyStringIO_Type.tp_descr_get= 0;                                         /*tp_descr_get*/
+	PyStringIO_Type.tp_descr_set= 0;                                         /*tp_descr_set*/
+	PyStringIO_Type.tp_dictoffset= offsetof(stringio, dict);                  /*tp_dictoffset*/
+	PyStringIO_Type.tp_init= _io_StringIO___init__;                     /*tp_init*/
+	PyStringIO_Type.tp_alloc= 0;                                         /*tp_alloc*/
+	PyStringIO_Type.tp_new= stringio_new;                              /*tp_new*/
+};
+#endif

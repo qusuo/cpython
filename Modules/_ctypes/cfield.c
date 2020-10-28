@@ -341,6 +341,48 @@ PyTypeObject PyCField_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+void init_PyCField_Type() {
+    PyCField_Type.tp_name = "_ctypes.CField";                           /* tp_name */
+    PyCField_Type.tp_basicsize = sizeof(CFieldObject);                       /* tp_basicsize */
+    PyCField_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    PyCField_Type.tp_dealloc = PyCField_dealloc;                           /* tp_dealloc */
+    PyCField_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    PyCField_Type.tp_getattr = 0;                                          /* tp_getattr */
+    PyCField_Type.tp_setattr = 0;                                          /* tp_setattr */
+    PyCField_Type.tp_as_async = 0;                                          /* tp_as_async */
+    PyCField_Type.tp_repr = (reprfunc)PyCField_repr;                    /* tp_repr */
+    PyCField_Type.tp_as_number = 0;                                          /* tp_as_number */
+    PyCField_Type.tp_as_sequence = 0;                                          /* tp_as_sequence */
+    PyCField_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    PyCField_Type.tp_hash = 0;                                          /* tp_hash */
+    PyCField_Type.tp_call = 0;                                          /* tp_call */
+    PyCField_Type.tp_str = 0;                                          /* tp_str */
+    PyCField_Type.tp_getattro = 0;                                          /* tp_getattro */
+    PyCField_Type.tp_setattro = 0;                                          /* tp_setattro */
+    PyCField_Type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+    PyCField_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC;    /* tp_flags */
+    PyCField_Type.tp_doc = "Structure/Union member";                   /* tp_doc */
+    PyCField_Type.tp_traverse = (traverseproc)PyCField_traverse;            /* tp_traverse */
+    PyCField_Type.tp_clear = (inquiry)PyCField_clear;                    /* tp_clear */
+    PyCField_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    PyCField_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PyCField_Type.tp_iter = 0;                                          /* tp_iter */
+    PyCField_Type.tp_iternext = 0;                                          /* tp_iternext */
+    PyCField_Type.tp_methods = 0;                                          /* tp_methods */
+    PyCField_Type.tp_members = 0;                                          /* tp_members */
+    PyCField_Type.tp_getset = PyCField_getset;                            /* tp_getset */
+    PyCField_Type.tp_base = 0;                                          /* tp_base */
+    PyCField_Type.tp_dict = 0;                                          /* tp_dict */
+    PyCField_Type.tp_descr_get = (descrgetfunc)PyCField_get;                 /* tp_descr_get */
+    PyCField_Type.tp_descr_set = (descrsetfunc)PyCField_set;                 /* tp_descr_set */
+    PyCField_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    PyCField_Type.tp_init = 0;                                          /* tp_init */
+    PyCField_Type.tp_alloc = 0;                                          /* tp_alloc */
+    PyCField_Type.tp_new = PyCField_new;                               /* tp_new */
+    PyCField_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
 
 /******************************************************************/
 /*

@@ -8,10 +8,12 @@ export PYTHONPYCACHEPREFIX=$PREFIX/__pycache__
 OSX_SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
 IOS_SDKROOT=$(xcrun --sdk iphoneos --show-sdk-path)
 SIM_SDKROOT=$(xcrun --sdk iphonesimulator --show-sdk-path)
+DEBUG="-O3 -Wall"
+# DEBUG="-g"
 
 # 1) compile for OSX (required)
 find . -name \*.o -delete
-env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L. -lpython3.9" ./configure --prefix=$PREFIX/Library --with-system-ffi --enable-shared \
+env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L. -lpython3.9" OPT="$DEBUG" ./configure --prefix=$PREFIX/Library --with-system-ffi --enable-shared \
 	--without-computed-gotos \
 	ac_cv_file__dev_ptmx=no \
 	ac_cv_file__dev_ptc=no \
@@ -37,7 +39,7 @@ export PYTHONHOME=$PREFIX/Library
 # When working on frozen importlib, need to compile twice:
 # make regen-importlib >> make_osx.log 2>&1
 # find . -name \*.o -delete  >> make_osx.log 2>&1
-# make  -j 4>> make_osx.log 2>&1 
+# make  -j 4 >> make_osx.log 2>&1 
 # mkdir -p build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log 2>&1
 # cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log 2>&1
 # make  -j 4 install >> make_install_osx.log 2>&1
@@ -296,10 +298,36 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 # Now: jupyter
 python3.9 -m pip install jupyter --upgrade >> make_install_osx.log 2>&1
 # TODO: jupyterlab
+# Cython (edited for iOS, reinitialize types at each run):
+pushd packages >> make_install_osx.log 2>&1
+pushd cython >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install . --install-option="--no-cython-compile" >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip install cython --upgrade >> make_install_osx.log 2>&1
+# Numpy:
+# Cython options for numpy (and other packages: PEP489_MULTI_PHASE_INIT=0, USE_DICT_VERSIONS=0 to reduce
+# amount of memory allocated and not tracked. Also in numpy/tools/cythonize.py, "--cleanup 3" to free
+# all memory and reset pointers.
+pushd packages >> make_install_osx.log 2>&1
+pushd numpy >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/numpy/  >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/numpy/core/  >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/numpy/linalg/  >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/numpy/fft/  >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/numpy/random/  >> $PREFIX/make_install_osx.log 2>&1
+cp  build/lib.macosx-10.15-x86_64-3.9/numpy/core/*.so $PREFIX/build/lib.macosx-10.15-x86_64-3.9/numpy/core/ >> $PREFIX/make_install_osx.log 2>&1
+cp  build/lib.macosx-10.15-x86_64-3.9/numpy/linalg/*.so $PREFIX/build/lib.macosx-10.15-x86_64-3.9/numpy/linalg/ >> $PREFIX/make_install_osx.log 2>&1
+cp  build/lib.macosx-10.15-x86_64-3.9/numpy/fft/*.so $PREFIX/build/lib.macosx-10.15-x86_64-3.9/numpy/fft/ >> $PREFIX/make_install_osx.log 2>&1
+cp  build/lib.macosx-10.15-x86_64-3.9/numpy/random/*.so $PREFIX/build/lib.macosx-10.15-x86_64-3.9/numpy/random/ >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
 # NB: different from: pure-python packages that I have to edit (use git), 
 #                     non-pure python packages (configure and make)
 # break here when only installing packages or experimenting:
-# TODO: edit URLs for manually installed packages
 exit 0
 
 # 2) compile for iOS:
@@ -307,6 +335,8 @@ exit 0
 mkdir -p Frameworks_iphoneos
 mkdir -p Frameworks_iphoneos/include
 mkdir -p Frameworks_iphoneos/lib
+rm -rf Frameworks_iphoneos/ios_system.framework
+cp -r $XCFRAMEWORKS_DIR/ios_system.xcframework/ios-arm64_armv7/ios_system.framework $PREFIX/Frameworks_iphoneos
 cp -r $XCFRAMEWORKS_DIR/libffi.xcframework/ios-arm64/Headers/ffi $PREFIX/Frameworks_iphoneos/include/ffi
 cp -r $XCFRAMEWORKS_DIR/libffi.xcframework/ios-arm64/Headers/ffi/* $PREFIX/Frameworks_iphoneos/include/ffi/
 cp -r $XCFRAMEWORKS_DIR/crypto.xcframework/ios-arm64/Headers $PREFIX/Frameworks_iphoneos/include/crypto/
@@ -327,6 +357,7 @@ env CC=clang CXX=clang++ \
 	LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" \
 	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -L. -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" \
 	PLATFORM=iphoneos \
+	OPT="$DEBUG" \
 	./configure --prefix=$PREFIX/Library --enable-shared \
 	--host arm-apple-darwin --build x86_64-apple-darwin --enable-ipv6 \
 	--with-openssl=$PREFIX/Frameworks_iphoneos \
@@ -345,6 +376,7 @@ env CC=clang CXX=clang++ \
     ac_cv_func_forkpty=no \
     ac_cv_func_openpty=no \
 	ac_cv_func_clock_settime=no >& configure_ios.log
+# --without-pymalloc  when debugging memory
 # --enable-framework fails with iOS compilers
 rm -rf build/lib.darwin-arm64-3.9
 make -j 4 >& make_ios.log
@@ -393,7 +425,22 @@ env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isys
 cp build/lib.macosx-10.15-arm64-3.9/argon2/_ffi.abi3.so $PREFIX/build/lib.darwin-arm64-3.9/argon2._ffi.abi3.so >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
-
+# Numpy:
+pushd packages >> make_ios.log 2>&1
+pushd numpy >> $PREFIX/make_ios.log 2>&1
+rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
+env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX $DEBUG" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.9 $DEBUG" PLATFORM=iphoneos NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" python3 setup.py build  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/numpy/  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/numpy/core/  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/numpy/fft/  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/numpy/linalg/  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/numpy/random/  >> $PREFIX/make_ios.log 2>&1
+cp  build/lib.macosx-10.15-arm64-3.9/numpy/core/*.so $PREFIX/build/lib.darwin-arm64-3.9/numpy/core/ >> $PREFIX/make_ios.log 2>&1
+cp  build/lib.macosx-10.15-arm64-3.9/numpy/linalg/*.so $PREFIX/build/lib.darwin-arm64-3.9/numpy/linalg/ >> $PREFIX/make_ios.log 2>&1
+cp  build/lib.macosx-10.15-arm64-3.9/numpy/fft/*.so $PREFIX/build/lib.darwin-arm64-3.9/numpy/fft/ >> $PREFIX/make_ios.log 2>&1
+cp  build/lib.macosx-10.15-arm64-3.9/numpy/random/*.so $PREFIX/build/lib.darwin-arm64-3.9/numpy/random/ >> $PREFIX/make_ios.log 2>&1
+popd  >> $PREFIX/make_ios.log 2>&1
+popd  >> $PREFIX/make_ios.log 2>&1
 
 # 3) compile for Simulator:
 
@@ -401,6 +448,8 @@ popd  >> $PREFIX/make_ios.log 2>&1
 mkdir -p Frameworks_iphonesimulator
 mkdir -p Frameworks_iphonesimulator/include
 mkdir -p Frameworks_iphonesimulator/lib
+rm -rf Frameworks_iphonesimulator/ios_system.framework
+cp -r $XCFRAMEWORKS_DIR/ios_system.xcframework/ios-x86_64-simulator/ios_system.framework $PREFIX/Frameworks_iphonesimulator
 cp -r $XCFRAMEWORKS_DIR/libffi.xcframework/ios-x86_64-simulator/Headers/ffi $PREFIX/Frameworks_iphonesimulator/include/ffi
 cp -r $XCFRAMEWORKS_DIR/libffi.xcframework/ios-x86_64-simulator/Headers/ffi/* $PREFIX/Frameworks_iphonesimulator/include/ffi/
 cp -r $XCFRAMEWORKS_DIR/crypto.xcframework/ios-x86_64-simulator/Headers $PREFIX/Frameworks_iphonesimulator/include/crypto/
@@ -422,6 +471,7 @@ env CC=clang CXX=clang++ \
 	LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib" \
 	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $SIM_SDKROOT -lz -L. -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib" \
 	PLATFORM=iphonesimulator \
+	OPT="$DEBUG" \
 	./configure --prefix=$PREFIX/Library --enable-shared \
 	--host x86_64-apple-darwin --build x86_64-apple-darwin --enable-ipv6 \
 	--with-openssl=$PREFIX/Frameworks_iphonesimulator \
@@ -441,6 +491,8 @@ env CC=clang CXX=clang++ \
     ac_cv_func_forkpty=no \
     ac_cv_func_openpty=no \
 	ac_cv_func_clock_settime=no >& configure_simulator.log
+#	--without-pymalloc 
+#	--with-assertions 
 rm -rf build/lib.darwin-x86_64-3.9
 make -j 4 >& make_simulator.log
 mkdir -p build/lib.darwin-x86_64-3.9
@@ -483,9 +535,23 @@ env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14
 cp build/lib.macosx-10.15-x86_64-3.9/argon2/_ffi.abi3.so $PREFIX/build/lib.darwin-x86_64-3.9/argon2._ffi.abi3.so  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
+# Numpy:
+pushd packages >> make_simulator.log 2>&1
+pushd numpy >> $PREFIX/make_simulator.log 2>&1
+rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
+env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX $DEBUG" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib -L$PREFIX/build/lib.darwin-x86_64-3.9 $DEBUG" PLATFORM=iphonesimulator NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" python3 setup.py build  >> $PREFIX/make_simulator.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/numpy/  >> $PREFIX/make_simulator.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/numpy/core/  >> $PREFIX/make_simulator.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/numpy/fft/  >> $PREFIX/make_simulator.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/numpy/linalg/  >> $PREFIX/make_simulator.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/numpy/random/  >> $PREFIX/make_simulator.log 2>&1
+cp  build/lib.macosx-10.15-x86_64-3.9/numpy/core/*.so $PREFIX/build/lib.darwin-x86_64-3.9/numpy/core/ >> $PREFIX/make_simulator.log 2>&1
+cp  build/lib.macosx-10.15-x86_64-3.9/numpy/linalg/*.so $PREFIX/build/lib.darwin-x86_64-3.9/numpy/linalg/ >> $PREFIX/make_simulator.log 2>&1
+cp  build/lib.macosx-10.15-x86_64-3.9/numpy/fft/*.so $PREFIX/build/lib.darwin-x86_64-3.9/numpy/fft/ >> $PREFIX/make_simulator.log 2>&1
+cp  build/lib.macosx-10.15-x86_64-3.9/numpy/random/*.so $PREFIX/build/lib.darwin-x86_64-3.9/numpy/random/ >> $PREFIX/make_simulator.log 2>&1
+popd  >> $PREFIX/make_simulator.log 2>&1
+popd  >> $PREFIX/make_simulator.log 2>&1
 
-
-# TODO: create frameworks from dynamic libraries & incorporate changes into code.
 
 # Python build finished successfully!
 # The necessary bits to build these optional modules were not found:

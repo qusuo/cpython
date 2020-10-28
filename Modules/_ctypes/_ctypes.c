@@ -202,6 +202,48 @@ static PyTypeObject DictRemover_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void init_DictRemover_Type() {
+    DictRemover_Type.tp_name = "_ctypes.DictRemover";                      /* tp_name */
+    DictRemover_Type.tp_basicsize = sizeof(DictRemoverObject);                  /* tp_basicsize */
+    DictRemover_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    DictRemover_Type.tp_dealloc = _DictRemover_dealloc;                       /* tp_dealloc */
+    DictRemover_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    DictRemover_Type.tp_getattr = 0;                                          /* tp_getattr */
+    DictRemover_Type.tp_setattr = 0;                                          /* tp_setattr */
+    DictRemover_Type.tp_as_async = 0;                                          /* tp_as_async */
+    DictRemover_Type.tp_repr = 0;                                          /* tp_repr */
+    DictRemover_Type.tp_as_number = 0;                                          /* tp_as_number */
+    DictRemover_Type.tp_as_sequence = 0;                                          /* tp_as_sequence */
+    DictRemover_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    DictRemover_Type.tp_hash = 0;                                          /* tp_hash */
+    DictRemover_Type.tp_call = _DictRemover_call;                          /* tp_call */
+    DictRemover_Type.tp_str = 0;                                          /* tp_str */
+    DictRemover_Type.tp_getattro = 0;                                          /* tp_getattro */
+    DictRemover_Type.tp_setattro = 0;                                          /* tp_setattro */
+    DictRemover_Type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+    DictRemover_Type.tp_flags = Py_TPFLAGS_DEFAULT;                         /* tp_flags */
+    DictRemover_Type.tp_doc = "deletes a key from a dictionary";          /* tp_doc */
+    DictRemover_Type.tp_traverse = 0;                                          /* tp_traverse */
+    DictRemover_Type.tp_clear = 0;                                          /* tp_clear */
+    DictRemover_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    DictRemover_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    DictRemover_Type.tp_iter = 0;                                          /* tp_iter */
+    DictRemover_Type.tp_iternext = 0;                                          /* tp_iternext */
+    DictRemover_Type.tp_methods = 0;                                          /* tp_methods */
+    DictRemover_Type.tp_members = 0;                                          /* tp_members */
+    DictRemover_Type.tp_getset = 0;                                          /* tp_getset */
+    DictRemover_Type.tp_base = 0;                                          /* tp_base */
+    DictRemover_Type.tp_dict = 0;                                          /* tp_dict */
+    DictRemover_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+    DictRemover_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+    DictRemover_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    DictRemover_Type.tp_init = 0;                                          /* tp_init */
+    DictRemover_Type.tp_alloc = 0;                                          /* tp_alloc */
+    DictRemover_Type.tp_new = 0;                                          /* tp_new */
+    DictRemover_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
 int
 PyDict_SetItemProxy(PyObject *dict, PyObject *key, PyObject *item)
 {
@@ -420,6 +462,14 @@ static PyTypeObject StructParam_Type = {
     .tp_flags = Py_TPFLAGS_DEFAULT,
 };
 
+#if TARGET_OS_IPHONE
+static void init_StructParam_Type() {
+    StructParam_Type.tp_name = "_ctypes.StructParam_Type";
+    StructParam_Type.tp_basicsize = sizeof(StructParamObject);
+    StructParam_Type.tp_dealloc = StructParam_dealloc;
+    StructParam_Type.tp_flags = Py_TPFLAGS_DEFAULT;
+}
+#endif
 
 /*
   PyCStructType_Type - a meta type/class.  Creating a new class using this one as
@@ -950,6 +1000,49 @@ PyTypeObject PyCStructType_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void init_PyCStructType_Type() {
+    PyCStructType_Type.tp_name = "_ctypes.PyCStructType";                    /* tp_name */
+    PyCStructType_Type.tp_basicsize = 0;                                          /* tp_basicsize */
+    PyCStructType_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    PyCStructType_Type.tp_dealloc = 0;                                          /* tp_dealloc */
+    PyCStructType_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    PyCStructType_Type.tp_getattr = 0;                                          /* tp_getattr */
+    PyCStructType_Type.tp_setattr = 0;                                          /* tp_setattr */
+    PyCStructType_Type.tp_as_async = 0;                                          /* tp_as_async */
+    PyCStructType_Type.tp_repr = 0;                                          /* tp_repr */
+    PyCStructType_Type.tp_as_number = 0;                                          /* tp_as_number */
+    PyCStructType_Type.tp_as_sequence = &CDataType_as_sequence;                     /* tp_as_sequence */
+    PyCStructType_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    PyCStructType_Type.tp_hash = 0;                                          /* tp_hash */
+    PyCStructType_Type.tp_call = 0;                                          /* tp_call */
+    PyCStructType_Type.tp_str = 0;                                          /* tp_str */
+    PyCStructType_Type.tp_getattro = 0;                                          /* tp_getattro */
+    PyCStructType_Type.tp_setattro = PyCStructType_setattro;                     /* tp_setattro */
+    PyCStructType_Type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+    PyCStructType_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC; /* tp_flags */
+    PyCStructType_Type.tp_doc = "metatype for the CData Objects";           /* tp_doc */
+    PyCStructType_Type.tp_traverse = (traverseproc)CDataType_traverse;           /* tp_traverse */
+    PyCStructType_Type.tp_clear = (inquiry)CDataType_clear;                   /* tp_clear */
+    PyCStructType_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    PyCStructType_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PyCStructType_Type.tp_iter = 0;                                          /* tp_iter */
+    PyCStructType_Type.tp_iternext = 0;                                          /* tp_iternext */
+    PyCStructType_Type.tp_methods = CDataType_methods;                          /* tp_methods */
+    PyCStructType_Type.tp_members = 0;                                          /* tp_members */
+    PyCStructType_Type.tp_getset = 0;                                          /* tp_getset */
+    PyCStructType_Type.tp_base = 0;                                          /* tp_base */
+    PyCStructType_Type.tp_dict = 0;                                          /* tp_dict */
+    PyCStructType_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+    PyCStructType_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+    PyCStructType_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    PyCStructType_Type.tp_init = 0;                                          /* tp_init */
+    PyCStructType_Type.tp_alloc = 0;                                          /* tp_alloc */
+    PyCStructType_Type.tp_new = PyCStructType_new;                          /* tp_new */
+    PyCStructType_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
+
 static PyTypeObject UnionType_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "_ctypes.UnionType",                        /* tp_name */
@@ -992,6 +1085,48 @@ static PyTypeObject UnionType_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void init_UnionType_Type() {
+   UnionType_Type.tp_name = "_ctypes.UnionType";                        /* tp_name */
+   UnionType_Type.tp_basicsize = 0;                                          /* tp_basicsize */
+   UnionType_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+   UnionType_Type.tp_dealloc = 0;                                          /* tp_dealloc */
+   UnionType_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+   UnionType_Type.tp_getattr = 0;                                          /* tp_getattr */
+   UnionType_Type.tp_setattr = 0;                                          /* tp_setattr */
+   UnionType_Type.tp_as_async = 0;                                          /* tp_as_async */
+   UnionType_Type.tp_repr = 0;                                          /* tp_repr */
+   UnionType_Type.tp_as_number = 0;                                          /* tp_as_number */
+   UnionType_Type.tp_as_sequence = &CDataType_as_sequence;                     /* tp_as_sequence */
+   UnionType_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+   UnionType_Type.tp_hash = 0;                                          /* tp_hash */
+   UnionType_Type.tp_call = 0;                                          /* tp_call */
+   UnionType_Type.tp_str = 0;                                          /* tp_str */
+   UnionType_Type.tp_getattro = 0;                                          /* tp_getattro */
+   UnionType_Type.tp_setattro = UnionType_setattro;                         /* tp_setattro */
+   UnionType_Type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+   UnionType_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC; /* tp_flags */
+   UnionType_Type.tp_doc = "metatype for the CData Objects";           /* tp_doc */
+   UnionType_Type.tp_traverse = (traverseproc)CDataType_traverse;           /* tp_traverse */
+   UnionType_Type.tp_clear = (inquiry)CDataType_clear;                   /* tp_clear */
+   UnionType_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+   UnionType_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+   UnionType_Type.tp_iter = 0;                                          /* tp_iter */
+   UnionType_Type.tp_iternext = 0;                                          /* tp_iternext */
+   UnionType_Type.tp_methods = CDataType_methods;                          /* tp_methods */
+   UnionType_Type.tp_members = 0;                                          /* tp_members */
+   UnionType_Type.tp_getset = 0;                                          /* tp_getset */
+   UnionType_Type.tp_base = 0;                                          /* tp_base */
+   UnionType_Type.tp_dict = 0;                                          /* tp_dict */
+   UnionType_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+   UnionType_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+   UnionType_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+   UnionType_Type.tp_init = 0;                                          /* tp_init */
+   UnionType_Type.tp_alloc = 0;                                          /* tp_alloc */
+   UnionType_Type.tp_new = UnionType_new;                              /* tp_new */
+   UnionType_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
 
 /******************************************************************/
 
@@ -1250,6 +1385,48 @@ PyTypeObject PyCPointerType_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void init_PyCPointerType_Type() {
+    PyCPointerType_Type.tp_name = "_ctypes.PyCPointerType";                   /* tp_name */
+    PyCPointerType_Type.tp_basicsize = 0;                                          /* tp_basicsize */
+    PyCPointerType_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    PyCPointerType_Type.tp_dealloc = 0;                                          /* tp_dealloc */
+    PyCPointerType_Type.tp_vectorcall_offset = 0;                          /* tp_vectorcall_offset */
+    PyCPointerType_Type.tp_getattr = 0;                                          /* tp_getattr */
+    PyCPointerType_Type.tp_setattr = 0;                                          /* tp_setattr */
+    PyCPointerType_Type.tp_as_async = 0;                                          /* tp_as_async */
+    PyCPointerType_Type.tp_repr = 0;                                          /* tp_repr */
+    PyCPointerType_Type.tp_as_number = 0;                                          /* tp_as_number */
+    PyCPointerType_Type.tp_as_sequence = &CDataType_as_sequence;                     /* tp_as_sequence */
+    PyCPointerType_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    PyCPointerType_Type.tp_hash = 0;                                          /* tp_hash */
+    PyCPointerType_Type.tp_call = 0;                                          /* tp_call */
+    PyCPointerType_Type.tp_str = 0;                                          /* tp_str */
+    PyCPointerType_Type.tp_getattro = 0;                                          /* tp_getattro */
+    PyCPointerType_Type.tp_setattro = 0;                                          /* tp_setattro */
+    PyCPointerType_Type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+    PyCPointerType_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC; /* tp_flags */
+    PyCPointerType_Type.tp_doc = "metatype for the Pointer Objects";         /* tp_doc */
+    PyCPointerType_Type.tp_traverse = (traverseproc)CDataType_traverse;           /* tp_traverse */
+    PyCPointerType_Type.tp_clear = (inquiry)CDataType_clear;                   /* tp_clear */
+    PyCPointerType_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    PyCPointerType_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PyCPointerType_Type.tp_iter = 0;                                          /* tp_iter */
+    PyCPointerType_Type.tp_iternext = 0;                                          /* tp_iternext */
+    PyCPointerType_Type.tp_methods = PyCPointerType_methods;                     /* tp_methods */
+    PyCPointerType_Type.tp_members = 0;                                          /* tp_members */
+    PyCPointerType_Type.tp_getset = 0;                                          /* tp_getset */
+    PyCPointerType_Type.tp_base = 0;                                          /* tp_base */
+    PyCPointerType_Type.tp_dict = 0;                                          /* tp_dict */
+    PyCPointerType_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+    PyCPointerType_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+    PyCPointerType_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    PyCPointerType_Type.tp_init = 0;                                          /* tp_init */
+    PyCPointerType_Type.tp_alloc = 0;                                          /* tp_alloc */
+    PyCPointerType_Type.tp_new = PyCPointerType_new;                         /* tp_new */
+    PyCPointerType_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
 
 /******************************************************************/
 /*
@@ -1673,6 +1850,48 @@ PyTypeObject PyCArrayType_Type = {
 };
 
 
+#if TARGET_OS_IPHONE
+static void init_PyCArrayType_Type() {
+    PyCArrayType_Type.tp_name = "_ctypes.PyCArrayType";                     /* tp_name */
+    PyCArrayType_Type.tp_basicsize = 0;                                          /* tp_basicsize */
+    PyCArrayType_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    PyCArrayType_Type.tp_dealloc = 0;                                          /* tp_dealloc */
+    PyCArrayType_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    PyCArrayType_Type.tp_getattr = 0;                                          /* tp_getattr */
+    PyCArrayType_Type.tp_setattr = 0;                                          /* tp_setattr */
+    PyCArrayType_Type.tp_as_async = 0;                                          /* tp_as_async */
+    PyCArrayType_Type.tp_repr = 0;                                          /* tp_repr */
+    PyCArrayType_Type.tp_as_number = 0;                                          /* tp_as_number */
+    PyCArrayType_Type.tp_as_sequence = &CDataType_as_sequence;                     /* tp_as_sequence */
+    PyCArrayType_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    PyCArrayType_Type.tp_hash = 0;                                          /* tp_hash */
+    PyCArrayType_Type.tp_call = 0;                                          /* tp_call */
+    PyCArrayType_Type.tp_str = 0;                                          /* tp_str */
+    PyCArrayType_Type.tp_getattro = 0;                                          /* tp_getattro */
+    PyCArrayType_Type.tp_setattro = 0;                                          /* tp_setattro */
+    PyCArrayType_Type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+    PyCArrayType_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;   /* tp_flags */
+    PyCArrayType_Type.tp_doc = "metatype for the Array Objects";           /* tp_doc */
+    PyCArrayType_Type.tp_traverse = 0;                                          /* tp_traverse */
+    PyCArrayType_Type.tp_clear = 0;                                          /* tp_clear */
+    PyCArrayType_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    PyCArrayType_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PyCArrayType_Type.tp_iter = 0;                                          /* tp_iter */
+    PyCArrayType_Type.tp_iternext = 0;                                          /* tp_iternext */
+    PyCArrayType_Type.tp_methods = CDataType_methods;                          /* tp_methods */
+    PyCArrayType_Type.tp_members = 0;                                          /* tp_members */
+    PyCArrayType_Type.tp_getset = 0;                                          /* tp_getset */
+    PyCArrayType_Type.tp_base = 0;                                          /* tp_base */
+    PyCArrayType_Type.tp_dict = 0;                                          /* tp_dict */
+    PyCArrayType_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+    PyCArrayType_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+    PyCArrayType_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    PyCArrayType_Type.tp_init = 0;                                          /* tp_init */
+    PyCArrayType_Type.tp_alloc = 0;                                          /* tp_alloc */
+    PyCArrayType_Type.tp_new = PyCArrayType_new;                           /* tp_new */
+    PyCArrayType_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
 /******************************************************************/
 /*
   PyCSimpleType_Type
@@ -2366,6 +2585,48 @@ PyTypeObject PyCSimpleType_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void init_PyCSimpleType_Type() {
+    PyCSimpleType_Type.tp_name = "_ctypes.PyCSimpleType";                    /* tp_name */
+    PyCSimpleType_Type.tp_basicsize = 0;                                          /* tp_basicsize */
+    PyCSimpleType_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    PyCSimpleType_Type.tp_dealloc = 0;                                          /* tp_dealloc */
+    PyCSimpleType_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    PyCSimpleType_Type.tp_getattr = 0;                                          /* tp_getattr */
+    PyCSimpleType_Type.tp_setattr = 0;                                          /* tp_setattr */
+    PyCSimpleType_Type.tp_as_async = 0;                                          /* tp_as_async */
+    PyCSimpleType_Type.tp_repr = 0;                                          /* tp_repr */
+    PyCSimpleType_Type.tp_as_number = 0;                                          /* tp_as_number */
+    PyCSimpleType_Type.tp_as_sequence = &CDataType_as_sequence;                     /* tp_as_sequence */
+    PyCSimpleType_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    PyCSimpleType_Type.tp_hash = 0;                                          /* tp_hash */
+    PyCSimpleType_Type.tp_call = 0;                                          /* tp_call */
+    PyCSimpleType_Type.tp_str = 0;                                          /* tp_str */
+    PyCSimpleType_Type.tp_getattro = 0;                                          /* tp_getattro */
+    PyCSimpleType_Type.tp_setattro = 0;                                          /* tp_setattro */
+    PyCSimpleType_Type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+    PyCSimpleType_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;   /* tp_flags */
+    PyCSimpleType_Type.tp_doc = "metatype for the PyCSimpleType Objects";   /* tp_doc */
+    PyCSimpleType_Type.tp_traverse = 0;                                          /* tp_traverse */
+    PyCSimpleType_Type.tp_clear = 0;                                          /* tp_clear */
+    PyCSimpleType_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    PyCSimpleType_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PyCSimpleType_Type.tp_iter = 0;                                          /* tp_iter */
+    PyCSimpleType_Type.tp_iternext = 0;                                          /* tp_iternext */
+    PyCSimpleType_Type.tp_methods = PyCSimpleType_methods;                      /* tp_methods */
+    PyCSimpleType_Type.tp_members = 0;                                          /* tp_members */
+    PyCSimpleType_Type.tp_getset = 0;                                          /* tp_getset */
+    PyCSimpleType_Type.tp_base = 0;                                          /* tp_base */
+    PyCSimpleType_Type.tp_dict = 0;                                          /* tp_dict */
+    PyCSimpleType_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+    PyCSimpleType_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+    PyCSimpleType_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    PyCSimpleType_Type.tp_init = 0;                                          /* tp_init */
+    PyCSimpleType_Type.tp_alloc = 0;                                          /* tp_alloc */
+    PyCSimpleType_Type.tp_new = PyCSimpleType_new;                          /* tp_new */
+    PyCSimpleType_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
 /******************************************************************/
 /*
   PyCFuncPtrType_Type
@@ -2648,6 +2909,48 @@ PyTypeObject PyCFuncPtrType_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void init_PyCFuncPtrType_Type() {
+    PyCFuncPtrType_Type.tp_name = "_ctypes.PyCFuncPtrType";                   /* tp_name */
+    PyCFuncPtrType_Type.tp_basicsize = 0;                                          /* tp_basicsize */
+    PyCFuncPtrType_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    PyCFuncPtrType_Type.tp_dealloc = 0;                                          /* tp_dealloc */
+    PyCFuncPtrType_Type.tp_vectorcall_offset = 0;                              /* tp_vectorcall_offset */
+    PyCFuncPtrType_Type.tp_getattr = 0;                                          /* tp_getattr */
+    PyCFuncPtrType_Type.tp_setattr = 0;                                          /* tp_setattr */
+    PyCFuncPtrType_Type.tp_as_async = 0;                                          /* tp_as_async */
+    PyCFuncPtrType_Type.tp_repr = 0;                                          /* tp_repr */
+    PyCFuncPtrType_Type.tp_as_number = 0;                                          /* tp_as_number */
+    PyCFuncPtrType_Type.tp_as_sequence = &CDataType_as_sequence;                     /* tp_as_sequence */
+    PyCFuncPtrType_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    PyCFuncPtrType_Type.tp_hash = 0;                                          /* tp_hash */
+    PyCFuncPtrType_Type.tp_call = 0;                                          /* tp_call */
+    PyCFuncPtrType_Type.tp_str = 0;                                          /* tp_str */
+    PyCFuncPtrType_Type.tp_getattro = 0;                                          /* tp_getattro */
+    PyCFuncPtrType_Type.tp_setattro = 0;                                          /* tp_setattro */
+    PyCFuncPtrType_Type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+    PyCFuncPtrType_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC; /* tp_flags */
+    PyCFuncPtrType_Type.tp_doc = "metatype for C function pointers";         /* tp_doc */
+    PyCFuncPtrType_Type.tp_traverse = (traverseproc)CDataType_traverse;           /* tp_traverse */
+    PyCFuncPtrType_Type.tp_clear = (inquiry)CDataType_clear;                   /* tp_clear */
+    PyCFuncPtrType_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    PyCFuncPtrType_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PyCFuncPtrType_Type.tp_iter = 0;                                          /* tp_iter */
+    PyCFuncPtrType_Type.tp_iternext = 0;                                          /* tp_iternext */
+    PyCFuncPtrType_Type.tp_methods = CDataType_methods;                          /* tp_methods */
+    PyCFuncPtrType_Type.tp_members = 0;                                          /* tp_members */
+    PyCFuncPtrType_Type.tp_getset = 0;                                          /* tp_getset */
+    PyCFuncPtrType_Type.tp_base = 0;                                          /* tp_base */
+    PyCFuncPtrType_Type.tp_dict = 0;                                          /* tp_dict */
+    PyCFuncPtrType_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+    PyCFuncPtrType_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+    PyCFuncPtrType_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    PyCFuncPtrType_Type.tp_init = 0;                                          /* tp_init */
+    PyCFuncPtrType_Type.tp_alloc = 0;                                          /* tp_alloc */
+    PyCFuncPtrType_Type.tp_new = PyCFuncPtrType_new;                         /* tp_new */
+    PyCFuncPtrType_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
 
 /*****************************************************************
  * Code to keep needed objects alive
@@ -2953,6 +3256,48 @@ PyTypeObject PyCData_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void init_PyCData_Type() {
+    PyCData_Type.tp_name = "_ctypes._CData";
+    PyCData_Type.tp_basicsize = sizeof(CDataObject);                        /* tp_basicsize */
+    PyCData_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    PyCData_Type.tp_dealloc = PyCData_dealloc;                            /* tp_dealloc */
+    PyCData_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    PyCData_Type.tp_getattr = 0;                                          /* tp_getattr */
+    PyCData_Type.tp_setattr = 0;                                          /* tp_setattr */
+    PyCData_Type.tp_as_async = 0;                                          /* tp_as_async */
+    PyCData_Type.tp_repr = 0;                                          /* tp_repr */
+    PyCData_Type.tp_as_number = 0;                                          /* tp_as_number */
+    PyCData_Type.tp_as_sequence = 0;                                          /* tp_as_sequence */
+    PyCData_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    PyCData_Type.tp_hash = PyCData_nohash;                             /* tp_hash */
+    PyCData_Type.tp_call = 0;                                          /* tp_call */
+    PyCData_Type.tp_str = 0;                                          /* tp_str */
+    PyCData_Type.tp_getattro = 0;                                          /* tp_getattro */
+    PyCData_Type.tp_setattro = 0;                                          /* tp_setattro */
+    PyCData_Type.tp_as_buffer = &PyCData_as_buffer;                         /* tp_as_buffer */
+    PyCData_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;   /* tp_flags */
+    PyCData_Type.tp_doc = "XXX to be provided";                       /* tp_doc */
+    PyCData_Type.tp_traverse = (traverseproc)PyCData_traverse;             /* tp_traverse */
+    PyCData_Type.tp_clear = (inquiry)PyCData_clear;                     /* tp_clear */
+    PyCData_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    PyCData_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PyCData_Type.tp_iter = 0;                                          /* tp_iter */
+    PyCData_Type.tp_iternext = 0;                                          /* tp_iternext */
+    PyCData_Type.tp_methods = PyCData_methods;                            /* tp_methods */
+    PyCData_Type.tp_members = PyCData_members;                            /* tp_members */
+    PyCData_Type.tp_getset = 0;                                          /* tp_getset */
+    PyCData_Type.tp_base = 0;                                          /* tp_base */
+    PyCData_Type.tp_dict = 0;                                          /* tp_dict */
+    PyCData_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+    PyCData_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+    PyCData_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    PyCData_Type.tp_init = 0;                                          /* tp_init */
+    PyCData_Type.tp_alloc = 0;                                          /* tp_alloc */
+    PyCData_Type.tp_new = 0;                                          /* tp_new */
+    PyCData_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
 static int PyCData_MallocBuffer(CDataObject *obj, StgDictObject *dict)
 {
     if ((size_t)dict->size <= sizeof(obj->b_value)) {
@@ -4348,6 +4693,48 @@ PyTypeObject PyCFuncPtr_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void init_PyCFuncPtr_Type() {
+    PyCFuncPtr_Type.tp_name = "_ctypes.PyCFuncPtr";
+    PyCFuncPtr_Type.tp_basicsize = sizeof(PyCFuncPtrObject);                   /* tp_basicsize */
+    PyCFuncPtr_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    PyCFuncPtr_Type.tp_dealloc = (destructor)PyCFuncPtr_dealloc;             /* tp_dealloc */
+    PyCFuncPtr_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    PyCFuncPtr_Type.tp_getattr = 0;                                          /* tp_getattr */
+    PyCFuncPtr_Type.tp_setattr = 0;                                          /* tp_setattr */
+    PyCFuncPtr_Type.tp_as_async = 0;                                          /* tp_as_async */
+    PyCFuncPtr_Type.tp_repr = (reprfunc)PyCFuncPtr_repr;                  /* tp_repr */
+    PyCFuncPtr_Type.tp_as_number = &PyCFuncPtr_as_number;                      /* tp_as_number */
+    PyCFuncPtr_Type.tp_as_sequence = 0;                                          /* tp_as_sequence */
+    PyCFuncPtr_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    PyCFuncPtr_Type.tp_hash = 0;                                          /* tp_hash */
+    PyCFuncPtr_Type.tp_call = (ternaryfunc)PyCFuncPtr_call;               /* tp_call */
+    PyCFuncPtr_Type.tp_str = 0;                                          /* tp_str */
+    PyCFuncPtr_Type.tp_getattro = 0;                                          /* tp_getattro */
+    PyCFuncPtr_Type.tp_setattro = 0;                                          /* tp_setattro */
+    PyCFuncPtr_Type.tp_as_buffer = &PyCData_as_buffer;                         /* tp_as_buffer */
+    PyCFuncPtr_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;   /* tp_flags */
+    PyCFuncPtr_Type.tp_doc = "Function Pointer";                         /* tp_doc */
+    PyCFuncPtr_Type.tp_traverse = (traverseproc)PyCFuncPtr_traverse;          /* tp_traverse */
+    PyCFuncPtr_Type.tp_clear = (inquiry)PyCFuncPtr_clear;                  /* tp_clear */
+    PyCFuncPtr_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    PyCFuncPtr_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PyCFuncPtr_Type.tp_iter = 0;                                          /* tp_iter */
+    PyCFuncPtr_Type.tp_iternext = 0;                                          /* tp_iternext */
+    PyCFuncPtr_Type.tp_methods = 0;                                          /* tp_methods */
+    PyCFuncPtr_Type.tp_members = 0;                                          /* tp_members */
+    PyCFuncPtr_Type.tp_getset = PyCFuncPtr_getsets;                         /* tp_getset */
+    PyCFuncPtr_Type.tp_base = 0;                                          /* tp_base */
+    PyCFuncPtr_Type.tp_dict = 0;                                          /* tp_dict */
+    PyCFuncPtr_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+    PyCFuncPtr_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+    PyCFuncPtr_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    PyCFuncPtr_Type.tp_init = 0;                                          /* tp_init */
+    PyCFuncPtr_Type.tp_alloc = 0;                                          /* tp_alloc */
+    PyCFuncPtr_Type.tp_new = PyCFuncPtr_new;                             /* tp_new */
+    PyCFuncPtr_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
 /*****************************************************************/
 /*
   Struct_Type
@@ -4545,6 +4932,89 @@ static PyTypeObject Union_Type = {
 };
 
 
+#if TARGET_OS_IPHONE
+static void init_Struct_Type() {
+    Struct_Type.tp_name = "_ctypes.Structure";
+    Struct_Type.tp_basicsize = sizeof(CDataObject);                        /* tp_basicsize */
+    Struct_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    Struct_Type.tp_dealloc = 0;                                          /* tp_dealloc */
+    Struct_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    Struct_Type.tp_getattr = 0;                                          /* tp_getattr */
+    Struct_Type.tp_setattr = 0;                                          /* tp_setattr */
+    Struct_Type.tp_as_async = 0;                                          /* tp_as_async */
+    Struct_Type.tp_repr = 0;                                          /* tp_repr */
+    Struct_Type.tp_as_number = 0;                                          /* tp_as_number */
+    Struct_Type.tp_as_sequence = 0;                                          /* tp_as_sequence */
+    Struct_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    Struct_Type.tp_hash = 0;                                          /* tp_hash */
+    Struct_Type.tp_call = 0;                                          /* tp_call */
+    Struct_Type.tp_str = 0;                                          /* tp_str */
+    Struct_Type.tp_getattro = 0;                                          /* tp_getattro */
+    Struct_Type.tp_setattro = 0;                                          /* tp_setattro */
+    Struct_Type.tp_as_buffer = &PyCData_as_buffer;                         /* tp_as_buffer */
+    Struct_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;   /* tp_flags */
+    Struct_Type.tp_doc = "Structure base class";                     /* tp_doc */
+    Struct_Type.tp_traverse = (traverseproc)PyCData_traverse;             /* tp_traverse */
+    Struct_Type.tp_clear = (inquiry)PyCData_clear;                     /* tp_clear */
+    Struct_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    Struct_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    Struct_Type.tp_iter = 0;                                          /* tp_iter */
+    Struct_Type.tp_iternext = 0;                                          /* tp_iternext */
+    Struct_Type.tp_methods = 0;                                          /* tp_methods */
+    Struct_Type.tp_members = 0;                                          /* tp_members */
+    Struct_Type.tp_getset = 0;                                          /* tp_getset */
+    Struct_Type.tp_base = 0;                                          /* tp_base */
+    Struct_Type.tp_dict = 0;                                          /* tp_dict */
+    Struct_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+    Struct_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+    Struct_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    Struct_Type.tp_init = Struct_init;                                /* tp_init */
+    Struct_Type.tp_alloc = 0;                                          /* tp_alloc */
+    Struct_Type.tp_new = GenericPyCData_new;                         /* tp_new */
+    Struct_Type.tp_free = 0;                                          /* tp_free */
+}
+
+static void init_Union_Type() {
+    Union_Type.tp_name = "_ctypes.Union";
+    Union_Type.tp_basicsize = sizeof(CDataObject);                        /* tp_basicsize */
+    Union_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    Union_Type.tp_dealloc = 0;                                          /* tp_dealloc */
+    Union_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    Union_Type.tp_getattr = 0;                                          /* tp_getattr */
+    Union_Type.tp_setattr = 0;                                          /* tp_setattr */
+    Union_Type.tp_as_async = 0;                                          /* tp_as_async */
+    Union_Type.tp_repr = 0;                                          /* tp_repr */
+    Union_Type.tp_as_number = 0;                                          /* tp_as_number */
+    Union_Type.tp_as_sequence = 0;                                          /* tp_as_sequence */
+    Union_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    Union_Type.tp_hash = 0;                                          /* tp_hash */
+    Union_Type.tp_call = 0;                                          /* tp_call */
+    Union_Type.tp_str = 0;                                          /* tp_str */
+    Union_Type.tp_getattro = 0;                                          /* tp_getattro */
+    Union_Type.tp_setattro = 0;                                          /* tp_setattro */
+    Union_Type.tp_as_buffer = &PyCData_as_buffer;                         /* tp_as_buffer */
+    Union_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;   /* tp_flags */
+    Union_Type.tp_doc = "Union base class";                         /* tp_doc */
+    Union_Type.tp_traverse = (traverseproc)PyCData_traverse;             /* tp_traverse */
+    Union_Type.tp_clear = (inquiry)PyCData_clear;                     /* tp_clear */
+    Union_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    Union_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    Union_Type.tp_iter = 0;                                          /* tp_iter */
+    Union_Type.tp_iternext = 0;                                          /* tp_iternext */
+    Union_Type.tp_methods = 0;                                          /* tp_methods */
+    Union_Type.tp_members = 0;                                          /* tp_members */
+    Union_Type.tp_getset = 0;                                          /* tp_getset */
+    Union_Type.tp_base = 0;                                          /* tp_base */
+    Union_Type.tp_dict = 0;                                          /* tp_dict */
+    Union_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+    Union_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+    Union_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    Union_Type.tp_init = Struct_init;                                /* tp_init */
+    Union_Type.tp_alloc = 0;                                          /* tp_alloc */
+    Union_Type.tp_new = GenericPyCData_new;                         /* tp_new */
+    Union_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
 /******************************************************************/
 /*
   PyCArray_Type
@@ -4866,6 +5336,49 @@ PyTypeObject PyCArray_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void init_PyCArray_Type() {
+    PyCArray_Type.tp_name = "_ctypes.Array";
+    PyCArray_Type.tp_basicsize = sizeof(CDataObject);                        /* tp_basicsize */
+    PyCArray_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    PyCArray_Type.tp_dealloc = 0;                                          /* tp_dealloc */
+    PyCArray_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    PyCArray_Type.tp_getattr = 0;                                          /* tp_getattr */
+    PyCArray_Type.tp_setattr = 0;                                          /* tp_setattr */
+    PyCArray_Type.tp_as_async = 0;                                          /* tp_as_async */
+    PyCArray_Type.tp_repr = 0;                                          /* tp_repr */
+    PyCArray_Type.tp_as_number = 0;                                          /* tp_as_number */
+    PyCArray_Type.tp_as_sequence = &Array_as_sequence;                         /* tp_as_sequence */
+    PyCArray_Type.tp_as_mapping = &Array_as_mapping;                          /* tp_as_mapping */
+    PyCArray_Type.tp_hash = 0;                                          /* tp_hash */
+    PyCArray_Type.tp_call = 0;                                          /* tp_call */
+    PyCArray_Type.tp_str = 0;                                          /* tp_str */
+    PyCArray_Type.tp_getattro = 0;                                          /* tp_getattro */
+    PyCArray_Type.tp_setattro = 0;                                          /* tp_setattro */
+    PyCArray_Type.tp_as_buffer = &PyCData_as_buffer;                         /* tp_as_buffer */
+    PyCArray_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;   /* tp_flags */
+    PyCArray_Type.tp_doc = "XXX to be provided";                       /* tp_doc */
+    PyCArray_Type.tp_traverse = (traverseproc)PyCData_traverse;             /* tp_traverse */
+    PyCArray_Type.tp_clear = (inquiry)PyCData_clear;                     /* tp_clear */
+    PyCArray_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    PyCArray_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PyCArray_Type.tp_iter = 0;                                          /* tp_iter */
+    PyCArray_Type.tp_iternext = 0;                                          /* tp_iternext */
+    PyCArray_Type.tp_methods = Array_methods;                              /* tp_methods */
+    PyCArray_Type.tp_members = 0;                                          /* tp_members */
+    PyCArray_Type.tp_getset = 0;                                          /* tp_getset */
+    PyCArray_Type.tp_base = 0;                                          /* tp_base */
+    PyCArray_Type.tp_dict = 0;                                          /* tp_dict */
+    PyCArray_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+    PyCArray_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+    PyCArray_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    PyCArray_Type.tp_init = (initproc)Array_init;                       /* tp_init */
+    PyCArray_Type.tp_alloc = 0;                                          /* tp_alloc */
+    PyCArray_Type.tp_new = GenericPyCData_new;                         /* tp_new */
+    PyCArray_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
+
 PyObject *
 PyCArrayType_from_ctype(PyObject *itemtype, Py_ssize_t length)
 {
@@ -5085,6 +5598,48 @@ static PyTypeObject Simple_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void init_Simple_Type() {
+    Simple_Type.tp_name = "_ctypes._SimpleCData";
+    Simple_Type.tp_basicsize = sizeof(CDataObject);                        /* tp_basicsize */
+    Simple_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    Simple_Type.tp_dealloc = 0;                                          /* tp_dealloc */
+    Simple_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    Simple_Type.tp_getattr = 0;                                          /* tp_getattr */
+    Simple_Type.tp_setattr = 0;                                          /* tp_setattr */
+    Simple_Type.tp_as_async = 0;                                          /* tp_as_async */
+    Simple_Type.tp_repr = (reprfunc)&Simple_repr;                     /* tp_repr */
+    Simple_Type.tp_as_number = &Simple_as_number;                          /* tp_as_number */
+    Simple_Type.tp_as_sequence = 0;                                          /* tp_as_sequence */
+    Simple_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    Simple_Type.tp_hash = 0;                                          /* tp_hash */
+    Simple_Type.tp_call = 0;                                          /* tp_call */
+    Simple_Type.tp_str = 0;                                          /* tp_str */
+    Simple_Type.tp_getattro = 0;                                          /* tp_getattro */
+    Simple_Type.tp_setattro = 0;                                          /* tp_setattro */
+    Simple_Type.tp_as_buffer = &PyCData_as_buffer;                         /* tp_as_buffer */
+    Simple_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;   /* tp_flags */
+    Simple_Type.tp_doc = "XXX to be provided";                       /* tp_doc */
+    Simple_Type.tp_traverse = (traverseproc)PyCData_traverse;             /* tp_traverse */
+    Simple_Type.tp_clear = (inquiry)PyCData_clear;                     /* tp_clear */
+    Simple_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    Simple_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    Simple_Type.tp_iter = 0;                                          /* tp_iter */
+    Simple_Type.tp_iternext = 0;                                          /* tp_iternext */
+    Simple_Type.tp_methods = Simple_methods;                             /* tp_methods */
+    Simple_Type.tp_members = 0;                                          /* tp_members */
+    Simple_Type.tp_getset = Simple_getsets;                             /* tp_getset */
+    Simple_Type.tp_base = 0;                                          /* tp_base */
+    Simple_Type.tp_dict = 0;                                          /* tp_dict */
+    Simple_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+    Simple_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+    Simple_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    Simple_Type.tp_init = (initproc)Simple_init;                      /* tp_init */
+    Simple_Type.tp_alloc = 0;                                          /* tp_alloc */
+    Simple_Type.tp_new = GenericPyCData_new;                         /* tp_new */
+    Simple_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
 /******************************************************************/
 /*
   PyCPointer_Type
@@ -5469,6 +6024,48 @@ PyTypeObject PyCPointer_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void init_PyCPointer_Type() {
+    PyCPointer_Type.tp_name = "_ctypes._Pointer";
+    PyCPointer_Type.tp_basicsize = sizeof(CDataObject);                        /* tp_basicsize */
+    PyCPointer_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    PyCPointer_Type.tp_dealloc = 0;                                          /* tp_dealloc */
+    PyCPointer_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    PyCPointer_Type.tp_getattr = 0;                                          /* tp_getattr */
+    PyCPointer_Type.tp_setattr = 0;                                          /* tp_setattr */
+    PyCPointer_Type.tp_as_async = 0;                                          /* tp_as_async */
+    PyCPointer_Type.tp_repr = 0;                                          /* tp_repr */
+    PyCPointer_Type.tp_as_number = &Pointer_as_number;                         /* tp_as_number */
+    PyCPointer_Type.tp_as_sequence = &Pointer_as_sequence;                       /* tp_as_sequence */
+    PyCPointer_Type.tp_as_mapping = &Pointer_as_mapping;                        /* tp_as_mapping */
+    PyCPointer_Type.tp_hash = 0;                                          /* tp_hash */
+    PyCPointer_Type.tp_call = 0;                                          /* tp_call */
+    PyCPointer_Type.tp_str = 0;                                          /* tp_str */
+    PyCPointer_Type.tp_getattro = 0;                                          /* tp_getattro */
+    PyCPointer_Type.tp_setattro = 0;                                          /* tp_setattro */
+    PyCPointer_Type.tp_as_buffer = &PyCData_as_buffer;                         /* tp_as_buffer */
+    PyCPointer_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;   /* tp_flags */
+    PyCPointer_Type.tp_doc = "XXX to be provided";                       /* tp_doc */
+    PyCPointer_Type.tp_traverse = (traverseproc)PyCData_traverse;             /* tp_traverse */
+    PyCPointer_Type.tp_clear = (inquiry)PyCData_clear;                     /* tp_clear */
+    PyCPointer_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    PyCPointer_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PyCPointer_Type.tp_iter = 0;                                          /* tp_iter */
+    PyCPointer_Type.tp_iternext = 0;                                          /* tp_iternext */
+    PyCPointer_Type.tp_methods = 0;                                          /* tp_methods */
+    PyCPointer_Type.tp_members = 0;                                          /* tp_members */
+    PyCPointer_Type.tp_getset = Pointer_getsets;                            /* tp_getset */
+    PyCPointer_Type.tp_base = 0;                                          /* tp_base */
+    PyCPointer_Type.tp_dict = 0;                                          /* tp_dict */
+    PyCPointer_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+    PyCPointer_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+    PyCPointer_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    PyCPointer_Type.tp_init = (initproc)Pointer_init;                     /* tp_init */
+    PyCPointer_Type.tp_alloc = 0;                                          /* tp_alloc */
+    PyCPointer_Type.tp_new = Pointer_new;                                /* tp_new */
+    PyCPointer_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
 
 /******************************************************************/
 /*
@@ -5558,7 +6155,6 @@ static PyTypeObject PyComError_Type = {
     0,                          /* tp_alloc */
     0,                          /* tp_new */
 };
-
 
 static int
 create_comerror(void)
@@ -5692,11 +6288,39 @@ static struct PyModuleDef _ctypesmodule = {
     NULL
 };
 
+#if TARGET_OS_IPHONE
+extern void init_PyCArg_Type(void);
+extern void	init_PyCStgDict_Type(void);
+extern void init_PyCThunk_Type(void);
+extern void init_PyCField_Type(void);
+#endif
+
 PyMODINIT_FUNC
 PyInit__ctypes(void)
 {
     PyObject *m;
 
+#if TARGET_OS_IPHONE
+	init_StructParam_Type();
+	init_DictRemover_Type();
+	init_PyCStructType_Type();
+	init_UnionType_Type();
+	init_PyCPointerType_Type();
+	init_PyCArrayType_Type();
+	init_PyCSimpleType_Type();
+	init_PyCFuncPtrType_Type();
+	init_PyCData_Type();
+	init_PyCFuncPtr_Type();
+	init_Struct_Type();
+	init_Union_Type();
+	init_PyCArray_Type();
+	init_Simple_Type();
+	init_PyCPointer_Type();
+	init_PyCArg_Type();
+	init_PyCStgDict_Type();
+	init_PyCThunk_Type();
+	init_PyCField_Type();
+#endif
 /* Note:
    ob_type is the metatype (the 'type'), defaults to PyType_Type,
    tp_base is the base type, defaults to 'object' aka PyBaseObject_Type.

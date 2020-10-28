@@ -603,6 +603,39 @@ PyTypeObject PyCArg_Type = {
     PyCArgType_members,                         /* tp_members */
 };
 
+#if TARGET_OS_IPHONE
+void init_PyCArg_Type() {
+    PyCArg_Type.tp_name = "CArgObject";
+    PyCArg_Type.tp_basicsize = sizeof(PyCArgObject);
+    PyCArg_Type.tp_itemsize = 0;
+    PyCArg_Type.tp_dealloc = (destructor)PyCArg_dealloc;                 /* tp_dealloc */
+    PyCArg_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    PyCArg_Type.tp_getattr = 0;                                          /* tp_getattr */
+    PyCArg_Type.tp_setattr = 0;                                          /* tp_setattr */
+    PyCArg_Type.tp_as_async = 0;                                          /* tp_as_async */
+    PyCArg_Type.tp_repr = (reprfunc)PyCArg_repr;                      /* tp_repr */
+    PyCArg_Type.tp_as_number = 0;                                          /* tp_as_number */
+    PyCArg_Type.tp_as_sequence = 0;                                          /* tp_as_sequence */
+    PyCArg_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    PyCArg_Type.tp_hash = 0;                                          /* tp_hash */
+    PyCArg_Type.tp_call = 0;                                          /* tp_call */
+    PyCArg_Type.tp_str = 0;                                          /* tp_str */
+    PyCArg_Type.tp_getattro = 0;                                          /* tp_getattro */
+    PyCArg_Type.tp_setattro = 0;                                          /* tp_setattro */
+    PyCArg_Type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+    PyCArg_Type.tp_flags = Py_TPFLAGS_DEFAULT;                         /* tp_flags */
+    PyCArg_Type.tp_doc = 0;                                          /* tp_doc */
+    PyCArg_Type.tp_traverse = 0;                                          /* tp_traverse */
+    PyCArg_Type.tp_clear = 0;                                          /* tp_clear */
+    PyCArg_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    PyCArg_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PyCArg_Type.tp_iter = 0;                                          /* tp_iter */
+    PyCArg_Type.tp_iternext = 0;                                          /* tp_iternext */
+    PyCArg_Type.tp_methods = 0;                                          /* tp_methods */
+    PyCArg_Type.tp_members = PyCArgType_members;                         /* tp_members */
+}
+#endif
+
 /****************************************************************/
 /*
  * Convert a PyObject * into a parameter suitable to pass to an

@@ -382,6 +382,47 @@ static PyTypeObject BZ2Compressor_Type = {
     PyType_GenericNew,                  /* tp_new */
 };
 
+#if TARGET_OS_IPHONE
+static void init_BZ2Compressor_Type() {
+    BZ2Compressor_Type.tp_name =             "_bz2.BZ2Compressor";               /* tp_name */
+    BZ2Compressor_Type.tp_basicsize =        sizeof(BZ2Compressor);              /* tp_basicsize */
+    BZ2Compressor_Type.tp_itemsize =         0;                                  /* tp_itemsize */
+    BZ2Compressor_Type.tp_dealloc =          (destructor)BZ2Compressor_dealloc;  /* tp_dealloc */
+    BZ2Compressor_Type.tp_vectorcall_offset =0;                                  /* tp_vectorcall_offset */
+    BZ2Compressor_Type.tp_getattr =          0;                                  /* tp_getattr */
+    BZ2Compressor_Type.tp_setattr =          0;                                  /* tp_setattr */
+    BZ2Compressor_Type.tp_as_async =         0;                                  /* tp_as_async */
+    BZ2Compressor_Type.tp_repr =             0;                                  /* tp_repr */
+    BZ2Compressor_Type.tp_as_number =        0;                                  /* tp_as_number */
+    BZ2Compressor_Type.tp_as_sequence =      0;                                  /* tp_as_sequence */
+    BZ2Compressor_Type.tp_as_mapping =       0;                                  /* tp_as_mapping */
+    BZ2Compressor_Type.tp_hash  =            0;                                  /* tp_hash  */
+    BZ2Compressor_Type.tp_call =             0;                                  /* tp_call */
+    BZ2Compressor_Type.tp_str =              0;                                  /* tp_str */
+    BZ2Compressor_Type.tp_getattro =         0;                                  /* tp_getattro */
+    BZ2Compressor_Type.tp_setattro =         0;                                  /* tp_setattro */
+    BZ2Compressor_Type.tp_as_buffer =        0;                                  /* tp_as_buffer */
+    BZ2Compressor_Type.tp_flags =            Py_TPFLAGS_DEFAULT;                 /* tp_flags */
+    BZ2Compressor_Type. tp_doc =             _bz2_BZ2Compressor___init____doc__;  /* tp_doc */
+    BZ2Compressor_Type.tp_traverse =         0;                                  /* tp_traverse */
+    BZ2Compressor_Type.tp_clear =            0;                                  /* tp_clear */
+    BZ2Compressor_Type.tp_richcompare =      0;                                  /* tp_richcompare */
+    BZ2Compressor_Type.tp_weaklistoffset =   0;                                  /* tp_weaklistoffset */
+    BZ2Compressor_Type.tp_iter =             0;                                  /* tp_iter */
+    BZ2Compressor_Type.tp_iternext =         0;                                  /* tp_iternext */
+    BZ2Compressor_Type.tp_methods =          BZ2Compressor_methods;              /* tp_methods */
+    BZ2Compressor_Type.tp_members =          0;                                  /* tp_members */
+    BZ2Compressor_Type.tp_getset =           0;                                  /* tp_getset */
+    BZ2Compressor_Type.tp_base =             0;                                  /* tp_base */
+    BZ2Compressor_Type.tp_dict =             0;                                  /* tp_dict */
+    BZ2Compressor_Type.tp_descr_get =        0;                                  /* tp_descr_get */
+    BZ2Compressor_Type.tp_descr_set =        0;                                  /* tp_descr_set */
+    BZ2Compressor_Type.tp_dictoffset =       0;                                  /* tp_dictoffset */
+    BZ2Compressor_Type.tp_init =             _bz2_BZ2Compressor___init__;        /* tp_init */
+    BZ2Compressor_Type.tp_alloc =            0;                                  /* tp_alloc */
+    BZ2Compressor_Type.tp_new =              PyType_GenericNew;                  /* tp_new */
+}
+#endif
 
 /* BZ2Decompressor class. */
 
@@ -723,6 +764,47 @@ static PyTypeObject BZ2Decompressor_Type = {
     PyType_GenericNew,                  /* tp_new */
 };
 
+#if TARGET_OS_IPHONE
+static void init_BZ2Decompressor_Type() {
+   BZ2Decompressor_Type.tp_name = "_bz2.BZ2Decompressor";             /* tp_name */
+   BZ2Decompressor_Type.tp_basicsize = sizeof(BZ2Decompressor);            /* tp_basicsize */
+   BZ2Decompressor_Type.tp_itemsize = 0;                                  /* tp_itemsize */
+   BZ2Decompressor_Type.tp_dealloc = (destructor)BZ2Decompressor_dealloc;/* tp_dealloc */
+   BZ2Decompressor_Type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+   BZ2Decompressor_Type.tp_getattr = 0;                                  /* tp_getattr */
+   BZ2Decompressor_Type.tp_setattr = 0;                                  /* tp_setattr */
+   BZ2Decompressor_Type.tp_as_async = 0;                                  /* tp_as_async */
+   BZ2Decompressor_Type.tp_repr = 0;                                  /* tp_repr */
+   BZ2Decompressor_Type.tp_as_number = 0;                                  /* tp_as_number */
+   BZ2Decompressor_Type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+   BZ2Decompressor_Type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+   BZ2Decompressor_Type.tp_hash  = 0;                                  /* tp_hash  */
+   BZ2Decompressor_Type.tp_call = 0;                                  /* tp_call */
+   BZ2Decompressor_Type.tp_str = 0;                                  /* tp_str */
+   BZ2Decompressor_Type.tp_getattro = 0;                                  /* tp_getattro */
+   BZ2Decompressor_Type.tp_setattro = 0;                                  /* tp_setattro */
+   BZ2Decompressor_Type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+   BZ2Decompressor_Type.tp_flags = Py_TPFLAGS_DEFAULT;                 /* tp_flags */
+   BZ2Decompressor_Type.tp_doc = _bz2_BZ2Decompressor___init____doc__;  /* tp_doc */
+   BZ2Decompressor_Type.tp_traverse = 0;                                  /* tp_traverse */
+   BZ2Decompressor_Type.tp_clear = 0;                                  /* tp_clear */
+   BZ2Decompressor_Type.tp_richcompare = 0;                                  /* tp_richcompare */
+   BZ2Decompressor_Type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+   BZ2Decompressor_Type.tp_iter = 0;                                  /* tp_iter */
+   BZ2Decompressor_Type.tp_iternext = 0;                                  /* tp_iternext */
+   BZ2Decompressor_Type.tp_methods = BZ2Decompressor_methods;            /* tp_methods */
+   BZ2Decompressor_Type.tp_members = BZ2Decompressor_members;            /* tp_members */
+   BZ2Decompressor_Type.tp_getset = 0;                                  /* tp_getset */
+   BZ2Decompressor_Type.tp_base = 0;                                  /* tp_base */
+   BZ2Decompressor_Type.tp_dict = 0;                                  /* tp_dict */
+   BZ2Decompressor_Type.tp_descr_get = 0;                                  /* tp_descr_get */
+   BZ2Decompressor_Type.tp_descr_set = 0;                                  /* tp_descr_set */
+   BZ2Decompressor_Type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+   BZ2Decompressor_Type.tp_init = _bz2_BZ2Decompressor___init__;      /* tp_init */
+   BZ2Decompressor_Type.tp_alloc = 0;                                  /* tp_alloc */
+   BZ2Decompressor_Type.tp_new = PyType_GenericNew;                  /* tp_new */
+}
+#endif
 
 /* Module initialization. */
 
@@ -760,5 +842,9 @@ static struct PyModuleDef _bz2module = {
 PyMODINIT_FUNC
 PyInit__bz2(void)
 {
+#if TARGET_OS_IPHONE
+	init_BZ2Compressor_Type();
+	init_BZ2Decompressor_Type();
+#endif
     return PyModuleDef_Init(&_bz2module);
 }
