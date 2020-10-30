@@ -46,6 +46,12 @@ if sys.platform == "win32" and sys.version_info >= (3, 10):
         RuntimeWarning,
     )
 
+# iOS/simulator: adapt to the actual platform we are cross-compiling for:
+if sys.platform == "darwin":
+    if "PLATFORM" in os.environ:
+        platform=os.environ["PLATFORM"]
+    else:
+        platform="macosx"
 
 _IMAGING = ("decode", "encode", "map", "display", "outline", "path")
 
@@ -433,11 +439,6 @@ class pil_build_ext(build_ext):
             )
 
         elif sys.platform == "darwin":
-            # iOS/simulator: adapt to the actual platform
-            if "PLATFORM" in os.environ:
-                platform=os.environ["PLATFORM"]
-            else:
-                platform="macosx"
             if (platform == "macosx"): 
                 # attempt to make sure we pick freetype2 over other versions
                 _add_directory(include_dirs, "/sw/include/freetype2")
@@ -637,7 +638,7 @@ class pil_build_ext(build_ext):
 
         if feature.want("freetype"):
             _dbg("Looking for freetype")
-            if _find_library_file(self, "freetype"):
+            if _find_library_file(self, "freetype") or platform.startswith("iphone"):
                 # look for freetype2 include files
                 freetype_version = 0
                 for subdir in self.compiler.include_dirs:
@@ -645,7 +646,10 @@ class pil_build_ext(build_ext):
                     if os.path.isfile(os.path.join(subdir, "ft2build.h")):
                         _dbg("Found %s in %s", ("ft2build.h", subdir))
                         freetype_version = 21
-                        subdir = os.path.join(subdir, "freetype2")
+                        if platform.startswith("iphone"):
+                            subdir = os.path.join(subdir, "freetype")
+                        else:
+                            subdir = os.path.join(subdir, "freetype2")
                         break
                     subdir = os.path.join(subdir, "freetype2")
                     _dbg("Checking for include file %s in %s", ("ft2build.h", subdir))
@@ -753,7 +757,9 @@ class pil_build_ext(build_ext):
         # additional libraries
 
         if feature.freetype:
-            libs = ["freetype"]
+            # for iOS and simulator, freetype is in a framework, not a library:
+            if not(sys.platform == "darwin" and platform.startswith("iphone")):
+                libs = ["freetype"]
             defs = []
             self._update_extension("PIL._imagingft", libs, defs)
         else:
