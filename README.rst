@@ -56,6 +56,16 @@ Installable Python kits, and information about using Python, are available at
 Build Instructions
 ------------------
 
+On macOS X, cross-compiling for iOS::
+
+    sh ./downloadAndCompile.sh
+
+Or, if you've already downloaded the frameworks::
+
+    sh ./buildAllArchitectures.sh
+    sh ./createFrameworks.sh
+    sh ./createModuleFrameworks.sh
+
 On Unix, Linux, BSD, macOS, and Cygwin::
 
     ./configure
