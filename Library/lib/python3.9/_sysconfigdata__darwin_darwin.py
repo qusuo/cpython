@@ -10,20 +10,20 @@ build_time_vars = {'ABIFLAGS': '',
  'BASECFLAGS': '-Wno-unused-result -Wsign-compare -Wunreachable-code',
  'BASECPPFLAGS': '',
  'BASEMODLIBS': '',
- 'BINDIR': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/bin',
- 'BINLIBDEST': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/lib/python3.9',
+ 'BINDIR': '/Users/holzschu/src/Xcode_iPad/cpython/Library/bin',
+ 'BINLIBDEST': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9',
  'BLDLIBRARY': '-L. -lpython3.9',
  'BLDSHARED': 'clang -v -undefined error -dynamiclib -isysroot '
               '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.0.sdk '
               '-lz -L. -lpython3.9  '
-              '-F/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator '
+              '-F/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator '
               '-framework ios_system '
-              '-L/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator/lib '
+              '-L/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator/lib '
               '-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot '
               '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.0.sdk '
-              '-F/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator '
+              '-F/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator '
               '-framework ios_system '
-              '-L/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator/lib',
+              '-L/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator/lib',
  'BUILDEXE': '.exe',
  'BUILDPYTHON': 'python.exe',
  'BUILD_GNU_TYPE': 'x86_64-apple-darwin',
@@ -53,14 +53,14 @@ build_time_vars = {'ABIFLAGS': '',
  'CONFIGURE_LDFLAGS': '-arch x86_64 -miphonesimulator-version-min=14.0 '
                       '-isysroot '
                       '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.0.sdk '
-                      '-F/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator '
+                      '-F/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator '
                       '-framework ios_system '
-                      '-L/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator/lib',
+                      '-L/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator/lib',
  'CONFIGURE_LDFLAGS_NODIST': '',
- 'CONFIG_ARGS': "'--prefix=/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library' "
+ 'CONFIG_ARGS': "'--prefix=/Users/holzschu/src/Xcode_iPad/cpython/Library' "
                 "'--enable-shared' '--host' 'x86_64-apple-darwin' '--build' "
                 "'x86_64-apple-darwin' '--enable-ipv6' "
-                "'--with-openssl=/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator' "
+                "'--with-openssl=/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator' "
                 "'--without-computed-gotos' 'cross_compiling=yes' "
                 "'with_system_ffi=yes' 'ac_cv_file__dev_ptmx=no' "
                 "'ac_cv_file__dev_ptc=no' 'ac_cv_func_getentropy=no' "
@@ -76,30 +76,30 @@ build_time_vars = {'ABIFLAGS': '',
                 "'LDFLAGS=-arch x86_64 -miphonesimulator-version-min=14.0 "
                 '-isysroot '
                 '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.0.sdk '
-                '-F/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator '
+                '-F/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator '
                 '-framework ios_system '
-                "-L/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator/lib' "
+                "-L/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator/lib' "
                 "'CPPFLAGS=-arch x86_64 -miphonesimulator-version-min=14.0 "
                 '-isysroot '
                 "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.0.sdk'",
- 'CONFINCLUDEDIR': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/include',
- 'CONFINCLUDEPY': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/include/python3.9',
+ 'CONFINCLUDEDIR': '/Users/holzschu/src/Xcode_iPad/cpython/Library/include',
+ 'CONFINCLUDEPY': '/Users/holzschu/src/Xcode_iPad/cpython/Library/include/python3.9',
  'COREPYTHONPATH': '',
- 'COVERAGE_INFO': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/coverage.info',
- 'COVERAGE_REPORT': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/lcov-report',
+ 'COVERAGE_INFO': '/Users/holzschu/src/Xcode_iPad/cpython/coverage.info',
+ 'COVERAGE_REPORT': '/Users/holzschu/src/Xcode_iPad/cpython/lcov-report',
  'COVERAGE_REPORT_OPTIONS': '--no-branch-coverage --title "CPython lcov '
                             'report"',
  'CPPFLAGS': '-I. -I./Include -arch x86_64 -miphonesimulator-version-min=14.0 '
              '-isysroot '
              '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.0.sdk',
  'CXX': 'clang++',
- 'DESTDIRS': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library '
-             '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/lib '
-             '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/lib/python3.9 '
-             '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/lib/python3.9/lib-dynload',
- 'DESTLIB': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/lib/python3.9',
+ 'DESTDIRS': '/Users/holzschu/src/Xcode_iPad/cpython/Library '
+             '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib '
+             '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9 '
+             '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9/lib-dynload',
+ 'DESTLIB': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9',
  'DESTPATH': '',
- 'DESTSHARED': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/lib/python3.9/lib-dynload',
+ 'DESTSHARED': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9/lib-dynload',
  'DFLAGS': '',
  'DIRMODE': 755,
  'DIST': 'README.rst ChangeLog configure configure.ac acconfig.h pyconfig.h.in '
@@ -557,12 +557,12 @@ build_time_vars = {'ABIFLAGS': '',
  'HAVE_ZLIB_COPY': 1,
  'HAVE__GETPTY': 0,
  'HOST_GNU_TYPE': 'x86_64-apple-darwin',
- 'INCLDIRSTOMAKE': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/include '
-                   '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/include '
-                   '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/include/python3.9 '
-                   '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/include/python3.9',
- 'INCLUDEDIR': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/include',
- 'INCLUDEPY': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/include/python3.9',
+ 'INCLDIRSTOMAKE': '/Users/holzschu/src/Xcode_iPad/cpython/Library/include '
+                   '/Users/holzschu/src/Xcode_iPad/cpython/Library/include '
+                   '/Users/holzschu/src/Xcode_iPad/cpython/Library/include/python3.9 '
+                   '/Users/holzschu/src/Xcode_iPad/cpython/Library/include/python3.9',
+ 'INCLUDEDIR': '/Users/holzschu/src/Xcode_iPad/cpython/Library/include',
+ 'INCLUDEPY': '/Users/holzschu/src/Xcode_iPad/cpython/Library/include/python3.9',
  'INSTALL': '/usr/bin/install -c',
  'INSTALL_DATA': '/usr/bin/install -c -m 644',
  'INSTALL_PROGRAM': '/usr/bin/install -c',
@@ -574,38 +574,38 @@ build_time_vars = {'ABIFLAGS': '',
  'LDCXXSHARED': 'clang -v -undefined error -dynamiclib -isysroot '
                 '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.0.sdk '
                 '-lz -L. -lpython3.9  '
-                '-F/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator '
+                '-F/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator '
                 '-framework ios_system '
-                '-L/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator/lib',
+                '-L/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator/lib',
  'LDFLAGS': '-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot '
             '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.0.sdk '
-            '-F/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator '
+            '-F/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator '
             '-framework ios_system '
-            '-L/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator/lib',
+            '-L/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator/lib',
  'LDFLAGS_NODIST': '',
  'LDLIBRARY': 'libpython3.9.dylib',
  'LDLIBRARYDIR': '',
  'LDSHARED': 'clang -v -undefined error -dynamiclib -isysroot '
              '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.0.sdk '
              '-lz -L. -lpython3.9  '
-             '-F/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator '
+             '-F/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator '
              '-framework ios_system '
-             '-L/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator/lib '
+             '-L/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator/lib '
              '-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot '
              '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.0.sdk '
-             '-F/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator '
+             '-F/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator '
              '-framework ios_system '
-             '-L/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator/lib',
+             '-L/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator/lib',
  'LDVERSION': '3.9',
  'LIBC': '',
- 'LIBDEST': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/lib/python3.9',
- 'LIBDIR': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/lib',
+ 'LIBDEST': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9',
+ 'LIBDIR': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib',
  'LIBFFI_INCLUDEDIR': './Frameworks_iphonesimulator/include/ffi/',
  'LIBM': '',
  'LIBOBJDIR': 'Python/',
  'LIBOBJS': '',
- 'LIBPC': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/lib/pkgconfig',
- 'LIBPL': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/lib/python3.9/config-3.9-darwin',
+ 'LIBPC': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/pkgconfig',
+ 'LIBPL': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9/config-3.9-darwin',
  'LIBPYTHON': '',
  'LIBRARY': 'libpython3.9.a',
  'LIBRARY_OBJS': '\\',
@@ -623,13 +623,13 @@ build_time_vars = {'ABIFLAGS': '',
  'LOCALMODLIBS': '',
  'MACHDEP': 'darwin',
  'MACHDEP_OBJS': '',
- 'MACHDESTLIB': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/lib/python3.9',
+ 'MACHDESTLIB': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib/python3.9',
  'MACOSX_DEPLOYMENT_TARGET': '10.15',
  'MAINCC': 'clang',
  'MAJOR_IN_MKDEV': 0,
  'MAJOR_IN_SYSMACROS': 0,
  'MAKESETUP': './Modules/makesetup',
- 'MANDIR': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/share/man',
+ 'MANDIR': '/Users/holzschu/src/Xcode_iPad/cpython/Library/share/man',
  'MKDIR_P': './install-sh -c -d',
  'MODBUILT_NAMES': 'posix  errno  pwd  _sre  _codecs  _weakref  _functools  '
                    '_operator  _collections  _abc  itertools  atexit  _signal  '
@@ -655,8 +655,8 @@ build_time_vars = {'ABIFLAGS': '',
  'MVWDELCH_IS_EXPRESSION': 0,
  'NO_AS_NEEDED': '',
  'OBJECT_OBJS': '\\',
- 'OPENSSL_INCLUDES': '-I/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator/include',
- 'OPENSSL_LDFLAGS': '-L/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator/lib',
+ 'OPENSSL_INCLUDES': '-I/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator/include',
+ 'OPENSSL_LDFLAGS': '-L/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator/lib',
  'OPENSSL_LIBS': '-lssl -lcrypto',
  'OPT': '-DNDEBUG -O3 -Wall',
  'OTHER_LIBTOOL_OPT': '',
@@ -688,10 +688,10 @@ build_time_vars = {'ABIFLAGS': '',
  'PYTHONFRAMEWORKINSTALLDIR': '',
  'PYTHONFRAMEWORKPREFIX': '',
  'PYTHONPATH': '',
- 'PYTHON_FOR_BUILD': '_PYTHON_PROJECT_BASE=/Users/holzschu/src/Xcode_iPad/a-Shell/cpython '
+ 'PYTHON_FOR_BUILD': '_PYTHON_PROJECT_BASE=/Users/holzschu/src/Xcode_iPad/cpython '
                      '_PYTHON_HOST_PLATFORM=$(_PYTHON_HOST_PLATFORM) '
                      'PYTHONPATH=$(shell test -f pybuilddir.txt && echo '
-                     '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/`cat '
+                     '/Users/holzschu/src/Xcode_iPad/cpython/`cat '
                      'pybuilddir.txt`:)./Lib '
                      '_PYTHON_SYSCONFIGDATA_NAME=_sysconfigdata__darwin_darwin '
                      'python3.9',
@@ -736,18 +736,18 @@ build_time_vars = {'ABIFLAGS': '',
                    '-DPy_BUILD_CORE',
  'PY_CORE_LDFLAGS': '-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot '
                     '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.0.sdk '
-                    '-F/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator '
+                    '-F/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator '
                     '-framework ios_system '
-                    '-L/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator/lib',
+                    '-L/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator/lib',
  'PY_CPPFLAGS': '-I. -I./Include -arch x86_64 '
                 '-miphonesimulator-version-min=14.0 -isysroot '
                 '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.0.sdk',
  'PY_FORMAT_SIZE_T': '"z"',
  'PY_LDFLAGS': '-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot '
                '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.0.sdk '
-               '-F/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator '
+               '-F/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator '
                '-framework ios_system '
-               '-L/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphonesimulator/lib',
+               '-L/Users/holzschu/src/Xcode_iPad/cpython/Frameworks_iphonesimulator/lib',
  'PY_LDFLAGS_NODIST': '',
  'PY_SSL_DEFAULT_CIPHERS': 1,
  'PY_SSL_DEFAULT_CIPHER_STRING': 0,
@@ -772,7 +772,7 @@ build_time_vars = {'ABIFLAGS': '',
  'RESSRCDIR': 'Mac/Resources/framework',
  'RETSIGTYPE': 'void',
  'RUNSHARED': '',
- 'SCRIPTDIR': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/lib',
+ 'SCRIPTDIR': '/Users/holzschu/src/Xcode_iPad/cpython/Library/lib',
  'SETPGRP_HAVE_ARG': 0,
  'SGI_ABI': '@SGI_ABI@',
  'SHELL': '/bin/sh',
@@ -837,9 +837,9 @@ build_time_vars = {'ABIFLAGS': '',
  'WITH_VALGRIND': 0,
  'X87_DOUBLE_ROUNDING': 0,
  'XMLLIBSUBDIRS': 'xml xml/dom xml/etree xml/parsers xml/sax',
- 'abs_builddir': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython',
- 'abs_srcdir': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython',
- 'datarootdir': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library/share',
- 'exec_prefix': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library',
- 'prefix': '/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library',
+ 'abs_builddir': '/Users/holzschu/src/Xcode_iPad/cpython',
+ 'abs_srcdir': '/Users/holzschu/src/Xcode_iPad/cpython',
+ 'datarootdir': '/Users/holzschu/src/Xcode_iPad/cpython/Library/share',
+ 'exec_prefix': '/Users/holzschu/src/Xcode_iPad/cpython/Library',
+ 'prefix': '/Users/holzschu/src/Xcode_iPad/cpython/Library',
  'srcdir': '.'}
