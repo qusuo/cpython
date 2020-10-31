@@ -37,12 +37,12 @@ cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log
 make  -j 4 install  >> make_install_osx.log 2>&1
 export PYTHONHOME=$PREFIX/Library
 # When working on frozen importlib, need to compile twice:
-# make regen-importlib >> make_osx.log 2>&1
-# find . -name \*.o -delete  >> make_osx.log 2>&1
-# make  -j 4 >> make_osx.log 2>&1 
-# mkdir -p build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log 2>&1
-# cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log 2>&1
-# make  -j 4 install >> make_install_osx.log 2>&1
+make regen-importlib >> make_osx.log 2>&1
+find . -name \*.o -delete  >> make_osx.log 2>&1
+make  -j 4 >> make_osx.log 2>&1 
+mkdir -p build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log 2>&1
+cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log 2>&1
+make  -j 4 install >> make_install_osx.log 2>&1
 # Force reinstall and upgrade of pip, setuptools 
 python3.9 -m pip install pip --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install setuptools --upgrade >> make_install_osx.log 2>&1
