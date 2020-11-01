@@ -278,6 +278,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 echo Done installing PyZMQ with CFFI >> make_install_osx.log 2>&1
 python3.9 -m pip install qtpy --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install qtconsole --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install babel --upgrade >> make_install_osx.log 2>&1
 # notebook
 # notebook (heavily edited to adapt to touchscreens and iOS)
 pushd packages >> make_install_osx.log 2>&1
