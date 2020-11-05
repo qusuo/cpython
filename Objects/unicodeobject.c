@@ -8160,7 +8160,7 @@ charmap_decode_mapping(const char *s,
                 goto Undefined;
             if (value < 0 || value > MAX_UNICODE) {
                 PyErr_Format(PyExc_TypeError,
-                             "character mapping must be in range(0x%lx)",
+                             "character mapping must be in range(0x%x)",
                              (unsigned long)MAX_UNICODE + 1);
                 goto onError;
             }
@@ -15602,9 +15602,7 @@ PyUnicode_InternInPlace(PyObject **p)
     }
 
     PyObject *t;
-    Py_ALLOW_RECURSION
     t = PyDict_SetDefault(interned, s, s);
-    Py_END_ALLOW_RECURSION
 
     if (t == NULL) {
         PyErr_Clear();
