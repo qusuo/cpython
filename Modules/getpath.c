@@ -951,8 +951,7 @@ calculate_program_macos(wchar_t **abs_path_p)
     // Doesn't apply on iOS, though, since _NSGetExecutablePath gives the parent app
     // This solution is a bit extreme, but the sandbox is really limiting:
     char *iospath = Py_GETENV("PYTHONHOME");
-    char *prog = Py_GETENV("PYTHONEXECUTABLE");
-    sprintf(execpath, "%s/bin/%s", iospath, prog);
+    sprintf(execpath, "%s/bin/python3", iospath);
     if (execpath[0] == SEP)
 #else
     if (_NSGetExecutablePath(execpath, &nsexeclength) != 0
