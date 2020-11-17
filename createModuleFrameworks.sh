@@ -9,31 +9,33 @@ libpython=$PWD/Library/lib/libpython3.9.dylib
 # ./build/lib.macosx-10.15-x86_64-3.9/cryptography/hazmat/bindings/_padding.abi3.so
 # ./build/lib.macosx-10.15-x86_64-3.9/cryptography/hazmat/bindings/_openssl.abi3.so
 
+OSX_VERSION=`sw_vers -productVersion |awk -F. '{print $1"."$2}'`
+
 edit_Info_plist() 
 {
    framework=$1
 	# Edit the Info.plist file:
 	plutil -replace DTPlatformName -string "iphoneos" build/lib.darwin-arm64-3.9/Frameworks/$framework.framework/Info.plist
 	plutil -replace DTPlatformName -string "iphonesimulator" build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework/Info.plist
-	plutil -replace DTPlatformName -string "macosx" build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
+	plutil -replace DTPlatformName -string "macosx" build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 
 	plutil -replace DTSDKName -string "iphoneos" build/lib.darwin-arm64-3.9/Frameworks/$framework.framework/Info.plist
 	plutil -replace DTSDKName -string "iphonesimulator" build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework/Info.plist
-	plutil -replace DTSDKName -string "macosx" build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
+	plutil -replace DTSDKName -string "macosx" build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 
 	plutil -replace DTPlatformVersion -string "14.0" build/lib.darwin-arm64-3.9/Frameworks/$framework.framework/Info.plist
 	plutil -replace DTPlatformVersion -string "14.0" build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework/Info.plist
-	plutil -replace DTPlatformVersion -string "10.15" build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
+	plutil -replace DTPlatformVersion -string "${OSX_VERSION}" build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 
 	plutil -replace MinimumOSVersion -string "14.0" build/lib.darwin-arm64-3.9/Frameworks/$framework.framework/Info.plist
 	plutil -replace MinimumOSVersion -string "14.0" build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework/Info.plist
-	plutil -replace MinimumOSVersion -string "10.15" build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
+	plutil -replace MinimumOSVersion -string "${OSX_VERSION}" build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 
 	plutil -replace CFBundleSupportedPlatforms.0 -string "iPhoneSimulator" build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 	plutil -remove CFBundleSupportedPlatforms.1 build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 
-	plutil -replace CFBundleSupportedPlatforms.0 -string "MacOSX" build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
-	plutil -remove CFBundleSupportedPlatforms.1 build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
+	plutil -replace CFBundleSupportedPlatforms.0 -string "MacOSX" build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework/Info.plist
+	plutil -remove CFBundleSupportedPlatforms.1 build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 
 }
 
@@ -43,7 +45,7 @@ do
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
 		framework=${package}-${name}
-		for architecture in lib.macosx-10.15-x86_64-3.9 lib.darwin-arm64-3.9 lib.darwin-x86_64-3.9
+		for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.9 lib.darwin-arm64-3.9 lib.darwin-x86_64-3.9
 		do
 			echo "Creating: " ${architecture}/Frameworks/${name}.framework
 			directory=build/${architecture}/Frameworks/
@@ -66,7 +68,7 @@ do
 		edit_Info_plist $framework
 		# Create the 3-architecture XCFramework:
 		rm -rf XcFrameworks/$framework.xcframework
-		xcodebuild -create-xcframework -framework build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
 	done
 done
 
@@ -85,7 +87,7 @@ do
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
 		framework=${package}-${name}
-		for architecture in lib.macosx-10.15-x86_64-3.9 lib.darwin-arm64-3.9 lib.darwin-x86_64-3.9
+		for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.9 lib.darwin-arm64-3.9 lib.darwin-x86_64-3.9
 		do
 			echo "Creating: " ${architecture}/Frameworks/${name}.framework
 			directory=build/${architecture}/Frameworks/
@@ -108,7 +110,7 @@ do
 		edit_Info_plist $framework
 		# Create the 3-architecture XCFramework:
 		rm -rf XcFrameworks/$framework.xcframework
-		xcodebuild -create-xcframework -framework build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
 	done
 done
 
@@ -123,7 +125,7 @@ do
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
 		framework=${package}-${name}
-		for architecture in lib.macosx-10.15-x86_64-3.9 lib.darwin-arm64-3.9 lib.darwin-x86_64-3.9
+		for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.9 lib.darwin-arm64-3.9 lib.darwin-x86_64-3.9
 		do
 			echo "Creating: " ${architecture}/Frameworks/${name}.framework
 			directory=build/${architecture}/Frameworks/
@@ -147,7 +149,7 @@ do
 		edit_Info_plist $framework
 		# Create the 3-architecture XCFramework:
 		rm -rf XcFrameworks/$framework.xcframework
-		xcodebuild -create-xcframework -framework build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
 	done
 done
 
@@ -160,7 +162,7 @@ do
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
 		framework=${package}-${name}
-		for architecture in lib.macosx-10.15-x86_64-3.9 lib.darwin-arm64-3.9 lib.darwin-x86_64-3.9
+		for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.9 lib.darwin-arm64-3.9 lib.darwin-x86_64-3.9
 		do
 			echo "Creating: " ${architecture}/Frameworks/${name}.framework
 			directory=build/${architecture}/Frameworks/
@@ -184,7 +186,7 @@ do
 		edit_Info_plist $framework
 		# Create the 3-architecture XCFramework:
 		rm -rf XcFrameworks/$framework.xcframework
-		xcodebuild -create-xcframework -framework build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
 	done
 done
 
