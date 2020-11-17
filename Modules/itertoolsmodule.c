@@ -278,6 +278,48 @@ static PyTypeObject groupby_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_groupby_type() {
+	groupby_type.tp_name = "itertools.groupby";                /* tp_name */
+	groupby_type.tp_basicsize = sizeof(groupbyobject);              /* tp_basicsize */
+	groupby_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	groupby_type.tp_dealloc = (destructor)groupby_dealloc;        /* tp_dealloc */
+	groupby_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	groupby_type.tp_getattr = 0;                                  /* tp_getattr */
+	groupby_type.tp_setattr = 0;                                  /* tp_setattr */
+	groupby_type.tp_as_async = 0;                                  /* tp_as_async */
+	groupby_type.tp_repr = 0;                                  /* tp_repr */
+	groupby_type.tp_as_number = 0;                                  /* tp_as_number */
+	groupby_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	groupby_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	groupby_type.tp_hash = 0;                                  /* tp_hash */
+	groupby_type.tp_call = 0;                                  /* tp_call */
+	groupby_type.tp_str = 0;                                  /* tp_str */
+	groupby_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	groupby_type.tp_setattro = 0;                                  /* tp_setattro */
+	groupby_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	groupby_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE;            /* tp_flags */
+	groupby_type.tp_doc = itertools_groupby__doc__;           /* tp_doc */
+	groupby_type.tp_traverse = (traverseproc)groupby_traverse;     /* tp_traverse */
+	groupby_type.tp_clear = 0;                                  /* tp_clear */
+	groupby_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	groupby_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	groupby_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	groupby_type.tp_iternext = (iternextfunc)groupby_next;         /* tp_iternext */
+	groupby_type.tp_methods = groupby_methods;                    /* tp_methods */
+	groupby_type.tp_members = 0;                                  /* tp_members */
+	groupby_type.tp_getset = 0;                                  /* tp_getset */
+	groupby_type.tp_base = 0;                                  /* tp_base */
+	groupby_type.tp_dict = 0;                                  /* tp_dict */
+	groupby_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	groupby_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	groupby_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	groupby_type.tp_init = 0;                                  /* tp_init */
+	groupby_type.tp_alloc = 0;                                  /* tp_alloc */
+	groupby_type.tp_new = itertools_groupby;                  /* tp_new */
+	groupby_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* _grouper object (internal) ************************************************/
 
@@ -431,6 +473,48 @@ static PyTypeObject _grouper_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset__grouper_type() {
+	_grouper_type.tp_name = "itertools._grouper";               /* tp_name */
+	_grouper_type.tp_basicsize = sizeof(_grouperobject);             /* tp_basicsize */
+	_grouper_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	_grouper_type.tp_dealloc = (destructor)_grouper_dealloc;       /* tp_dealloc */
+	_grouper_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	_grouper_type.tp_getattr = 0;                                  /* tp_getattr */
+	_grouper_type.tp_setattr = 0;                                  /* tp_setattr */
+	_grouper_type.tp_as_async = 0;                                  /* tp_as_async */
+	_grouper_type.tp_repr = 0;                                  /* tp_repr */
+	_grouper_type.tp_as_number = 0;                                  /* tp_as_number */
+	_grouper_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	_grouper_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	_grouper_type.tp_hash = 0;                                  /* tp_hash */
+	_grouper_type.tp_call = 0;                                  /* tp_call */
+	_grouper_type.tp_str = 0;                                  /* tp_str */
+	_grouper_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	_grouper_type.tp_setattro = 0;                                  /* tp_setattro */
+	_grouper_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	_grouper_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC;            /* tp_flags */
+	_grouper_type.tp_doc = 0;                                  /* tp_doc */
+	_grouper_type.tp_traverse = (traverseproc)_grouper_traverse;    /* tp_traverse */
+	_grouper_type.tp_clear = 0;                                  /* tp_clear */
+	_grouper_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	_grouper_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	_grouper_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	_grouper_type.tp_iternext = (iternextfunc)_grouper_next;        /* tp_iternext */
+	_grouper_type.tp_methods = _grouper_methods;                   /* tp_methods */
+	_grouper_type.tp_members = 0;                                  /* tp_members */
+	_grouper_type.tp_getset = 0;                                  /* tp_getset */
+	_grouper_type.tp_base = 0;                                  /* tp_base */
+	_grouper_type.tp_dict = 0;                                  /* tp_dict */
+	_grouper_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	_grouper_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	_grouper_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	_grouper_type.tp_init = 0;                                  /* tp_init */
+	_grouper_type.tp_alloc = 0;                                  /* tp_alloc */
+	_grouper_type.tp_new = itertools__grouper;                 /* tp_new */
+	_grouper_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* tee object and with supporting function and objects ***********************/
 
@@ -684,6 +768,48 @@ static PyTypeObject teedataobject_type = {
     PyObject_GC_Del,                            /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_teedataobject_type() {
+	teedataobject_type.tp_name = "itertools._tee_dataobject";                /* tp_name */
+	teedataobject_type.tp_basicsize = sizeof(teedataobject);                      /* tp_basicsize */
+	teedataobject_type.tp_itemsize = 0;                                          /* tp_itemsize */
+	teedataobject_type.tp_dealloc = (destructor)teedataobject_dealloc;          /* tp_dealloc */
+	teedataobject_type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+	teedataobject_type.tp_getattr = 0;                                          /* tp_getattr */
+	teedataobject_type.tp_setattr = 0;                                          /* tp_setattr */
+	teedataobject_type.tp_as_async = 0;                                          /* tp_as_async */
+	teedataobject_type.tp_repr = 0;                                          /* tp_repr */
+	teedataobject_type.tp_as_number = 0;                                          /* tp_as_number */
+	teedataobject_type.tp_as_sequence = 0;                                          /* tp_as_sequence */
+	teedataobject_type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+	teedataobject_type.tp_hash = 0;                                          /* tp_hash */
+	teedataobject_type.tp_call = 0;                                          /* tp_call */
+	teedataobject_type.tp_str = 0;                                          /* tp_str */
+	teedataobject_type.tp_getattro = PyObject_GenericGetAttr;                    /* tp_getattro */
+	teedataobject_type.tp_setattro = 0;                                          /* tp_setattro */
+	teedataobject_type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+	teedataobject_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC;    /* tp_flags */
+	teedataobject_type.tp_doc = itertools_teedataobject__doc__;             /* tp_doc */
+	teedataobject_type.tp_traverse = (traverseproc)teedataobject_traverse;       /* tp_traverse */
+	teedataobject_type.tp_clear = (inquiry)teedataobject_clear;               /* tp_clear */
+	teedataobject_type.tp_richcompare = 0;                                          /* tp_richcompare */
+	teedataobject_type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+	teedataobject_type.tp_iter = 0;                                          /* tp_iter */
+	teedataobject_type.tp_iternext = 0;                                          /* tp_iternext */
+	teedataobject_type.tp_methods = teedataobject_methods;                      /* tp_methods */
+	teedataobject_type.tp_members = 0;                                          /* tp_members */
+	teedataobject_type.tp_getset = 0;                                          /* tp_getset */
+	teedataobject_type.tp_base = 0;                                          /* tp_base */
+	teedataobject_type.tp_dict = 0;                                          /* tp_dict */
+	teedataobject_type.tp_descr_get = 0;                                          /* tp_descr_get */
+	teedataobject_type.tp_descr_set = 0;                                          /* tp_descr_set */
+	teedataobject_type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+	teedataobject_type.tp_init = 0;                                          /* tp_init */
+	teedataobject_type.tp_alloc = 0;                                          /* tp_alloc */
+	teedataobject_type.tp_new = itertools_teedataobject;                    /* tp_new */
+	teedataobject_type.tp_free = PyObject_GC_Del;                            /* tp_free */
+}
+#endif
 
 static PyObject *
 tee_next(teeobject *to)
@@ -871,6 +997,48 @@ static PyTypeObject tee_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_tee_type() {
+	tee_type.tp_name = "itertools._tee";                   /* tp_name */
+	tee_type.tp_basicsize = sizeof(teeobject);                  /* tp_basicsize */
+	tee_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	tee_type.tp_dealloc = (destructor)tee_dealloc;            /* tp_dealloc */
+	tee_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	tee_type.tp_getattr = 0;                                  /* tp_getattr */
+	tee_type.tp_setattr = 0;                                  /* tp_setattr */
+	tee_type.tp_as_async = 0;                                  /* tp_as_async */
+	tee_type.tp_repr = 0;                                  /* tp_repr */
+	tee_type.tp_as_number = 0;                                  /* tp_as_number */
+	tee_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	tee_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	tee_type.tp_hash = 0;                                  /* tp_hash */
+	tee_type.tp_call = 0;                                  /* tp_call */
+	tee_type.tp_str = 0;                                  /* tp_str */
+	tee_type.tp_getattro = 0;                                  /* tp_getattro */
+	tee_type.tp_setattro = 0;                                  /* tp_setattro */
+	tee_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	tee_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC;            /* tp_flags */
+	tee_type.tp_doc = itertools__tee__doc__;              /* tp_doc */
+	tee_type.tp_traverse = (traverseproc)tee_traverse;         /* tp_traverse */
+	tee_type.tp_clear = (inquiry)tee_clear;                 /* tp_clear */
+	tee_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	tee_type.tp_weaklistoffset = offsetof(teeobject, weakreflist);   /* tp_weaklistoffset */
+	tee_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	tee_type.tp_iternext = (iternextfunc)tee_next;             /* tp_iternext */
+	tee_type.tp_methods = tee_methods;                        /* tp_methods */
+	tee_type.tp_members = 0;                                  /* tp_members */
+	tee_type.tp_getset = 0;                                  /* tp_getset */
+	tee_type.tp_base = 0;                                  /* tp_base */
+	tee_type.tp_dict = 0;                                  /* tp_dict */
+	tee_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	tee_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	tee_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	tee_type.tp_init = 0;                                  /* tp_init */
+	tee_type.tp_alloc = 0;                                  /* tp_alloc */
+	tee_type.tp_new = itertools__tee;                     /* tp_new */
+	tee_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 /*[clinic input]
 itertools.tee
     iterable: object
@@ -1146,6 +1314,48 @@ static PyTypeObject cycle_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_cycle_type() {
+	cycle_type.tp_name = "itertools.cycle";                  /* tp_name */
+	cycle_type.tp_basicsize = sizeof(cycleobject);                /* tp_basicsize */
+	cycle_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	cycle_type.tp_dealloc = (destructor)cycle_dealloc;          /* tp_dealloc */
+	cycle_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	cycle_type.tp_getattr = 0;                                  /* tp_getattr */
+	cycle_type.tp_setattr = 0;                                  /* tp_setattr */
+	cycle_type.tp_as_async = 0;                                  /* tp_as_async */
+	cycle_type.tp_repr = 0;                                  /* tp_repr */
+	cycle_type.tp_as_number = 0;                                  /* tp_as_number */
+	cycle_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	cycle_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	cycle_type.tp_hash = 0;                                  /* tp_hash */
+	cycle_type.tp_call = 0;                                  /* tp_call */
+	cycle_type.tp_str = 0;                                  /* tp_str */
+	cycle_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	cycle_type.tp_setattro = 0;                                  /* tp_setattro */
+	cycle_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	cycle_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE;            /* tp_flags */
+	cycle_type.tp_doc = itertools_cycle__doc__;             /* tp_doc */
+	cycle_type.tp_traverse = (traverseproc)cycle_traverse;       /* tp_traverse */
+	cycle_type.tp_clear = 0;                                  /* tp_clear */
+	cycle_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	cycle_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	cycle_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	cycle_type.tp_iternext = (iternextfunc)cycle_next;           /* tp_iternext */
+	cycle_type.tp_methods = cycle_methods;                      /* tp_methods */
+	cycle_type.tp_members = 0;                                  /* tp_members */
+	cycle_type.tp_getset = 0;                                  /* tp_getset */
+	cycle_type.tp_base = 0;                                  /* tp_base */
+	cycle_type.tp_dict = 0;                                  /* tp_dict */
+	cycle_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	cycle_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	cycle_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	cycle_type.tp_init = 0;                                  /* tp_init */
+	cycle_type.tp_alloc = 0;                                  /* tp_alloc */
+	cycle_type.tp_new = itertools_cycle;                    /* tp_new */
+	cycle_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* dropwhile object **********************************************************/
 
@@ -1311,6 +1521,48 @@ static PyTypeObject dropwhile_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_dropwhile_type() {
+	dropwhile_type.tp_name = "itertools.dropwhile";              /* tp_name */
+	dropwhile_type.tp_basicsize = sizeof(dropwhileobject);            /* tp_basicsize */
+	dropwhile_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	dropwhile_type.tp_dealloc = (destructor)dropwhile_dealloc;      /* tp_dealloc */
+	dropwhile_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	dropwhile_type.tp_getattr = 0;                                  /* tp_getattr */
+	dropwhile_type.tp_setattr = 0;                                  /* tp_setattr */
+	dropwhile_type.tp_as_async = 0;                                  /* tp_as_async */
+	dropwhile_type.tp_repr = 0;                                  /* tp_repr */
+	dropwhile_type.tp_as_number = 0;                                  /* tp_as_number */
+	dropwhile_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	dropwhile_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	dropwhile_type.tp_hash = 0;                                  /* tp_hash */
+	dropwhile_type.tp_call = 0;                                  /* tp_call */
+	dropwhile_type.tp_str = 0;                                  /* tp_str */
+	dropwhile_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	dropwhile_type.tp_setattro = 0;                                  /* tp_setattro */
+	dropwhile_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	dropwhile_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE;   /* tp_flags */
+	dropwhile_type.tp_doc = itertools_dropwhile__doc__;         /* tp_doc */
+	dropwhile_type.tp_traverse = (traverseproc)dropwhile_traverse;   /* tp_traverse */
+	dropwhile_type.tp_clear = 0;                                  /* tp_clear */
+	dropwhile_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	dropwhile_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	dropwhile_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	dropwhile_type.tp_iternext = (iternextfunc)dropwhile_next;       /* tp_iternext */
+	dropwhile_type.tp_methods = dropwhile_methods;                  /* tp_methods */
+	dropwhile_type.tp_members = 0;                                  /* tp_members */
+	dropwhile_type.tp_getset = 0;                                  /* tp_getset */
+	dropwhile_type.tp_base = 0;                                  /* tp_base */
+	dropwhile_type.tp_dict = 0;                                  /* tp_dict */
+	dropwhile_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	dropwhile_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	dropwhile_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	dropwhile_type.tp_init = 0;                                  /* tp_init */
+	dropwhile_type.tp_alloc = 0;                                  /* tp_alloc */
+	dropwhile_type.tp_new = itertools_dropwhile;                /* tp_new */
+	dropwhile_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* takewhile object **********************************************************/
 
@@ -1471,6 +1723,48 @@ static PyTypeObject takewhile_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_takewhile_type() {
+	takewhile_type.tp_name = "itertools.takewhile";              /* tp_name */
+	takewhile_type.tp_basicsize = sizeof(takewhileobject);            /* tp_basicsize */
+	takewhile_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	takewhile_type.tp_dealloc = (destructor)takewhile_dealloc;      /* tp_dealloc */
+	takewhile_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	takewhile_type.tp_getattr = 0;                                  /* tp_getattr */
+	takewhile_type.tp_setattr = 0;                                  /* tp_setattr */
+	takewhile_type.tp_as_async = 0;                                  /* tp_as_async */
+	takewhile_type.tp_repr = 0;                                  /* tp_repr */
+	takewhile_type.tp_as_number = 0;                                  /* tp_as_number */
+	takewhile_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	takewhile_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	takewhile_type.tp_hash = 0;                                  /* tp_hash */
+	takewhile_type.tp_call = 0;                                  /* tp_call */
+	takewhile_type.tp_str = 0;                                  /* tp_str */
+	takewhile_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	takewhile_type.tp_setattro = 0;                                  /* tp_setattro */
+	takewhile_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	takewhile_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE;  /* tp_flags */
+	takewhile_type.tp_doc = itertools_takewhile__doc__;         /* tp_doc */
+	takewhile_type.tp_traverse = (traverseproc)takewhile_traverse;   /* tp_traverse */
+	takewhile_type.tp_clear = 0;                                  /* tp_clear */
+	takewhile_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	takewhile_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	takewhile_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	takewhile_type.tp_iternext = (iternextfunc)takewhile_next;       /* tp_iternext */
+	takewhile_type.tp_methods = takewhile_reduce_methods;           /* tp_methods */
+	takewhile_type.tp_members = 0;                                  /* tp_members */
+	takewhile_type.tp_getset = 0;                                  /* tp_getset */
+	takewhile_type.tp_base = 0;                                  /* tp_base */
+	takewhile_type.tp_dict = 0;                                  /* tp_dict */
+	takewhile_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	takewhile_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	takewhile_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	takewhile_type.tp_init = 0;                                  /* tp_init */
+	takewhile_type.tp_alloc = 0;                                  /* tp_alloc */
+	takewhile_type.tp_new = itertools_takewhile;                /* tp_new */
+	takewhile_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* islice object *************************************************************/
 
@@ -1730,6 +2024,48 @@ static PyTypeObject islice_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_islice_type() {
+	islice_type.tp_name = "itertools.islice";                 /* tp_name */
+	islice_type.tp_basicsize = sizeof(isliceobject);               /* tp_basicsize */
+	islice_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	islice_type.tp_dealloc = (destructor)islice_dealloc;         /* tp_dealloc */
+	islice_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	islice_type.tp_getattr = 0;                                  /* tp_getattr */
+	islice_type.tp_setattr = 0;                                  /* tp_setattr */
+	islice_type.tp_as_async = 0;                                  /* tp_as_async */
+	islice_type.tp_repr = 0;                                  /* tp_repr */
+	islice_type.tp_as_number = 0;                                  /* tp_as_number */
+	islice_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	islice_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	islice_type.tp_hash = 0;                                  /* tp_hash */
+	islice_type.tp_call = 0;                                  /* tp_call */
+	islice_type.tp_str = 0;                                  /* tp_str */
+	islice_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	islice_type.tp_setattro = 0;                                  /* tp_setattro */
+	islice_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	islice_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE;            /* tp_flags */
+	islice_type.tp_doc = islice_doc;                         /* tp_doc */
+	islice_type.tp_traverse = (traverseproc)islice_traverse;      /* tp_traverse */
+	islice_type.tp_clear = 0;                                  /* tp_clear */
+	islice_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	islice_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	islice_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	islice_type.tp_iternext = (iternextfunc)islice_next;          /* tp_iternext */
+	islice_type.tp_methods = islice_methods;                     /* tp_methods */
+	islice_type.tp_members = 0;                                  /* tp_members */
+	islice_type.tp_getset = 0;                                  /* tp_getset */
+	islice_type.tp_base = 0;                                  /* tp_base */
+	islice_type.tp_dict = 0;                                  /* tp_dict */
+	islice_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	islice_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	islice_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	islice_type.tp_init = 0;                                  /* tp_init */
+	islice_type.tp_alloc = 0;                                  /* tp_alloc */
+	islice_type.tp_new = islice_new;                         /* tp_new */
+	islice_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* starmap object ************************************************************/
 
@@ -1869,7 +2205,48 @@ static PyTypeObject starmap_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
-
+#if TARGET_OS_IPHONE
+static void reset_starmap_type() {
+	starmap_type.tp_name = "itertools.starmap";                /* tp_name */
+	starmap_type.tp_basicsize = sizeof(starmapobject);              /* tp_basicsize */
+	starmap_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	starmap_type.tp_dealloc = (destructor)starmap_dealloc;        /* tp_dealloc */
+	starmap_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	starmap_type.tp_getattr = 0;                                  /* tp_getattr */
+	starmap_type.tp_setattr = 0;                                  /* tp_setattr */
+	starmap_type.tp_as_async = 0;                                  /* tp_as_async */
+	starmap_type.tp_repr = 0;                                  /* tp_repr */
+	starmap_type.tp_as_number = 0;                                  /* tp_as_number */
+	starmap_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	starmap_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	starmap_type.tp_hash = 0;                                  /* tp_hash */
+	starmap_type.tp_call = 0;                                  /* tp_call */
+	starmap_type.tp_str = 0;                                  /* tp_str */
+	starmap_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	starmap_type.tp_setattro = 0;                                  /* tp_setattro */
+	starmap_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	starmap_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE;            /* tp_flags */
+	starmap_type.tp_doc = itertools_starmap__doc__;           /* tp_doc */
+	starmap_type.tp_traverse = (traverseproc)starmap_traverse;     /* tp_traverse */
+	starmap_type.tp_clear = 0;                                  /* tp_clear */
+	starmap_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	starmap_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	starmap_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	starmap_type.tp_iternext = (iternextfunc)starmap_next;         /* tp_iternext */
+	starmap_type.tp_methods = starmap_methods;                    /* tp_methods */
+	starmap_type.tp_members = 0;                                  /* tp_members */
+	starmap_type.tp_getset = 0;                                  /* tp_getset */
+	starmap_type.tp_base = 0;                                  /* tp_base */
+	starmap_type.tp_dict = 0;                                  /* tp_dict */
+	starmap_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	starmap_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	starmap_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	starmap_type.tp_init = 0;                                  /* tp_init */
+	starmap_type.tp_alloc = 0;                                  /* tp_alloc */
+	starmap_type.tp_new = itertools_starmap;                  /* tp_new */
+	starmap_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 /* chain object **************************************************************/
 
 typedef struct {
@@ -2092,6 +2469,48 @@ static PyTypeObject chain_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_chain_type() {
+	chain_type.tp_name = "itertools.chain";                  /* tp_name */
+	chain_type.tp_basicsize = sizeof(chainobject);                /* tp_basicsize */
+	chain_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	chain_type.tp_dealloc = (destructor)chain_dealloc;          /* tp_dealloc */
+	chain_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	chain_type.tp_getattr = 0;                                  /* tp_getattr */
+	chain_type.tp_setattr = 0;                                  /* tp_setattr */
+	chain_type.tp_as_async = 0;                                  /* tp_as_async */
+	chain_type.tp_repr = 0;                                  /* tp_repr */
+	chain_type.tp_as_number = 0;                                  /* tp_as_number */
+	chain_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	chain_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	chain_type.tp_hash = 0;                                  /* tp_hash */
+	chain_type.tp_call = 0;                                  /* tp_call */
+	chain_type.tp_str = 0;                                  /* tp_str */
+	chain_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	chain_type.tp_setattro = 0;                                  /* tp_setattro */
+	chain_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	chain_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE;            /* tp_flags */
+	chain_type.tp_doc = chain_doc;                          /* tp_doc */
+	chain_type.tp_traverse = (traverseproc)chain_traverse;       /* tp_traverse */
+	chain_type.tp_clear = 0;                                  /* tp_clear */
+	chain_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	chain_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	chain_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	chain_type.tp_iternext = (iternextfunc)chain_next;           /* tp_iternext */
+	chain_type.tp_methods = chain_methods;                      /* tp_methods */
+	chain_type.tp_members = 0;                                  /* tp_members */
+	chain_type.tp_getset = 0;                                  /* tp_getset */
+	chain_type.tp_base = 0;                                  /* tp_base */
+	chain_type.tp_dict = 0;                                  /* tp_dict */
+	chain_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	chain_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	chain_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	chain_type.tp_init = 0;                                  /* tp_init */
+	chain_type.tp_alloc = 0;                                  /* tp_alloc */
+	chain_type.tp_new = chain_new;                          /* tp_new */
+	chain_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* product object ************************************************************/
 
@@ -2445,6 +2864,48 @@ static PyTypeObject product_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_product_type() {
+	product_type.tp_name = "itertools.product";                /* tp_name */
+	product_type.tp_basicsize = sizeof(productobject);              /* tp_basicsize */
+	product_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	product_type.tp_dealloc = (destructor)product_dealloc;        /* tp_dealloc */
+	product_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	product_type.tp_getattr = 0;                                  /* tp_getattr */
+	product_type.tp_setattr = 0;                                  /* tp_setattr */
+	product_type.tp_as_async = 0;                                  /* tp_as_async */
+	product_type.tp_repr = 0;                                  /* tp_repr */
+	product_type.tp_as_number = 0;                                  /* tp_as_number */
+	product_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	product_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	product_type.tp_hash = 0;                                  /* tp_hash */
+	product_type.tp_call = 0;                                  /* tp_call */
+	product_type.tp_str = 0;                                  /* tp_str */
+	product_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	product_type.tp_setattro = 0;                                  /* tp_setattro */
+	product_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	product_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE;    /* tp_flags */
+	product_type.tp_doc = product_doc;                        /* tp_doc */
+	product_type.tp_traverse = (traverseproc)product_traverse;     /* tp_traverse */
+	product_type.tp_clear = 0;                                  /* tp_clear */
+	product_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	product_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	product_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	product_type.tp_iternext = (iternextfunc)product_next;         /* tp_iternext */
+	product_type.tp_methods = product_methods;                    /* tp_methods */
+	product_type.tp_members = 0;                                  /* tp_members */
+	product_type.tp_getset = 0;                                  /* tp_getset */
+	product_type.tp_base = 0;                                  /* tp_base */
+	product_type.tp_dict = 0;                                  /* tp_dict */
+	product_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	product_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	product_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	product_type.tp_init = 0;                                  /* tp_init */
+	product_type.tp_alloc = 0;                                  /* tp_alloc */
+	product_type.tp_new = product_new;                        /* tp_new */
+	product_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* combinations object *******************************************************/
 
@@ -2751,6 +3212,48 @@ static PyTypeObject combinations_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_combinations_type() {
+	combinations_type.tp_name = "itertools.combinations";           /* tp_name */
+	combinations_type.tp_basicsize = sizeof(combinationsobject);         /* tp_basicsize */
+	combinations_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	combinations_type.tp_dealloc = (destructor)combinations_dealloc;   /* tp_dealloc */
+	combinations_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	combinations_type.tp_getattr = 0;                                  /* tp_getattr */
+	combinations_type.tp_setattr = 0;                                  /* tp_setattr */
+	combinations_type.tp_as_async = 0;                                  /* tp_as_async */
+	combinations_type.tp_repr = 0;                                  /* tp_repr */
+	combinations_type.tp_as_number = 0;                                  /* tp_as_number */
+	combinations_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	combinations_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	combinations_type.tp_hash = 0;                                  /* tp_hash */
+	combinations_type.tp_call = 0;                                  /* tp_call */
+	combinations_type.tp_str = 0;                                  /* tp_str */
+	combinations_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	combinations_type.tp_setattro = 0;                                  /* tp_setattro */
+	combinations_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	combinations_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE; /* tp_flags */
+	combinations_type.tp_doc = itertools_combinations__doc__;      /* tp_doc */
+	combinations_type.tp_traverse = (traverseproc)combinations_traverse;/* tp_traverse */
+	combinations_type.tp_clear = 0;                                  /* tp_clear */
+	combinations_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	combinations_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	combinations_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	combinations_type.tp_iternext = (iternextfunc)combinations_next;    /* tp_iternext */
+	combinations_type.tp_methods = combinations_methods;               /* tp_methods */
+	combinations_type.tp_members = 0;                                  /* tp_members */
+	combinations_type.tp_getset = 0;                                  /* tp_getset */
+	combinations_type.tp_base = 0;                                  /* tp_base */
+	combinations_type.tp_dict = 0;                                  /* tp_dict */
+	combinations_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	combinations_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	combinations_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	combinations_type.tp_init = 0;                                  /* tp_init */
+	combinations_type.tp_alloc = 0;                                  /* tp_alloc */
+	combinations_type.tp_new = itertools_combinations;             /* tp_new */
+	combinations_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* combinations with replacement object **************************************/
 
@@ -3073,6 +3576,48 @@ static PyTypeObject cwr_type = {
     PyObject_GC_Del,                                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_cwr_type() {
+	cwr_type.tp_name = "itertools.combinations_with_replacement";          /* tp_name */
+	cwr_type.tp_basicsize = sizeof(cwrobject);                                  /* tp_basicsize */
+	cwr_type.tp_itemsize = 0;                                                  /* tp_itemsize */
+	cwr_type.tp_dealloc = (destructor)cwr_dealloc;                            /* tp_dealloc */
+	cwr_type.tp_vectorcall_offset = 0;                                                  /* tp_vectorcall_offset */
+	cwr_type.tp_getattr = 0;                                                  /* tp_getattr */
+	cwr_type.tp_setattr = 0;                                                  /* tp_setattr */
+	cwr_type.tp_as_async = 0;                                                  /* tp_as_async */
+	cwr_type.tp_repr = 0;                                                  /* tp_repr */
+	cwr_type.tp_as_number = 0;                                                  /* tp_as_number */
+	cwr_type.tp_as_sequence = 0;                                                  /* tp_as_sequence */
+	cwr_type.tp_as_mapping = 0;                                                  /* tp_as_mapping */
+	cwr_type.tp_hash = 0;                                                  /* tp_hash */
+	cwr_type.tp_call = 0;                                                  /* tp_call */
+	cwr_type.tp_str = 0;                                                  /* tp_str */
+	cwr_type.tp_getattro = PyObject_GenericGetAttr;                            /* tp_getattro */
+	cwr_type.tp_setattro = 0;                                                  /* tp_setattro */
+	cwr_type.tp_as_buffer = 0;                                                  /* tp_as_buffer */
+	cwr_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE;  /* tp_flags */
+	cwr_type.tp_doc = itertools_combinations_with_replacement__doc__;     /* tp_doc */
+	cwr_type.tp_traverse = (traverseproc)cwr_traverse;                         /* tp_traverse */
+	cwr_type.tp_clear = 0;                                                  /* tp_clear */
+	cwr_type.tp_richcompare = 0;                                                  /* tp_richcompare */
+	cwr_type.tp_weaklistoffset = 0;                                                  /* tp_weaklistoffset */
+	cwr_type.tp_iter = PyObject_SelfIter;                                  /* tp_iter */
+	cwr_type.tp_iternext = (iternextfunc)cwr_next;                             /* tp_iternext */
+	cwr_type.tp_methods = cwr_methods;                                        /* tp_methods */
+	cwr_type.tp_members = 0;                                                  /* tp_members */
+	cwr_type.tp_getset = 0;                                                  /* tp_getset */
+	cwr_type.tp_base = 0;                                                  /* tp_base */
+	cwr_type.tp_dict = 0;                                                  /* tp_dict */
+	cwr_type.tp_descr_get = 0;                                                  /* tp_descr_get */
+	cwr_type.tp_descr_set = 0;                                                  /* tp_descr_set */
+	cwr_type.tp_dictoffset = 0;                                                  /* tp_dictoffset */
+	cwr_type.tp_init = 0;                                                  /* tp_init */
+	cwr_type.tp_alloc = 0;                                                  /* tp_alloc */
+	cwr_type.tp_new = itertools_combinations_with_replacement;            /* tp_new */
+	cwr_type.tp_free = PyObject_GC_Del;                                    /* tp_free */
+}
+#endif
 
 /* permutations object ********************************************************
 
@@ -3460,6 +4005,48 @@ static PyTypeObject permutations_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_permutations_type() {
+	permutations_type.tp_name = "itertools.permutations";           /* tp_name */
+	permutations_type.tp_basicsize = sizeof(permutationsobject);         /* tp_basicsize */
+	permutations_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	permutations_type.tp_dealloc = (destructor)permutations_dealloc;   /* tp_dealloc */
+	permutations_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	permutations_type.tp_getattr = 0;                                  /* tp_getattr */
+	permutations_type.tp_setattr = 0;                                  /* tp_setattr */
+	permutations_type.tp_as_async = 0;                                  /* tp_as_async */
+	permutations_type.tp_repr = 0;                                  /* tp_repr */
+	permutations_type.tp_as_number = 0;                                  /* tp_as_number */
+	permutations_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	permutations_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	permutations_type.tp_hash = 0;                                  /* tp_hash */
+	permutations_type.tp_call = 0;                                  /* tp_call */
+	permutations_type.tp_str = 0;                                  /* tp_str */
+	permutations_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	permutations_type.tp_setattro = 0;                                  /* tp_setattro */
+	permutations_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	permutations_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE; /* tp_flags */
+	permutations_type.tp_doc = itertools_permutations__doc__;      /* tp_doc */
+	permutations_type.tp_traverse = (traverseproc)permutations_traverse;/* tp_traverse */
+	permutations_type.tp_clear = 0;                                  /* tp_clear */
+	permutations_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	permutations_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	permutations_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	permutations_type.tp_iternext = (iternextfunc)permutations_next;    /* tp_iternext */
+	permutations_type.tp_methods = permuations_methods;                /* tp_methods */
+	permutations_type.tp_members = 0;                                  /* tp_members */
+	permutations_type.tp_getset = 0;                                  /* tp_getset */
+	permutations_type.tp_base = 0;                                  /* tp_base */
+	permutations_type.tp_dict = 0;                                  /* tp_dict */
+	permutations_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	permutations_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	permutations_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	permutations_type.tp_init = 0;                                  /* tp_init */
+	permutations_type.tp_alloc = 0;                                  /* tp_alloc */
+	permutations_type.tp_new = itertools_permutations;             /* tp_new */
+	permutations_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* accumulate object ********************************************************/
 
@@ -3666,6 +4253,48 @@ static PyTypeObject accumulate_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_accumulate_type() {
+	accumulate_type.tp_name = "itertools.accumulate";             /* tp_name */
+	accumulate_type.tp_basicsize = sizeof(accumulateobject);           /* tp_basicsize */
+	accumulate_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	accumulate_type.tp_dealloc = (destructor)accumulate_dealloc;     /* tp_dealloc */
+	accumulate_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	accumulate_type.tp_getattr = 0;                                  /* tp_getattr */
+	accumulate_type.tp_setattr = 0;                                  /* tp_setattr */
+	accumulate_type.tp_as_async = 0;                                  /* tp_as_async */
+	accumulate_type.tp_repr = 0;                                  /* tp_repr */
+	accumulate_type.tp_as_number = 0;                                  /* tp_as_number */
+	accumulate_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	accumulate_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	accumulate_type.tp_hash = 0;                                  /* tp_hash */
+	accumulate_type.tp_call = 0;                                  /* tp_call */
+	accumulate_type.tp_str = 0;                                  /* tp_str */
+	accumulate_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	accumulate_type.tp_setattro = 0;                                  /* tp_setattro */
+	accumulate_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	accumulate_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE; /* tp_flags */
+	accumulate_type.tp_doc = itertools_accumulate__doc__;        /* tp_doc */
+	accumulate_type.tp_traverse = (traverseproc)accumulate_traverse;  /* tp_traverse */
+	accumulate_type.tp_clear = 0;                                  /* tp_clear */
+	accumulate_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	accumulate_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	accumulate_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	accumulate_type.tp_iternext = (iternextfunc)accumulate_next;      /* tp_iternext */
+	accumulate_type.tp_methods = accumulate_methods;                 /* tp_methods */
+	accumulate_type.tp_members = 0;                                  /* tp_members */
+	accumulate_type.tp_getset = 0;                                  /* tp_getset */
+	accumulate_type.tp_base = 0;                                  /* tp_base */
+	accumulate_type.tp_dict = 0;                                  /* tp_dict */
+	accumulate_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	accumulate_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	accumulate_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	accumulate_type.tp_init = 0;                                  /* tp_init */
+	accumulate_type.tp_alloc = 0;                                  /* tp_alloc */
+	accumulate_type.tp_new = itertools_accumulate;               /* tp_new */
+	accumulate_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* compress object ************************************************************/
 
@@ -3831,6 +4460,48 @@ static PyTypeObject compress_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_compress_type() {
+	compress_type.tp_name = "itertools.compress";               /* tp_name */
+	compress_type.tp_basicsize = sizeof(compressobject);             /* tp_basicsize */
+	compress_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	compress_type.tp_dealloc = (destructor)compress_dealloc;       /* tp_dealloc */
+	compress_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	compress_type.tp_getattr = 0;                                  /* tp_getattr */
+	compress_type.tp_setattr = 0;                                  /* tp_setattr */
+	compress_type.tp_as_async = 0;                                  /* tp_as_async */
+	compress_type.tp_repr = 0;                                  /* tp_repr */
+	compress_type.tp_as_number = 0;                                  /* tp_as_number */
+	compress_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	compress_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	compress_type.tp_hash = 0;                                  /* tp_hash */
+	compress_type.tp_call = 0;                                  /* tp_call */
+	compress_type.tp_str = 0;                                  /* tp_str */
+	compress_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	compress_type.tp_setattro = 0;                                  /* tp_setattro */
+	compress_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	compress_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE;  /* tp_flags */
+	compress_type.tp_doc = itertools_compress__doc__;          /* tp_doc */
+	compress_type.tp_traverse = (traverseproc)compress_traverse;    /* tp_traverse */
+	compress_type.tp_clear = 0;                                  /* tp_clear */
+	compress_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	compress_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	compress_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	compress_type.tp_iternext = (iternextfunc)compress_next;        /* tp_iternext */
+	compress_type.tp_methods = compress_methods;                   /* tp_methods */
+	compress_type.tp_members = 0;                                  /* tp_members */
+	compress_type.tp_getset = 0;                                  /* tp_getset */
+	compress_type.tp_base = 0;                                  /* tp_base */
+	compress_type.tp_dict = 0;                                  /* tp_dict */
+	compress_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	compress_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	compress_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	compress_type.tp_init = 0;                                  /* tp_init */
+	compress_type.tp_alloc = 0;                                  /* tp_alloc */
+	compress_type.tp_new = itertools_compress;                 /* tp_new */
+	compress_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* filterfalse object ************************************************************/
 
@@ -3983,7 +4654,48 @@ static PyTypeObject filterfalse_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
-
+#if TARGET_OS_IPHONE
+static void reset_filterfalse_type() {
+	filterfalse_type.tp_name = "itertools.filterfalse";            /* tp_name */
+	filterfalse_type.tp_basicsize = sizeof(filterfalseobject);          /* tp_basicsize */
+	filterfalse_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	filterfalse_type.tp_dealloc = (destructor)filterfalse_dealloc;    /* tp_dealloc */
+	filterfalse_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	filterfalse_type.tp_getattr = 0;                                  /* tp_getattr */
+	filterfalse_type.tp_setattr = 0;                                  /* tp_setattr */
+	filterfalse_type.tp_as_async = 0;                                  /* tp_as_async */
+	filterfalse_type.tp_repr = 0;                                  /* tp_repr */
+	filterfalse_type.tp_as_number = 0;                                  /* tp_as_number */
+	filterfalse_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	filterfalse_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	filterfalse_type.tp_hash = 0;                                  /* tp_hash */
+	filterfalse_type.tp_call = 0;                                  /* tp_call */
+	filterfalse_type.tp_str = 0;                                  /* tp_str */
+	filterfalse_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	filterfalse_type.tp_setattro = 0;                                  /* tp_setattro */
+	filterfalse_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	filterfalse_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE; /* tp_flags */
+	filterfalse_type.tp_doc = itertools_filterfalse__doc__;       /* tp_doc */
+	filterfalse_type.tp_traverse = (traverseproc)filterfalse_traverse; /* tp_traverse */
+	filterfalse_type.tp_clear = 0;                                  /* tp_clear */
+	filterfalse_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	filterfalse_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	filterfalse_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	filterfalse_type.tp_iternext = (iternextfunc)filterfalse_next;     /* tp_iternext */
+	filterfalse_type.tp_methods = filterfalse_methods;                /* tp_methods */
+	filterfalse_type.tp_members = 0;                                  /* tp_members */
+	filterfalse_type.tp_getset = 0;                                  /* tp_getset */
+	filterfalse_type.tp_base = 0;                                  /* tp_base */
+	filterfalse_type.tp_dict = 0;                                  /* tp_dict */
+	filterfalse_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	filterfalse_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	filterfalse_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	filterfalse_type.tp_init = 0;                                  /* tp_init */
+	filterfalse_type.tp_alloc = 0;                                  /* tp_alloc */
+	filterfalse_type.tp_new = itertools_filterfalse;              /* tp_new */
+	filterfalse_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 /* count object ************************************************************/
 
 typedef struct {
@@ -4231,6 +4943,48 @@ static PyTypeObject count_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_count_type() {
+	count_type.tp_name = "itertools.count";                  /* tp_name */
+	count_type.tp_basicsize = sizeof(countobject);                /* tp_basicsize */
+	count_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	count_type.tp_dealloc = (destructor)count_dealloc;          /* tp_dealloc */
+	count_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	count_type.tp_getattr = 0;                                  /* tp_getattr */
+	count_type.tp_setattr = 0;                                  /* tp_setattr */
+	count_type.tp_as_async = 0;                                  /* tp_as_async */
+	count_type.tp_repr = (reprfunc)count_repr;               /* tp_repr */
+	count_type.tp_as_number = 0;                                  /* tp_as_number */
+	count_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	count_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	count_type.tp_hash = 0;                                  /* tp_hash */
+	count_type.tp_call = 0;                                  /* tp_call */
+	count_type.tp_str = 0;                                  /* tp_str */
+	count_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	count_type.tp_setattro = 0;                                  /* tp_setattro */
+	count_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	count_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE; /* tp_flags */
+	count_type.tp_doc = itertools_count__doc__;             /* tp_doc */
+	count_type.tp_traverse = (traverseproc)count_traverse;       /* tp_traverse */
+	count_type.tp_clear = 0;                                  /* tp_clear */
+	count_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	count_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	count_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	count_type.tp_iternext = (iternextfunc)count_next;           /* tp_iternext */
+	count_type.tp_methods = count_methods;                      /* tp_methods */
+	count_type.tp_members = 0;                                  /* tp_members */
+	count_type.tp_getset = 0;                                  /* tp_getset */
+	count_type.tp_base = 0;                                  /* tp_base */
+	count_type.tp_dict = 0;                                  /* tp_dict */
+	count_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	count_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	count_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	count_type.tp_init = 0;                                  /* tp_init */
+	count_type.tp_alloc = 0;                                  /* tp_alloc */
+	count_type.tp_new = itertools_count;                    /* tp_new */
+	count_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+} 
+#endif
 
 /* repeat object ************************************************************/
 
@@ -4386,6 +5140,48 @@ static PyTypeObject repeat_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_repeat_type() {
+	repeat_type.tp_name = "itertools.repeat";                 /* tp_name */
+	repeat_type.tp_basicsize = sizeof(repeatobject);               /* tp_basicsize */
+	repeat_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	repeat_type.tp_dealloc = (destructor)repeat_dealloc;         /* tp_dealloc */
+	repeat_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	repeat_type.tp_getattr = 0;                                  /* tp_getattr */
+	repeat_type.tp_setattr = 0;                                  /* tp_setattr */
+	repeat_type.tp_as_async = 0;                                  /* tp_as_async */
+	repeat_type.tp_repr = (reprfunc)repeat_repr;              /* tp_repr */
+	repeat_type.tp_as_number = 0;                                  /* tp_as_number */
+	repeat_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	repeat_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	repeat_type.tp_hash = 0;                                  /* tp_hash */
+	repeat_type.tp_call = 0;                                  /* tp_call */
+	repeat_type.tp_str = 0;                                  /* tp_str */
+	repeat_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	repeat_type.tp_setattro = 0;                                  /* tp_setattro */
+	repeat_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	repeat_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE; /* tp_flags */
+	repeat_type.tp_doc = repeat_doc;                         /* tp_doc */
+	repeat_type.tp_traverse = (traverseproc)repeat_traverse;      /* tp_traverse */
+	repeat_type.tp_clear = 0;                                  /* tp_clear */
+	repeat_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	repeat_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	repeat_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	repeat_type.tp_iternext = (iternextfunc)repeat_next;          /* tp_iternext */
+	repeat_type.tp_methods = repeat_methods;                     /* tp_methods */
+	repeat_type.tp_members = 0;                                  /* tp_members */
+	repeat_type.tp_getset = 0;                                  /* tp_getset */
+	repeat_type.tp_base = 0;                                  /* tp_base */
+	repeat_type.tp_dict = 0;                                  /* tp_dict */
+	repeat_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	repeat_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	repeat_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	repeat_type.tp_init = 0;                                  /* tp_init */
+	repeat_type.tp_alloc = 0;                                  /* tp_alloc */
+	repeat_type.tp_new = repeat_new;                         /* tp_new */
+	repeat_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+} 
+#endif
 
 /* ziplongest object *********************************************************/
 
@@ -4664,6 +5460,48 @@ static PyTypeObject ziplongest_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_ziplongest_type() {
+	ziplongest_type.tp_name = "itertools.zip_longest";            /* tp_name */
+	ziplongest_type.tp_basicsize = sizeof(ziplongestobject);           /* tp_basicsize */
+	ziplongest_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	ziplongest_type.tp_dealloc = (destructor)zip_longest_dealloc;    /* tp_dealloc */
+	ziplongest_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	ziplongest_type.tp_getattr = 0;                                  /* tp_getattr */
+	ziplongest_type.tp_setattr = 0;                                  /* tp_setattr */
+	ziplongest_type.tp_as_async = 0;                                  /* tp_as_async */
+	ziplongest_type.tp_repr = 0;                                  /* tp_repr */
+	ziplongest_type.tp_as_number = 0;                                  /* tp_as_number */
+	ziplongest_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	ziplongest_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	ziplongest_type.tp_hash = 0;                                  /* tp_hash */
+	ziplongest_type.tp_call = 0;                                  /* tp_call */
+	ziplongest_type.tp_str = 0;                                  /* tp_str */
+	ziplongest_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	ziplongest_type.tp_setattro = 0;                                  /* tp_setattro */
+	ziplongest_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	ziplongest_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE; /* tp_flags */
+	ziplongest_type.tp_doc = zip_longest_doc;                    /* tp_doc */
+	ziplongest_type.tp_traverse = (traverseproc)zip_longest_traverse; /* tp_traverse */
+	ziplongest_type.tp_clear = 0;                                  /* tp_clear */
+	ziplongest_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	ziplongest_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	ziplongest_type.tp_iter = PyObject_SelfIter;                  /* tp_iter */
+	ziplongest_type.tp_iternext = (iternextfunc)zip_longest_next;     /* tp_iternext */
+	ziplongest_type.tp_methods = zip_longest_methods;                /* tp_methods */
+	ziplongest_type.tp_members = 0;                                  /* tp_members */
+	ziplongest_type.tp_getset = 0;                                  /* tp_getset */
+	ziplongest_type.tp_base = 0;                                  /* tp_base */
+	ziplongest_type.tp_dict = 0;                                  /* tp_dict */
+	ziplongest_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	ziplongest_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	ziplongest_type.tp_dictoffset = 0;                                  /* tp_dictoffset */
+	ziplongest_type.tp_init = 0;                                  /* tp_init */
+	ziplongest_type.tp_alloc = 0;                                  /* tp_alloc */
+	ziplongest_type.tp_new = zip_longest_new;                    /* tp_new */
+	ziplongest_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* module level code ********************************************************/
 
@@ -4760,5 +5598,27 @@ static struct PyModuleDef itertoolsmodule = {
 PyMODINIT_FUNC
 PyInit_itertools(void)
 {
+#if TARGET_OS_IPHONE
+	reset_groupby_type();
+	reset__grouper_type();
+	reset_teedataobject_type();
+	reset_tee_type();
+	reset_cycle_type();
+	reset_dropwhile_type();
+	reset_takewhile_type();
+	reset_islice_type();
+	reset_starmap_type();
+	reset_chain_type();
+	reset_product_type();
+	reset_combinations_type();
+	reset_cwr_type();
+	reset_permutations_type();
+	reset_accumulate_type();
+	reset_compress_type();
+	reset_filterfalse_type();
+	reset_count_type();
+	reset_repeat_type();
+	reset_ziplongest_type();
+#endif
     return PyModuleDef_Init(&itertoolsmodule);
 }

@@ -579,12 +579,12 @@ _PyModule_Clear(PyObject *m)
     const char* utf8name = PyUnicode_AsUTF8(mod->md_name);
     if ((strncmp(utf8name, "_asyncio", 8) == 0) || (strncmp(utf8name, "pandas.", 7) == 0) || (strncmp(utf8name, "numpy.", 6) == 0)) {
         // iOS, debug:
-        // fprintf(stderr, "Module = %x name = %s refCount = %zd ", mod, utf8name, m->ob_refcnt);
+        // fprintf(thread_stderr, "Module = %x name = %s refCount = %zd ", mod, utf8name, m->ob_refcnt);
         if (mod->md_def && mod->md_def->m_free) {
-            // fprintf(stderr, "module has a free function: %x", mod->md_def->m_free);
+            // fprintf(thread_stderr, "module has a free function: %x", mod->md_def->m_free);
             moduleNeedsCleanup = 1;
         }
-        // fprintf(stderr, "\n");
+        // fprintf(thread_stderr, "\n");
     }
 #endif
     PyObject *d = ((PyModuleObject *)m)->md_dict;

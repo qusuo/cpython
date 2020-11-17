@@ -435,3 +435,45 @@ PyTypeObject PyBlake2_BLAKE2sType = {
     0,                        /* tp_alloc           */
     py_blake2s_new,           /* tp_new             */
 };
+
+#if TARGET_OS_IPHONE
+void init_PyBlake2_BLAKE2sType() {
+    PyBlake2_BLAKE2sType.tp_name             = "_blake2.blake2s";        /* tp_name            */
+    PyBlake2_BLAKE2sType.tp_basicsize        = sizeof(BLAKE2sObject);    /* tp_basicsize       */
+    PyBlake2_BLAKE2sType.tp_itemsize         = 0;                        /* tp_itemsize        */
+    PyBlake2_BLAKE2sType.tp_dealloc          = py_blake2s_dealloc;       /* tp_dealloc         */
+    PyBlake2_BLAKE2sType.tp_vectorcall_offset = 0;                        /*tp_vectorcall_offset*/
+    PyBlake2_BLAKE2sType.tp_getattr          = 0;                        /* tp_getattr         */
+    PyBlake2_BLAKE2sType.tp_setattr          = 0;                        /* tp_setattr         */
+    PyBlake2_BLAKE2sType.tp_as_async         = 0;                        /* tp_as_async        */
+    PyBlake2_BLAKE2sType.tp_repr             = 0;                        /* tp_repr            */
+    PyBlake2_BLAKE2sType.tp_as_number        = 0;                        /* tp_as_number       */
+    PyBlake2_BLAKE2sType.tp_as_sequence      = 0;                        /* tp_as_sequence     */
+    PyBlake2_BLAKE2sType.tp_as_mapping       = 0;                        /* tp_as_mapping      */
+    PyBlake2_BLAKE2sType.tp_hash             = 0;                        /* tp_hash            */
+    PyBlake2_BLAKE2sType.tp_call             = 0;                        /* tp_call            */
+    PyBlake2_BLAKE2sType.tp_str              = 0;                        /* tp_str             */
+    PyBlake2_BLAKE2sType.tp_getattro         = 0;                        /* tp_getattro        */
+    PyBlake2_BLAKE2sType.tp_setattro         = 0;                        /* tp_setattro        */
+    PyBlake2_BLAKE2sType.tp_as_buffer        = 0;                        /* tp_as_buffer       */
+    PyBlake2_BLAKE2sType.tp_flags            = Py_TPFLAGS_DEFAULT;       /* tp_flags           */
+    PyBlake2_BLAKE2sType.tp_doc              = py_blake2s_new__doc__;    /* tp_doc             */
+    PyBlake2_BLAKE2sType.tp_traverse         = 0;                        /* tp_traverse        */
+    PyBlake2_BLAKE2sType.tp_clear            = 0;                        /* tp_clear           */
+    PyBlake2_BLAKE2sType.tp_richcompare      = 0;                        /* tp_richcompare     */
+    PyBlake2_BLAKE2sType.tp_weaklistoffset   = 0;                        /* tp_weaklistoffset  */
+    PyBlake2_BLAKE2sType.tp_iter             = 0;                        /* tp_iter            */
+    PyBlake2_BLAKE2sType.tp_iternext         = 0;                        /* tp_iternext        */
+    PyBlake2_BLAKE2sType.tp_methods          = py_blake2s_methods;       /* tp_methods         */
+    PyBlake2_BLAKE2sType.tp_members          = 0;                        /* tp_members         */
+    PyBlake2_BLAKE2sType.tp_getset           = py_blake2s_getsetters;    /* tp_getset          */
+    PyBlake2_BLAKE2sType.tp_base             = 0;                        /* tp_base            */
+    PyBlake2_BLAKE2sType.tp_dict             = 0;                        /* tp_dict            */
+    PyBlake2_BLAKE2sType.tp_descr_get        = 0;                        /* tp_descr_get       */
+    PyBlake2_BLAKE2sType.tp_descr_set        = 0;                        /* tp_descr_set       */
+    PyBlake2_BLAKE2sType.tp_dictoffset       = 0;                        /* tp_dictoffset      */
+    PyBlake2_BLAKE2sType.tp_init             = 0;                        /* tp_init            */
+    PyBlake2_BLAKE2sType.tp_alloc            = 0;                        /* tp_alloc           */
+    PyBlake2_BLAKE2sType.tp_new              = py_blake2s_new;           /* tp_new             */
+}
+#endif

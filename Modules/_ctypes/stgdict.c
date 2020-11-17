@@ -168,6 +168,49 @@ PyTypeObject PyCStgDict_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+void init_PyCStgDict_Type() {
+   PyCStgDict_Type.tp_name = "StgDict";
+   PyCStgDict_Type.tp_basicsize = sizeof(StgDictObject);
+   PyCStgDict_Type.tp_itemsize = 0;
+   PyCStgDict_Type.tp_dealloc = (destructor)PyCStgDict_dealloc;             /* tp_dealloc */
+   PyCStgDict_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+   PyCStgDict_Type.tp_getattr = 0;                                          /* tp_getattr */
+   PyCStgDict_Type.tp_setattr = 0;                                          /* tp_setattr */
+   PyCStgDict_Type.tp_as_async = 0;                                          /* tp_as_async */
+   PyCStgDict_Type.tp_repr = 0;                                          /* tp_repr */
+   PyCStgDict_Type.tp_as_number = 0;                                          /* tp_as_number */
+   PyCStgDict_Type.tp_as_sequence = 0;                                          /* tp_as_sequence */
+   PyCStgDict_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+   PyCStgDict_Type.tp_hash = 0;                                          /* tp_hash */
+   PyCStgDict_Type.tp_call = 0;                                          /* tp_call */
+   PyCStgDict_Type.tp_str = 0;                                          /* tp_str */
+   PyCStgDict_Type.tp_getattro = 0;                                          /* tp_getattro */
+   PyCStgDict_Type.tp_setattro = 0;                                          /* tp_setattro */
+   PyCStgDict_Type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+   PyCStgDict_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;   /* tp_flags */
+   PyCStgDict_Type.tp_doc = 0;                                          /* tp_doc */
+   PyCStgDict_Type.tp_traverse = 0;                                          /* tp_traverse */
+   PyCStgDict_Type.tp_clear = 0;                                          /* tp_clear */
+   PyCStgDict_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+   PyCStgDict_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+   PyCStgDict_Type.tp_iter = 0;                                          /* tp_iter */
+   PyCStgDict_Type.tp_iternext = 0;                                          /* tp_iternext */
+   PyCStgDict_Type.tp_methods = PyCStgDict_methods;                         /* tp_methods */
+   PyCStgDict_Type.tp_members = 0;                                          /* tp_members */
+   PyCStgDict_Type.tp_getset = 0;                                          /* tp_getset */
+   PyCStgDict_Type.tp_base = 0;                                          /* tp_base */
+   PyCStgDict_Type.tp_dict = 0;                                          /* tp_dict */
+   PyCStgDict_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+   PyCStgDict_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+   PyCStgDict_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+   PyCStgDict_Type.tp_init = (initproc)PyCStgDict_init;                          /* tp_init */
+   PyCStgDict_Type.tp_alloc = 0;                                          /* tp_alloc */
+   PyCStgDict_Type.tp_new = 0;                                          /* tp_new */
+   PyCStgDict_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
+
 /* May return NULL, but does not set an exception! */
 StgDictObject *
 PyType_stgdict(PyObject *obj)

@@ -78,7 +78,7 @@ MKDIR_P=	./install-sh -c -d
 MAKESETUP=      $(srcdir)/Modules/makesetup
 
 # Compiler options
-OPT=		-DNDEBUG -g -fwrapv -O3 -Wall
+OPT=		-DNDEBUG -O3 -Wall
 BASECFLAGS=	 -Wno-unused-result -Wsign-compare -Wunreachable-code
 BASECPPFLAGS=	
 CONFIGURE_CFLAGS=	-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
@@ -119,7 +119,7 @@ PY_CORE_CFLAGS=	$(PY_STDMODULE_CFLAGS) -DPy_BUILD_CORE
 # Linker flags used for building the interpreter object files
 PY_CORE_LDFLAGS=$(PY_LDFLAGS) $(PY_LDFLAGS_NODIST)
 # Strict or non-strict aliasing flags used to compile dtoa.c, see above
-CFLAGS_ALIASING=-fno-strict-aliasing
+CFLAGS_ALIASING=
 
 
 # Machine-dependent subdirectories
@@ -212,7 +212,7 @@ EXEMODE=	755
 FILEMODE=	644
 
 # configure script arguments
-CONFIG_ARGS=	 '--prefix=/Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Library' '--with-system-ffi' '--enable-shared' '--without-computed-gotos' 'ac_cv_file__dev_ptmx=no' 'ac_cv_file__dev_ptc=no' 'ac_cv_func_getentropy=no' 'ac_cv_func_sendfile=no' 'ac_cv_func_setregid=no' 'ac_cv_func_setreuid=no' 'ac_cv_func_setsid=no' 'ac_cv_func_setpgid=no' 'ac_cv_func_setpgrp=no' 'ac_cv_func_setuid=no' 'ac_cv_func_forkpty=no ' 'ac_cv_func_openpty=no' 'ac_cv_func_clock_settime=no' 'CC=clang' 'CFLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk' 'LDFLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk' 'CPPFLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk'
+CONFIG_ARGS=	 '--prefix=/Users/holzschu/src/Xcode_iPad/cpython/Library' '--with-system-ffi' '--enable-shared' '--without-computed-gotos' 'ac_cv_file__dev_ptmx=no' 'ac_cv_file__dev_ptc=no' 'ac_cv_func_getentropy=no' 'ac_cv_func_sendfile=no' 'ac_cv_func_setregid=no' 'ac_cv_func_setreuid=no' 'ac_cv_func_setsid=no' 'ac_cv_func_setpgid=no' 'ac_cv_func_setpgrp=no' 'ac_cv_func_setuid=no' 'ac_cv_func_forkpty=no ' 'ac_cv_func_openpty=no' 'ac_cv_func_clock_settime=no' 'CC=clang' 'CFLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk' 'LDFLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk' 'CPPFLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk'
 
 
 # Subdirectories with code
@@ -252,8 +252,8 @@ LIBOBJS=
 PYTHON=		python$(EXE)
 BUILDPYTHON=	python$(BUILDEXE)
 
-PYTHON_FOR_REGEN?=python3
-UPDATE_FILE=python3 $(srcdir)/Tools/scripts/update_file.py
+PYTHON_FOR_REGEN?=python3.9
+UPDATE_FILE=python3.9 $(srcdir)/Tools/scripts/update_file.py
 PYTHON_FOR_BUILD=./$(BUILDPYTHON) -E
 _PYTHON_HOST_PLATFORM=
 BUILD_GNU_TYPE=	x86_64-apple-darwin19.6.0

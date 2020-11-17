@@ -1407,9 +1407,9 @@ PyObject_IsTrue(PyObject *v)
     if (v == Py_None)
         return 0;
     else if (Py_TYPE(v)->tp_as_number != NULL &&
-             Py_TYPE(v)->tp_as_number->nb_bool != NULL)
+             Py_TYPE(v)->tp_as_number->nb_bool != NULL) {
         res = (*Py_TYPE(v)->tp_as_number->nb_bool)(v);
-    else if (Py_TYPE(v)->tp_as_mapping != NULL &&
+    } else if (Py_TYPE(v)->tp_as_mapping != NULL &&
              Py_TYPE(v)->tp_as_mapping->mp_length != NULL)
         res = (*Py_TYPE(v)->tp_as_mapping->mp_length)(v);
     else if (Py_TYPE(v)->tp_as_sequence != NULL &&
@@ -1737,9 +1737,19 @@ PyObject _Py_NotImplementedStruct = {
     1, &_PyNotImplemented_Type
 };
 
+#if TARGET_OS_IPHONE
+extern void init_PyPickleBuffer_Type(void);
+extern void init_PyGen_Type(void);
+#endif
+
 PyStatus
 _PyTypes_Init(void)
 {
+#if TARGET_OS_IPHONE
+	// re-initialize all types:
+	init_PyPickleBuffer_Type();
+	init_PyGen_Type();
+#endif
     PyStatus status = _PyTypes_InitSlotDefs();
     if (_PyStatus_EXCEPTION(status)) {
         return status;

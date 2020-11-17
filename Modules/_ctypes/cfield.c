@@ -341,6 +341,48 @@ PyTypeObject PyCField_Type = {
     0,                                          /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+void init_PyCField_Type() {
+    PyCField_Type.tp_name = "_ctypes.CField";                           /* tp_name */
+    PyCField_Type.tp_basicsize = sizeof(CFieldObject);                       /* tp_basicsize */
+    PyCField_Type.tp_itemsize = 0;                                          /* tp_itemsize */
+    PyCField_Type.tp_dealloc = PyCField_dealloc;                           /* tp_dealloc */
+    PyCField_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    PyCField_Type.tp_getattr = 0;                                          /* tp_getattr */
+    PyCField_Type.tp_setattr = 0;                                          /* tp_setattr */
+    PyCField_Type.tp_as_async = 0;                                          /* tp_as_async */
+    PyCField_Type.tp_repr = (reprfunc)PyCField_repr;                    /* tp_repr */
+    PyCField_Type.tp_as_number = 0;                                          /* tp_as_number */
+    PyCField_Type.tp_as_sequence = 0;                                          /* tp_as_sequence */
+    PyCField_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    PyCField_Type.tp_hash = 0;                                          /* tp_hash */
+    PyCField_Type.tp_call = 0;                                          /* tp_call */
+    PyCField_Type.tp_str = 0;                                          /* tp_str */
+    PyCField_Type.tp_getattro = 0;                                          /* tp_getattro */
+    PyCField_Type.tp_setattro = 0;                                          /* tp_setattro */
+    PyCField_Type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+    PyCField_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC;    /* tp_flags */
+    PyCField_Type.tp_doc = "Structure/Union member";                   /* tp_doc */
+    PyCField_Type.tp_traverse = (traverseproc)PyCField_traverse;            /* tp_traverse */
+    PyCField_Type.tp_clear = (inquiry)PyCField_clear;                    /* tp_clear */
+    PyCField_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    PyCField_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PyCField_Type.tp_iter = 0;                                          /* tp_iter */
+    PyCField_Type.tp_iternext = 0;                                          /* tp_iternext */
+    PyCField_Type.tp_methods = 0;                                          /* tp_methods */
+    PyCField_Type.tp_members = 0;                                          /* tp_members */
+    PyCField_Type.tp_getset = PyCField_getset;                            /* tp_getset */
+    PyCField_Type.tp_base = 0;                                          /* tp_base */
+    PyCField_Type.tp_dict = 0;                                          /* tp_dict */
+    PyCField_Type.tp_descr_get = (descrgetfunc)PyCField_get;                 /* tp_descr_get */
+    PyCField_Type.tp_descr_set = (descrsetfunc)PyCField_set;                 /* tp_descr_set */
+    PyCField_Type.tp_dictoffset = 0;                                          /* tp_dictoffset */
+    PyCField_Type.tp_init = 0;                                          /* tp_init */
+    PyCField_Type.tp_alloc = 0;                                          /* tp_alloc */
+    PyCField_Type.tp_new = PyCField_new;                               /* tp_new */
+    PyCField_Type.tp_free = 0;                                          /* tp_free */
+}
+#endif
 
 /******************************************************************/
 /*
@@ -684,7 +726,11 @@ i_get_sw(void *ptr, Py_ssize_t size)
     return PyLong_FromLong(val);
 }
 
-#ifdef MS_WIN32
+#ifndef MS_WIN32
+/* http://msdn.microsoft.com/en-us/library/cc237864.aspx */
+#define VARIANT_FALSE 0x0000
+#define VARIANT_TRUE 0xFFFF
+#endif
 /* short BOOL - VARIANT_BOOL */
 static PyObject *
 vBOOL_set(void *ptr, PyObject *value, Py_ssize_t size)
@@ -706,7 +752,6 @@ vBOOL_get(void *ptr, Py_ssize_t size)
 {
     return PyBool_FromLong((long)*(short int *)ptr);
 }
-#endif
 
 static PyObject *
 bool_set(void *ptr, PyObject *value, Py_ssize_t size)
@@ -1538,8 +1583,8 @@ static struct fielddesc formattable[] = {
 #endif
 #ifdef MS_WIN32
     { 'X', BSTR_set, BSTR_get, &ffi_type_pointer},
-    { 'v', vBOOL_set, vBOOL_get, &ffi_type_sshort},
 #endif
+    { 'v', vBOOL_set, vBOOL_get, &ffi_type_sshort},
 #if SIZEOF__BOOL == 1
     { '?', bool_set, bool_get, &ffi_type_uchar}, /* Also fallback for no native _Bool support */
 #elif SIZEOF__BOOL == SIZEOF_SHORT

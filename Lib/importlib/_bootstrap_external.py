@@ -1477,8 +1477,9 @@ class FileFinder:
                     return self._get_spec(loader_class, fullname, full_path,
                                           None, target)
             # iOS: check if a framework with proper name exists:
+            # Numpy modules don't use the lib-dynload path.
             if sys.platform == 'darwin' and _os.uname().machine.startswith('iP'): 
-                if self.path.endswith("lib-dynload") and self.path.startswith(sys.prefix)  and suffix.endswith('.so'):
+                if self.path.startswith(sys.prefix) and suffix.endswith('.so'):
                     pythonName = sys._base_executable # set in pathconfig.c
                     frameworkName = pythonName + "-" + fullname
                     home, tail = _path_split(sys.prefix)

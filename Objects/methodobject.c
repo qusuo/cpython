@@ -164,9 +164,11 @@ meth_dealloc(PyCFunctionObject *m)
     if (m->m_weakreflist != NULL) {
         PyObject_ClearWeakRefs((PyObject*) m);
     }
+    // Dereference class before m_self: PyCFunction_GET_CLASS accesses
+    // PyMethodDef m_ml, which could be kept alive by m_self
+    Py_XDECREF(PyCFunction_GET_CLASS(m));
     Py_XDECREF(m->m_self);
     Py_XDECREF(m->m_module);
-    Py_XDECREF(PyCFunction_GET_CLASS(m));
     PyObject_GC_Del(m);
 }
 
@@ -258,9 +260,9 @@ meth_traverse(PyCFunctionObject *m, visitproc visit, void *arg)
     if ((m->m_self != NULL) && (m->m_self->ob_refcnt < 0)) m->m_self = NULL;
     if ((m->m_module != NULL) && (m->m_module->ob_refcnt < 0)) m->m_module = NULL;
 #endif
+    Py_VISIT(PyCFunction_GET_CLASS(m));
     Py_VISIT(m->m_self);
     Py_VISIT(m->m_module);
-    Py_VISIT(PyCFunction_GET_CLASS(m));
     return 0;
 }
 
@@ -437,6 +439,7 @@ cfunction_vectorcall_FASTCALL(
         return NULL;
     }
     PyObject *result = meth(PyCFunction_GET_SELF(func), args, nargs);
+
     _Py_LeaveRecursiveCall(tstate);
     return result;
 }

@@ -74,6 +74,38 @@ PyTypeObject PyCThunk_Type = {
     0,                                          /* tp_members */
 };
 
+#if TARGET_OS_IPHONE
+void init_PyCThunk_Type() {
+    PyCThunk_Type.tp_name = "_ctypes.CThunkObject";
+    PyCThunk_Type.tp_basicsize = sizeof(CThunkObject);                       /* tp_basicsize */
+    PyCThunk_Type.tp_itemsize = sizeof(ffi_type);                           /* tp_itemsize */
+    PyCThunk_Type.tp_dealloc = CThunkObject_dealloc;                       /* tp_dealloc */
+    PyCThunk_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+    PyCThunk_Type.tp_getattr = 0;                                          /* tp_getattr */
+    PyCThunk_Type.tp_setattr = 0;                                          /* tp_setattr */
+    PyCThunk_Type.tp_as_async = 0;                                          /* tp_as_async */
+    PyCThunk_Type.tp_repr = 0;                                          /* tp_repr */
+    PyCThunk_Type.tp_as_number = 0;                                          /* tp_as_number */
+    PyCThunk_Type.tp_as_sequence = 0;                                          /* tp_as_sequence */
+    PyCThunk_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    PyCThunk_Type.tp_hash = 0;                                          /* tp_hash */
+    PyCThunk_Type.tp_call = 0;                                          /* tp_call */
+    PyCThunk_Type.tp_str = 0;                                          /* tp_str */
+    PyCThunk_Type.tp_getattro = 0;                                          /* tp_getattro */
+    PyCThunk_Type.tp_setattro = 0;                                          /* tp_setattro */
+    PyCThunk_Type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+    PyCThunk_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC;   /* tp_flags */
+    PyCThunk_Type.tp_doc = "CThunkObject";                             /* tp_doc */
+    PyCThunk_Type.tp_traverse = CThunkObject_traverse;                      /* tp_traverse */
+    PyCThunk_Type.tp_clear = CThunkObject_clear;                         /* tp_clear */
+    PyCThunk_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+    PyCThunk_Type.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PyCThunk_Type.tp_iter = 0;                                          /* tp_iter */
+    PyCThunk_Type.tp_iternext = 0;                                          /* tp_iternext */
+    PyCThunk_Type.tp_methods = 0;                                          /* tp_methods */
+    PyCThunk_Type.tp_members = 0;                                          /* tp_members */
+}
+#endif
 /**************************************************************/
 
 static void

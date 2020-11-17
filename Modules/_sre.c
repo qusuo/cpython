@@ -2622,6 +2622,39 @@ static PyTypeObject Pattern_Type = {
     pattern_getset,                     /* tp_getset */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_Pattern_Type() {
+    Pattern_Type.tp_name = "re.Pattern";
+    Pattern_Type.tp_basicsize = sizeof(PatternObject); 
+    Pattern_Type.tp_itemsize = sizeof(SRE_CODE);
+    Pattern_Type.tp_dealloc = (destructor)pattern_dealloc;        /* tp_dealloc */
+    Pattern_Type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+    Pattern_Type.tp_getattr = 0;                                  /* tp_getattr */
+    Pattern_Type.tp_setattr = 0;                                  /* tp_setattr */
+    Pattern_Type.tp_as_async = 0;                                  /* tp_as_async */
+    Pattern_Type.tp_repr = (reprfunc)pattern_repr;             /* tp_repr */
+    Pattern_Type.tp_as_number = 0;                                  /* tp_as_number */
+    Pattern_Type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+    Pattern_Type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+    Pattern_Type.tp_hash = (hashfunc)pattern_hash;             /* tp_hash */
+    Pattern_Type.tp_call = 0;                                  /* tp_call */
+    Pattern_Type.tp_str = 0;                                  /* tp_str */
+    Pattern_Type.tp_getattro = 0;                                  /* tp_getattro */
+    Pattern_Type.tp_setattro = 0;                                  /* tp_setattro */
+    Pattern_Type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+    Pattern_Type.tp_flags = Py_TPFLAGS_DEFAULT;                 /* tp_flags */
+    Pattern_Type.tp_doc = pattern_doc;                        /* tp_doc */
+    Pattern_Type.tp_traverse = 0;                                  /* tp_traverse */
+    Pattern_Type.tp_clear = 0;                                  /* tp_clear */
+    Pattern_Type.tp_richcompare = pattern_richcompare;                /* tp_richcompare */
+    Pattern_Type.tp_weaklistoffset = offsetof(PatternObject, weakreflist);/* tp_weaklistoffset */
+    Pattern_Type.tp_iter = 0;                                  /* tp_iter */
+    Pattern_Type.tp_iternext = 0;                                  /* tp_iternext */
+    Pattern_Type.tp_methods = pattern_methods;                    /* tp_methods */
+    Pattern_Type.tp_members = pattern_members;                    /* tp_members */
+    Pattern_Type.tp_getset = pattern_getset;                     /* tp_getset */
+}
+#endif
 /* Match objects do not support length or assignment, but do support
    __getitem__. */
 static PyMappingMethods match_as_mapping = {
@@ -2702,6 +2735,40 @@ static PyTypeObject Match_Type = {
     match_getset,               /* tp_getset */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_Match_Type() {
+    Match_Type.tp_name = "re.Match";
+    Match_Type.tp_basicsize = sizeof(MatchObject); 
+    Match_Type.tp_itemsize = sizeof(Py_ssize_t);
+    Match_Type.tp_dealloc = (destructor)match_dealloc;  /* tp_dealloc */
+    Match_Type.tp_vectorcall_offset = 0;                          /* tp_vectorcall_offset */
+    Match_Type.tp_getattr = 0;                          /* tp_getattr */
+    Match_Type.tp_setattr = 0;                          /* tp_setattr */
+    Match_Type.tp_as_async = 0;                          /* tp_as_async */
+    Match_Type.tp_repr = (reprfunc)match_repr;       /* tp_repr */
+    Match_Type.tp_as_number = 0;                          /* tp_as_number */
+    Match_Type.tp_as_sequence = 0;                          /* tp_as_sequence */
+    Match_Type.tp_as_mapping = &match_as_mapping;          /* tp_as_mapping */
+    Match_Type.tp_hash = 0;                          /* tp_hash */
+    Match_Type.tp_call = 0;                          /* tp_call */
+    Match_Type.tp_str = 0;                          /* tp_str */
+    Match_Type.tp_getattro = 0;                          /* tp_getattro */
+    Match_Type.tp_setattro = 0;                          /* tp_setattro */
+    Match_Type.tp_as_buffer = 0;                          /* tp_as_buffer */
+    Match_Type.tp_flags = Py_TPFLAGS_DEFAULT;         /* tp_flags */
+    Match_Type.tp_doc = match_doc;                  /* tp_doc */
+    Match_Type.tp_traverse = 0;                          /* tp_traverse */
+    Match_Type.tp_clear = 0;                          /* tp_clear */
+    Match_Type.tp_richcompare = 0;                          /* tp_richcompare */
+    Match_Type.tp_weaklistoffset = 0;                          /* tp_weaklistoffset */
+    Match_Type.tp_iter = 0;                          /* tp_iter */
+    Match_Type.tp_iternext = 0;                          /* tp_iternext */
+    Match_Type.tp_methods = match_methods;              /* tp_methods */
+    Match_Type.tp_members = match_members;              /* tp_members */
+    Match_Type.tp_getset = match_getset;               /* tp_getset */
+}
+#endif
+
 static PyMethodDef scanner_methods[] = {
     _SRE_SRE_SCANNER_MATCH_METHODDEF
     _SRE_SRE_SCANNER_SEARCH_METHODDEF
@@ -2746,6 +2813,40 @@ static PyTypeObject Scanner_Type = {
     0,                          /* tp_getset */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_Scanner_Type() {
+  Scanner_Type.tp_name = "_" SRE_MODULE ".SRE_Scanner";
+  Scanner_Type.tp_basicsize = sizeof(ScannerObject); 
+  Scanner_Type.tp_itemsize = 0;
+  Scanner_Type.tp_dealloc = (destructor)scanner_dealloc;/* tp_dealloc */
+  Scanner_Type.tp_vectorcall_offset = 0;                          /* tp_vectorcall_offset */
+  Scanner_Type.tp_getattr = 0;                          /* tp_getattr */
+  Scanner_Type.tp_setattr = 0;                          /* tp_setattr */
+  Scanner_Type.tp_as_async = 0;                          /* tp_as_async */
+  Scanner_Type.tp_repr = 0;                          /* tp_repr */
+  Scanner_Type.tp_as_number = 0;                          /* tp_as_number */
+  Scanner_Type.tp_as_sequence = 0;                          /* tp_as_sequence */
+  Scanner_Type.tp_as_mapping = 0;                          /* tp_as_mapping */
+  Scanner_Type.tp_hash = 0;                          /* tp_hash */
+  Scanner_Type.tp_call = 0;                          /* tp_call */
+  Scanner_Type.tp_str = 0;                          /* tp_str */
+  Scanner_Type.tp_getattro = 0;                          /* tp_getattro */
+  Scanner_Type.tp_setattro = 0;                          /* tp_setattro */
+  Scanner_Type.tp_as_buffer = 0;                          /* tp_as_buffer */
+  Scanner_Type.tp_flags = Py_TPFLAGS_DEFAULT;         /* tp_flags */
+  Scanner_Type.tp_doc = 0;                          /* tp_doc */
+  Scanner_Type.tp_traverse = 0;                          /* tp_traverse */
+  Scanner_Type.tp_clear = 0;                          /* tp_clear */
+  Scanner_Type.tp_richcompare = 0;                          /* tp_richcompare */
+  Scanner_Type.tp_weaklistoffset = 0;                          /* tp_weaklistoffset */
+  Scanner_Type.tp_iter = 0;                          /* tp_iter */
+  Scanner_Type.tp_iternext = 0;                          /* tp_iternext */
+  Scanner_Type.tp_methods = scanner_methods;            /* tp_methods */
+  Scanner_Type.tp_members = scanner_members;            /* tp_members */
+  Scanner_Type.tp_getset = 0;                          /* tp_getset */
+}
+#endif
+
 static PyMethodDef _functions[] = {
     _SRE_COMPILE_METHODDEF
     _SRE_GETCODESIZE_METHODDEF
@@ -2773,6 +2874,12 @@ PyMODINIT_FUNC PyInit__sre(void)
     PyObject* m;
     PyObject* d;
     PyObject* x;
+
+#if TARGET_OS_IPHONE
+    reset_Pattern_Type();
+    reset_Match_Type();
+    reset_Scanner_Type();    
+#endif
 
     /* Patch object types */
     if (PyType_Ready(&Pattern_Type) || PyType_Ready(&Match_Type) ||

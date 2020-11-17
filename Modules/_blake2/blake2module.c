@@ -51,12 +51,21 @@ static struct PyModuleDef blake2_module = {
 } while(0)
 
 
+#if TARGET_OS_IPHONE
+extern void init_PyBlake2_BLAKE2bType(void);
+extern void init_PyBlake2_BLAKE2sType(void);
+#endif
+
 PyMODINIT_FUNC
 PyInit__blake2(void)
 {
     PyObject *m;
     PyObject *d;
 
+#if TARGET_OS_IPHONE
+	init_PyBlake2_BLAKE2bType();
+	init_PyBlake2_BLAKE2sType();
+#endif
     m = PyModule_Create(&blake2_module);
     if (m == NULL)
         return NULL;

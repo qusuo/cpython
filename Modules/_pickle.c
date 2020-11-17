@@ -459,6 +459,16 @@ static PyTypeObject Pdata_Type = {
     (destructor)Pdata_dealloc,    /*tp_dealloc*/
 };
 
+#if TARGET_OS_IPHONE
+static void init_Pdata_Type() {
+    Pdata_Type.tp_name = "_pickle.Pdata";              /*tp_name*/
+    Pdata_Type.tp_basicsize = sizeof(Pdata);                /*tp_basicsize*/
+    Pdata_Type.tp_itemsize = sizeof(PyObject *);           /*tp_itemsize*/
+    Pdata_Type.tp_dealloc = (destructor)Pdata_dealloc;    /*tp_dealloc*/
+    Pdata_Type.tp_flags = 0;
+}
+#endif
+
 static PyObject *
 Pdata_New(void)
 {
@@ -5018,6 +5028,38 @@ static PyTypeObject PicklerMemoProxyType = {
     picklerproxy_methods,                       /* tp_methods */
 };
 
+#if TARGET_OS_IPHONE
+static void init_PicklerMemoProxyType() {
+    PicklerMemoProxyType.tp_name = "_pickle.PicklerMemoProxy";                 /* tp_name*/
+    PicklerMemoProxyType.tp_basicsize = sizeof(PicklerMemoProxyObject);             /* tp_basicsize*/
+    PicklerMemoProxyType.tp_itemsize = 0;                                          /* tp_itemsize*/
+    PicklerMemoProxyType.tp_dealloc = (destructor)PicklerMemoProxy_dealloc;       /* tp_dealloc */
+    PicklerMemoProxyType.tp_vectorcall_offset = 0;                      /* tp_vectorcall_offset */
+    PicklerMemoProxyType.tp_getattr = 0;                                          /* tp_getattr */
+    PicklerMemoProxyType.tp_setattr = 0;                                          /* tp_setattr */
+    PicklerMemoProxyType.tp_as_async = 0;                                          /* tp_as_async */
+    PicklerMemoProxyType.tp_repr = 0;                                          /* tp_repr */
+    PicklerMemoProxyType.tp_as_number = 0;                                          /* tp_as_number */
+    PicklerMemoProxyType.tp_as_sequence = 0;                                          /* tp_as_sequence */
+    PicklerMemoProxyType.tp_as_mapping = 0;                                          /* tp_as_mapping */
+    PicklerMemoProxyType.tp_hash = PyObject_HashNotImplemented;                /* tp_hash */
+    PicklerMemoProxyType.tp_call = 0;                                          /* tp_call */
+    PicklerMemoProxyType.tp_str = 0;                                          /* tp_str */
+    PicklerMemoProxyType.tp_getattro = PyObject_GenericGetAttr;                    /* tp_getattro */
+    PicklerMemoProxyType.tp_setattro = PyObject_GenericSetAttr;                    /* tp_setattro */
+    PicklerMemoProxyType.tp_as_buffer = 0;                                          /* tp_as_buffer */
+    PicklerMemoProxyType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC;
+    PicklerMemoProxyType.tp_doc = 0;                                          /* tp_doc */
+    PicklerMemoProxyType.tp_traverse = (traverseproc)PicklerMemoProxy_traverse;    /* tp_traverse */
+    PicklerMemoProxyType.tp_clear = (inquiry)PicklerMemoProxy_clear;            /* tp_clear */
+    PicklerMemoProxyType.tp_richcompare = 0;                                          /* tp_richcompare */
+    PicklerMemoProxyType.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+    PicklerMemoProxyType.tp_iter = 0;                                          /* tp_iter */
+    PicklerMemoProxyType.tp_iternext = 0;                                          /* tp_iternext */
+    PicklerMemoProxyType.tp_methods = picklerproxy_methods;                       /* tp_methods */
+}
+#endif
+
 static PyObject *
 PicklerMemoProxy_New(PicklerObject *pickler)
 {
@@ -5191,6 +5233,49 @@ static PyTypeObject Pickler_Type = {
     0,                                  /*tp_is_gc*/
 };
 
+#if TARGET_OS_IPHONE
+static void init_Pickler_Type() {
+    Pickler_Type.tp_name = "_pickle.Pickler"  ;                /*tp_name*/
+    Pickler_Type.tp_basicsize = sizeof(PicklerObject);              /*tp_basicsize*/
+    Pickler_Type.tp_itemsize = 0;                                  /*tp_itemsize*/
+    Pickler_Type.tp_dealloc = (destructor)Pickler_dealloc;        /*tp_dealloc*/
+    Pickler_Type.tp_vectorcall_offset = 0;                                  /*tp_vectorcall_offset*/
+    Pickler_Type.tp_getattr = 0;                                  /*tp_getattr*/
+    Pickler_Type.tp_setattr = 0;                                  /*tp_setattr*/
+    Pickler_Type.tp_as_async = 0;                                  /*tp_as_async*/
+    Pickler_Type.tp_repr = 0;                                  /*tp_repr*/
+    Pickler_Type.tp_as_number = 0;                                  /*tp_as_number*/
+    Pickler_Type.tp_as_sequence = 0;                                  /*tp_as_sequence*/
+    Pickler_Type.tp_as_mapping = 0;                                  /*tp_as_mapping*/
+    Pickler_Type.tp_hash = 0;                                  /*tp_hash*/
+    Pickler_Type.tp_call = 0;                                  /*tp_call*/
+    Pickler_Type.tp_str = 0;                                  /*tp_str*/
+    Pickler_Type.tp_getattro = 0;                                  /*tp_getattro*/
+    Pickler_Type.tp_setattro = 0;                                  /*tp_setattro*/
+    Pickler_Type.tp_as_buffer = 0;                                  /*tp_as_buffer*/
+    Pickler_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC;
+    Pickler_Type.tp_doc = _pickle_Pickler___init____doc__;    /*tp_doc*/
+    Pickler_Type.tp_traverse = (traverseproc)Pickler_traverse;     /*tp_traverse*/
+    Pickler_Type.tp_clear = (inquiry)Pickler_clear;             /*tp_clear*/
+    Pickler_Type.tp_richcompare = 0;                                  /*tp_richcompare*/
+    Pickler_Type.tp_weaklistoffset = 0;                                  /*tp_weaklistoffset*/
+    Pickler_Type.tp_iter = 0;                                  /*tp_iter*/
+    Pickler_Type.tp_iternext = 0;                                  /*tp_iternext*/
+    Pickler_Type.tp_methods = Pickler_methods;                    /*tp_methods*/
+    Pickler_Type.tp_members = Pickler_members;                    /*tp_members*/
+    Pickler_Type.tp_getset = Pickler_getsets;                    /*tp_getset*/
+    Pickler_Type.tp_base = 0;                                  /*tp_base*/
+    Pickler_Type.tp_dict = 0;                                  /*tp_dict*/
+    Pickler_Type.tp_descr_get = 0;                                  /*tp_descr_get*/
+    Pickler_Type.tp_descr_set = 0;                                  /*tp_descr_set*/
+    Pickler_Type.tp_dictoffset = 0;                                  /*tp_dictoffset*/
+    Pickler_Type.tp_init = _pickle_Pickler___init__;           /*tp_init*/
+    Pickler_Type.tp_alloc = PyType_GenericAlloc;                /*tp_alloc*/
+    Pickler_Type.tp_new = PyType_GenericNew;                  /*tp_new*/
+    Pickler_Type.tp_free = PyObject_GC_Del;                    /*tp_free*/
+    Pickler_Type.tp_is_gc = 0;                                  /*tp_is_gc*/
+}
+#endif
 /* Temporary helper for calling self.find_class().
 
    XXX: It would be nice to able to avoid Python function call overhead, by
@@ -7610,6 +7695,38 @@ static PyTypeObject UnpicklerMemoProxyType = {
     unpicklerproxy_methods,                     /* tp_methods */
 };
 
+#if TARGET_OS_IPHONE
+static void init_UnpicklerMemoProxyType() {
+     UnpicklerMemoProxyType.tp_name= "_pickle.UnpicklerMemoProxy";               /*tp_name*/
+     UnpicklerMemoProxyType.tp_basicsize= sizeof(UnpicklerMemoProxyObject);           /*tp_basicsize*/
+     UnpicklerMemoProxyType.tp_itemsize = 0;
+     UnpicklerMemoProxyType.tp_dealloc = (destructor)UnpicklerMemoProxy_dealloc;     /* tp_dealloc */
+     UnpicklerMemoProxyType.tp_vectorcall_offset = 0;                     /* tp_vectorcall_offset */
+     UnpicklerMemoProxyType.tp_getattr = 0;                                          /* tp_getattr */
+     UnpicklerMemoProxyType.tp_setattr = 0;                                          /* tp_setattr */
+     UnpicklerMemoProxyType.tp_as_async = 0;                                          /* tp_as_async */
+     UnpicklerMemoProxyType.tp_repr = 0;                                          /* tp_repr */
+     UnpicklerMemoProxyType.tp_as_number = 0;                                          /* tp_as_number */
+     UnpicklerMemoProxyType.tp_as_sequence = 0;                                          /* tp_as_sequence */
+     UnpicklerMemoProxyType.tp_as_mapping = 0;                                          /* tp_as_mapping */
+     UnpicklerMemoProxyType.tp_hash = PyObject_HashNotImplemented;                /* tp_hash */
+     UnpicklerMemoProxyType.tp_call = 0;                                          /* tp_call */
+     UnpicklerMemoProxyType.tp_str = 0;                                          /* tp_str */
+     UnpicklerMemoProxyType.tp_getattro = PyObject_GenericGetAttr;                    /* tp_getattro */
+     UnpicklerMemoProxyType.tp_setattro = PyObject_GenericSetAttr;                    /* tp_setattro */
+     UnpicklerMemoProxyType.tp_as_buffer = 0;                                          /* tp_as_buffer */
+     UnpicklerMemoProxyType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC;
+     UnpicklerMemoProxyType.tp_doc = 0;                                          /* tp_doc */
+     UnpicklerMemoProxyType.tp_traverse = (traverseproc)UnpicklerMemoProxy_traverse;  /* tp_traverse */
+     UnpicklerMemoProxyType.tp_clear = (inquiry)UnpicklerMemoProxy_clear;          /* tp_clear */
+     UnpicklerMemoProxyType.tp_richcompare = 0;                                          /* tp_richcompare */
+     UnpicklerMemoProxyType.tp_weaklistoffset = 0;                                          /* tp_weaklistoffset */
+     UnpicklerMemoProxyType.tp_iter = 0;                                          /* tp_iter */
+     UnpicklerMemoProxyType.tp_iternext = 0;                                          /* tp_iternext */
+     UnpicklerMemoProxyType.tp_methods = unpicklerproxy_methods;                     /* tp_methods */
+}
+#endif
+
 static PyObject *
 UnpicklerMemoProxy_New(UnpicklerObject *unpickler)
 {
@@ -7792,6 +7909,50 @@ static PyTypeObject Unpickler_Type = {
     PyObject_GC_Del,                    /*tp_free*/
     0,                                  /*tp_is_gc*/
 };
+
+#if TARGET_OS_IPHONE
+static void init_Unpickler_Type() {
+    Unpickler_Type.tp_name = "_pickle.Unpickler";                /*tp_name*/
+    Unpickler_Type.tp_basicsize = sizeof(UnpicklerObject);            /*tp_basicsize*/
+    Unpickler_Type.tp_itemsize = 0;                                  /*tp_itemsize*/
+    Unpickler_Type.tp_dealloc = (destructor)Unpickler_dealloc;      /*tp_dealloc*/
+    Unpickler_Type.tp_vectorcall_offset = 0;                                  /*tp_vectorcall_offset*/
+    Unpickler_Type.tp_getattr = 0;                                  /*tp_getattr*/
+    Unpickler_Type.tp_setattr = 0;                                  /*tp_setattr*/
+    Unpickler_Type.tp_as_async = 0;                                  /*tp_as_async*/
+    Unpickler_Type.tp_repr = 0;                                  /*tp_repr*/
+    Unpickler_Type.tp_as_number = 0;                                  /*tp_as_number*/
+    Unpickler_Type.tp_as_sequence = 0;                                  /*tp_as_sequence*/
+    Unpickler_Type.tp_as_mapping = 0;                                  /*tp_as_mapping*/
+    Unpickler_Type.tp_hash = 0;                                  /*tp_hash*/
+    Unpickler_Type.tp_call = 0;                                  /*tp_call*/
+    Unpickler_Type.tp_str = 0;                                  /*tp_str*/
+    Unpickler_Type.tp_getattro = 0;                                  /*tp_getattro*/
+    Unpickler_Type.tp_setattro = 0;                                  /*tp_setattro*/
+    Unpickler_Type.tp_as_buffer = 0;                                  /*tp_as_buffer*/
+    Unpickler_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC;
+    Unpickler_Type.tp_doc = _pickle_Unpickler___init____doc__;  /*tp_doc*/
+    Unpickler_Type.tp_traverse = (traverseproc)Unpickler_traverse;   /*tp_traverse*/
+    Unpickler_Type.tp_clear = (inquiry)Unpickler_clear;           /*tp_clear*/
+    Unpickler_Type.tp_richcompare = 0;                                  /*tp_richcompare*/
+    Unpickler_Type.tp_weaklistoffset = 0;                                  /*tp_weaklistoffset*/
+    Unpickler_Type.tp_iter = 0;                                  /*tp_iter*/
+    Unpickler_Type.tp_iternext = 0;                                  /*tp_iternext*/
+    Unpickler_Type.tp_methods = Unpickler_methods;                  /*tp_methods*/
+    Unpickler_Type.tp_members = 0;                                  /*tp_members*/
+    Unpickler_Type.tp_getset = Unpickler_getsets;                  /*tp_getset*/
+    Unpickler_Type.tp_base = 0;                                  /*tp_base*/
+    Unpickler_Type.tp_dict = 0;                                  /*tp_dict*/
+    Unpickler_Type.tp_descr_get = 0;                                  /*tp_descr_get*/
+    Unpickler_Type.tp_descr_set = 0;                                  /*tp_descr_set*/
+    Unpickler_Type.tp_dictoffset = 0;                                  /*tp_dictoffset*/
+    Unpickler_Type.tp_init = _pickle_Unpickler___init__;         /*tp_init*/
+    Unpickler_Type.tp_alloc = PyType_GenericAlloc;                /*tp_alloc*/
+    Unpickler_Type.tp_new = PyType_GenericNew;                  /*tp_new*/
+    Unpickler_Type.tp_free = PyObject_GC_Del;                    /*tp_free*/
+    Unpickler_Type.tp_is_gc = 0;                                  /*tp_is_gc*/
+}
+#endif
 
 /*[clinic input]
 
@@ -8112,6 +8273,13 @@ static struct PyModuleDef _picklemodule = {
 PyMODINIT_FUNC
 PyInit__pickle(void)
 {
+#if TARGET_OS_IPHONE
+	init_Pdata_Type();
+	init_PicklerMemoProxyType();
+	init_Pickler_Type();
+	init_UnpicklerMemoProxyType();
+	init_Unpickler_Type();
+#endif
     PyObject *m;
     PickleState *st;
 

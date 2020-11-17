@@ -1241,3 +1241,54 @@ PyTypeObject PyFileIO_Type = {
     0,                                          /* tp_version_tag */
     0,                                          /* tp_finalize */
 };
+#if TARGET_OS_IPHONE
+void reset_PyFileIO_Type() {
+	PyFileIO_Type.tp_name = "_io.FileIO";
+	PyFileIO_Type.tp_basicsize = sizeof(fileio);
+	PyFileIO_Type.tp_itemsize = 0;
+	PyFileIO_Type.tp_dealloc = (destructor)fileio_dealloc;                 /* tp_dealloc */
+	PyFileIO_Type.tp_vectorcall_offset = 0;                                          /* tp_vectorcall_offset */
+	PyFileIO_Type.tp_getattr = 0;                                          /* tp_getattr */
+	PyFileIO_Type.tp_setattr = 0;                                          /* tp_setattr */
+	PyFileIO_Type.tp_as_async = 0;                                          /* tp_as_async */
+	PyFileIO_Type.tp_repr = (reprfunc)fileio_repr;                      /* tp_repr */
+	PyFileIO_Type.tp_as_number = 0;                                          /* tp_as_number */
+	PyFileIO_Type.tp_as_sequence = 0;                                          /* tp_as_sequence */
+	PyFileIO_Type.tp_as_mapping = 0;                                          /* tp_as_mapping */
+	PyFileIO_Type.tp_hash = 0;                                          /* tp_hash */
+	PyFileIO_Type.tp_call = 0;                                          /* tp_call */
+	PyFileIO_Type.tp_str = 0;                                          /* tp_str */
+	PyFileIO_Type.tp_getattro = PyObject_GenericGetAttr;                    /* tp_getattro */
+	PyFileIO_Type.tp_setattro = 0;                                          /* tp_setattro */
+	PyFileIO_Type.tp_as_buffer = 0;                                          /* tp_as_buffer */
+	PyFileIO_Type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC;  /* tp_flags */
+	PyFileIO_Type.tp_doc = _io_FileIO___init____doc__;                 /* tp_doc */
+	PyFileIO_Type.tp_traverse = (traverseproc)fileio_traverse;              /* tp_traverse */
+	PyFileIO_Type.tp_clear = (inquiry)fileio_clear;                      /* tp_clear */
+	PyFileIO_Type.tp_richcompare = 0;                                          /* tp_richcompare */
+	PyFileIO_Type.tp_weaklistoffset = offsetof(fileio, weakreflist);              /* tp_weaklistoffset */
+	PyFileIO_Type.tp_iter = 0;                                          /* tp_iter */
+	PyFileIO_Type.tp_iternext = 0;                                          /* tp_iternext */
+	PyFileIO_Type.tp_methods = fileio_methods;                             /* tp_methods */
+	PyFileIO_Type.tp_members = fileio_members;                             /* tp_members */
+	PyFileIO_Type.tp_getset = fileio_getsetlist;                          /* tp_getset */
+	PyFileIO_Type.tp_base = 0;                                          /* tp_base */
+	PyFileIO_Type.tp_dict = 0;                                          /* tp_dict */
+	PyFileIO_Type.tp_descr_get = 0;                                          /* tp_descr_get */
+	PyFileIO_Type.tp_descr_set = 0;                                          /* tp_descr_set */
+	PyFileIO_Type.tp_dictoffset = offsetof(fileio, dict);                     /* tp_dictoffset */
+	PyFileIO_Type.tp_init = _io_FileIO___init__;                        /* tp_init */
+	PyFileIO_Type.tp_alloc = PyType_GenericAlloc;                        /* tp_alloc */
+	PyFileIO_Type.tp_new = fileio_new;                                 /* tp_new */
+	PyFileIO_Type.tp_free = PyObject_GC_Del;                            /* tp_free */
+	PyFileIO_Type.tp_is_gc = 0;                                          /* tp_is_gc */
+	PyFileIO_Type.tp_bases = 0;                                          /* tp_bases */
+	PyFileIO_Type.tp_mro = 0;                                          /* tp_mro */
+	PyFileIO_Type.tp_cache = 0;                                          /* tp_cache */
+	PyFileIO_Type.tp_subclasses = 0;                                          /* tp_subclasses */
+	PyFileIO_Type.tp_weaklist = 0;                                          /* tp_weaklist */
+	PyFileIO_Type.tp_del = 0;                                          /* tp_del */
+	PyFileIO_Type.tp_version_tag = 0;                                          /* tp_version_tag */
+	PyFileIO_Type.tp_finalize = 0;                                          /* tp_finalize */
+}
+#endif

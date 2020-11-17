@@ -680,9 +680,45 @@ struct PyModuleDef _PyIO_Module = {
     (freefunc)iomodule_free,
 };
 
+#if TARGET_OS_IPHONE
+// reset io types: 
+extern void	reset_PyBufferedIOBase_Type(void);
+extern void	reset_PyBufferedReader_Type(void);
+extern void	reset_PyBufferedWriter_Type(void);
+extern void	reset_PyBufferedRWPair_Type(void);
+extern void	reset_PyBufferedRandom_Type(void);
+extern void	reset_PyBytesIO_Type(void);
+extern void	reset__PyBytesIOBuffer_Type(void);
+extern void	reset_PyFileIO_Type(void);
+extern void	reset_PyIOBase_Type(void);
+extern void	reset_PyRawIOBase_Type(void);
+extern void	reset_PyStringIO_Type(void);
+extern void	reset_PyTextIOBase_Type(void);
+extern void	reset_PyIncrementalNewlineDecoder_Type(void);
+extern void	reset_PyTextIOWrapper_Type(void);
+// extern void	reset_PyWindowsConsoleIO_Type(void);
+#endif
 PyMODINIT_FUNC
 PyInit__io(void)
 {
+#if TARGET_OS_IPHONE
+	// reset io types: 
+ 	reset_PyBufferedIOBase_Type();
+ 	reset_PyBufferedReader_Type();
+ 	reset_PyBufferedWriter_Type();
+ 	reset_PyBufferedRWPair_Type();
+ 	reset_PyBufferedRandom_Type();
+ 	reset_PyBytesIO_Type();
+ 	reset__PyBytesIOBuffer_Type();
+ 	reset_PyFileIO_Type();
+ 	reset_PyIOBase_Type();
+ 	reset_PyRawIOBase_Type();
+ 	reset_PyStringIO_Type();
+ 	reset_PyTextIOBase_Type();
+ 	reset_PyIncrementalNewlineDecoder_Type();
+ 	reset_PyTextIOWrapper_Type();
+// 	reset_PyWindowsConsoleIO_Type();
+#endif
     PyObject *m = PyModule_Create(&_PyIO_Module);
     _PyIO_State *state = NULL;
     if (m == NULL)

@@ -608,6 +608,41 @@ static PyTypeObject SHA384type = {
     SHA_getseters,      /* tp_getset */
 };
 
+#if TARGET_OS_IPHONE
+static void init_SHA384type() {
+    SHA384type.tp_name = "_sha512.sha384";   /*tp_name*/
+    SHA384type.tp_basicsize = sizeof(SHAobject);  /*tp_basicsize*/
+    SHA384type.tp_itemsize = 0;                  /*tp_itemsize*/
+    /* methods */
+    SHA384type.tp_dealloc = SHA512_dealloc;     /*tp_dealloc*/
+    SHA384type.tp_vectorcall_offset = 0;                  /*tp_vectorcall_offset*/
+    SHA384type.tp_getattr = 0;                  /*tp_getattr*/
+    SHA384type.tp_setattr = 0;                  /*tp_setattr*/
+    SHA384type.tp_as_async = 0;                  /*tp_as_async*/
+    SHA384type.tp_repr = 0;                  /*tp_repr*/
+    SHA384type.tp_as_number = 0;                  /*tp_as_number*/
+    SHA384type.tp_as_sequence = 0;                  /*tp_as_sequence*/
+    SHA384type.tp_as_mapping = 0;                  /*tp_as_mapping*/
+    SHA384type.tp_hash = 0;                  /*tp_hash*/
+    SHA384type.tp_call = 0;                  /*tp_call*/
+    SHA384type.tp_str = 0;                  /*tp_str*/
+    SHA384type.tp_getattro = 0;                  /*tp_getattro*/
+    SHA384type.tp_setattro = 0;                  /*tp_setattro*/
+    SHA384type.tp_as_buffer = 0;                  /*tp_as_buffer*/
+    SHA384type.tp_flags = Py_TPFLAGS_DEFAULT; /*tp_flags*/
+    SHA384type.tp_doc = 0;                  /*tp_doc*/
+    SHA384type.tp_traverse = 0;                  /*tp_traverse*/
+    SHA384type.tp_clear = 0;                  /*tp_clear*/
+    SHA384type.tp_richcompare = 0;                  /*tp_richcompare*/
+    SHA384type.tp_weaklistoffset = 0;                  /*tp_weaklistoffset*/
+    SHA384type.tp_iter = 0;                  /*tp_iter*/
+    SHA384type.tp_iternext = 0;                  /*tp_iternext*/
+    SHA384type.tp_methods = SHA_methods;        /* tp_methods */
+    SHA384type.tp_members = SHA_members;        /* tp_members */
+    SHA384type.tp_getset = SHA_getseters;      /* tp_getset */
+}
+#endif
+
 static PyTypeObject SHA512type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "_sha512.sha512",   /*tp_name*/
@@ -642,6 +677,40 @@ static PyTypeObject SHA512type = {
     SHA_getseters,      /* tp_getset */
 };
 
+#if TARGET_OS_IPHONE
+static void init_SHA512type() {
+    SHA512type.tp_name = "_sha512.sha512";   /*tp_name*/
+    SHA512type.tp_basicsize = sizeof(SHAobject);  /*tp_basicsize*/
+    SHA512type.tp_itemsize = 0;                  /*tp_itemsize*/
+    /* methods */
+    SHA512type.tp_dealloc = SHA512_dealloc;     /*tp_dealloc*/
+    SHA512type.tp_vectorcall_offset = 0;                  /*tp_vectorcall_offset*/
+    SHA512type.tp_getattr = 0;                  /*tp_getattr*/
+    SHA512type.tp_setattr = 0;                  /*tp_setattr*/
+    SHA512type.tp_as_async = 0;                  /*tp_as_async*/
+    SHA512type.tp_repr = 0;                  /*tp_repr*/
+    SHA512type.tp_as_number = 0;                  /*tp_as_number*/
+    SHA512type.tp_as_sequence = 0;                  /*tp_as_sequence*/
+    SHA512type.tp_as_mapping = 0;                  /*tp_as_mapping*/
+    SHA512type.tp_hash = 0;                  /*tp_hash*/
+    SHA512type.tp_call = 0;                  /*tp_call*/
+    SHA512type.tp_str = 0;                  /*tp_str*/
+    SHA512type.tp_getattro = 0;                  /*tp_getattro*/
+    SHA512type.tp_setattro = 0;                  /*tp_setattro*/
+    SHA512type.tp_as_buffer = 0;                  /*tp_as_buffer*/
+    SHA512type.tp_flags = Py_TPFLAGS_DEFAULT; /*tp_flags*/
+    SHA512type.tp_doc = 0;                  /*tp_doc*/
+    SHA512type.tp_traverse = 0;                  /*tp_traverse*/
+    SHA512type.tp_clear = 0;                  /*tp_clear*/
+    SHA512type.tp_richcompare = 0;                  /*tp_richcompare*/
+    SHA512type.tp_weaklistoffset = 0;                  /*tp_weaklistoffset*/
+    SHA512type.tp_iter = 0;                  /*tp_iter*/
+    SHA512type.tp_iternext = 0;                  /*tp_iternext*/
+    SHA512type.tp_methods = SHA_methods;        /* tp_methods */
+    SHA512type.tp_members = SHA_members;        /* tp_members */
+    SHA512type.tp_getset = SHA_getseters;      /* tp_getset */
+}
+#endif
 
 /* The single module-level function: new() */
 
@@ -758,10 +827,16 @@ PyInit__sha512(void)
 {
     PyObject *m;
 
+#if TARGET_OS_IPHONE
+	init_SHA384type();
+#endif
     Py_SET_TYPE(&SHA384type, &PyType_Type);
     if (PyType_Ready(&SHA384type) < 0) {
         return NULL;
     }
+#if TARGET_OS_IPHONE
+	init_SHA512type();
+#endif
     Py_SET_TYPE(&SHA512type, &PyType_Type);
     if (PyType_Ready(&SHA512type) < 0) {
         return NULL;

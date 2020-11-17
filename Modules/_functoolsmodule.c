@@ -463,6 +463,48 @@ static PyTypeObject partial_type = {
     PyObject_GC_Del,                    /* tp_free */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_partial_type() {
+	partial_type.tp_name = "functools.partial";                /* tp_name */
+	partial_type.tp_basicsize = sizeof(partialobject);              /* tp_basicsize */
+	partial_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	partial_type.tp_dealloc = (destructor)partial_dealloc;        /* tp_dealloc */
+	partial_type.tp_vectorcall_offset = offsetof(partialobject, vectorcall); /* tp_vectorcall_offset */
+	partial_type.tp_getattr = 0;                                  /* tp_getattr */
+	partial_type.tp_setattr = 0;                                  /* tp_setattr */
+	partial_type.tp_as_async = 0;                                  /* tp_as_async */
+	partial_type.tp_repr = (reprfunc)partial_repr;             /* tp_repr */
+	partial_type.tp_as_number = 0;                                  /* tp_as_number */
+	partial_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	partial_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	partial_type.tp_hash = 0;                                  /* tp_hash */
+	partial_type.tp_call = (ternaryfunc)partial_call;          /* tp_call */
+	partial_type.tp_str = 0;                                  /* tp_str */
+	partial_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	partial_type.tp_setattro = PyObject_GenericSetAttr;            /* tp_setattro */
+	partial_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	partial_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_VECTORCALL;     /* tp_flags */
+	partial_type.tp_doc = partial_doc;                        /* tp_doc */
+	partial_type.tp_traverse = (traverseproc)partial_traverse;     /* tp_traverse */
+	partial_type.tp_clear = 0;                                  /* tp_clear */
+	partial_type.tp_richcompare = 0;                                  /* tp_richcompare */
+	partial_type.tp_weaklistoffset = offsetof(partialobject, weakreflist);       /* tp_weaklistoffset */
+	partial_type.tp_iter = 0;                                  /* tp_iter */
+	partial_type.tp_iternext = 0;                                  /* tp_iternext */
+	partial_type.tp_methods = partial_methods;                    /* tp_methods */
+	partial_type.tp_members = partial_memberlist;                 /* tp_members */
+	partial_type.tp_getset = partial_getsetlist;                 /* tp_getset */
+	partial_type.tp_base = 0;                                  /* tp_base */
+	partial_type.tp_dict = 0;                                  /* tp_dict */
+	partial_type.tp_descr_get = 0;                                  /* tp_descr_get */
+	partial_type.tp_descr_set = 0;                                  /* tp_descr_set */
+	partial_type.tp_dictoffset = offsetof(partialobject, dict);      /* tp_dictoffset */
+	partial_type.tp_init = 0;                                  /* tp_init */
+	partial_type.tp_alloc = 0;                                  /* tp_alloc */
+	partial_type.tp_new = partial_new;                        /* tp_new */
+	partial_type.tp_free = PyObject_GC_Del;                    /* tp_free */
+}
+#endif
 
 /* cmp_to_key ***************************************************************/
 
@@ -544,6 +586,40 @@ static PyTypeObject keyobject_type = {
     keyobject_members,                  /* tp_members */
     0,                                  /* tp_getset */
 };
+
+#if TARGET_OS_IPHONE
+static void reset_keyobject_type() {
+	keyobject_type.tp_name = "functools.KeyWrapper";             /* tp_name */
+	keyobject_type.tp_basicsize = sizeof(keyobject);                  /* tp_basicsize */
+	keyobject_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	keyobject_type.tp_dealloc = (destructor)keyobject_dealloc;      /* tp_dealloc */
+	keyobject_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	keyobject_type.tp_getattr = 0;                                  /* tp_getattr */
+	keyobject_type.tp_setattr = 0;                                  /* tp_setattr */
+	keyobject_type.tp_as_async = 0;                                  /* tp_as_async */
+	keyobject_type.tp_repr = 0;                                  /* tp_repr */
+	keyobject_type.tp_as_number = 0;                                  /* tp_as_number */
+	keyobject_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	keyobject_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	keyobject_type.tp_hash = 0;                                  /* tp_hash */
+	keyobject_type.tp_call = (ternaryfunc)keyobject_call;        /* tp_call */
+	keyobject_type.tp_str = 0;                                  /* tp_str */
+	keyobject_type.tp_getattro = PyObject_GenericGetAttr;            /* tp_getattro */
+	keyobject_type.tp_setattro = 0;                                  /* tp_setattro */
+	keyobject_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	keyobject_type.tp_flags = Py_TPFLAGS_DEFAULT;                 /* tp_flags */
+	keyobject_type.tp_doc = 0;                                  /* tp_doc */
+	keyobject_type.tp_traverse = (traverseproc)keyobject_traverse;   /* tp_traverse */
+	keyobject_type.tp_clear = (inquiry)keyobject_clear;           /* tp_clear */
+	keyobject_type.tp_richcompare = keyobject_richcompare;              /* tp_richcompare */
+	keyobject_type.tp_weaklistoffset = 0;                                  /* tp_weaklistoffset */
+	keyobject_type.tp_iter = 0;                                  /* tp_iter */
+	keyobject_type.tp_iternext = 0;                                  /* tp_iternext */
+	keyobject_type.tp_methods = 0;                                  /* tp_methods */
+	keyobject_type.tp_members = keyobject_members;                  /* tp_members */
+	keyobject_type.tp_getset = 0;                                  /* tp_getset */
+}
+#endif
 
 static PyObject *
 keyobject_call(keyobject *ko, PyObject *args, PyObject *kwds)
@@ -769,6 +845,29 @@ static PyTypeObject lru_list_elem_type = {
     Py_TPFLAGS_DEFAULT,                 /* tp_flags */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_lru_list_elem_type() {
+	lru_list_elem_type.tp_name = "functools._lru_list_elem";         /* tp_name */
+	lru_list_elem_type.tp_basicsize = sizeof(lru_list_elem);              /* tp_basicsize */
+	lru_list_elem_type.tp_itemsize = 0;                                  /* tp_itemsize */
+	lru_list_elem_type.tp_dealloc = (destructor)lru_list_elem_dealloc;  /* tp_dealloc */
+	lru_list_elem_type.tp_vectorcall_offset = 0;                                  /* tp_vectorcall_offset */
+	lru_list_elem_type.tp_getattr = 0;                                  /* tp_getattr */
+	lru_list_elem_type.tp_setattr = 0;                                  /* tp_setattr */
+	lru_list_elem_type.tp_as_async = 0;                                  /* tp_as_async */
+	lru_list_elem_type.tp_repr = 0;                                  /* tp_repr */
+	lru_list_elem_type.tp_as_number = 0;                                  /* tp_as_number */
+	lru_list_elem_type.tp_as_sequence = 0;                                  /* tp_as_sequence */
+	lru_list_elem_type.tp_as_mapping = 0;                                  /* tp_as_mapping */
+	lru_list_elem_type.tp_hash = 0;                                  /* tp_hash */
+	lru_list_elem_type.tp_call = 0;                                  /* tp_call */
+	lru_list_elem_type.tp_str = 0;                                  /* tp_str */
+	lru_list_elem_type.tp_getattro = 0;                                  /* tp_getattro */
+	lru_list_elem_type.tp_setattro = 0;                                  /* tp_setattro */
+	lru_list_elem_type.tp_as_buffer = 0;                                  /* tp_as_buffer */
+	lru_list_elem_type.tp_flags = Py_TPFLAGS_DEFAULT;                 /* tp_flags */
+}
+#endif
 
 typedef PyObject *(*lru_cache_ternaryfunc)(struct lru_cache_object *, PyObject *, PyObject *);
 
@@ -1405,6 +1504,47 @@ static PyTypeObject lru_cache_type = {
     lru_cache_new,                      /* tp_new */
 };
 
+#if TARGET_OS_IPHONE
+static void reset_lru_cache_type() {
+	lru_cache_type.tp_name =  "functools._lru_cache_wrapper";     /* tp_name */
+	lru_cache_type.tp_basicsize =  sizeof(lru_cache_object);           /* tp_basicsize */
+	lru_cache_type.tp_itemsize =  0;                                  /* tp_itemsize */
+	lru_cache_type.tp_dealloc =  (destructor)lru_cache_dealloc;      /* tp_dealloc */
+	lru_cache_type.tp_vectorcall_offset =  0;                                  /* tp_vectorcall_offset */
+	lru_cache_type.tp_getattr =  0;                                  /* tp_getattr */
+	lru_cache_type.tp_setattr =  0;                                  /* tp_setattr */
+	lru_cache_type.tp_as_async =  0;                                  /* tp_as_async */
+	lru_cache_type.tp_repr =  0;                                  /* tp_repr */
+	lru_cache_type.tp_as_number =  0;                                  /* tp_as_number */
+	lru_cache_type.tp_as_sequence =  0;                                  /* tp_as_sequence */
+	lru_cache_type.tp_as_mapping =  0;                                  /* tp_as_mapping */
+	lru_cache_type.tp_hash =  0;                                  /* tp_hash */
+	lru_cache_type.tp_call =  (ternaryfunc)lru_cache_call;        /* tp_call */
+	lru_cache_type.tp_str =  0;                                  /* tp_str */
+	lru_cache_type.tp_getattro =  0;                                  /* tp_getattro */
+	lru_cache_type.tp_setattro =  0;                                  /* tp_setattro */
+	lru_cache_type.tp_as_buffer =  0;                                  /* tp_as_buffer */
+	lru_cache_type.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_METHOD_DESCRIPTOR;
+	lru_cache_type.tp_doc =  lru_cache_doc;                      /* tp_doc */
+	lru_cache_type.tp_traverse =  (traverseproc)lru_cache_tp_traverse;/* tp_traverse */
+	lru_cache_type.tp_clear =  (inquiry)lru_cache_tp_clear;        /* tp_clear */
+	lru_cache_type.tp_richcompare =  0;                                  /* tp_richcompare */
+	lru_cache_type.tp_weaklistoffset =  offsetof(lru_cache_object, weakreflist); /* tp_weaklistoffset */
+	lru_cache_type.tp_iter =  0;                                  /* tp_iter */
+	lru_cache_type.tp_iternext =  0;                                  /* tp_iternext */
+	lru_cache_type.tp_methods =  lru_cache_methods;                  /* tp_methods */
+	lru_cache_type.tp_members =  0;                                  /* tp_members */
+	lru_cache_type.tp_getset =  lru_cache_getsetlist;               /* tp_getset */
+	lru_cache_type.tp_base =  0;                                  /* tp_base */
+	lru_cache_type.tp_dict =  0;                                  /* tp_dict */
+	lru_cache_type.tp_descr_get =  lru_cache_descr_get;                /* tp_descr_get */
+	lru_cache_type.tp_descr_set =  0;                                  /* tp_descr_set */
+	lru_cache_type.tp_dictoffset =  offsetof(lru_cache_object, dict);   /* tp_dictoffset */
+	lru_cache_type.tp_init =  0;                                  /* tp_init */
+	lru_cache_type.tp_alloc =  0;                                  /* tp_alloc */
+	lru_cache_type.tp_new =  lru_cache_new;                      /* tp_new */
+}
+#endif
 /* module level code ********************************************************/
 
 PyDoc_STRVAR(_functools_doc,
@@ -1469,5 +1609,12 @@ static struct PyModuleDef _functools_module = {
 PyMODINIT_FUNC
 PyInit__functools(void)
 {
+#if TARGET_OS_IPHONE
+	// reset all types:
+	reset_partial_type();
+	reset_keyobject_type();
+	reset_lru_list_elem_type();
+	reset_lru_cache_type();
+#endif
     return PyModuleDef_Init(&_functools_module);
 }

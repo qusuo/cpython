@@ -61,10 +61,14 @@ define([
          [
            ['jupyter-notebook:show-command-palette'],
            'cmd_palette'],
-			[['jupyter-notebook:open-webpage'], 'open_webpage'], 
-			[['jupyter-notebook:allow-folder-access'], 'allow_folder_access']
-           	
         ];
+		// iOS, Carnets: add these two buttons if running inside the Carnets application:
+		// (not needed in a-Shell)
+		if (window.webkit != undefined && window.webkit.messageHandlers.Carnets != undefined) {
+			grps.push([['jupyter-notebook:open-webpage'], 'open_webpage']);
+			grps.push([['jupyter-notebook:allow-folder-access'], 'allow_folder_access']);
+		}
+
         this.construct(grps);
     };
 

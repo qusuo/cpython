@@ -628,7 +628,7 @@ _PyImport_Cleanup(PyThreadState *tstate)
             // which prevent the freefunc function from being called.
             // This here is just for debugging, the module erasure is done in moduleobject.c
             const char* utf8name = PyUnicode_AsUTF8(name);
-            if ((strncmp(utf8name, "_asyncio", 8) == 0)) {
+            if (strncmp(utf8name, "_asyncio", 8) == 0) {
                 // fprintf(stderr, "We have a module = %x name = %s refCount = %zd\n", mod, utf8name, mod->ob_refcnt);
 			}
             if ((strncmp(utf8name, "pandas.", 7) == 0) || (strncmp(utf8name, "numpy.", 6) == 0)) {
@@ -936,7 +936,11 @@ PyImport_AddModule(const char *name)
 }
 
 
-/* Remove name from sys.modules, if it's there. */
+/* Remove name from sys.modules, if it's there.
+ * Can be called with an exception raised.
+ * If fail to remove name a new exception will be chained with the old
+ * exception, otherwise the old exception is preserved.
+ */
 static void
 remove_module(PyThreadState *tstate, PyObject *name)
 {
@@ -944,18 +948,17 @@ remove_module(PyThreadState *tstate, PyObject *name)
     _PyErr_Fetch(tstate, &type, &value, &traceback);
 
     PyObject *modules = tstate->interp->modules;
-    if (!PyMapping_HasKey(modules, name)) {
-        goto out;
+    if (PyDict_CheckExact(modules)) {
+        PyObject *mod = _PyDict_Pop(modules, name, Py_None);
+        Py_XDECREF(mod);
     }
-    if (PyMapping_DelItem(modules, name) < 0) {
-        _PyErr_SetString(tstate, PyExc_RuntimeError,
-                         "deleting key in sys.modules failed");
-        _PyErr_ChainExceptions(type, value, traceback);
-        return;
+    else if (PyMapping_DelItem(modules, name) < 0) {
+        if (_PyErr_ExceptionMatches(tstate, PyExc_KeyError)) {
+            _PyErr_Clear(tstate);
+        }
     }
 
-out:
-    _PyErr_Restore(tstate, type, value, traceback);
+    _PyErr_ChainExceptions(type, value, traceback);
 }
 
 
@@ -1786,9 +1789,14 @@ import_find_and_load(PyThreadState *tstate, PyObject *abs_name)
     PyObject *mod = NULL;
     PyInterpreterState *interp = tstate->interp;
     int import_time = _PyInterpreterState_GetConfig(interp)->import_time;
+#if !TARGET_OS_IPHONE
     static int import_level;
     static _PyTime_t accumulated;
-
+#else
+    static __thread int import_level;
+    static __thread _PyTime_t accumulated;
+#endif
+    
     _PyTime_t t1 = 0, accumulated_copy = accumulated;
 
     PyObject *sys_path = PySys_GetObject("path");
@@ -1808,7 +1816,11 @@ import_find_and_load(PyThreadState *tstate, PyObject *abs_name)
      * _PyDict_GetItemIdWithError().
      */
     if (import_time) {
+#if !TARGET_OS_IPHONE
         static int header = 1;
+#else
+        static __thread int header = 1;
+#endif
         if (header) {
             fputs("import time: self [us] | cumulative | imported package\n",
 #if !TARGET_OS_IPHONE
@@ -2372,7 +2384,14 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
     if ((wcscmp(pythonName, L"python3") == 0) || (wcscmp(pythonName, L"python") == 0)) {
         wcscpy(pythonName, L"python3_ios");
     }
-    sprintf(newPathString, "%s/Frameworks/%S-%s.framework/%S-%s", getenv("APPDIR"), pythonName, nameC, pythonName, nameC);
+    wchar_t *prefix = Py_GetPrefix(); // sys.prefix = $APPDIR + "/Library"
+    wchar_t *library = wcsstr(prefix, L"/Library");
+    if ((library != NULL) && (library != prefix)) {
+    	*library = L'\0'; // terminate prefix before /Library, to get the APPDIR
+		sprintf(newPathString, "%S/Frameworks/%S-%s.framework/%S-%s", prefix, pythonName, nameC, pythonName, nameC);
+	} else {
+		sprintf(newPathString, "%s/Frameworks/%S-%s.framework/%S-%s", getenv("APPDIR"), pythonName, nameC, pythonName, nameC);
+	}
     // fprintf(stderr, "New path: %s\n", newPathString);
     path = PyUnicode_FromString(newPathString);
     PyObject_SetAttrString(spec, "origin", path);

@@ -122,24 +122,22 @@ dir="ltr">
   </div>
 </noscript>
 
+<!-- iOS: disable this block always (Carnets: we'll take care of it, a-Shell: we can't do it -->
+<!-- Do not disable the entire block, or JS will crash -->
 <div id="header" role="navigation" aria-label="{% trans %}Top Menu{% endtrans %}">
-  	  <!-- iOS: commented 
+{% if keep-full-header %}  	
   <div id="header-container" class="container">
   <div id="ipython_notebook" class="nav navbar-brand"><a href="{{default_url}}
     {%- if logged_in and token -%}?token={{token}}{%- endif -%}" title='{% trans %}dashboard{% endtrans %}'>
       {% block logo %}<img src='{{static_url("base/images/logo.png") }}' alt='Jupyter Notebook'/>{% endblock %}
   </a></div>
-	-->
 
-	<!-- 
   {% block headercontainer %}
   {% endblock %}
   
   {% block header_buttons %}
   
   {% block login_widget %}
-	-->
-    	<!-- 
     <span id="login_widget">
       {% if logged_in %}
         <button id="logout" class="btn btn-sm navbar-btn">{% trans %}Logout{% endtrans %}</button>
@@ -147,15 +145,12 @@ dir="ltr">
         <button id="login" class="btn btn-sm navbar-btn">{% trans %}Login{% endtrans %}</button>
       {% endif %}
     </span>
-		--> 
-
-  <!-- 
   {% endblock %}
 
   {% endblock header_buttons %}
   
   </div>
-  -->
+{% endif %} <!-- keep-full-header -->
   <div class="header-bar"></div>
 
   {% block header %}
