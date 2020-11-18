@@ -10,7 +10,7 @@ IOS_SDKROOT=$(xcrun --sdk iphoneos --show-sdk-path)
 SIM_SDKROOT=$(xcrun --sdk iphonesimulator --show-sdk-path)
 DEBUG="-O3 -Wall"
 # DEBUG="-g"
-OSX_VERSION=`sw_vers -productVersion |awk -F. '{print $1"."$2}'`
+OSX_VERSION=$(sw_vers -productVersion |awk -F. '{print $1"."$2}')
 
 # 1) compile for OSX (required)
 find . -name \*.o -delete
