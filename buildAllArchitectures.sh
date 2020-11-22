@@ -10,6 +10,8 @@ IOS_SDKROOT=$(xcrun --sdk iphoneos --show-sdk-path)
 SIM_SDKROOT=$(xcrun --sdk iphonesimulator --show-sdk-path)
 DEBUG="-O3 -Wall"
 # DEBUG="-g"
+# Loading different set of frameworks based on the Application:
+APP=$(basename `dirname $PWD`)
 
 # 1) compile for OSX (required)
 find . -name \*.o -delete
@@ -37,12 +39,12 @@ cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log
 make  -j 4 install  >> make_install_osx.log 2>&1
 export PYTHONHOME=$PREFIX/Library
 # When working on frozen importlib, need to compile twice:
-make regen-importlib >> make_osx.log 2>&1
-find . -name \*.o -delete  >> make_osx.log 2>&1
-make  -j 4 >> make_osx.log 2>&1 
-mkdir -p build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log 2>&1
-cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log 2>&1
-make  -j 4 install >> make_install_osx.log 2>&1
+# make regen-importlib >> make_osx.log 2>&1
+# find . -name \*.o -delete  >> make_osx.log 2>&1
+# make  -j 4 >> make_osx.log 2>&1 
+# mkdir -p build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log 2>&1
+# cp libpython3.9.dylib build/lib.macosx-10.15-x86_64-3.9  >> make_install_osx.log 2>&1
+# make  -j 4 install >> make_install_osx.log 2>&1
 # Force reinstall and upgrade of pip, setuptools 
 python3.9 -m pip install pip --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install setuptools --upgrade >> make_install_osx.log 2>&1
@@ -374,14 +376,14 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # lxml:
 pushd packages >> make_install_osx.log 2>&1
-python3.9 -m pip download --no-binary :all: lxml >> make_install_osx.log 2>&1
-tar xvzf lxml-4.6.1.tar.gz  >> make_install_osx.log 2>&1
-rm -rf lxml*.tar.gz >> make_install_osx.log 2>&1
-pushd lxml*  >> make_install_osx.log 2>&1
-cp ../setupinfo_lxml.py ./setupinfo.py  >> make_install_osx.log 2>&1
-rm -rf build/* >> make_install_osx.log 2>&1
-env CC=clang CXX=clang++ CFLAGS="-I$PREFIX/" LDFLAGS="-L$PREFIX/" python3 setup.py build  >> make_install_osx.log 2>&1
-env CC=clang CXX=clang++ CFLAGS="-I$PREFIX/" LDFLAGS="-L$PREFIX/" python3 -m pip install . >> make_install_osx.log 2>&1
+python3.9 -m pip download --no-binary :all: lxml >> $PREFIX/make_install_osx.log 2>&1
+tar xvzf lxml-4.6.1.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
+rm -rf lxml*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+pushd lxml*  >> $PREFIX/make_install_osx.log 2>&1
+cp ../setupinfo_lxml.py ./setupinfo.py  >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CFLAGS="-I$PREFIX/" LDFLAGS="-L$PREFIX/" python3 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CFLAGS="-I$PREFIX/" LDFLAGS="-L$PREFIX/" python3 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/lxml/  >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/lxml/html/  >> $PREFIX/make_install_osx.log 2>&1
 cp ./build/lib.macosx-10.15-x86_64-3.9/lxml/*.so  $PREFIX/build/lib.macosx-10.15-x86_64-3.9/lxml/ >> $PREFIX/make_install_osx.log 2>&1
@@ -390,18 +392,150 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # cryptography:
 pushd packages >> make_install_osx.log 2>&1
-python3.9 -m pip download cryptography --no-binary :all: >> make_install_osx.log 2>&1
-tar xzvf cryptography*.tar.gz >> make_install_osx.log 2>&1
-rm -rf cryptography*.tar.gz >> make_install_osx.log 2>&1
-pushd cryptography* >> make_install_osx.log 2>&1
-env CC=clang CXX=clang++ CFLAGS="-I$PREFIX/ -I/usr/local/include/ -DCRYPTOGRAPHY_OSRANDOM_ENGINE=CRYPTOGRAPHY_OSRANDOM_ENGINE_DEV_URANDOM" LDFLAGS="-L$PREFIX/ -L/usr/local/lib" python3 setup.py build >> make_install_osx.log 2>&1
-env CC=clang CXX=clang++ CFLAGS="-I$PREFIX/ -I/usr/local/include/ -DCRYPTOGRAPHY_OSRANDOM_ENGINE=CRYPTOGRAPHY_OSRANDOM_ENGINE_DEV_URANDOM" LDFLAGS="-L$PREFIX/ -L/usr/local/lib" python3 -m pip install . >> make_install_osx.log 2>&1
+python3.9 -m pip download cryptography --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
+tar xzvf cryptography*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+rm -rf cryptography*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+pushd cryptography* >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CFLAGS="-I$PREFIX/ -I/usr/local/include/ -DCRYPTOGRAPHY_OSRANDOM_ENGINE=CRYPTOGRAPHY_OSRANDOM_ENGINE_DEV_URANDOM" LDFLAGS="-L$PREFIX/ -L/usr/local/lib" python3 setup.py build >> $PREFIX/make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CFLAGS="-I$PREFIX/ -I/usr/local/include/ -DCRYPTOGRAPHY_OSRANDOM_ENGINE=CRYPTOGRAPHY_OSRANDOM_ENGINE_DEV_URANDOM" LDFLAGS="-L$PREFIX/ -L/usr/local/lib" python3 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/cryptography/  >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/cryptography/hazmat  >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/cryptography/hazmat/bindings  >> $PREFIX/make_install_osx.log 2>&1
 cp build//lib.macosx-10.15-x86_64-3.9/cryptography/hazmat/bindings/*.so $PREFIX/build/lib.macosx-10.15-x86_64-3.9/cryptography/hazmat/bindings
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
+# for Carnets specifically (or all apps with Jupyter notebooks):
+if [ $APP == "Carnets" ]; 
+then
+	# Pandas
+	pushd packages >> make_install_osx.log 2>&1
+	env NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" python3.9 -m pip download pandas --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
+	tar xvzf pandas*  >> $PREFIX/make_install_osx.log 2>&1
+	rm pandas*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
+	pushd pandas*  >> $PREFIX/make_install_osx.log 2>&1
+	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/pandas/  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/pandas/io  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/pandas/io/sas  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/pandas/_libs  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/pandas/_libs/window  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/pandas/_libs/tslibs  >> $PREFIX/make_install_osx.log 2>&1
+	cp build/lib.macosx-10.15-x86_64-3.9/pandas/io/sas/_sas.cpython-39-darwin.so $PREFIX/build/lib.macosx-10.15-x86_64-3.9/pandas/io/sas >> $PREFIX/make_install_osx.log 2>&1
+	cp build/lib.macosx-10.15-x86_64-3.9/pandas/_libs/*.so $PREFIX/build/lib.macosx-10.15-x86_64-3.9/pandas/_libs >> $PREFIX/make_install_osx.log 2>&1
+	cp build/lib.macosx-10.15-x86_64-3.9/pandas/_libs/window/*.so $PREFIX/build/lib.macosx-10.15-x86_64-3.9/pandas/_libs/window >> $PREFIX/make_install_osx.log 2>&1
+	cp build/lib.macosx-10.15-x86_64-3.9/pandas/_libs/tslibs/*.so $PREFIX/build/lib.macosx-10.15-x86_64-3.9/pandas/_libs/tslibs >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+	# nbextensions
+	python3.9 -m pip install --upgrade pyyaml >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip install --upgrade jupyter_contrib_core >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip install --upgrade jupyter_contrib_nbextensions >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip install --upgrade jupyter_nbextensions_configurator >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip install --upgrade ipysheet >> $PREFIX/make_install_osx.log 2>&1
+	# ipysheet.renderer_nbext has disappeared?
+	# widgetsnbextension is a bit special, because of the need to add touchscreen support:
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip download --no-binary :all: widgetsnbextension==4.0.0a0 >> $PREFIX/make_install_osx.log 2>&1
+	tar xzvf widgetsnbextension*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+	rm  widgetsnbextension*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+	cd  widgetsnbextension* >> $PREFIX/make_install_osx.log 2>&1
+	# force build a first time to download node_module, then clear everything, replace mouse.js and force rebuild:
+	rm widgetsnbextension/static/* >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
+	rm -rf build >> $PREFIX/make_install_osx.log 2>&1
+	rm widgetsnbextension/static/* >> $PREFIX/make_install_osx.log 2>&1
+	cp ../widgetsnbextension_node_modules_mouse.js node_modules/jquery-ui/ui/widgets/mouse.js >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+	# dill: preparing for the next step
+	python3.9 -m pip install dill >> $PREFIX/make_install_osx.log 2>&1
+	# bokeh: Pure Python, only one modification, where it stores data:
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip download --no-binary :all: bokeh >> $PREFIX/make_install_osx.log 2>&1
+	tar xzvf bokeh*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+	rm  bokeh*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+	cd  bokeh* >> $PREFIX/make_install_osx.log 2>&1
+	sed -i bak 's/^    bokeh_dir = join(expanduser("~"), ".bokeh")/    # iOS: store data in ~\/Documents\/.bokeh\
+    import sys\
+    import os\
+    if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
+        bokeh_dir = join(expanduser("\~"), "Documents\/.bokeh")\
+    else:\
+        bokeh_dir = join(expanduser("\~"), ".bokeh")/' bokeh/util/sampledata.py >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+	# astropy
+	python3.9 -m pip install extension_helpers >> $PREFIX/make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
+	env NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" python3.9 -m pip download --no-binary :all: astropy >> $PREFIX/make_install_osx.log 2>&1
+	tar xvzf astropy*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
+	rm astropy*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
+	pushd astropy*  >> $PREFIX/make_install_osx.log 2>&1
+	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+	# We need to edit the position of .astropy:
+	sed -i bak '1,/^            homedir = os.environ\[.HOME.\]/ s/^            homedir = os.environ\[.HOME.\]/&\
+            # iOS: change homedir to HOME\/Documents\
+            if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
+                homedir = homedir + "\/Documents"/' astropy/config/paths.py 
+	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/timeseries/periodograms/bls  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/timeseries/periodograms/lombscargle/implementations  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/_erfa  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/wcs  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/utils  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/utils/xml  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/io/ascii  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/io/fits  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/io/votable  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/modeling  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/table  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/cosmology  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/convolution  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/stats  >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/compiler_version.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/timeseries/periodograms/bls/_impl.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/timeseries/periodograms/bls/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/timeseries/periodograms/lombscargle/implementations/cython_impl.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/timeseries/periodograms/lombscargle/implementations/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/_erfa/ufunc.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/_erfa/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/wcs/_wcs.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/wcs/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/io/ascii/cparser.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/io/ascii/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/io/fits/compression.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/io/fits/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/io/fits/_utils.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/io/fits/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/io/votable/tablewriter.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/io/votable/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/utils/_compiler.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/utils/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/utils/xml/_iterparser.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/utils/xml/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/modeling/_projections.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/modeling/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/table/_np_utils.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/table/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/table/_column_mixins.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/table/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/cosmology/scalar_inv_efuncs.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/cosmology/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/convolution/_convolve.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/convolution/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/stats/_stats.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-10.15-x86_64-3.9/astropy/stats/ >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+fi
 # 
 # 4 different kind of package configuration
 # - pure-python packages, no edits: use pip install
@@ -577,8 +711,8 @@ popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # lxml:
 pushd packages >> make_ios.log 2>&1
-pushd lxml*  >> make_ios.log 2>&1
-rm -rf build/* >> make_ios.log 2>&1
+pushd lxml*  >> $PREFIX/make_ios.log 2>&1
+rm -rf build/* >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ \
 CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/" \
 CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/ -Isrc/lxml/includes " \
@@ -606,9 +740,89 @@ PLATFORM=iphoneos python3 setup.py build  >> $PREFIX/make_ios.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/cryptography/  >> $PREFIX/make_ios.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/cryptography/hazmat  >> $PREFIX/make_ios.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/cryptography/hazmat/bindings  >> $PREFIX/make_ios.log 2>&1
-cp build/lib.macosx-10.15-arm64-3.9/cryptography/hazmat/bindings/*.so $PREFIX/build/lib.darwin-arm64-3.9/cryptography/hazmat/bindings
+cp build/lib.macosx-10.15-arm64-3.9/cryptography/hazmat/bindings/*.so $PREFIX/build/lib.darwin-arm64-3.9/cryptography/hazmat/bindings >> $PREFIX/make_ios.log 2>&1
+
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
+# Pandas (but only with Carnets):
+if [ $APP == "Carnets" ]; 
+then
+	pushd packages >> make_ios.log 2>&1
+	pushd pandas*  >> $PREFIX/make_ios.log 2>&1
+	rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
+    # Needed to load parser/tokenizer.h before Parser/tokenizer.h:
+    PANDAS=$PWD
+	env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX $DEBUG" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.9 $DEBUG" PLATFORM=iphoneos NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" python3 setup.py build  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/io  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/io/sas  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/window  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/tslibs  >> $PREFIX/make_ios.log 2>&1
+	cp build/lib.macosx-10.15-arm64-3.9/pandas/io/sas/_sas.cpython-39-darwin.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/io/sas >> $PREFIX/make_ios.log 2>&1
+	cp build/lib.macosx-10.15-arm64-3.9/pandas/_libs/*.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs >> $PREFIX/make_ios.log 2>&1
+	cp build/lib.macosx-10.15-arm64-3.9/pandas/_libs/window/*.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/window >> $PREFIX/make_ios.log 2>&1
+	cp build/lib.macosx-10.15-arm64-3.9/pandas/_libs/tslibs/*.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/tslibs >> $PREFIX/make_ios.log 2>&1
+	popd  >> $PREFIX/make_ios.log 2>&1
+	popd  >> $PREFIX/make_ios.log 2>&1
+	# bokeh, dill: pure Python installs
+	# astropy
+	pushd packages >> $PREFIX/make_ios.log 2>&1
+	pushd astropy*  >> $PREFIX/make_ios.log 2>&1
+	rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX $DEBUG" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.9 $DEBUG" PLATFORM=iphoneos NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" python3 setup.py build  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/timeseries/periodograms/bls  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/timeseries/periodograms/lombscargle/implementations  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/_erfa  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/wcs  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/utils  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/utils/xml  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/io/ascii  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/io/fits  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/io/votable  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/modeling  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/table  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/cosmology  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/convolution  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/stats  >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/compiler_version.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/timeseries/periodograms/bls/_impl.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/timeseries/periodograms/bls/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/timeseries/periodograms/lombscargle/implementations/cython_impl.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/timeseries/periodograms/lombscargle/implementations/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/_erfa/ufunc.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/_erfa/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/wcs/_wcs.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/wcs/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/io/ascii/cparser.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/io/ascii/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/io/fits/compression.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/io/fits/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/io/fits/_utils.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/io/fits/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/io/votable/tablewriter.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/io/votable/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/utils/_compiler.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/utils/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/utils/xml/_iterparser.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/utils/xml/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/modeling/_projections.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/modeling/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/table/_np_utils.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/table/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/table/_column_mixins.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/table/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/cosmology/scalar_inv_efuncs.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/cosmology/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/convolution/_convolve.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/convolution/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-10.15-arm64-3.9/astropy/stats/_stats.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/stats/ >> $PREFIX/make_ios.log 2>&1
+	popd  >> $PREFIX/make_ios.log 2>&1
+	popd  >> $PREFIX/make_ios.log 2>&1
+fi
 
 
 # 3) compile for Simulator:
@@ -802,6 +1016,85 @@ mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/cryptography/hazmat/bindings  >> $P
 cp build/lib.macosx-10.15-x86_64-3.9/cryptography/hazmat/bindings/*.so $PREFIX/build/lib.darwin-x86_64-3.9/cryptography/hazmat/bindings >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
+# Pandas (but only with Carnets):
+if [ $APP == "Carnets" ]; 
+then
+	pushd packages >> make_simulator.log 2>&1
+	pushd pandas*  >> $PREFIX/make_simulator.log 2>&1
+	rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
+    # Need to load parser/tokenizer.h before Parser/tokenizer.h
+    PANDAS=$PWD
+	env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX $DEBUG" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib -L$PREFIX/build/lib.darwin-x86_64-3.9 $DEBUG" PLATFORM=iphonesimulator NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" python3 setup.py build  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/io  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/io/sas  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs/window  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs/tslibs  >> $PREFIX/make_simulator.log 2>&1
+	cp build/lib.macosx-10.15-x86_64-3.9/pandas/io/sas/_sas.cpython-39-darwin.so $PREFIX/build/lib.darwin-x86_64-3.9/pandas/io/sas >> $PREFIX/make_simulator.log 2>&1
+	cp build/lib.macosx-10.15-x86_64-3.9/pandas/_libs/*.so $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs >> $PREFIX/make_simulator.log 2>&1
+	cp build/lib.macosx-10.15-x86_64-3.9/pandas/_libs/window/*.so $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs/window >> $PREFIX/make_simulator.log 2>&1
+	cp build/lib.macosx-10.15-x86_64-3.9/pandas/_libs/tslibs/*.so $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs/tslibs >> $PREFIX/make_simulator.log 2>&1
+	popd  >> $PREFIX/make_simulator.log 2>&1
+	popd  >> $PREFIX/make_simulator.log 2>&1
+	# bokeh, dill: pure Python installs
+	# astropy
+	pushd packages >> $PREFIX/make_simulator.log 2>&1
+	pushd astropy*  >> $PREFIX/make_simulator.log 2>&1
+	rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX $DEBUG" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib -L$PREFIX/build/lib.darwin-x86_64-3.9 $DEBUG" PLATFORM=iphonesimulator NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" python3 setup.py build  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/timeseries/periodograms/bls  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/timeseries/periodograms/lombscargle/implementations  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/_erfa  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/wcs  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/utils  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/utils/xml  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/io/ascii  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/io/fits  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/io/votable  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/modeling  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/table  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/cosmology  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/convolution  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/stats  >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/compiler_version.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/timeseries/periodograms/bls/_impl.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/timeseries/periodograms/bls/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/timeseries/periodograms/lombscargle/implementations/cython_impl.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/timeseries/periodograms/lombscargle/implementations/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/_erfa/ufunc.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/_erfa/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/wcs/_wcs.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/wcs/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/io/ascii/cparser.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/io/ascii/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/io/fits/compression.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/io/fits/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/io/fits/_utils.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/io/fits/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/io/votable/tablewriter.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/io/votable/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/utils/_compiler.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/utils/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/utils/xml/_iterparser.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/utils/xml/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/modeling/_projections.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/modeling/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/table/_np_utils.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/table/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/table/_column_mixins.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/table/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/cosmology/scalar_inv_efuncs.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/cosmology/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/convolution/_convolve.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/convolution/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-10.15-x86_64-3.9/astropy/stats/_stats.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/stats/ >> $PREFIX/make_simulator.log 2>&1
+	popd  >> $PREFIX/make_simulator.log 2>&1
+	popd  >> $PREFIX/make_simulator.log 2>&1
+fi
 
 
 # Python build finished successfully!
