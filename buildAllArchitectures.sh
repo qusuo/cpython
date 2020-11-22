@@ -8,8 +8,8 @@ export PYTHONPYCACHEPREFIX=$PREFIX/__pycache__
 OSX_SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
 IOS_SDKROOT=$(xcrun --sdk iphoneos --show-sdk-path)
 SIM_SDKROOT=$(xcrun --sdk iphonesimulator --show-sdk-path)
-DEBUG="-O3 -Wall"
-# DEBUG="-g"
+# DEBUG="-O3 -Wall"
+DEBUG="-g"
 # Loading different set of frameworks based on the Application:
 APP=$(basename `dirname $PWD`)
 
