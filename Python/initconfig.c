@@ -1210,8 +1210,7 @@ config_init_executable(PyConfig *config)
 	wchar_t execpath[MAXPATHLEN+1];
     // we use getenv and not Py_GETENV because we do not want to ignore the environment here.
     char *iospath = getenv("PYTHONHOME");
-    char *prog = getenv("PYTHONEXECUTABLE");
-    swprintf(execpath, MAXPATHLEN+1, L"%s/bin/%s", iospath, prog);
+    swprintf(execpath, MAXPATHLEN+1, L"%s/bin/python3", iospath);
     program_full_path = execpath;
 #endif
     if (program_full_path != NULL) {

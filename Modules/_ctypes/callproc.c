@@ -1478,7 +1478,15 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
         if ((wcscmp(pythonName, L"python3") == 0) || (wcscmp(pythonName, L"python") == 0)) {
             wcscpy(pythonName, L"python3_ios");
         }
-        sprintf(newPathString, "%s/Frameworks/%S-%s.framework/%S-%s", getenv("APPDIR"), pythonName, name_str, pythonName, name_str);
+		wchar_t *prefix = Py_GetPrefix(); // sys.prefix = $APPDIR + "/Library"
+		wchar_t *library = wcsstr(prefix, L"/Library");
+		*library = L'\0'; // terminate prefix before /Library, to get the APPDIR
+		if ((library != NULL) && (library != prefix)) {
+			*library = L'\0'; // terminate prefix before /Library, to get the APPDIR
+			sprintf(newPathString, "%S/Frameworks/%S-%s.framework/%S-%s", prefix, pythonName, name_str, pythonName, name_str);
+		} else {
+			sprintf(newPathString, "%s/Frameworks/%S-%s.framework/%S-%s",  getenv("APPDIR"), pythonName, name_str, pythonName, name_str);
+		}
         handle = ctypes_dlopen(newPathString, mode);
     } else {
 #endif
