@@ -40,7 +40,8 @@ mkdir -p build/lib.macosx-${OSX_VERSION}-x86_64-3.9  > make_install_osx.log 2>&1
 cp libpython3.9.dylib build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
 make  -j 4 install  >> make_install_osx.log 2>&1
 export PYTHONHOME=$PREFIX/Library
-# When working on frozen importlib, need to compile twice:
+# When working on frozen importlib, we need to compile twice:
+# Otherwise, we can comment the next 6 lines
 make regen-importlib >> make_osx.log 2>&1
 find . -name \*.o -delete  >> make_osx.log 2>&1
 make  -j 4 >> make_osx.log 2>&1 
