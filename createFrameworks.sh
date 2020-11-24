@@ -5,10 +5,12 @@
 #  name /usr/lib/libSystem.B.dylib (offset 24)
 #  name /System/Library/Frameworks/CoreFoundation.framework/CoreFoundation (offset 24)
 
+OSX_VERSION=`sw_vers -productVersion |awk -F. '{print $1"."$2}'`
+
 for name in python3_ios pythonA pythonB pythonC pythonD pythonE
 do 
 	framework=${name}
-	for architecture in lib.macosx-10.15-x86_64-3.9 lib.darwin-arm64-3.9 lib.darwin-x86_64-3.9
+	for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.9 lib.darwin-arm64-3.9 lib.darwin-x86_64-3.9
 	do
 		echo "Creating: " ${architecture}/Frameworks/${name}.framework
 		directory=build/${architecture}/Frameworks/
@@ -29,28 +31,28 @@ do
 	# Edit the Info.plist file:
 	plutil -replace DTPlatformName -string "iphoneos" build/lib.darwin-arm64-3.9/Frameworks/$framework.framework/Info.plist
 	plutil -replace DTPlatformName -string "iphonesimulator" build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework/Info.plist
-	plutil -replace DTPlatformName -string "macosx" build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
+	plutil -replace DTPlatformName -string "macosx" build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 
 	plutil -replace DTSDKName -string "iphoneos" build/lib.darwin-arm64-3.9/Frameworks/$framework.framework/Info.plist
 	plutil -replace DTSDKName -string "iphonesimulator" build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework/Info.plist
-	plutil -replace DTSDKName -string "macosx" build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
+	plutil -replace DTSDKName -string "macosx" build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 
 	plutil -replace DTPlatformVersion -string "14.0" build/lib.darwin-arm64-3.9/Frameworks/$framework.framework/Info.plist
 	plutil -replace DTPlatformVersion -string "14.0" build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework/Info.plist
-	plutil -replace DTPlatformVersion -string "10.15" build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
+	plutil -replace DTPlatformVersion -string "${OSX_VERSION}" build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 
 	plutil -replace MinimumOSVersion -string "14.0" build/lib.darwin-arm64-3.9/Frameworks/$framework.framework/Info.plist
 	plutil -replace MinimumOSVersion -string "14.0" build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework/Info.plist
-	plutil -replace MinimumOSVersion -string "10.15" build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
+	plutil -replace MinimumOSVersion -string "${OSX_VERSION}" build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 
 	plutil -replace CFBundleSupportedPlatforms.0 -string "iPhoneSimulator" build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 	plutil -remove CFBundleSupportedPlatforms.1 build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 
-	plutil -replace CFBundleSupportedPlatforms.0 -string "MacOSX" build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
-	plutil -remove CFBundleSupportedPlatforms.1 build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework/Info.plist
+	plutil -replace CFBundleSupportedPlatforms.0 -string "MacOSX" build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework/Info.plist
+	plutil -remove CFBundleSupportedPlatforms.1 build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework/Info.plist
 # Create the 3-architecture XCFramework:
     rm -rf  XcFrameworks/$framework.xcframework
-	xcodebuild -create-xcframework -framework build/lib.macosx-10.15-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output XcFrameworks/$framework.xcframework
+	xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output XcFrameworks/$framework.xcframework
 	rm -f XcFrameworks/$framework.xcframework.zip
 	zip -rq XcFrameworks/$framework.xcframework.zip XcFrameworks/$framework.xcframework
 done
