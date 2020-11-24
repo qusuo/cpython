@@ -294,6 +294,16 @@ static PyStatus
 config_calculate_pathconfig(PyConfig *config)
 {
     _PyPathConfig pathconfig = _PyPathConfig_INIT;
+#if TARGET_OS_IPHONE
+    pathconfig.program_full_path = NULL;
+    pathconfig.prefix = NULL;
+    pathconfig.exec_prefix = NULL;
+    pathconfig.module_search_path = NULL;
+    pathconfig.program_name = NULL;
+    pathconfig.home = NULL;
+    pathconfig.base_executable = NULL;
+#endif
+
     PyStatus status;
 
     status = pathconfig_calculate(&pathconfig, config);
