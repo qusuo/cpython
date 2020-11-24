@@ -2375,6 +2375,7 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
     // PyObject_Print(file, stderr, 0);
     // fprintf(stderr, " \n");
     char newPathString[MAXPATHLEN];
+    char prefixCopy[MAXPATHLEN]; 
     int argc;
     wchar_t **argv_orig;
     Py_GetArgcArgv(&argc, &argv_orig);
@@ -2384,11 +2385,13 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
     if ((wcscmp(pythonName, L"python3") == 0) || (wcscmp(pythonName, L"python") == 0)) {
         wcscpy(pythonName, L"python3_ios");
     }
+    // The goal here is to avoid repeted calls to getenv("APPDIR") by using sys.prefix that contains the same information.
     wchar_t *prefix = Py_GetPrefix(); // sys.prefix = $APPDIR + "/Library"
-    wchar_t *library = wcsstr(prefix, L"/Library");
-    if ((library != NULL) && (library != prefix)) {
+    wcscpy(prefixCopy, prefix); // copy the prefix to a separate variable
+    wchar_t *library = wcsstr(prefixCopy, L"/Library");
+    if ((library != NULL) && (library != prefixCopy)) {
     	*library = L'\0'; // terminate prefix before /Library, to get the APPDIR
-		sprintf(newPathString, "%S/Frameworks/%S-%s.framework/%S-%s", prefix, pythonName, nameC, pythonName, nameC);
+		sprintf(newPathString, "%S/Frameworks/%S-%s.framework/%S-%s", prefixCopy, pythonName, nameC, pythonName, nameC);
 	} else {
 		sprintf(newPathString, "%s/Frameworks/%S-%s.framework/%S-%s", getenv("APPDIR"), pythonName, nameC, pythonName, nameC);
 	}
