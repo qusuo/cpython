@@ -161,7 +161,10 @@ define([
             // trying to reconnect and we don't want to spam the user
             // with messages
             if (info.attempt === 1) {
-            	// iOS: present a standard alert, and a more explicit message:
+            	// iOS: present a standard alert, and a more explicit message. Also warn the application:
+				if (window.webkit != undefined && window.webkit.messageHandlers.Carnets != undefined) {
+					window.webkit.messageHandlers.Carnets.postMessage("restartServer:/"+data.path);
+				}
             	var msg =  i18n.msg._("Restarting server") + "\n" + 
             		i18n.msg._("We are restarting the Jupyter server and client.");
             	alert(msg);
@@ -203,40 +206,45 @@ define([
         // will pick up the strings.  The actual setting of the text
         // for the button is in dialog.js.
         var button_labels = [ i18n.msg._("Don't Restart"), i18n.msg._("Try Restarting Now"), i18n.msg._("OK")];
+			// iOS: present a standard alert, and a more explicit message:
+			// No alert at all? 
+			var msg =  i18n.msg._("Restarting server") + "\n" + 
+				i18n.msg._("We are restarting the Jupyter server and client.");
+			alert(msg);
+			
+            // var showMsg = function () {
 
-            var showMsg = function () {
+            //     var msg = i18n.msg._('The kernel has died, and the automatic restart has failed.' +
+            //             ' It is possible the kernel cannot be restarted. ' +
+            //             'If you are not able to restart the kernel, you will still be able to save' +
+            //             ' the notebook, but running code will no longer work until the notebook' +
+            //             ' is reopened.');
 
-                var msg = i18n.msg._('The kernel has died, and the automatic restart has failed.' +
-                        ' It is possible the kernel cannot be restarted. ' +
-                        'If you are not able to restart the kernel, you will still be able to save' +
-                        ' the notebook, but running code will no longer work until the notebook' +
-                        ' is reopened.');
+            //     dialog.kernel_modal({
+            //         title: i18n.msg._("Dead kernel"),
+            //         body : msg,
+            //         keyboard_manager: that.keyboard_manager,
+            //         notebook: that.notebook,
+            //         default_button: "Don't Restart",
+            //         buttons : {
+            //             "Don't Restart": {},
+            //             "Try Restarting Now": {
+            //                 class: "btn-danger",
+            //                 click: function () {
+            //                     that.notebook.start_session();
+            //                 }
+            //             }
+            //         }
+            //     });
 
-                dialog.kernel_modal({
-                    title: i18n.msg._("Dead kernel"),
-                    body : msg,
-                    keyboard_manager: that.keyboard_manager,
-                    notebook: that.notebook,
-                    default_button: "Don't Restart",
-                    buttons : {
-                        "Don't Restart": {},
-                        "Try Restarting Now": {
-                            class: "btn-danger",
-                            click: function () {
-                                that.notebook.start_session();
-                            }
-                        }
-                    }
-                });
+            //     return false;
+            // };
 
-                return false;
-            };
+            // that.save_widget.update_document_title();
+            // knw.danger(i18n.msg._("Dead kernel"), undefined, showMsg);
+            // $kernel_ind_icon.attr('class','kernel_dead_icon').attr('title',i18n.msg._('Kernel Dead'));
 
-            that.save_widget.update_document_title();
-            knw.danger(i18n.msg._("Dead kernel"), undefined, showMsg);
-            $kernel_ind_icon.attr('class','kernel_dead_icon').attr('title',i18n.msg._('Kernel Dead'));
-
-            showMsg();
+            // showMsg();
         });
         
         this.events.on("no_kernel.Kernel", function (evt, data) {
