@@ -64,6 +64,7 @@ python3.9 -m pip install Babel --upgrade >> make_install_osx.log 2>&1
 echo Installing MarkupSafe with no extensions >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p packages >> $PREFIX/make_install_osx.log 2>&1
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
+rm -rf  MarkupSafe* >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip download --no-binary :all: markupsafe >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf MarkupSafe*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm MarkupSafe*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -84,6 +85,7 @@ python3.9 -m pip install entrypoints --upgrade >> make_install_osx.log 2>&1
 # send2trash: don't use OSX FSMoveObjectToTrashSync
 echo Installing send2trash >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
+rm -rf Send2Trash*  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip download send2trash --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf Send2Trash*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm Send2Trash*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -99,6 +101,7 @@ echo done installing send2trash >> make_install_osx.log 2>&1
 # pyrsistent: prevent compilation of extension:
 echo Installing pyrsistent with no extension >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
+rm -rf pyrsistent* >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip download pyrsistent --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf pyrsistent*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm pyrsistent*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -142,6 +145,7 @@ python3.9 -m pip install pickleshare --upgrade >> make_install_osx.log 2>&1
 # TODO: edit cffi code if static variables inside function create problems.
 python3.9 -m pip uninstall cffi -y >> $PREFIX/make_install_osx.log 2>&1
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
+rm -rf cffi-* >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip download cffi --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf cffi*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm cffi*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -269,6 +273,7 @@ echo Installing PyZMQ for OSX  >> make_install_osx.log 2>&1
 python3.9 -m pip uninstall pyzmq -y >> $PREFIX/make_install_osx.log 2>&1
 # Then install our own version:
 pushd packages  >> make_install_osx.log 2>&1
+rm -rf pyzmq* >> $PREFIX/make_install_osx.log 2>&1 
 python3.9 -m pip download pyzmq --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf pyzmq*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm pyzmq*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -337,6 +342,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip install cycler --upgrade  >> make_install_osx.log 2>&1
 ## kiwisolver
 pushd packages >> make_install_osx.log 2>&1
+rm -rf kiwisolver* >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip download --no-binary :all: kiwisolver >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf kiwisolver*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm kiwisolver*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -349,6 +355,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 ## Pillow
 pushd packages >> make_install_osx.log 2>&1
+rm -rf Pillow*  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip download --no-binary :all: Pillow >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf Pillow*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm Pillow*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -379,6 +386,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # lxml:
 pushd packages >> make_install_osx.log 2>&1
+rm -rf lxml*  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip download --no-binary :all: lxml >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf lxml-4.6.1.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf lxml*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -395,6 +403,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # cryptography:
 pushd packages >> make_install_osx.log 2>&1
+rm -rf cryptography* >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip download cryptography --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
 tar xzvf cryptography*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm -rf cryptography*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -413,6 +422,7 @@ if [ $APP == "Carnets" ];
 then
 	# Pandas
 	pushd packages >> make_install_osx.log 2>&1
+	rm -rf pandas*  >> $PREFIX/make_install_osx.log 2>&1
 	env NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" python3.9 -m pip download pandas --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
 	tar xvzf pandas*  >> $PREFIX/make_install_osx.log 2>&1
 	rm pandas*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
@@ -445,10 +455,11 @@ then
 	# ipysheet.renderer_nbext has disappeared?
 	# widgetsnbextension is a bit special, because of the need to add touchscreen support:
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
+	rm -rf  widgetsnbextension* >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip download --no-binary :all: widgetsnbextension==4.0.0a0 >> $PREFIX/make_install_osx.log 2>&1
 	tar xzvf widgetsnbextension*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 	rm  widgetsnbextension*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
-	cd  widgetsnbextension* >> $PREFIX/make_install_osx.log 2>&1
+	pushd  widgetsnbextension* >> $PREFIX/make_install_osx.log 2>&1
 	# force build a first time to download node_module, then clear everything, replace mouse.js and force rebuild:
 	rm widgetsnbextension/static/* >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
@@ -462,10 +473,11 @@ then
 	python3.9 -m pip install dill >> $PREFIX/make_install_osx.log 2>&1
 	# bokeh: Pure Python, only one modification, where it stores data:
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
+	rm -rf  bokeh* >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip download --no-binary :all: bokeh >> $PREFIX/make_install_osx.log 2>&1
 	tar xzvf bokeh*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 	rm  bokeh*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
-	cd  bokeh* >> $PREFIX/make_install_osx.log 2>&1
+	pushd  bokeh* >> $PREFIX/make_install_osx.log 2>&1
 	sed -i bak 's/^    bokeh_dir = join(expanduser("~"), ".bokeh")/    # iOS: store data in ~\/Documents\/.bokeh\
     import sys\
     import os\
@@ -479,6 +491,7 @@ then
 	# astropy
 	python3.9 -m pip install extension_helpers >> $PREFIX/make_install_osx.log 2>&1
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
+	rm -rf astropy*  >> $PREFIX/make_install_osx.log 2>&1
 	env NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" python3.9 -m pip download --no-binary :all: astropy >> $PREFIX/make_install_osx.log 2>&1
 	tar xvzf astropy*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
 	rm astropy*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
