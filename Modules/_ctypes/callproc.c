@@ -1488,7 +1488,7 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 			wchar_t *library = wcsstr(prefixCopy, L"/Library");
 			if ((library != NULL) && (library != prefixCopy)) {
 				*library = L'\0'; // terminate prefix before /Library, to get the APPDIR
-				sprintf(newPathString, "%S/Frameworks/%S-%s.framework/%S-%s", prefix, pythonName, name_str, pythonName, name_str);
+				sprintf(newPathString, "%S/Frameworks/%S-%s.framework/%S-%s", prefixCopy, pythonName, name_str, pythonName, name_str);
 			}
 		}
 		if (strlen(newPathString) == 0) {
