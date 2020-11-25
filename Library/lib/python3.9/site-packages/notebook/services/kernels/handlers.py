@@ -426,7 +426,11 @@ class ZMQChannelsHandler(AuthenticatedZMQStreamHandler):
         return self._close_future
 
     def on_close(self):
+        # The websockets have been closed. On iOS/Carnets, that is likely because the
+        # app was in the backgroun for too long.
         self.log.debug("Websocket closed %s", self.session_key)
+        # iOS, debug. Who called you?
+        self.log.info("Websocket closed %s", self.session_key)
         # unregister myself as an open session (only if it's really me)
         if self._open_sessions.get(self.session_key) is self:
             self._open_sessions.pop(self.session_key)
@@ -443,6 +447,7 @@ class ZMQChannelsHandler(AuthenticatedZMQStreamHandler):
 
             # start buffering instead of closing if this was the last connection
             if km._kernel_connections[self.kernel_id] == 0:
+                self.log.info("start buffering instead of closing if this was the last connection")
                 km.start_buffering(self.kernel_id, self.session_key, self.channels)
                 self._close_future.set_result(None)
                 return

@@ -543,6 +543,9 @@ define([
 
         this.events.trigger('kernel_disconnected.Kernel', {kernel: this});
         if (error) {
+			if (window.webkit != undefined && window.webkit.messageHandlers.Carnets != undefined) {
+				window.webkit.messageHandlers.Carnets.postMessage('WebSocket connection failed: ', ws_url, error);
+			}
             console.log('WebSocket connection failed: ', ws_url, error);
             this.events.trigger('kernel_connection_failed.Kernel', {
                 kernel: this,

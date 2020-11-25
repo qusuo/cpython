@@ -125,7 +125,7 @@ dir="ltr">
 <!-- iOS: disable this block always (Carnets: we'll take care of it, a-Shell: we can't do it -->
 <!-- Do not disable the entire block, or JS will crash -->
 <div id="header" role="navigation" aria-label="{% trans %}Top Menu{% endtrans %}">
-{% if keep-full-header %}  	
+{% if keep_full_header %}  	
   <div id="header-container" class="container">
   <div id="ipython_notebook" class="nav navbar-brand"><a href="{{default_url}}
     {%- if logged_in and token -%}?token={{token}}{%- endif -%}" title='{% trans %}dashboard{% endtrans %}'>
@@ -150,7 +150,7 @@ dir="ltr">
   {% endblock header_buttons %}
   
   </div>
-{% endif %} <!-- keep-full-header -->
+{% endif %} <!-- keep_full_header -->
   <div class="header-bar"></div>
 
   {% block header %}
