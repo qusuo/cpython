@@ -250,7 +250,7 @@ pushd mpmath >> $PREFIX/make_install_osx.log 2>&1
 git pull  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-python3.9 setup.py install  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Now install sympy:
@@ -513,8 +513,8 @@ if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/  >> $PREFIX/make_install_osx.log 2>&1
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/timeseries/periodograms/bls  >> $PREFIX/make_install_osx.log 2>&1
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/timeseries/periodograms/lombscargle/implementations  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/_erfa  >> $PREFIX/make_install_osx.log 2>&1
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/wcs  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/time  >> $PREFIX/make_install_osx.log 2>&1
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/utils  >> $PREFIX/make_install_osx.log 2>&1
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/utils/xml  >> $PREFIX/make_install_osx.log 2>&1
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/io/ascii  >> $PREFIX/make_install_osx.log 2>&1
@@ -531,10 +531,10 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/ >> $PREFIX/make_inst
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/timeseries/periodograms/bls/ >> $PREFIX/make_install_osx.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/timeseries/periodograms/lombscargle/implementations/cython_impl.cpython-39-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/timeseries/periodograms/lombscargle/implementations/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/_erfa/ufunc.cpython-39-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/_erfa/ >> $PREFIX/make_install_osx.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/wcs/_wcs.cpython-39-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/wcs/ >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/time/_parse_times.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/time/ >> $PREFIX/make_install_osx.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/io/ascii/cparser.cpython-39-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/io/ascii/ >> $PREFIX/make_install_osx.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/io/fits/compression.cpython-39-darwin.so \
@@ -562,6 +562,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/mak
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 fi
+
 # 
 # 4 different kind of package configuration
 # - pure-python packages, no edits: use pip install
@@ -799,8 +800,8 @@ then
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/  >> $PREFIX/make_ios.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/timeseries/periodograms/bls  >> $PREFIX/make_ios.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/timeseries/periodograms/lombscargle/implementations  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/_erfa  >> $PREFIX/make_ios.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/wcs  >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/time  >> $PREFIX/make_ios.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/utils  >> $PREFIX/make_ios.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/utils/xml  >> $PREFIX/make_ios.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/astropy/io/ascii  >> $PREFIX/make_ios.log 2>&1
@@ -817,10 +818,10 @@ then
       $PREFIX/build/lib.darwin-arm64-3.9/astropy/timeseries/periodograms/bls/ >> $PREFIX/make_ios.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/astropy/timeseries/periodograms/lombscargle/implementations/cython_impl.cpython-39-darwin.so \
       $PREFIX/build/lib.darwin-arm64-3.9/astropy/timeseries/periodograms/lombscargle/implementations/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/astropy/_erfa/ufunc.cpython-39-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.9/astropy/_erfa/ >> $PREFIX/make_ios.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/astropy/wcs/_wcs.cpython-39-darwin.so \
       $PREFIX/build/lib.darwin-arm64-3.9/astropy/wcs/ >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/astropy/time/_parse_times.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-arm64-3.9/astropy/time/ >> $PREFIX/make_ios.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/astropy/io/ascii/cparser.cpython-39-darwin.so \
       $PREFIX/build/lib.darwin-arm64-3.9/astropy/io/ascii/ >> $PREFIX/make_ios.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/astropy/io/fits/compression.cpython-39-darwin.so \
@@ -1071,8 +1072,8 @@ then
 	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/  >> $PREFIX/make_simulator.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/timeseries/periodograms/bls  >> $PREFIX/make_simulator.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/timeseries/periodograms/lombscargle/implementations  >> $PREFIX/make_simulator.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/_erfa  >> $PREFIX/make_simulator.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/wcs  >> $PREFIX/make_simulator.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/time  >> $PREFIX/make_simulator.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/utils  >> $PREFIX/make_simulator.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/utils/xml  >> $PREFIX/make_simulator.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/astropy/io/ascii  >> $PREFIX/make_simulator.log 2>&1
@@ -1089,10 +1090,10 @@ then
       $PREFIX/build/lib.darwin-x86_64-3.9/astropy/timeseries/periodograms/bls/ >> $PREFIX/make_simulator.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/timeseries/periodograms/lombscargle/implementations/cython_impl.cpython-39-darwin.so \
       $PREFIX/build/lib.darwin-x86_64-3.9/astropy/timeseries/periodograms/lombscargle/implementations/ >> $PREFIX/make_simulator.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/_erfa/ufunc.cpython-39-darwin.so \
-      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/_erfa/ >> $PREFIX/make_simulator.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/wcs/_wcs.cpython-39-darwin.so \
       $PREFIX/build/lib.darwin-x86_64-3.9/astropy/wcs/ >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/time/_parse_times.cpython-39-darwin.so \
+      $PREFIX/build/lib.darwin-x86_64-3.9/astropy/time/ >> $PREFIX/make_simulator.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/io/ascii/cparser.cpython-39-darwin.so \
       $PREFIX/build/lib.darwin-x86_64-3.9/astropy/io/ascii/ >> $PREFIX/make_simulator.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/io/fits/compression.cpython-39-darwin.so \
