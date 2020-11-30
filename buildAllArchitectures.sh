@@ -388,12 +388,12 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
 rm -rf lxml*  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip download --no-binary :all: lxml >> $PREFIX/make_install_osx.log 2>&1
-tar xvzf lxml-4.6.1.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
+tar xvzf lxml*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf lxml*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd lxml*  >> $PREFIX/make_install_osx.log 2>&1
 cp ../setupinfo_lxml.py ./setupinfo.py  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
-env CC=clang CXX=clang++ CFLAGS="-I$PREFIX/" LDFLAGS="-L$PREFIX/" python3 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CFLAGS="-I$PREFIX/" LDFLAGS="-L$PREFIX/" python3 setup.py build --with-cython >> $PREFIX/make_install_osx.log 2>&1
 env CC=clang CXX=clang++ CFLAGS="-I$PREFIX/" LDFLAGS="-L$PREFIX/" python3 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/lxml/  >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/lxml/html/  >> $PREFIX/make_install_osx.log 2>&1
@@ -486,6 +486,21 @@ then
     else:\
         bokeh_dir = join(expanduser("\~"), ".bokeh")/' bokeh/util/sampledata.py >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+	# pyerfa (for astropy)
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
+	rm -rf pyerfa*  >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip download --no-binary :all: pyerfa >> $PREFIX/make_install_osx.log 2>&1
+	tar xvzf pyerfa*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
+	rm pyerfa*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
+	pushd pyerfa*  >> $PREFIX/make_install_osx.log 2>&1
+	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/erfa/  >> $PREFIX/make_install_osx.log 2>&1
+    cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/erfa/ufunc.cpython-39-darwin.so \
+$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/erfa/ >> $PREFIX/make_install_osx.log 2>&1
+    python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# astropy
@@ -746,7 +761,7 @@ CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX
 CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/" \
 LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.9 -L$PREFIX/Frameworks_iphoneos/lib/" \
 LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.9 -lz -lpython3.9 -L$PREFIX/Frameworks_iphoneos/lib/" \
-PLATFORM=iphoneos python3 setup.py build  >> $PREFIX/make_ios.log 2>&1
+PLATFORM=iphoneos python3 setup.py build  --with-cython >> $PREFIX/make_ios.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/lxml/  >> $PREFIX/make_ios.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/lxml/html/  >> $PREFIX/make_ios.log 2>&1
 cp ./build/lib.macosx-${OSX_VERSION}-arm64-3.9/lxml/*.so  $PREFIX/build/lib.darwin-arm64-3.9/lxml/ >> $PREFIX/make_ios.log 2>&1
@@ -792,6 +807,16 @@ then
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	# bokeh, dill: pure Python installs
+	# pyerfa (for astropy)
+	pushd packages >> $PREFIX/make_ios.log 2>&1
+	pushd pyerfa*  >> $PREFIX/make_ios.log 2>&1
+	rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX $DEBUG" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX $DEBUG" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT $DEBUG" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.9 $DEBUG" PLATFORM=iphoneos python3.9 setup.py build >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/erfa/  >> $PREFIX/make_ios.log 2>&1
+    cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/erfa/ufunc.cpython-39-darwin.so \
+$PREFIX/build/lib.darwin-arm64-3.9/erfa/ >> $PREFIX/make_ios.log 2>&1
+	popd  >> $PREFIX/make_ios.log 2>&1
+	popd  >> $PREFIX/make_ios.log 2>&1	
 	# astropy
 	pushd packages >> $PREFIX/make_ios.log 2>&1
 	pushd astropy*  >> $PREFIX/make_ios.log 2>&1
@@ -1018,7 +1043,7 @@ CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -
 CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphonesimulator/include/" \
 LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/build/lib.darwin-x86_64-3.9 -L$PREFIX/Frameworks_iphonesimulator/lib/" \
 LDSHARED="clang -v -undefined error -dynamiclib -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/build/lib.darwin-x86_64-3.9 -lz -lpython3.9 -L$PREFIX/Frameworks_iphonesimulator/lib/" \
-PLATFORM=iphonesimulator python3 setup.py build  >> $PREFIX/make_simulator.log 2>&1
+PLATFORM=iphonesimulator python3 setup.py build --with-cython >> $PREFIX/make_simulator.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/lxml/  >> $PREFIX/make_simulator.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/lxml/html/  >> $PREFIX/make_simulator.log 2>&1
 cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/lxml/*.so  $PREFIX/build/lib.darwin-x86_64-3.9/lxml/ >> $PREFIX/make_simulator.log 2>&1
@@ -1064,6 +1089,16 @@ then
 	popd  >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1
 	# bokeh, dill: pure Python installs
+	# pyerfa (for astropy)
+	pushd packages >> $PREFIX/make_simulator.log 2>&1
+	pushd pyerfa*  >> $PREFIX/make_simulator.log 2>&1
+	rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX $DEBUG" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX $DEBUG" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ $DEBUG" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib -L$PREFIX/build/lib.darwin-x86_64-3.9 $DEBUG" PLATFORM=iphonesimulator python3.9 setup.py build >> $PREFIX/make_ios.log 2>&1
+	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/erfa/  >> $PREFIX/make_simulator.log 2>&1
+    cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/erfa/ufunc.cpython-39-darwin.so \
+$PREFIX/build/lib.darwin-x86_64-3.9/ >> $PREFIX/make_simulator.log 2>&1
+	popd  >> $PREFIX/make_simulator.log 2>&1
+	popd  >> $PREFIX/make_simulator.log 2>&1	
 	# astropy
 	pushd packages >> $PREFIX/make_simulator.log 2>&1
 	pushd astropy*  >> $PREFIX/make_simulator.log 2>&1
