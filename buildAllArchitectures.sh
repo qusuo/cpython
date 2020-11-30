@@ -72,7 +72,7 @@ pushd MarkupSafe* >> $PREFIX/make_install_osx.log 2>&1
 sed -i bak  's/run_setup(True)/run_setup(False)/g' setup.py  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
-rm -rf MarkupSafe* >> $PREFIX/make_install_osx.log 2>&1
+# rm -rf MarkupSafe* >> $PREFIX/make_install_osx.log 2>&1
 popd >> $PREFIX/make_install_osx.log 2>&1
 echo Done installing MarkupSafe >> make_install_osx.log 2>&1
 # end markupsafe 
@@ -94,7 +94,7 @@ sed -i bak "s/^import sys/&, os/" send2trash/__init__.py  >> $PREFIX/make_instal
 sed -i bak "s/^if sys.platform == 'darwin'/& and not os.uname\(\).machine.startswith\('iP'\)/" send2trash/__init__.py  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
-rm -rf Send2Trash* >> $PREFIX/make_install_osx.log 2>&1
+# rm -rf Send2Trash* >> $PREFIX/make_install_osx.log 2>&1
 popd >> $PREFIX/make_install_osx.log 2>&1
 echo done installing send2trash >> make_install_osx.log 2>&1
 # end send2trash
@@ -465,7 +465,7 @@ then
 	python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build >> $PREFIX/make_install_osx.log 2>&1
 	rm widgetsnbextension/static/* >> $PREFIX/make_install_osx.log 2>&1
-	cp ../widgetsnbextension_node_modules_mouse.js node_modules/jquery-ui/ui/widgets/mouse.js >> $PREFIX/make_install_osx.log 2>&1
+	cp ../touch_widgetsnbextension_node_modules_mouse.js node_modules/jquery-ui/ui/widgets/mouse.js >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
@@ -488,7 +488,7 @@ then
 	python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
-	# pyerfa (for astropy)
+	# pyerfa (for astropy 4.6.2)
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf pyerfa*  >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip download --no-binary :all: pyerfa >> $PREFIX/make_install_osx.log 2>&1
@@ -512,11 +512,11 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/erfa/ >> $PREFIX/make_install
 	rm astropy*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
 	pushd astropy*  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-	# We need to edit the position of .astropy:
-	sed -i bak '1,/^            homedir = os.environ\[.HOME.\]/ s/^            homedir = os.environ\[.HOME.\]/&\
-            # iOS: change homedir to HOME\/Documents\
-            if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
-                homedir = homedir + "\/Documents"/' astropy/config/paths.py 
+	# We need to edit the position of .astropy (updated for 4.6.2):
+	sed -i bak 's/^        homedir = os.path.expanduser('~')/&\
+        # iOS: change homedir to HOME\/Documents\
+        if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
+            homedir = homedir + "\/Documents"/' astropy/config/paths.py 
 	sed -i bak 's/^LIBRARY_PATH = os.path.dirname(__file__)/# iOS: For load_library to work, we need to give it special arguments\
 &\
 import sys\
@@ -1096,7 +1096,7 @@ then
 	env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX $DEBUG" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX $DEBUG" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ $DEBUG" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib -L$PREFIX/build/lib.darwin-x86_64-3.9 $DEBUG" PLATFORM=iphonesimulator python3.9 setup.py build >> $PREFIX/make_ios.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/erfa/  >> $PREFIX/make_simulator.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/erfa/ufunc.cpython-39-darwin.so \
-$PREFIX/build/lib.darwin-x86_64-3.9/ >> $PREFIX/make_simulator.log 2>&1
+$PREFIX/build/lib.darwin-x86_64-3.9/erfa >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1	
 	# astropy
