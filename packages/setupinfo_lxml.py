@@ -191,7 +191,8 @@ def ext_modules(static_include_dirs, static_library_dirs,
     if CYTHON_INSTALLED and use_cython:
         # build .c files right now and convert Extension() objects
         from Cython.Build import cythonize
-        result = cythonize(result, compiler_directives=cythonize_directives)
+        # iOS: we need to force creation of .c files from .pyx files:
+        result = cythonize(result, force=True, compiler_directives=cythonize_directives)
 
     # for backwards compatibility reasons, provide "etree[_api].h" also as "lxml.etree[_api].h"
     for header_filename in HEADER_FILES:

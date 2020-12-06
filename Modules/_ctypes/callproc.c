@@ -1470,6 +1470,7 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
     // iOS: create the name of the framework from the name of the library.
     if ((name_str != NULL) && (name_str[0] != '/')) {
         char newPathString[MAXPATHLEN];
+		char prefixCopy[MAXPATHLEN]; 
         int argc;
         wchar_t **argv_orig;
         Py_GetArgcArgv(&argc, &argv_orig);
@@ -1479,12 +1480,15 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
             wcscpy(pythonName, L"python3_ios");
         }
         newPathString[0] = 0;
+		// The goal here is to avoid repeted calls to getenv("APPDIR") by using sys.prefix 
+		// that contains almost the same information.
 		wchar_t *prefix = Py_GetPrefix(); // sys.prefix = $APPDIR + "/Library"
+		wcscpy(prefixCopy, prefix); // copy the prefix to a separate variable
 		if (prefix != NULL) {
-			wchar_t *library = wcsstr(prefix, L"/Library");
-			if ((library != NULL) && (library != prefix)) {
+			wchar_t *library = wcsstr(prefixCopy, L"/Library");
+			if ((library != NULL) && (library != prefixCopy)) {
 				*library = L'\0'; // terminate prefix before /Library, to get the APPDIR
-				sprintf(newPathString, "%S/Frameworks/%S-%s.framework/%S-%s", prefix, pythonName, name_str, pythonName, name_str);
+				sprintf(newPathString, "%S/Frameworks/%S-%s.framework/%S-%s", prefixCopy, pythonName, name_str, pythonName, name_str);
 			}
 		}
 		if (strlen(newPathString) == 0) {
