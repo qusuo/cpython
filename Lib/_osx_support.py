@@ -195,6 +195,9 @@ def _supports_arm64_builds():
     # 1. macOS 11 and later, unconditionally
     # 2. macOS 10.15 with Xcode 12.2 or later
     # For now the second category is ignored.
+    # The lines above come from Apple engineers. They forgot: 
+    # 3. iPhoneOS / iPadOS (while cross-compiling).
+    return True
     osx_version = _get_system_version_tuple()
     return osx_version >= (11, 0) if osx_version else False
 
