@@ -46,6 +46,7 @@ cp  $XCFRAMEWORKS_DIR/openblas.xcframework/macos-x86_64/openblas.framework/openb
 install_name_tool -id $PREFIX/Frameworks_macosx/lib/libopenblas.dylib   $PREFIX/Frameworks_macosx/lib/libopenblas.dylib
 #
 rm -rf build/lib.macosx-${OSX_VERSION}-x86_64-3.9
+rm $PREFIX/Library/bin/make
 make -j 4 >& make_osx.log
 mkdir -p build/lib.macosx-${OSX_VERSION}-x86_64-3.9  > make_install_osx.log 2>&1
 cp libpython3.9.dylib build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
@@ -433,7 +434,8 @@ env CC=clang CXX=clang++ CFLAGS="-I$PREFIX/ -I/usr/local/include/ -DCRYPTOGRAPHY
 mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/cryptography/  >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/cryptography/hazmat  >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/cryptography/hazmat/bindings  >> $PREFIX/make_install_osx.log 2>&1
-cp build//lib.macosx-${OSX_VERSION}-x86_64-3.9/cryptography/hazmat/bindings/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/cryptography/hazmat/bindings
+cp build//lib.macosx-${OSX_VERSION}-x86_64-3.9/cryptography/hazmat/bindings/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/cryptography/hazmat/bindings  >> $PREFIX/make_install_osx.log 2>&1
+
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # for Carnets specifically (or all apps with Jupyter notebooks):
@@ -633,7 +635,21 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/mak
 	# python3.9 -m pip install jupyterlab-server --upgrade >> make_install_osx.log 2>&1
 
 fi
-
+# for a-Shell specifically: install dulwich (for git) and almost-make
+if [ $APP == "a-Shell" ]; 
+then
+python3.9 -m pip install dulwich --global-option="--pure" >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak "s/^if __name__ == '__main__':/# iOS: We move argv back one step:\
+&\
+    sys.argv = sys.argv[1:]\
+/" $PREFIX/Library/bin/dulwich  >> $PREFIX/make_install_osx.log 2>&1
+cp $PREFIX/Library/bin/dulwich $PREFIX/Library/bin/git  >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak "s/Usage: dulwich/Usage: git/" $PREFIX/Library/lib/python3.9/site-packages/dulwich/cli.py  >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak "s/usage: dulwich/usage: git/" $PREFIX/Library/lib/python3.9/site-packages/dulwich/cli.py  >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak "s/dulwich help -a/git help -a/" $PREFIX/Library/lib/python3.9/site-packages/dulwich/cli.py  >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak "s/^The dulwich command line tool/The git command line tool/" $PREFIX/Library/lib/python3.9/site-packages/dulwich/cli.py  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install almost-make  >> $PREFIX/make_install_osx.log 2>&1
+fi
 # 
 # 4 different kind of package configuration
 # - pure-python packages, no edits: use pip install
@@ -852,7 +868,7 @@ PLATFORM=iphoneos python3 setup.py build  >> $PREFIX/make_ios.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/cryptography/  >> $PREFIX/make_ios.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/cryptography/hazmat  >> $PREFIX/make_ios.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/cryptography/hazmat/bindings  >> $PREFIX/make_ios.log 2>&1
-cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/cryptography/hazmat/bindings/*.so $PREFIX/build/lib.darwin-arm64-3.9/cryptography/hazmat/bindings
+cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/cryptography/hazmat/bindings/*.so $PREFIX/build/lib.darwin-arm64-3.9/cryptography/hazmat/bindings  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # Pandas (but only with Carnets):
@@ -1231,6 +1247,11 @@ $PREFIX/build/lib.darwin-x86_64-3.9/erfa >> $PREFIX/make_simulator.log 2>&1
       $PREFIX/build/lib.darwin-x86_64-3.9/astropy/stats/ >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1
+fi
+# for a-Shell specifically: install dulwich (for git) and almost-make
+if [ $APP == "a-Shell" ]; 
+then
+cp $PREFIX/Library/bin/almake $PREFIX/Library/bin/make  >> $PREFIX/make_install_osx.log 2>&1
 fi
 
 
