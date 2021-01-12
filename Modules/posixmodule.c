@@ -1531,7 +1531,10 @@ convertenviron(void)
     d = PyDict_New();
     if (d == NULL)
         return NULL;
-#ifdef MS_WINDOWS
+#if TARGET_OS_IPHONE
+	// iOS: we need the environment table for the current process:
+	e = environmentVariables(ios_currentPid());
+#elif defined(MS_WINDOWS)
     /* _wenviron must be initialized in this way if the program is started
        through main() instead of wmain(). */
     _wgetenv(L"");

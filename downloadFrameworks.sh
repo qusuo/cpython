@@ -40,7 +40,7 @@ USE_FORTRAN=0
 if [ -e "/usr/local/aarch64-apple-darwin20/lib/libgfortran.dylib" ];then
         USE_FORTRAN=1
 fi
-if [$USE_FORTRAN == 1];
+if [ $USE_FORTRAN == 1 ];
 then
 	# Create libgfortran library:
 	LIBGCC_BUILD=/Users/holzschu/src/Xcode_iPad/gcc-build/aarch64-apple-darwin20/libgcc
