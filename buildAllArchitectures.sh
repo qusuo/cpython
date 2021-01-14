@@ -418,8 +418,8 @@ pushd packages >> make_install_osx.log 2>&1
 pushd matplotlib  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/" LDFLAGS="-L/opt/X11/lib" LDSHARED="clang -v -undefined error -dynamiclib -lz -L$PREFIX -lpython3.9 -lc++ " python3 setup.py build >> $PREFIX/make_install_osx.log 2>&1
-# Need to install from the git repository so pip gets the proper version number:
-env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/" LDFLAGS="-L/opt/X11/lib" LDSHARED="clang -v -undefined error -dynamiclib -lz -L$PREFIX -lpython3.9 -lc++ " python3 -m pip install git+https://github.com/holzschu/matplotlib.git >> $PREFIX/make_install_osx.log 2>&1
+# Need to install matplotlib from the git repository so pip gets the proper version number:
+env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/" LDFLAGS="-L/opt/X11/lib" LDSHARED="clang -v -undefined error -dynamiclib -lz -L$PREFIX -lpython3.9 -lc++ " python3 -m pip install git+https://github.com/holzschu/matplotlib.git --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # cp the dynamic libraries to build/lib.macosx.../
 mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/matplotlib/  >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/matplotlib/backends/  >> $PREFIX/make_install_osx.log 2>&1
@@ -698,7 +698,7 @@ fi
 # - non-pure-python packages, with edits: git submodules (some with sed)
 #
 # break here when only installing packages or experimenting:
-exit 0
+# exit 0
 
 # 2) compile for iOS:
 
