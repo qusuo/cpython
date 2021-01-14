@@ -7740,7 +7740,12 @@ os_getppid_impl(PyObject *module)
 #ifdef MS_WINDOWS
     return win32_getppid();
 #else
+#if !TARGET_OS_IPHONE
     return PyLong_FromPid(getppid());
+#else
+	// There is no parent process ID on iOS; we just return something larger than 1
+    return PyLong_FromPid(1024);
+#endif
 #endif
 }
 #endif /* HAVE_GETPPID */
