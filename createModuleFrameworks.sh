@@ -41,7 +41,7 @@ edit_Info_plist()
 # lzma functions are forbidden on the AppStore. 
 # You can build the lzma modyle by adding the lzma headers in the Include path and adding _lzma to this list,
 # but you can't submit to the AppStore.
-for name in _asyncio _bisect _blake2 _bz2 _codecs_cn _codecs_hk _codecs_iso2022 _codecs_jp _codecs_kr _codecs_tw _contextvars _crypt _csv _ctypes _ctypes_test _datetime _dbm _decimal _elementtree _hashlib _heapq _json _lsprof _md5 _multibytecodec _multiprocessing _opcode _pickle _posixshmem _posixsubprocess _queue _random _sha1 _sha256 _sha3 _sha512 _socket _sqlite3 _ssl _statistics _struct _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz _zoneinfo array audioop binascii cmath fcntl grp math mmap parser pyexpat resource select syslog termios unicodedata xxlimited zlib _cffi_backend _cffi_ext kiwisolver 
+for name in _asyncio _bisect _blake2 _bz2 _codecs_cn _codecs_hk _codecs_iso2022 _codecs_jp _codecs_kr _codecs_tw _contextvars _crypt _csv _ctypes _ctypes_test _datetime _dbm _decimal _elementtree _hashlib _heapq _json _lsprof _md5 _multibytecodec _multiprocessing _opcode _pickle _posixshmem _posixsubprocess _queue _random _sha1 _sha256 _sha3 _sha512 _socket _sqlite3 _ssl _statistics _struct _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz _zoneinfo array audioop binascii cmath fcntl grp math mmap parser pyexpat resource select syslog termios unicodedata xxlimited zlib _cffi_backend kiwisolver 
 do 
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
@@ -112,7 +112,7 @@ do
 done
 
 # Pillow, matplotlib, lxml, numpy, pandas, astropy (more than 2 levels of hierarchy, suffix is .cpython-39-darwin.so)
-for library in PIL/_imagingmath PIL/_imagingft PIL/_imagingtk PIL/_imagingmorph PIL/_imaging matplotlib/_ttconv matplotlib/_path matplotlib/_qhull matplotlib/ft2font matplotlib/_c_internal_utils matplotlib/_tri matplotlib/_contour matplotlib/_image lxml/etree lxml/objectify lxml/sax lxml/_elementpath lxml/builder numpy/core/_operand_flag_tests numpy/core/_multiarray_umath numpy/linalg/lapack_lite numpy/linalg/_umath_linalg numpy/fft/_pocketfft_internal numpy/random/bit_generator numpy/random/mtrand numpy/random/_generator numpy/random/_pcg64 numpy/random/_sfc64 numpy/random/_mt19937 numpy/random/_philox numpy/random/_bounded_integers numpy/random/_common matplotlib/backends/_backend_agg matplotlib/backends/_tkagg lxml/html/diff lxml/html/clean 
+for library in zmq/backend/cffi/_cffi PIL/_imagingmath PIL/_imagingft PIL/_imagingtk PIL/_imagingmorph PIL/_imaging matplotlib/_ttconv matplotlib/_path matplotlib/_qhull matplotlib/ft2font matplotlib/_c_internal_utils matplotlib/_tri matplotlib/_contour matplotlib/_image lxml/etree lxml/objectify lxml/sax lxml/_elementpath lxml/builder numpy/core/_operand_flag_tests numpy/core/_multiarray_umath numpy/linalg/lapack_lite numpy/linalg/_umath_linalg numpy/fft/_pocketfft_internal numpy/random/bit_generator numpy/random/mtrand numpy/random/_generator numpy/random/_pcg64 numpy/random/_sfc64 numpy/random/_mt19937 numpy/random/_philox numpy/random/_bounded_integers numpy/random/_common matplotlib/backends/_backend_agg matplotlib/backends/_tkagg lxml/html/diff lxml/html/clean 
 do
 	# replace all "/" with ".
 	name=${library//\//.}
@@ -151,7 +151,7 @@ done
 # Compress every xcFramework in .zip: 
 for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 do
-	for name in _asyncio _bisect _blake2 _bz2 _codecs_cn _codecs_hk _codecs_iso2022 _codecs_jp _codecs_kr _codecs_tw _contextvars _crypt _csv _ctypes _ctypes_test _datetime _dbm _decimal _elementtree _hashlib _heapq _json _lsprof _md5 _multibytecodec _multiprocessing _opcode _pickle _posixshmem _posixsubprocess _queue _random _sha1 _sha256 _sha3 _sha512 _socket _sqlite3 _ssl _statistics _struct _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz _zoneinfo array audioop binascii cmath fcntl grp math mmap parser pyexpat resource select syslog termios unicodedata xxlimited zlib _cffi_backend _cffi_ext argon2._ffi numpy.core._multiarray_umath numpy.random._bounded_integers numpy.random._philox numpy.core._operand_flag_tests numpy.random._common numpy.random._sfc64 numpy.fft._pocketfft_internal numpy.random._generator numpy.random.bit_generator numpy.linalg._umath_linalg numpy.random._mt19937 numpy.random.mtrand numpy.linalg.lapack_lite numpy.random._pcg64 kiwisolver  PIL._imagingmath PIL._imagingft PIL._imagingtk PIL._imagingmorph PIL._imaging matplotlib.backends._backend_agg matplotlib.backends._tkagg matplotlib._ttconv matplotlib._path matplotlib._qhull matplotlib.ft2font matplotlib._c_internal_utils matplotlib._tri matplotlib._contour matplotlib._image lxml.etree lxml.objectify lxml.sax lxml.html.diff lxml.html.clean lxml._elementpath lxml.builder cryptography.hazmat.bindings._padding cryptography.hazmat.bindings._openssl 
+	for name in _asyncio _bisect _blake2 _bz2 _codecs_cn _codecs_hk _codecs_iso2022 _codecs_jp _codecs_kr _codecs_tw _contextvars _crypt _csv _ctypes _ctypes_test _datetime _dbm _decimal _elementtree _hashlib _heapq _json _lsprof _md5 _multibytecodec _multiprocessing _opcode _pickle _posixshmem _posixsubprocess _queue _random _sha1 _sha256 _sha3 _sha512 _socket _sqlite3 _ssl _statistics _struct _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz _zoneinfo array audioop binascii cmath fcntl grp math mmap parser pyexpat resource select syslog termios unicodedata xxlimited zlib _cffi_backend zmq.backend.cffi._cffi argon2._ffi numpy.core._multiarray_umath numpy.random._bounded_integers numpy.random._philox numpy.core._operand_flag_tests numpy.random._common numpy.random._sfc64 numpy.fft._pocketfft_internal numpy.random._generator numpy.random.bit_generator numpy.linalg._umath_linalg numpy.random._mt19937 numpy.random.mtrand numpy.linalg.lapack_lite numpy.random._pcg64 kiwisolver  PIL._imagingmath PIL._imagingft PIL._imagingtk PIL._imagingmorph PIL._imaging matplotlib.backends._backend_agg matplotlib.backends._tkagg matplotlib._ttconv matplotlib._path matplotlib._qhull matplotlib.ft2font matplotlib._c_internal_utils matplotlib._tri matplotlib._contour matplotlib._image lxml.etree lxml.objectify lxml.sax lxml.html.diff lxml.html.clean lxml._elementpath lxml.builder cryptography.hazmat.bindings._padding cryptography.hazmat.bindings._openssl 
 	do 
 		framework=${package}-${name}
 		echo $framework
@@ -242,4 +242,100 @@ do
 	done
 done
 fi  # [ $APP == "Carnets" ];
+
+# SciPy modules 
+# odr/__odrpack.cpython-39-darwin.so
+# cluster/_hierarchy.cpython-39-darwin.so
+# cluster/_optimal_leaf_ordering.cpython-39-darwin.so
+# cluster/_vq.cpython-39-darwin.so
+# ndimage/_ni_label.cpython-39-darwin.so
+# ndimage/_nd_image.cpython-39-darwin.so
+# ndimage/_ctest.cpython-39-darwin.so
+# ndimage/_cytest.cpython-39-darwin.so
+# linalg/_solve_toeplitz.cpython-39-darwin.so
+# linalg/cython_blas.cpython-39-darwin.so
+# linalg/_flapack.cpython-39-darwin.so
+# linalg/_flinalg.cpython-39-darwin.so
+# linalg/cython_lapack.cpython-39-darwin.so
+# linalg/_fblas.cpython-39-darwin.so
+# linalg/_matfuncs_sqrtm_triu.cpython-39-darwin.so
+# linalg/_decomp_update.cpython-39-darwin.so
+# linalg/_interpolative.cpython-39-darwin.so
+# optimize/_trlib/_trlib.cpython-39-darwin.so
+# optimize/_zeros.cpython-39-darwin.so
+# optimize/moduleTNC.cpython-39-darwin.so
+# optimize/__nnls.cpython-39-darwin.so
+# optimize/minpack2.cpython-39-darwin.so
+# optimize/_lbfgsb.cpython-39-darwin.so
+# optimize/_lsap_module.cpython-39-darwin.so
+# optimize/_bglu_dense.cpython-39-darwin.so
+# optimize/_highs/highs_wrapper.cpython-39-darwin.so
+# optimize/_highs/mpswriter.cpython-39-darwin.so
+# optimize/_highs/constants.cpython-39-darwin.so
+# optimize/_lsq/givens_elimination.cpython-39-darwin.so
+# optimize/cython_optimize/_zeros.cpython-39-darwin.so
+# optimize/_minpack.cpython-39-darwin.so
+# optimize/_group_columns.cpython-39-darwin.so
+# optimize/_slsqp.cpython-39-darwin.so
+# optimize/_cobyla.cpython-39-darwin.so
+# integrate/_test_odeint_banded.cpython-39-darwin.so
+# integrate/vode.cpython-39-darwin.so
+# integrate/_test_multivariate.cpython-39-darwin.so
+# integrate/lsoda.cpython-39-darwin.so
+# integrate/_quadpack.cpython-39-darwin.so
+# integrate/_odepack.cpython-39-darwin.so
+# integrate/_dop.cpython-39-darwin.so
+# io/matlab/mio_utils.cpython-39-darwin.so
+# io/matlab/streams.cpython-39-darwin.so
+# io/matlab/mio5_utils.cpython-39-darwin.so
+# io/_test_fortran.cpython-39-darwin.so
+# _lib/_uarray/_uarray.cpython-39-darwin.so
+# _lib/_test_ccallback.cpython-39-darwin.so
+# _lib/_ccallback_c.cpython-39-darwin.so
+# _lib/_test_deprecation_call.cpython-39-darwin.so
+# _lib/_fpumode.cpython-39-darwin.so
+# _lib/messagestream.cpython-39-darwin.so
+# _lib/_test_deprecation_def.cpython-39-darwin.so
+# special/_ellip_harm_2.cpython-39-darwin.so
+# special/cython_special.cpython-39-darwin.so
+# special/_comb.cpython-39-darwin.so
+# special/_test_round.cpython-39-darwin.so
+# special/_ufuncs.cpython-39-darwin.so
+# special/specfun.cpython-39-darwin.so
+# special/_ufuncs_cxx.cpython-39-darwin.so
+# fftpack/convolve.cpython-39-darwin.so
+# interpolate/_fitpack.cpython-39-darwin.so
+# interpolate/_bspl.cpython-39-darwin.so
+# interpolate/dfitpack.cpython-39-darwin.so
+# interpolate/interpnd.cpython-39-darwin.so
+# interpolate/_ppoly.cpython-39-darwin.so
+# fft/_pocketfft/pypocketfft.cpython-39-darwin.so
+# sparse/linalg/isolve/_iterative.cpython-39-darwin.so
+# sparse/linalg/eigen/arpack/_arpack.cpython-39-darwin.so
+# sparse/linalg/dsolve/_superlu.cpython-39-darwin.so
+# sparse/_sparsetools.cpython-39-darwin.so
+# sparse/csgraph/_min_spanning_tree.cpython-39-darwin.so
+# sparse/csgraph/_traversal.cpython-39-darwin.so
+# sparse/csgraph/_tools.cpython-39-darwin.so
+# sparse/csgraph/_matching.cpython-39-darwin.so
+# sparse/csgraph/_reordering.cpython-39-darwin.so
+# sparse/csgraph/_flow.cpython-39-darwin.so
+# sparse/csgraph/_shortest_path.cpython-39-darwin.so
+# sparse/_csparsetools.cpython-39-darwin.so
+# spatial/_hausdorff.cpython-39-darwin.so
+# spatial/_voronoi.cpython-39-darwin.so
+# spatial/ckdtree.cpython-39-darwin.so
+# spatial/qhull.cpython-39-darwin.so
+# spatial/transform/rotation.cpython-39-darwin.so
+# spatial/_distance_wrap.cpython-39-darwin.so
+# signal/_spectral.cpython-39-darwin.so
+# signal/_sosfilt.cpython-39-darwin.so
+# signal/spline.cpython-39-darwin.so
+# signal/_peak_finding_utils.cpython-39-darwin.so
+# signal/sigtools.cpython-39-darwin.so
+# signal/_max_len_seq_inner.cpython-39-darwin.so
+# signal/_upfirdn_apply.cpython-39-darwin.so
+# stats/mvn.cpython-39-darwin.so
+# stats/_stats.cpython-39-darwin.so
+# stats/statlib.cpython-39-darwin.so
 
