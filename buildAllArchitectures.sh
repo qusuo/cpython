@@ -676,21 +676,21 @@ then
 fi # scipy, USE_FORTRAN == 1
 fi # APP == "Carnets"
 # for a-Shell specifically: install dulwich (for git) and almost-make
-if [ $APP == "a-Shell" ]; 
-then
-	# Need a clean install for sed to work:
-python3.9 -m pip uninstall dulwich -y >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip install dulwich --global-option="--pure" >> $PREFIX/make_install_osx.log 2>&1
-sed -i bak 's/^if __name__ == .__main__.:/# iOS: We move argv back one step:\
-&\
-    sys.argv = sys.argv[1:]\
-/' $PREFIX/Library/bin/dulwich  >> $PREFIX/make_install_osx.log 2>&1
-sed -i bak "s/Usage: dulwich/Usage: git/" $PREFIX/Library/lib/python3.9/site-packages/dulwich/cli.py  >> $PREFIX/make_install_osx.log 2>&1
-sed -i bak "s/usage: dulwich/usage: git/" $PREFIX/Library/lib/python3.9/site-packages/dulwich/cli.py  >> $PREFIX/make_install_osx.log 2>&1
-sed -i bak "s/dulwich help -a/git help -a/" $PREFIX/Library/lib/python3.9/site-packages/dulwich/cli.py  >> $PREFIX/make_install_osx.log 2>&1
-sed -i bak "s/^The dulwich command line tool/The git command line tool/" $PREFIX/Library/lib/python3.9/site-packages/dulwich/cli.py  >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip install almost-make  >> $PREFIX/make_install_osx.log 2>&1
-fi
+# if [ $APP == "a-Shell" ]; 
+# then
+# 	# Need a clean install for sed to work:
+# python3.9 -m pip uninstall dulwich -y >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip install dulwich --global-option="--pure" >> $PREFIX/make_install_osx.log 2>&1
+# sed -i bak 's/^if __name__ == .__main__.:/# iOS: We move argv back one step:\
+# &\
+#     sys.argv = sys.argv[1:]\
+# /' $PREFIX/Library/bin/dulwich  >> $PREFIX/make_install_osx.log 2>&1
+# sed -i bak "s/Usage: dulwich/Usage: git/" $PREFIX/Library/lib/python3.9/site-packages/dulwich/cli.py  >> $PREFIX/make_install_osx.log 2>&1
+# sed -i bak "s/usage: dulwich/usage: git/" $PREFIX/Library/lib/python3.9/site-packages/dulwich/cli.py  >> $PREFIX/make_install_osx.log 2>&1
+# sed -i bak "s/dulwich help -a/git help -a/" $PREFIX/Library/lib/python3.9/site-packages/dulwich/cli.py  >> $PREFIX/make_install_osx.log 2>&1
+# sed -i bak "s/^The dulwich command line tool/The git command line tool/" $PREFIX/Library/lib/python3.9/site-packages/dulwich/cli.py  >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip install almost-make  >> $PREFIX/make_install_osx.log 2>&1
+# fi
 # 
 # 4 different kind of package configuration
 # - pure-python packages, no edits: use pip install
