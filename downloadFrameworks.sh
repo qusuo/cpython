@@ -1,6 +1,6 @@
 #! /bin/sh
 
-curl -OL https://github.com/holzschu/ios_system/releases/download/2.7/ios_error.h
+curl -OL https://github.com/holzschu/ios_system/releases/download/v2.7.0/ios_error.h
 mkdir -p Python-aux
 pushd Python-aux
 curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libffi.xcframework.zip
@@ -15,7 +15,7 @@ curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/harfbuzz.x
 curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libpng.xcframework.zip
 curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libxslt.xcframework.zip
 curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libexslt.xcframework.zip
-curl -OL https://github.com/holzschu/ios_system/releases/download/2.7/ios_system.xcframework.zip
+curl -OL https://github.com/holzschu/ios_system/releases/download/v2.7.0/ios_system.xcframework.zip
 
 rm -rf libffi.xcframework crypto.xcframework openssl.xcframework openblas.xcframework ios_system.xcframework libzmq.xcframework libjpeg.xcframework libtiff.xcframework freetype.xcframework harfbuzz.xcframework libpng.xcframework libxslt.xcframework libexslt.xcframework
 unzip -q libffi.xcframework.zip
@@ -44,5 +44,5 @@ if [ $USE_FORTRAN == 1 ];
 then
 	# Create libgfortran library:
 	LIBGCC_BUILD=/Users/holzschu/src/Xcode_iPad/gcc-build/aarch64-apple-darwin20/libgcc
-	clang -miphoneos-version-min=11.0 -arch arm64 -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.3.sdk -install_name @rpath/libgfortran.framework/libgfortran -o Frameworks_iphoneos/lib/libgfortran.dylib /usr/local/aarch64-apple-darwin20/lib/libgfortran.a -all_load $LIBGCC_BUILD/cas_8_4.o $LIBGCC_BUILD/ldadd_4_4.o $LIBGCC_BUILD/swp_4_2.o $LIBGCC_BUILD/ldadd_4_1.o $LIBGCC_BUILD/lse-init.o -compatibility_version 6.0.0 
+	clang -miphoneos-version-min=11.0 -arch arm64 -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -install_name @rpath/libgfortran.framework/libgfortran -o Frameworks_iphoneos/lib/libgfortran.dylib /usr/local/aarch64-apple-darwin20/lib/libgfortran.a -all_load $LIBGCC_BUILD/cas_8_4.o $LIBGCC_BUILD/ldadd_4_4.o $LIBGCC_BUILD/swp_4_2.o $LIBGCC_BUILD/ldadd_4_1.o $LIBGCC_BUILD/lse-init.o -compatibility_version 6.0.0 
 fi
