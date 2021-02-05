@@ -56,11 +56,11 @@ cp  $XCFRAMEWORKS_DIR/openblas.xcframework/macos-x86_64/openblas.framework/openb
 install_name_tool -id $PREFIX/Frameworks_macosx/lib/libopenblas.dylib   $PREFIX/Frameworks_macosx/lib/libopenblas.dylib
 #
 rm -rf build/lib.macosx-${OSX_VERSION}-x86_64-3.9
-if [ $APP == "a-Shell" ]; 
-then
-	rm -f $PREFIX/Library/bin/make
-	rm -f $PREFIX/Library/bin/git
-fi
+# if [ $APP == "a-Shell" ]; 
+# then
+# 	rm -f $PREFIX/Library/bin/make
+# 	rm -f $PREFIX/Library/bin/git
+# fi
 make -j 4 >& make_osx.log
 mkdir -p build/lib.macosx-${OSX_VERSION}-x86_64-3.9  > make_install_osx.log 2>&1
 cp libpython3.9.dylib build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
@@ -1302,11 +1302,11 @@ $PREFIX/build/lib.darwin-x86_64-3.9/erfa >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1
 fi
 # for a-Shell specifically: install dulwich (for git) and almost-make
-if [ $APP == "a-Shell" ]; 
-then
-	cp $PREFIX/Library/bin/almake $PREFIX/Library/bin/make  >> $PREFIX/make_install_osx.log 2>&1
-	cp $PREFIX/Library/bin/dulwich $PREFIX/Library/bin/git  >> $PREFIX/make_install_osx.log 2>&1
-fi
+# if [ $APP == "a-Shell" ]; 
+# then
+# 	cp $PREFIX/Library/bin/almake $PREFIX/Library/bin/make  >> $PREFIX/make_install_osx.log 2>&1
+# 	cp $PREFIX/Library/bin/dulwich $PREFIX/Library/bin/git  >> $PREFIX/make_install_osx.log 2>&1
+# fi
 
 
 # Python build finished successfully!
