@@ -75,9 +75,10 @@ done
 
 
 
-# argon2/_ffi, cryptography/hazmat/bindings/_padding, cryptography//hazmat/bindings/_openssl. Separate because suffix is .abi3.so
-
-for library in argon2/_ffi cryptography/hazmat/bindings/_padding cryptography/hazmat/bindings/_openssl
+# argon2/_ffi, cryptography/hazmat/bindings/_padding, cryptography//hazmat/bindings/_openssl and cryptography/hazmat/bindings/_rust. 
+# Separate because suffix is .abi3.so
+# removed until we can cross-compile: cryptography/hazmat/bindings/_rust 
+for library in argon2/_ffi cryptography/hazmat/bindings/_padding cryptography/hazmat/bindings/_openssl 
 do
 	# replace all "/" with "."
 	name=${library//\//.}
@@ -112,6 +113,7 @@ do
 done
 
 # Pillow, matplotlib, lxml, numpy, pandas, astropy (more than 2 levels of hierarchy, suffix is .cpython-39-darwin.so)
+# except for zmq/backend/cffi/_cffi where it's .abi3.so for MacOSX and .cpython-39-darwin.so for iOS & Simulator
 for library in zmq/backend/cffi/_cffi PIL/_imagingmath PIL/_imagingft PIL/_imagingtk PIL/_imagingmorph PIL/_imaging matplotlib/_ttconv matplotlib/_path matplotlib/_qhull matplotlib/ft2font matplotlib/_c_internal_utils matplotlib/_tri matplotlib/_contour matplotlib/_image lxml/etree lxml/objectify lxml/sax lxml/_elementpath lxml/builder numpy/core/_operand_flag_tests numpy/core/_multiarray_umath numpy/linalg/lapack_lite numpy/linalg/_umath_linalg numpy/fft/_pocketfft_internal numpy/random/bit_generator numpy/random/mtrand numpy/random/_generator numpy/random/_pcg64 numpy/random/_sfc64 numpy/random/_mt19937 numpy/random/_philox numpy/random/_bounded_integers numpy/random/_common matplotlib/backends/_backend_agg matplotlib/backends/_tkagg lxml/html/diff lxml/html/clean 
 do
 	# replace all "/" with ".
@@ -126,8 +128,8 @@ do
 			rm -rf $directory/$framework.framework
 			mkdir -p $directory
 			mkdir -p $directory/$framework.framework
-			libraryFile=build/${architecture}/${library}.cpython-39-darwin.so
-			cp $libraryFile $directory/$framework.framework/$framework
+			libraryFile=build/${architecture}/${library}
+			cp $libraryFile.*.so $directory/$framework.framework/$framework
 			cp plists/basic_Info.plist $directory/$framework.framework/Info.plist
 			plutil -replace CFBundleExecutable -string $framework $directory/$framework.framework/Info.plist
 			plutil -replace CFBundleName -string $framework $directory/$framework.framework/Info.plist
@@ -149,6 +151,7 @@ done
 
 
 # Compress every xcFramework in .zip: 
+# cryptography.hazmat.bindings._rust
 for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 do
 	for name in _asyncio _bisect _blake2 _bz2 _codecs_cn _codecs_hk _codecs_iso2022 _codecs_jp _codecs_kr _codecs_tw _contextvars _crypt _csv _ctypes _ctypes_test _datetime _dbm _decimal _elementtree _hashlib _heapq _json _lsprof _md5 _multibytecodec _multiprocessing _opcode _pickle _posixshmem _posixsubprocess _queue _random _sha1 _sha256 _sha3 _sha512 _socket _sqlite3 _ssl _statistics _struct _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz _zoneinfo array audioop binascii cmath fcntl grp math mmap parser pyexpat resource select syslog termios unicodedata xxlimited zlib _cffi_backend zmq.backend.cffi._cffi argon2._ffi numpy.core._multiarray_umath numpy.random._bounded_integers numpy.random._philox numpy.core._operand_flag_tests numpy.random._common numpy.random._sfc64 numpy.fft._pocketfft_internal numpy.random._generator numpy.random.bit_generator numpy.linalg._umath_linalg numpy.random._mt19937 numpy.random.mtrand numpy.linalg.lapack_lite numpy.random._pcg64 kiwisolver  PIL._imagingmath PIL._imagingft PIL._imagingtk PIL._imagingmorph PIL._imaging matplotlib.backends._backend_agg matplotlib.backends._tkagg matplotlib._ttconv matplotlib._path matplotlib._qhull matplotlib.ft2font matplotlib._c_internal_utils matplotlib._tri matplotlib._contour matplotlib._image lxml.etree lxml.objectify lxml.sax lxml.html.diff lxml.html.clean lxml._elementpath lxml.builder cryptography.hazmat.bindings._padding cryptography.hazmat.bindings._openssl 
