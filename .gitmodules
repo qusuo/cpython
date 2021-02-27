@@ -32,3 +32,9 @@
 [submodule "packages/scipy"]
 	path = packages/scipy
 	url = https://github.com/holzschu/scipy.git
+[submodule "packages/bokeh"]
+	path = packages/bokeh
+	url = https://github.com/holzschu/bokeh
+[submodule "packages/pyerfa"]
+	path = packages/pyerfa
+	url = https://github.com/liberfa/pyerfa
