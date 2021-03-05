@@ -28,7 +28,7 @@ jobs:
       - name: Check for source changes
         id: check
         run: |
-          if [ -z "GITHUB_BASE_REF" ]; then
+          if [ -z "$GITHUB_BASE_REF" ]; then
             echo '::set-output name=run_tests::true'
           else
             git fetch origin $GITHUB_BASE_REF --depth=1
@@ -121,7 +121,7 @@ jobs:
 
   build_ubuntu:
     name: 'Ubuntu'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     needs: check_source
     if: needs.check_source.outputs.run_tests == 'true'
     env:
