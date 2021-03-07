@@ -242,6 +242,10 @@ def _add_rpath(settings, path):
     """
     if sys.platform == 'darwin':
         settings['extra_link_args'].extend(['-Wl,-rpath', '-Wl,%s' % path])
+        # OSX 11 has some system libraries outside of sysroot:
+        platform = os.getenv('PLATFORM') or 'macosx'
+        if platform == 'macosx':
+            settings['extra_link_args'].extend(['-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib'])
     else:
         settings['runtime_library_dirs'].append(path)
     # iOS: add our own linker flags, or it won't compile
