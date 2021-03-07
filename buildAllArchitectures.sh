@@ -518,6 +518,8 @@ then
 	python3.9 -m pip install --upgrade jupyter_contrib_nbextensions >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip install --upgrade jupyter_nbextensions_configurator >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip install --upgrade ipysheet >> $PREFIX/make_install_osx.log 2>&1
+	# Bug fix for cell_filter (jquery, not jqueryui): 
+	cp packages/cell_filter.js $PREFIX/Library/lib/python3.9/site-packages/jupyter_contrib_nbextensions/nbextensions/cell_filter/cell_filter.js
 	# ipysheet.renderer_nbext has disappeared?
 	# widgetsnbextension is a bit special, because of the need to add touchscreen support:
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
