@@ -68,6 +68,13 @@
 #include "expat.h"
 #include "siphash.h"
 
+#ifdef __APPLE__
+#include <TargetConditionals.h> 
+#if TARGET_OS_IPHONE
+#include "ios_error.h"
+#endif
+#endif
+
 #if defined(HAVE_GETRANDOM) || defined(HAVE_SYSCALL_GETRANDOM)
 #  if defined(HAVE_GETRANDOM)
 #    include <sys/random.h> /* getrandom */
