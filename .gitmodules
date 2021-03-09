@@ -38,3 +38,6 @@
 [submodule "packages/pyerfa"]
 	path = packages/pyerfa
 	url = https://github.com/liberfa/pyerfa
+[submodule "packages/gym"]
+	path = packages/gym
+	url = https://github.com/openai/gym.git
