@@ -574,10 +574,17 @@ _PyModule_Clear(PyObject *m)
     // This only applies to pandas and numpy, other modules can be compiled without PEP489
     // See also import.c / PyImport_Cleanup()
     // Python 3.9: this is required for _asyncio (new). Must check for pandas and numpy.
+    // Unclear whether this is required for scipy, but it does no harm to call destructors.
+    // 01/05/21: starting tests on astropy and sklearn. If it does not crash, we keep it.
     int moduleNeedsCleanup = 0;
     PyModuleObject *mod = (PyModuleObject *)m;
     const char* utf8name = PyUnicode_AsUTF8(mod->md_name);
-    if ((strncmp(utf8name, "_asyncio", 8) == 0) || (strncmp(utf8name, "pandas.", 7) == 0) || (strncmp(utf8name, "numpy.", 6) == 0)) {
+    if ((strncmp(utf8name, "_asyncio", 8) == 0) 
+    		|| (strncmp(utf8name, "pandas.", 7) == 0) 
+    		|| (strncmp(utf8name, "numpy.", 6) == 0)
+    		|| (strncmp(utf8name, "scipy.", 6) == 0)
+    		|| (strncmp(utf8name, "astropy.", 8) == 0)
+    		|| (strncmp(utf8name, "sklearn.", 8) == 0)) {
         // iOS, debug:
         // fprintf(thread_stderr, "Module = %x name = %s refCount = %zd ", mod, utf8name, m->ob_refcnt);
         if (mod->md_def && mod->md_def->m_free) {

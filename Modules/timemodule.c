@@ -2038,6 +2038,10 @@ PyInit_time(void)
 /* Implement pysleep() for various platforms.
    When interrupted (or when another error occurs), return -1 and
    set an exception; else return 0. */
+#if TARGET_OS_IPHONE
+extern void set_pysleep_thread(pthread_t val);
+extern pthread_t get_pysleep_thread(void);
+#endif
 
 static int
 pysleep(_PyTime_t secs)
@@ -2060,35 +2064,28 @@ pysleep(_PyTime_t secs)
         if (_PyTime_AsTimeval(secs, &timeout, _PyTime_ROUND_CEILING) < 0)
             return -1;
 
-#if !TARGET_OS_IPHONE
         Py_BEGIN_ALLOW_THREADS
-        err = select(0, (fd_set *)0, (fd_set *)0, (fd_set *)0, &timeout);
-        Py_END_ALLOW_THREADS
-#else 
-		// This is not used anymore. TODO: remove this code.
-		// iOS: we use the signal-interruptable pselect() rather than the 
-		// select() call present in the source, so we can interrupt these
-		// waiting calls when we leave.
-		// We also check that the interpreter has not been changed.
-        // And we use SIGUSR2 because clang/llvm uses SIGUSR1...
-        sigset_t sigmask = SIGUSR2;
-		sigemptyset(&sigmask);
-		sigaddset(&sigmask, SIGUSR2);
-		
-		struct timespec timeout2;
-		timeout2.tv_sec = timeout.tv_sec;
-		timeout2.tv_nsec = 1000 * timeout.tv_usec;
-
-		Py_BEGIN_ALLOW_THREADS
+#if TARGET_OS_IPHONE
 		PyInterpreterState *before = PyInterpreterState_Main();
-
-		err = pselect(0, (fd_set *)0, (fd_set *)0, (fd_set *)0, &timeout2, &sigmask);
-		PyInterpreterState *after = PyInterpreterState_Main();
-		if (before != after) {
+		set_pysleep_thread(pthread_self());
+#endif
+        err = select(0, (fd_set *)0, (fd_set *)0, (fd_set *)0, &timeout);
+#if TARGET_OS_IPHONE
+		// iOS: sometimes, we wake up from select and the main thread has been terminated.
+		// If we try to access anything, it will crash the entire app, so we detect it here.
+		if (get_pysleep_thread() == NULL) {
+			// This test detects all / most cases. See pylifecycle.c
 			pthread_exit(NULL); 
 		}
-		Py_END_ALLOW_THREADS
+		PyInterpreterState *after = PyInterpreterState_Main();
+		if (before != after) {
+			// Safety check. Not working with iOS14.4 SDK, but second line of defense.
+			pthread_exit(NULL); 
+		}
+		// All is well, normal operation, reset the pysleep_thread variable:
+		set_pysleep_thread(NULL);
 #endif
+        Py_END_ALLOW_THREADS
 
         if (err == 0)
             break;

@@ -6,6 +6,7 @@
 #  name /System/Library/Frameworks/CoreFoundation.framework/CoreFoundation (offset 24)
 
 OSX_VERSION=`sw_vers -productVersion |awk -F. '{print $1"."$2}'`
+export PREFIX=$PWD
 
 for name in python3_ios pythonA pythonB pythonC pythonD pythonE
 do 
@@ -75,7 +76,32 @@ touch Library/bin/python3.9
 # change direct_url.json files to have a more meaningful URL:
 APP=$(basename `dirname $PWD`)
 find Library -type f -name direct_url.json -exec sed -i bak  "s/file:.*packages/${APP}/g" {} \; -print
-# matplotlib: (needs work)
-# find Library -type f -name direct_url.json -exec sed -i bak 's/https:..github.com.holzschu.matplotlib.git.*\/${APP}\/matplotlib", "dir_info": {}}/g' {} \; -print
+# matplotlib: (needs work) (as in: does not work)
+echo '{"url": "Carnets/matplotlib-3.3.2", "dir_info": {}}' > /tmp/mpl.json
+find Library/lib/python3.9/site-packages/matplotlib-3.*.dist-info -name direct_url.json -exec mv /tmp/mpl.json {} \; -print
 find Library -type f -name direct_url.jsonbak -delete
+cp $PREFIX/build/lib.darwin-arm64-3.9/_sysconfigdata__darwin_darwin.py $PREFIX/Library/lib/python3.9/_sysconfigdata__darwin_darwin.py
 
+# Same, but inside the with_scipy install for Carnets Pro:
+if [ -e "with_scipy/Library" ];then
+	find with_scipy/Library -name __pycache__ -exec rm -rf {} \; >& find.log
+	find with_scipy/Library -name \*.pyc -delete
+	find with_scipy/Library -name \*.so -delete
+	find with_scipy/Library -name \*.a -delete
+	find with_scipy/Library -name \*.dylib -delete
+	rm -f with_scipy/Library/lib/libpython3.9.dylib
+	rm -f with_scipy/Library/bin/python3.9
+	rm -f with_scipy/Library/bin/python3
+	# Create fake binaries for pip
+	touch with_scipy/Library/bin/python3
+	touch with_scipy/Library/bin/python3.9
+
+# change direct_url.json files to have a more meaningful URL:
+APP=$(basename `dirname $PWD`)
+find with_scipy/Library -type f -name direct_url.json -exec sed -i bak  "s/file:.*packages/${APP}/g" {} \; -print
+# matplotlib: (needs work)
+echo '{"url": "Carnets/matplotlib-3.3.2", "dir_info": {}}' > /tmp/mpl.json
+find with_scipy/Library/lib/python3.9/site-packages/matplotlib-3.*.dist-info -name direct_url.json -exec mv /tmp/mpl.json {} \; -print
+find with_scipy/Library -type f -name direct_url.jsonbak -delete
+cp $PREFIX/build/lib.darwin-arm64-3.9/_sysconfigdata__darwin_darwin.py $PREFIX/with_scipy/Library/lib/python3.9/_sysconfigdata__darwin_darwin.py
+fi

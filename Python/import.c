@@ -635,6 +635,10 @@ _PyImport_Cleanup(PyThreadState *tstate)
                 // fprintf(stderr, "We have a module = %x name = %s refCount = %zd\n", mod, utf8name, mod->ob_refcnt);
                 // if (mod->md_def && mod->md_def->m_free) mod->md_def->m_free(mod);
             }
+            if (strncmp(utf8name, "scipy.", 6) == 0) {
+                // fprintf(stderr, "We have a module = %x name = %s refCount = %zd\n", mod, utf8name, mod->ob_refcnt);
+                // if (mod->md_def && mod->md_def->m_free) mod->md_def->m_free(mod);
+            }
 #endif
         }
         Py_DECREF(weaklist);
