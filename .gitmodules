@@ -41,3 +41,18 @@
 [submodule "packages/gym"]
 	path = packages/gym
 	url = https://github.com/openai/gym.git
+[submodule "packages/coremltools"]
+	path = packages/coremltools
+	url = https://github.com/holzschu/coremltools.git
+[submodule "packages/scikit-learn"]
+	path = packages/scikit-learn
+	url = https://github.com/holzschu/scikit-learn.git
+[submodule "packages/word_cloud"]
+	path = packages/word_cloud
+	url = https://github.com/amueller/word_cloud
+[submodule "packages/qutip"]
+	path = packages/qutip
+	url = https://github.com/qutip/qutip.git
+[submodule "packages/SuiteSparse"]
+	path = packages/SuiteSparse
+	url = https://github.com/DrTimothyAldenDavis/SuiteSparse.git
