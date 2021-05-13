@@ -580,7 +580,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 if [ $USE_FORTRAN == 1 ];
 then
 	pushd packages >> make_install_osx.log 2>&1
-	rm -rf cvxopt-*  >> make_install_osx.log 2>&1
+	rm -rf cvxopt-*  >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip download --no-binary :all: cvxopt  >> $PREFIX/make_install_osx.log 2>&1
 	tar xzf cvxopt-1.2.6.tar.gz  >>  $PREFIX/make_install_osx.log 2>&1
 	pushd cvxopt-* >>  $PREFIX/make_install_osx.log 2>&1
@@ -1286,7 +1286,7 @@ popd  >> $PREFIX/make_ios.log 2>&1
 if [ $USE_FORTRAN == 1 ];
 then
 	pushd packages >> make_ios.log 2>&1
-	pushd cvxopt-* >> make_ios.log 2>&1
+	pushd cvxopt-* >>  $PREFIX/make_ios.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 	env CC=clang CXX=clang++ \
 		CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX -I$PREFIX/Frameworks_iphoneos/include/" \
