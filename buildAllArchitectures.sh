@@ -571,6 +571,12 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" \
 	LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" \
 	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" \
 	PLATFORM=macosx PYFFTW_INCLUDE=$PREFIX/Frameworks_macosx/include/ PYFFTW_LIB_DIR=$PREFIX/Frameworks_macosx/lib python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" \
+	CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 -Wno-error=implicit-function-declaration $DEBUG" \
+	CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 -Wno-error=implicit-function-declaration $DEBUG" \
+	LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" \
+	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" \
+	PLATFORM=macosx PYFFTW_INCLUDE=$PREFIX/Frameworks_macosx/include/ PYFFTW_LIB_DIR=$PREFIX/Frameworks_macosx/lib python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 find . -name \*.so  >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pyfftw/ >> $PREFIX/make_install_osx.log 2>&1
 cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pyfftw/pyfftw.cpython-39-darwin.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pyfftw/  >> $PREFIX/make_install_osx.log 2>&1
@@ -988,7 +994,7 @@ fi # APP == "Carnets"
 # - non-pure-python packages, with edits: git submodules (some with sed)
 #
 # break here when only installing packages or experimenting:
-# exit 0
+exit 0
 
 # 2) compile for iOS:
 unset MACOSX_DEPLOYMENT_TARGET
