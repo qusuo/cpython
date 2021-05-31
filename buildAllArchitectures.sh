@@ -994,7 +994,7 @@ fi # APP == "Carnets"
 # - non-pure-python packages, with edits: git submodules (some with sed)
 #
 # break here when only installing packages or experimenting:
-exit 0
+# exit 0
 
 # 2) compile for iOS:
 unset MACOSX_DEPLOYMENT_TARGET
