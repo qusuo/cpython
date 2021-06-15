@@ -56,3 +56,6 @@
 [submodule "packages/SuiteSparse"]
 	path = packages/SuiteSparse
 	url = https://github.com/DrTimothyAldenDavis/SuiteSparse.git
+[submodule "packages/Fiona"]
+	path = packages/Fiona
+	url = https://github.com/Toblerity/Fiona
