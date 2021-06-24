@@ -59,3 +59,24 @@
 [submodule "packages/Fiona"]
 	path = packages/Fiona
 	url = https://github.com/Toblerity/Fiona
+[submodule "packages/rasterio"]
+	path = packages/rasterio
+	url = https://github.com/mapbox/rasterio.git
+[submodule "packages/mapclassify"]
+	path = packages/mapclassify
+	url = https://github.com/pysal/mapclassify.git
+[submodule "packages/pysal"]
+	path = packages/pysal
+	url = https://github.com/pysal/pysal.git
+[submodule "packages/statsmodels"]
+	path = packages/statsmodels
+	url = https://github.com/statsmodels/statsmodels.git
+[submodule "packages/pygeos"]
+	path = packages/pygeos
+	url = https://github.com/pygeos/pygeos.git
+[submodule "packages/scikit-build"]
+	path = packages/scikit-build
+	url = https://github.com/holzschu/scikit-build.git
+[submodule "packages/opencv-python"]
+	path = packages/opencv-python
+	url = https://github.com/holzschu/opencv-python.git
