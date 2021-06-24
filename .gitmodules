@@ -80,3 +80,6 @@
 [submodule "packages/opencv-python"]
 	path = packages/opencv-python
 	url = https://github.com/holzschu/opencv-python.git
+[submodule "packages/pointpats"]
+	path = packages/pointpats
+	url = https://github.com/pysal/pointpats
