@@ -4761,7 +4761,13 @@ os_system_impl(PyObject *module, PyObject *command)
     }
 
     Py_BEGIN_ALLOW_THREADS
+#if TARGET_OS_IPHONE
+	pid_t pid = ios_fork();
+#endif
     result = system(bytes);
+#if TARGET_OS_IPHONE
+	ios_waitpid(pid);	
+#endif
     Py_END_ALLOW_THREADS
     return result;
 }
@@ -13035,6 +13041,10 @@ os_cpu_count_impl(PyObject *module)
     int ncpu = 0;
 #ifdef MS_WINDOWS
     ncpu = GetActiveProcessorCount(ALL_PROCESSOR_GROUPS);
+#elif TARGET_OS_IPHONE 
+	// Don't start multiple process on iOS/iPadOS.
+	// (it messes with the multiprocessing in ios_system)
+	ncpu = 1;
 #elif defined(__hpux)
     ncpu = mpctl(MPC_GETNUMSPUS, NULL, NULL);
 #elif defined(HAVE_SYSCONF) && defined(_SC_NPROCESSORS_ONLN)
