@@ -405,6 +405,24 @@ cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/core/*.so $PREFIX/build/lib
 cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/linalg/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/linalg/ >> $PREFIX/make_install_osx.log 2>&1
 cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/fft/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/fft/ >> $PREFIX/make_install_osx.log 2>&1
 cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/random/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/random/ >> $PREFIX/make_install_osx.log 2>&1
+# Making a single numpy dynamic library:
+echo Making a single numpy library for OSX: >> $PREFIX/make_install_osx.log 2>&1
+clang -v -undefined error -dynamiclib \
+-isysroot $OSX_SDKROOT \
+-lz -lm \
+-lpython3.9 \
+-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
+-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
+-O3 -Wall  \
+-DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
+-DCYTHON_USE_DICT_VERSIONS=0 \
+`find build -name \*.o` \
+-L$PREFIX/Library/lib \
+-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
+-lnpymath \
+-lnpyrandom \
+-o build/numpy.so  >> $PREFIX/make_install_osx.log 2>&1
+cp build/numpy.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # change references to openblas back to the framework:
@@ -494,7 +512,7 @@ pushd packages >> make_install_osx.log 2>&1
 rm -rf cryptography* >> $PREFIX/make_install_osx.log 2>&1
 # This builds cryptography with rust (new version), assuming you have rustc in the path (see line 8)
 # If you don't have rust, you can add CRYPTOGRAPHY_DONT_BUILD_RUST=1
-python3.9 -m pip download cryptography --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip download cryptography==3.4.8 --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
 tar xzvf cryptography*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm -rf cryptography*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd cryptography* >> $PREFIX/make_install_osx.log 2>&1
@@ -641,37 +659,57 @@ then
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 fi
+# Pandas
+pushd packages >> make_install_osx.log 2>&1
+rm -rf pandas*  >> $PREFIX/make_install_osx.log 2>&1
+env NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" python3.9 -m pip download pandas --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
+tar xvzf pandas*  >> $PREFIX/make_install_osx.log 2>&1
+rm pandas*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
+pushd pandas*  >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak 's/warnings.warn(msg)/# iOS: lzma is forbidden on the AppStore\
+    import os\
+    if (sys.platform != "darwin" or not os.uname().machine.startswith("iP")):\
+        &/' pandas/compat/__init__.py >> $PREFIX/make_install_osx.log 2>&1
+# To make a single module, we need these functions to be static:
+sed -i bak 's/PyObject. char_to_string/static &/' ./pandas/_libs/tslibs/util.pxd >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak 's/^void.*traced/static &/' ./pandas/_libs/src/klib/khash_python.h >> $PREFIX/make_install_osx.log 2>&1
+# TODO (if it works): edit utils.pxd, change char_to_string to static
+env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+echo pandas libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
+find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/  >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/io  >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/io/sas  >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs  >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/window  >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/tslibs  >> $PREFIX/make_install_osx.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/io/sas/_sas.cpython-39-darwin.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/io/sas >> $PREFIX/make_install_osx.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs >> $PREFIX/make_install_osx.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/window/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/window >> $PREFIX/make_install_osx.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/tslibs/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/tslibs >> $PREFIX/make_install_osx.log 2>&1
+# Making a single pandas dynamic library:
+echo Making a single pandas library for OSX: >> $PREFIX/make_install_osx.log 2>&1
+clang -v -undefined error -dynamiclib \
+-isysroot $OSX_SDKROOT \
+-lz -lm -lc++ \
+-lpython3.9 \
+-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
+-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
+-O3 -Wall  \
+-DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
+-DCYTHON_USE_DICT_VERSIONS=0 \
+`find build -name \*.o` \
+-L$PREFIX/Library/lib \
+-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
+-o build/pandas.so  >> $PREFIX/make_install_osx.log 2>&1
+cp build/pandas.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
 # for Carnets specifically (or all apps with Jupyter notebooks):
 if [ $APP == "Carnets" ]; 
 then
-	# Pandas
-	pushd packages >> make_install_osx.log 2>&1
-	rm -rf pandas*  >> $PREFIX/make_install_osx.log 2>&1
-	env NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" python3.9 -m pip download pandas --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
-	tar xvzf pandas*  >> $PREFIX/make_install_osx.log 2>&1
-	rm pandas*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
-	pushd pandas*  >> $PREFIX/make_install_osx.log 2>&1
-	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-    sed -i bak 's/warnings.warn(msg)/# iOS: lzma is forbidden on the AppStore\
-        import os\
-        if (sys.platform != "darwin" or not os.uname().machine.startswith("iP")):\
-            &/' pandas/compat/__init__.py >> $PREFIX/make_install_osx.log 2>&1
-	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
-	echo pandas libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
-	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/io  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/io/sas  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/window  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/tslibs  >> $PREFIX/make_install_osx.log 2>&1
-	cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/io/sas/_sas.cpython-39-darwin.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/io/sas >> $PREFIX/make_install_osx.log 2>&1
-	cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs >> $PREFIX/make_install_osx.log 2>&1
-	cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/window/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/window >> $PREFIX/make_install_osx.log 2>&1
-	cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/tslibs/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/tslibs >> $PREFIX/make_install_osx.log 2>&1
-	popd  >> $PREFIX/make_install_osx.log 2>&1
-	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# nbextensions
 	python3.9 -m pip install --upgrade pyyaml >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip install --upgrade jupyter_contrib_core >> $PREFIX/make_install_osx.log 2>&1
@@ -1280,6 +1318,7 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
 	export PYTHONHOME=$PREFIX/Library/	
 fi # scipy, USE_FORTRAN == 1
 fi # APP == "Carnets"
+# 
 # 4 different kind of package configuration
 # - pure-python packages, no edits: use pip install
 # - pure-python packages that I have to edit: git submodules (some with sed)
@@ -1449,6 +1488,26 @@ cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/numpy/core/*.so $PREFIX/build/lib.
 cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/numpy/linalg/*.so $PREFIX/build/lib.darwin-arm64-3.9/numpy/linalg/ >> $PREFIX/make_ios.log 2>&1
 cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/numpy/fft/*.so $PREFIX/build/lib.darwin-arm64-3.9/numpy/fft/ >> $PREFIX/make_ios.log 2>&1
 cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/numpy/random/*.so $PREFIX/build/lib.darwin-arm64-3.9/numpy/random/ >> $PREFIX/make_ios.log 2>&1
+# Making a single numpy dynamic library:
+echo Makign a single numpy library for iOS: >> $PREFIX/make_ios.log 2>&1
+clang -v -undefined error -dynamiclib \
+-isysroot $IOS_SDKROOT \
+-lz -lm \
+-lpython3.9 \
+ -F$PREFIX/Frameworks_iphoneos -framework ios_system \
+-L$PREFIX/Frameworks_iphoneos/lib \
+-L$PREFIX/build/lib.darwin-arm64-3.9 \
+-O3 -Wall -arch arm64 \
+-miphoneos-version-min=14.0 \
+-DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
+-DCYTHON_USE_DICT_VERSIONS=0 \
+`find build -name \*.o` \
+-L$PREFIX/Library/lib \
+-Lbuild/temp.macosx-${OSX_VERSION}-arm64-3.9 \
+-lnpymath \
+-lnpyrandom \
+-o build/numpy.so  >> $PREFIX/make_ios.log 2>&1
+cp build/numpy.so $PREFIX/build/lib.darwin-arm64-3.9 >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 if [ $USE_FORTRAN == 1 ];
@@ -1457,6 +1516,7 @@ then
 	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.darwin-arm64-3.9/numpy/core/_multiarray_umath.cpython-39-darwin.so  >> make_ios.log 2>&1
 	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.darwin-arm64-3.9/numpy/linalg/_umath_linalg.cpython-39-darwin.so  >> make_ios.log 2>&1
 	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.darwin-arm64-3.9/numpy/linalg/lapack_lite.cpython-39-darwin.so  >> make_ios.log 2>&1
+	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.darwin-arm64-3.9/numpy.so  >> make_ios.log 2>&1
 fi
 # Matplotlib
 ## kiwisolver
@@ -1636,29 +1696,47 @@ then
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 fi
-# Pandas (but only with Carnets):
+# Pandas:
+pushd packages >> make_ios.log 2>&1
+pushd pandas*  >> $PREFIX/make_ios.log 2>&1
+rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
+# Needed to load parser/tokenizer.h before Parser/tokenizer.h:
+PANDAS=$PWD
+env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX $DEBUG -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.9 $DEBUG" PLATFORM=iphoneos NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" python3.9 setup.py build  >> $PREFIX/make_ios.log 2>&1
+echo pandas libraries for iOS: >> $PREFIX/make_ios.log 2>&1
+find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/io  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/io/sas  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/window  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/tslibs  >> $PREFIX/make_ios.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/pandas/io/sas/_sas.cpython-39-darwin.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/io/sas >> $PREFIX/make_ios.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/pandas/_libs/*.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs >> $PREFIX/make_ios.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/pandas/_libs/window/*.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/window >> $PREFIX/make_ios.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/pandas/_libs/tslibs/*.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/tslibs >> $PREFIX/make_ios.log 2>&1
+# Making a single numpy dynamic library:
+echo Making a single pandas library for iOS: >> $PREFIX/make_ios.log 2>&1
+clang -v -undefined error -dynamiclib \
+-isysroot $IOS_SDKROOT \
+-lz -lm -lc++ \
+-lpython3.9 \
+ -F$PREFIX/Frameworks_iphoneos -framework ios_system \
+-L$PREFIX/Frameworks_iphoneos/lib \
+-L$PREFIX/build/lib.darwin-arm64-3.9 \
+-O3 -Wall -arch arm64 \
+-miphoneos-version-min=14.0 \
+-DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
+-DCYTHON_USE_DICT_VERSIONS=0 \
+`find build -name \*.o` \
+-L$PREFIX/Library/lib \
+-Lbuild/temp.macosx-${OSX_VERSION}-arm64-3.9 \
+-o build/pandas.so  >> $PREFIX/make_ios.log 2>&1
+cp build/pandas.so $PREFIX/build/lib.darwin-arm64-3.9 >> $PREFIX/make_ios.log 2>&1
+popd  >> $PREFIX/make_ios.log 2>&1
+popd  >> $PREFIX/make_ios.log 2>&1
 if [ $APP == "Carnets" ]; 
 then
-	pushd packages >> make_ios.log 2>&1
-	pushd pandas*  >> $PREFIX/make_ios.log 2>&1
-	rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
-    # Needed to load parser/tokenizer.h before Parser/tokenizer.h:
-    PANDAS=$PWD
-	env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX $DEBUG -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.9 $DEBUG" PLATFORM=iphoneos NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" python3.9 setup.py build  >> $PREFIX/make_ios.log 2>&1
-	echo pandas libraries for iOS: >> $PREFIX/make_ios.log 2>&1
-	find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/io  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/io/sas  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/window  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/tslibs  >> $PREFIX/make_ios.log 2>&1
-	cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/pandas/io/sas/_sas.cpython-39-darwin.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/io/sas >> $PREFIX/make_ios.log 2>&1
-	cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/pandas/_libs/*.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs >> $PREFIX/make_ios.log 2>&1
-	cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/pandas/_libs/window/*.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/window >> $PREFIX/make_ios.log 2>&1
-	cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/pandas/_libs/tslibs/*.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/tslibs >> $PREFIX/make_ios.log 2>&1
-	popd  >> $PREFIX/make_ios.log 2>&1
-	popd  >> $PREFIX/make_ios.log 2>&1
 	# bokeh, dill: pure Python installs
 	# pyerfa (for astropy)
 	pushd packages >> $PREFIX/make_ios.log 2>&1
@@ -2208,6 +2286,26 @@ cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/core/*.so $PREFIX/build/lib
 cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/linalg/*.so $PREFIX/build/lib.darwin-x86_64-3.9/numpy/linalg/ >> $PREFIX/make_simulator.log 2>&1
 cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/fft/*.so $PREFIX/build/lib.darwin-x86_64-3.9/numpy/fft/ >> $PREFIX/make_simulator.log 2>&1
 cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/random/*.so $PREFIX/build/lib.darwin-x86_64-3.9/numpy/random/ >> $PREFIX/make_simulator.log 2>&1
+# Making a single numpy dynamic library:
+echo Making a single numpy library for iOS Simulator: >> $PREFIX/make_simulator.log 2>&1
+clang -v -undefined error -dynamiclib \
+-isysroot $SIM_SDKROOT \
+-lz -lm \
+-lpython3.9 \
+-F$PREFIX/Frameworks_iphonesimulator -framework ios_system \
+-L$PREFIX/Frameworks_iphonesimulator/lib \
+-L$PREFIX/build/lib.darwin-x86_64-3.9 \
+-O3 -Wall -arch x86_64 \
+-miphonesimulator-version-min=14.0 \
+-DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
+-DCYTHON_USE_DICT_VERSIONS=0 \
+`find build -name \*.o` \
+-L$PREFIX/Library/lib \
+-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
+-lnpymath \
+-lnpyrandom \
+-o build/numpy.so  >> $PREFIX/make_simulator.log 2>&1
+cp build/numpy.so $PREFIX/build/lib.darwin-x86_64-3.9 >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 # Matplotlib
@@ -2327,27 +2425,45 @@ mkdir -p  $PREFIX/build/lib.darwin-x86_64-3.9/pyfftw/ >> $PREFIX/make_simulator.
 cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pyfftw/pyfftw.cpython-39-darwin.so $PREFIX/build/lib.darwin-x86_64-3.9/pyfftw/  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
-# Pandas (but only with Carnets):
+# Pandas:
+pushd packages >> make_simulator.log 2>&1
+pushd pandas*  >> $PREFIX/make_simulator.log 2>&1
+rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
+# Need to load parser/tokenizer.h before Parser/tokenizer.h
+PANDAS=$PWD
+env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX $DEBUG" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib -L$PREFIX/build/lib.darwin-x86_64-3.9 $DEBUG" PLATFORM=iphonesimulator NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" python3.9 setup.py build  >> $PREFIX/make_simulator.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/  >> $PREFIX/make_simulator.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/io  >> $PREFIX/make_simulator.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/io/sas  >> $PREFIX/make_simulator.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs  >> $PREFIX/make_simulator.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs/window  >> $PREFIX/make_simulator.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs/tslibs  >> $PREFIX/make_simulator.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/io/sas/_sas.cpython-39-darwin.so $PREFIX/build/lib.darwin-x86_64-3.9/pandas/io/sas >> $PREFIX/make_simulator.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/*.so $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs >> $PREFIX/make_simulator.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/window/*.so $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs/window >> $PREFIX/make_simulator.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/tslibs/*.so $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs/tslibs >> $PREFIX/make_simulator.log 2>&1
+# Making a single pandas dynamic library:
+echo Making a single pandas library for iOS Simulator: >> $PREFIX/make_simulator.log 2>&1
+clang -v -undefined error -dynamiclib \
+-isysroot $SIM_SDKROOT \
+-lz -lm -lc++ \
+-lpython3.9 \
+-F$PREFIX/Frameworks_iphonesimulator -framework ios_system \
+-L$PREFIX/Frameworks_iphonesimulator/lib \
+-L$PREFIX/build/lib.darwin-x86_64-3.9 \
+-O3 -Wall -arch x86_64 \
+-miphonesimulator-version-min=14.0 \
+-DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
+-DCYTHON_USE_DICT_VERSIONS=0 \
+`find build -name \*.o` \
+-L$PREFIX/Library/lib \
+-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
+-o build/pandas.so  >> $PREFIX/make_simulator.log 2>&1
+cp build/pandas.so $PREFIX/build/lib.darwin-x86_64-3.9 >> $PREFIX/make_simulator.log 2>&1
+popd  >> $PREFIX/make_simulator.log 2>&1
+popd  >> $PREFIX/make_simulator.log 2>&1
 if [ $APP == "Carnets" ]; 
 then
-	pushd packages >> make_simulator.log 2>&1
-	pushd pandas*  >> $PREFIX/make_simulator.log 2>&1
-	rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
-    # Need to load parser/tokenizer.h before Parser/tokenizer.h
-    PANDAS=$PWD
-	env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX $DEBUG" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib -L$PREFIX/build/lib.darwin-x86_64-3.9 $DEBUG" PLATFORM=iphonesimulator NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" python3.9 setup.py build  >> $PREFIX/make_simulator.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/  >> $PREFIX/make_simulator.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/io  >> $PREFIX/make_simulator.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/io/sas  >> $PREFIX/make_simulator.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs  >> $PREFIX/make_simulator.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs/window  >> $PREFIX/make_simulator.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs/tslibs  >> $PREFIX/make_simulator.log 2>&1
-	cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/io/sas/_sas.cpython-39-darwin.so $PREFIX/build/lib.darwin-x86_64-3.9/pandas/io/sas >> $PREFIX/make_simulator.log 2>&1
-	cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/*.so $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs >> $PREFIX/make_simulator.log 2>&1
-	cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/window/*.so $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs/window >> $PREFIX/make_simulator.log 2>&1
-	cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pandas/_libs/tslibs/*.so $PREFIX/build/lib.darwin-x86_64-3.9/pandas/_libs/tslibs >> $PREFIX/make_simulator.log 2>&1
-	popd  >> $PREFIX/make_simulator.log 2>&1
-	popd  >> $PREFIX/make_simulator.log 2>&1
 	# bokeh, dill: pure Python installs
 	# pyerfa (for astropy)
 	pushd packages >> $PREFIX/make_simulator.log 2>&1
