@@ -2379,13 +2379,79 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
     // PyObject_Print(file, stderr, 0);
     // fprintf(stderr, " \n");
     char newPathString[MAXPATHLEN];
-    char prefixCopy[MAXPATHLEN]; 
+    wchar_t prefixCopy[MAXPATHLEN]; 
     int argc;
     wchar_t **argv_orig;
     Py_GetArgcArgv(&argc, &argv_orig);
-    const char* nameC = PyUnicode_AsUTF8(name);
-    wchar_t pythonName[12];
-    wcscpy(pythonName, argv_orig[0]);
+    char nameC[MAXPATHLEN];
+	strcpy(nameC, PyUnicode_AsUTF8(name));
+	// New special case to reduce number of modules: all numpy modules are merged into one:
+	if ((strcmp(nameC, "numpy.core._operand_flag_tests") == 0) || 
+			(strcmp(nameC, "numpy.core._multiarray_umath") == 0) || 
+			(strcmp(nameC, "numpy.core._simd") == 0) || 
+			(strcmp(nameC, "numpy.linalg.lapack_lite") == 0) || 
+			(strcmp(nameC, "numpy.linalg._umath_linalg") == 0) || 
+			(strcmp(nameC, "numpy.fft._pocketfft_internal") == 0) || 
+			(strcmp(nameC, "numpy.random.bit_generator") == 0) || 
+			(strcmp(nameC, "numpy.random.mtrand") == 0) || 
+			(strcmp(nameC, "numpy.random._generator") == 0) || 
+			(strcmp(nameC, "numpy.random._pcg64") == 0) || 
+			(strcmp(nameC, "numpy.random._sfc64") == 0) || 
+			(strcmp(nameC, "numpy.random._mt19937") == 0) || 
+			(strcmp(nameC, "numpy.random._philox") == 0) || 
+			(strcmp(nameC, "numpy.random._bounded_integers") == 0) || 
+			(strcmp(nameC, "numpy.random._common") == 0)) {
+		strcpy(nameC, "numpy_all"); // The module name is "numpy_all", to avoid confusion with numpy itself
+	} else if ((strcmp(nameC, "pandas.io.sas._sas") == 0) ||
+			(strcmp(nameC, "pandas._libs.index") == 0) ||
+			(strcmp(nameC, "pandas._libs.join") == 0) ||
+			(strcmp(nameC, "pandas._libs.parsers") == 0) ||
+			(strcmp(nameC, "pandas._libs.reduction") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslib") == 0) ||
+			(strcmp(nameC, "pandas._libs.sparse") == 0) ||
+			(strcmp(nameC, "pandas._libs.properties") == 0) ||
+			(strcmp(nameC, "pandas._libs.internals") == 0) ||
+			(strcmp(nameC, "pandas._libs.reshape") == 0) ||
+			(strcmp(nameC, "pandas._libs.ops") == 0) ||
+			(strcmp(nameC, "pandas._libs.indexing") == 0) ||
+			(strcmp(nameC, "pandas._libs.hashing") == 0) ||
+			(strcmp(nameC, "pandas._libs.lib") == 0) ||
+			(strcmp(nameC, "pandas._libs.hashtable") == 0) ||
+			(strcmp(nameC, "pandas._libs.algos") == 0) ||
+			(strcmp(nameC, "pandas._libs.json") == 0) ||
+			(strcmp(nameC, "pandas._libs.arrays") == 0) ||
+			(strcmp(nameC, "pandas._libs.window.indexers") == 0) ||
+			(strcmp(nameC, "pandas._libs.window.aggregations") == 0) ||
+			(strcmp(nameC, "pandas._libs.writers") == 0) ||
+			(strcmp(nameC, "pandas._libs.ops_dispatch") == 0) ||
+			(strcmp(nameC, "pandas._libs.groupby") == 0) ||
+			(strcmp(nameC, "pandas._libs.interval") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.dtypes") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.period") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.conversion") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.ccalendar") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.timedeltas") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.strptime") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.vectorized") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.nattype") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.base") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.timezones") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.timestamps") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.offsets") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.fields") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.np_datetime") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.parsing") == 0) ||
+			(strcmp(nameC, "pandas._libs.tslibs.tzconversion") == 0) ||
+			(strcmp(nameC, "pandas._libs.testing") == 0) ||
+			(strcmp(nameC, "pandas._libs.missing") == 0)) {
+		strcpy(nameC, "pandas_all"); // The module name is "pandas_all", to avoid confusion with pandas itself
+	}
+	wchar_t pythonName[12];
+	if (argc > 0) {
+		wcscpy(pythonName, argv_orig[0]);
+	} else {
+        wcscpy(pythonName, L"python3_ios");
+	}
     if ((wcscmp(pythonName, L"python3") == 0) || (wcscmp(pythonName, L"python") == 0)) {
         wcscpy(pythonName, L"python3_ios");
     }
@@ -2397,6 +2463,7 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
     	*library = L'\0'; // terminate prefix before /Library, to get the APPDIR
 		sprintf(newPathString, "%S/Frameworks/%S-%s.framework/%S-%s", prefixCopy, pythonName, nameC, pythonName, nameC);
 	} else {
+		// If it did not work, we call getenv("APPDIR")
 		sprintf(newPathString, "%s/Frameworks/%S-%s.framework/%S-%s", getenv("APPDIR"), pythonName, nameC, pythonName, nameC);
 	}
     // fprintf(stderr, "New path: %s\n", newPathString);
