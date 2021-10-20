@@ -840,6 +840,22 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/cosmology/ >> $PREFIX
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/convolution/ >> $PREFIX/make_install_osx.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/_stats.cpython-39-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/make_install_osx.log 2>&1
+	# Making a single astropy dynamic library:
+	echo Making a single astropy library for OSX: >> $PREFIX/make_install_osx.log 2>&1
+	clang -v -undefined error -dynamiclib \
+		-isysroot $OSX_SDKROOT \
+		-lz -lm -lc++ \
+		-lpython3.9 \
+		-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
+		-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
+		-O3 -Wall  \
+		-DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
+		-DCYTHON_USE_DICT_VERSIONS=0 \
+		`find build -name \*.o` \
+		-L$PREFIX/Library/lib \
+		-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
+		-o build/astropy.so  >> $PREFIX/make_install_osx.log 2>&1
+			cp build/astropy.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# geopandas and cartopy: require Shapely (GEOS), fiona (GDAL), pyproj (PROJ), rtree
@@ -1715,7 +1731,7 @@ cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/pandas/io/sas/_sas.cpython-39-darwi
 cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/pandas/_libs/*.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs >> $PREFIX/make_ios.log 2>&1
 cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/pandas/_libs/window/*.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/window >> $PREFIX/make_ios.log 2>&1
 cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/pandas/_libs/tslibs/*.so $PREFIX/build/lib.darwin-arm64-3.9/pandas/_libs/tslibs >> $PREFIX/make_ios.log 2>&1
-# Making a single numpy dynamic library:
+# Making a single pandas dynamic library:
 echo Making a single pandas library for iOS: >> $PREFIX/make_ios.log 2>&1
 clang -v -undefined error -dynamiclib \
 -isysroot $IOS_SDKROOT \
@@ -1806,6 +1822,24 @@ $PREFIX/build/lib.darwin-arm64-3.9/erfa/ >> $PREFIX/make_ios.log 2>&1
       $PREFIX/build/lib.darwin-arm64-3.9/astropy/convolution/ >> $PREFIX/make_ios.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/astropy/stats/_stats.cpython-39-darwin.so \
       $PREFIX/build/lib.darwin-arm64-3.9/astropy/stats/ >> $PREFIX/make_ios.log 2>&1
+	  # Making a single astropy dynamic library:
+	  echo Making a single astropy library for iOS: >> $PREFIX/make_ios.log 2>&1
+	  clang -v -undefined error -dynamiclib \
+		  -isysroot $IOS_SDKROOT \
+		  -lz -lm -lc++ \
+		  -lpython3.9 \
+		  -F$PREFIX/Frameworks_iphoneos -framework ios_system \
+		  -L$PREFIX/Frameworks_iphoneos/lib \
+		  -L$PREFIX/build/lib.darwin-arm64-3.9 \
+		  -O3 -Wall -arch arm64 \
+		  -miphoneos-version-min=14.0 \
+		  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
+		  -DCYTHON_USE_DICT_VERSIONS=0 \
+		  `find build -name \*.o` \
+		  -L$PREFIX/Library/lib \
+		  -Lbuild/temp.macosx-${OSX_VERSION}-arm64-3.9 \
+		  -o build/astropy.so  >> $PREFIX/make_ios.log 2>&1
+	cp build/astropy.so $PREFIX/build/lib.darwin-arm64-3.9 >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 # geopandas and cartopy: require Shapely, fiona, shapely
@@ -2529,6 +2563,24 @@ $PREFIX/build/lib.darwin-x86_64-3.9/erfa >> $PREFIX/make_simulator.log 2>&1
       $PREFIX/build/lib.darwin-x86_64-3.9/astropy/convolution/ >> $PREFIX/make_simulator.log 2>&1
     cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/_stats.cpython-39-darwin.so \
       $PREFIX/build/lib.darwin-x86_64-3.9/astropy/stats/ >> $PREFIX/make_simulator.log 2>&1
+	  # Making a single astropy dynamic library:
+    echo Making a single astropy library for iOS Simulator: >> $PREFIX/make_simulator.log 2>&1
+    clang -v -undefined error -dynamiclib \
+  	  -isysroot $SIM_SDKROOT \
+  	  -lz -lm -lc++ \
+  	  -lpython3.9 \
+  	  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system \
+  	  -L$PREFIX/Frameworks_iphonesimulator/lib \
+  	  -L$PREFIX/build/lib.darwin-x86_64-3.9 \
+  	  -O3 -Wall -arch x86_64 \
+  	  -miphonesimulator-version-min=14.0 \
+  	  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
+  	  -DCYTHON_USE_DICT_VERSIONS=0 \
+  	  `find build -name \*.o` \
+  	  -L$PREFIX/Library/lib \
+  	  -Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
+  	  -o build/astropy.so  >> $PREFIX/make_simulator.log 2>&1
+	cp build/astropy.so $PREFIX/build/lib.darwin-x86_64-3.9 >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1
 	# geopandas and cartopy: require Shapely (GEOS), fiona (GDAL), pyproj (PROJ), rtree
