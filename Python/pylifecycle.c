@@ -1210,6 +1210,44 @@ Py_Initialize(void)
     Py_InitializeEx(1);
 }
 
+#if TARGET_OS_IPHONE
+// Replaces Py_Initialize, but sets the name of the library being loaded to "name"
+// so dynamically loading modules will work.
+// Allows Vim (and others) to load python3_iOS, pythonA, pythonB... depending on
+// what is available.
+void
+Py_InitializeWithName(char* name)
+{
+	int install_sigs = 1;
+
+    PyStatus status;
+
+    status = _PyRuntime_Initialize();
+    if (_PyStatus_EXCEPTION(status)) {
+        Py_ExitStatusException(status);
+    }
+    _PyRuntimeState *runtime = &_PyRuntime;
+
+    if (runtime->initialized) {
+        /* bpo-33932: Calling Py_Initialize() twice does nothing. */
+        return;
+    }
+
+    PyConfig config;
+    _PyConfig_InitCompatConfig(&config);
+
+    config.install_signal_handlers = install_sigs;
+    // The only difference with Py_InitializeEx:
+    PyConfig_SetBytesArgv(&config, 1, &name);
+
+    status = Py_InitializeFromConfig(&config);
+    if (_PyStatus_EXCEPTION(status)) {
+        Py_ExitStatusException(status);
+    }
+
+    Py_InitializeEx(1);
+}
+#endif
 
 /* Flush stdout and stderr */
 
