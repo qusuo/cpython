@@ -576,23 +576,27 @@ _PyModule_Clear(PyObject *m)
     // Python 3.9: this is required for _asyncio (new). Must check for pandas and numpy.
     // Unclear whether this is required for scipy, but it does no harm to call destructors.
     // 01/05/21: starting tests on astropy and sklearn. If it does not crash, we keep it.
+    // 10/07/21: adding statsmodels
     int moduleNeedsCleanup = 0;
     PyModuleObject *mod = (PyModuleObject *)m;
-    const char* utf8name = PyUnicode_AsUTF8(mod->md_name);
-    if ((strncmp(utf8name, "_asyncio", 8) == 0) 
-    		|| (strncmp(utf8name, "pandas.", 7) == 0) 
-    		|| (strncmp(utf8name, "numpy.", 6) == 0)
-    		|| (strncmp(utf8name, "scipy.", 6) == 0)
-    		|| (strncmp(utf8name, "astropy.", 8) == 0)
-    		|| (strncmp(utf8name, "sklearn.", 8) == 0)) {
-        // iOS, debug:
-        // fprintf(thread_stderr, "Module = %x name = %s refCount = %zd ", mod, utf8name, m->ob_refcnt);
-        if (mod->md_def && mod->md_def->m_free) {
-            // fprintf(thread_stderr, "module has a free function: %x", mod->md_def->m_free);
-            moduleNeedsCleanup = 1;
-        }
-        // fprintf(thread_stderr, "\n");
-    }
+	if (mod->md_name != NULL) {
+		const char* utf8name = PyUnicode_AsUTF8(mod->md_name);
+		if ((strncmp(utf8name, "_asyncio", 8) == 0) 
+				|| (strncmp(utf8name, "pandas.", 7) == 0) 
+				|| (strncmp(utf8name, "numpy.", 6) == 0)
+				|| (strncmp(utf8name, "scipy.", 6) == 0)
+				|| (strncmp(utf8name, "astropy.", 8) == 0)
+				|| (strncmp(utf8name, "statsmodels.", 12) == 0)
+				|| (strncmp(utf8name, "sklearn.", 8) == 0)) {
+			// iOS, debug:
+			// fprintf(thread_stderr, "Module = %x name = %s refCount = %zd ", mod, utf8name, m->ob_refcnt);
+			if (mod->md_def && mod->md_def->m_free) {
+				// fprintf(thread_stderr, "module has a free function: %x", mod->md_def->m_free);
+				moduleNeedsCleanup = 1;
+			}
+			// fprintf(thread_stderr, "\n");
+		}
+	}
 #endif
     PyObject *d = ((PyModuleObject *)m)->md_dict;
     if (d != NULL)

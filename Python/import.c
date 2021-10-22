@@ -2402,54 +2402,30 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
 			(strcmp(nameC, "numpy.random._bounded_integers") == 0) || 
 			(strcmp(nameC, "numpy.random._common") == 0)) {
 		strcpy(nameC, "numpy_all"); // The module name is "numpy_all", to avoid confusion with numpy itself
-	} else if ((strcmp(nameC, "pandas.io.sas._sas") == 0) ||
-			(strcmp(nameC, "pandas._libs.index") == 0) ||
-			(strcmp(nameC, "pandas._libs.join") == 0) ||
-			(strcmp(nameC, "pandas._libs.parsers") == 0) ||
-			(strcmp(nameC, "pandas._libs.reduction") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslib") == 0) ||
-			(strcmp(nameC, "pandas._libs.sparse") == 0) ||
-			(strcmp(nameC, "pandas._libs.properties") == 0) ||
-			(strcmp(nameC, "pandas._libs.internals") == 0) ||
-			(strcmp(nameC, "pandas._libs.reshape") == 0) ||
-			(strcmp(nameC, "pandas._libs.ops") == 0) ||
-			(strcmp(nameC, "pandas._libs.indexing") == 0) ||
-			(strcmp(nameC, "pandas._libs.hashing") == 0) ||
-			(strcmp(nameC, "pandas._libs.lib") == 0) ||
-			(strcmp(nameC, "pandas._libs.hashtable") == 0) ||
-			(strcmp(nameC, "pandas._libs.algos") == 0) ||
-			(strcmp(nameC, "pandas._libs.json") == 0) ||
-			(strcmp(nameC, "pandas._libs.arrays") == 0) ||
-			(strcmp(nameC, "pandas._libs.window.indexers") == 0) ||
-			(strcmp(nameC, "pandas._libs.window.aggregations") == 0) ||
-			(strcmp(nameC, "pandas._libs.writers") == 0) ||
-			(strcmp(nameC, "pandas._libs.ops_dispatch") == 0) ||
-			(strcmp(nameC, "pandas._libs.groupby") == 0) ||
-			(strcmp(nameC, "pandas._libs.interval") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.dtypes") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.period") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.conversion") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.ccalendar") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.timedeltas") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.strptime") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.vectorized") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.nattype") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.base") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.timezones") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.timestamps") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.offsets") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.fields") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.np_datetime") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.parsing") == 0) ||
-			(strcmp(nameC, "pandas._libs.tslibs.tzconversion") == 0) ||
-			(strcmp(nameC, "pandas._libs.testing") == 0) ||
-			(strcmp(nameC, "pandas._libs.missing") == 0)) {
-		strcpy(nameC, "pandas_all"); // The module name is "pandas_all", to avoid confusion with pandas itself
-	}
+	} else if ((strcmp(nameC, "astropy.compiler_version") == 0) ||
+			(strcmp(nameC, "astropy.timeseries.periodograms.bls._impl") == 0) ||
+			(strcmp(nameC, "astropy.timeseries.periodograms.lombscargle.implementations.cython_impl") == 0) ||
+			(strcmp(nameC, "astropy.wcs._wcs") == 0) ||
+			(strcmp(nameC, "astropy.io.ascii.cparser") == 0) ||
+			(strcmp(nameC, "astropy.io.fits.compression") == 0) ||
+			(strcmp(nameC, "astropy.io.fits._utils") == 0) ||
+			(strcmp(nameC, "astropy.io.votable.tablewriter") == 0) ||
+			(strcmp(nameC, "astropy.utils._compiler") == 0) ||
+			(strcmp(nameC, "astropy.utils.xml._iterparser") == 0) ||
+			(strcmp(nameC, "astropy.modeling._projections") == 0) ||
+			(strcmp(nameC, "astropy.time._parse_times") == 0) ||
+			(strcmp(nameC, "astropy.table._np_utils") == 0) ||
+			(strcmp(nameC, "astropy.table._column_mixins") == 0) ||
+			(strcmp(nameC, "astropy.cosmology.scalar_inv_efuncs") == 0) ||
+			(strcmp(nameC, "astropy.convolution._convolve") == 0) ||
+			(strcmp(nameC, "astropy.stats._stats") == 0)) {
+		strcpy(nameC, "astropy_all");
+	}	
 	wchar_t pythonName[12];
 	if (argc > 0) {
 		wcscpy(pythonName, argv_orig[0]);
 	} else {
+		fprintf(stderr, "Warning: argv is empty\n");
         wcscpy(pythonName, L"python3_ios");
 	}
     if ((wcscmp(pythonName, L"python3") == 0) || (wcscmp(pythonName, L"python") == 0)) {

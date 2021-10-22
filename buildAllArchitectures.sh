@@ -407,13 +407,21 @@ cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/fft/*.so $PREFIX/build/lib.
 cp  build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/random/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/random/ >> $PREFIX/make_install_osx.log 2>&1
 # Making a single numpy dynamic library:
 echo Making a single numpy library for OSX: >> $PREFIX/make_install_osx.log 2>&1
+if [ $USE_FORTRAN == 1 ];
+then
+	OPENBLAS="-L $PREFIX/Frameworks_macosx/lib -lopenblas"
+	mv build/temp.macosx-${OSX_VERSION}-x86_64-3.9/numpy/core/src/common/python_xerbla.o build/temp.macosx-${OSX_VERSION}-x86_64-3.9/numpy/core/src/common/python_xerbla.op
+
+else
+	OPENBLAS=""
+fi
 clang -v -undefined error -dynamiclib \
 -isysroot $OSX_SDKROOT \
--lz -lm \
+-lz -lm -lc++ \
 -lpython3.9 \
 -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
 -L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
--O3 -Wall  \
+-O3 -Wall \
 -DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
 -DCYTHON_USE_DICT_VERSIONS=0 \
 `find build -name \*.o` \
@@ -421,6 +429,7 @@ clang -v -undefined error -dynamiclib \
 -Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
 -lnpymath \
 -lnpyrandom \
+$OPENBLAS \
 -o build/numpy.so  >> $PREFIX/make_install_osx.log 2>&1
 cp build/numpy.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
@@ -431,6 +440,7 @@ then
 	install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/core/_multiarray_umath.cpython-39-darwin.so  >> $PREFIX/make_install_osx.log 2>&1
 	install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/linalg/_umath_linalg.cpython-39-darwin.so  >> $PREFIX/make_install_osx.log 2>&1
 	install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy/linalg/lapack_lite.cpython-39-darwin.so  >> $PREFIX/make_install_osx.log 2>&1
+	install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.macosx-${OSX_VERSION}-x86_64-3.9/numpy.so  >> $PREFIX/make_install_osx.log 2>&1
 fi
 # For matplotlib:
 ## cycler:
@@ -674,7 +684,6 @@ sed -i bak 's/warnings.warn(msg)/# iOS: lzma is forbidden on the AppStore\
 # To make a single module, we need these functions to be static:
 sed -i bak 's/PyObject. char_to_string/static &/' ./pandas/_libs/tslibs/util.pxd >> $PREFIX/make_install_osx.log 2>&1
 sed -i bak 's/^void.*traced/static &/' ./pandas/_libs/src/klib/khash_python.h >> $PREFIX/make_install_osx.log 2>&1
-# TODO (if it works): edit utils.pxd, change char_to_string to static
 env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 echo pandas libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
@@ -1342,7 +1351,7 @@ fi # APP == "Carnets"
 # - non-pure-python packages, with edits: git submodules (some with sed)
 #
 # break here when only installing packages or experimenting:
-exit 0
+# exit 0
 
 # 2) compile for iOS:
 unset MACOSX_DEPLOYMENT_TARGET
@@ -1506,6 +1515,13 @@ cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/numpy/fft/*.so $PREFIX/build/lib.d
 cp  build/lib.macosx-${OSX_VERSION}-arm64-3.9/numpy/random/*.so $PREFIX/build/lib.darwin-arm64-3.9/numpy/random/ >> $PREFIX/make_ios.log 2>&1
 # Making a single numpy dynamic library:
 echo Makign a single numpy library for iOS: >> $PREFIX/make_ios.log 2>&1
+if [ $USE_FORTRAN == 1 ];
+then
+	OPENBLAS="-L $PREFIX/Frameworks_iphoneos/lib -lopenblas"
+	mv build/temp.macosx-${OSX_VERSION}-arm64-3.9/numpy/core/src/common/python_xerbla.o build/temp.macosx-${OSX_VERSION}-arm64-3.9/numpy/core/src/common/python_xerbla.op
+else
+	OPENBLAS=""
+fi
 clang -v -undefined error -dynamiclib \
 -isysroot $IOS_SDKROOT \
 -lz -lm \
@@ -1522,6 +1538,7 @@ clang -v -undefined error -dynamiclib \
 -Lbuild/temp.macosx-${OSX_VERSION}-arm64-3.9 \
 -lnpymath \
 -lnpyrandom \
+$OPENBLAS \
 -o build/numpy.so  >> $PREFIX/make_ios.log 2>&1
 cp build/numpy.so $PREFIX/build/lib.darwin-arm64-3.9 >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
