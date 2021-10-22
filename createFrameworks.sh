@@ -64,6 +64,9 @@ find Library -name \*.pyc -delete
 find Library -name \*.so -delete
 find Library -name \*.a -delete
 find Library -name \*.dylib -delete
+# Also remove MS Windows executables:
+find Library -name \*.exe -delete
+find Library -name \*.dll -delete
 rm -f Library/lib/libpython3.9.dylib
 rm -f Library/bin/python3.9
 rm -f Library/bin/python3
@@ -89,6 +92,14 @@ if [ -e "with_scipy/Library" ];then
 	find with_scipy/Library -name \*.so -delete
 	find with_scipy/Library -name \*.a -delete
 	find with_scipy/Library -name \*.dylib -delete
+	# Also remove MS Windows executables:
+	find with_scipy/Library -name \*.exe -delete
+	find with_scipy/Library -name \*.dll -delete
+	# Also remove the "cbc" commands in osx and linux directories:
+	find with_scipy/Library/lib/python3.9/site-packages/pulp/solverdir/cbc -type f -name cbc -delete
+	# and re-create a fake binary:
+	touch with_scipy/Library/lib/python3.9/site-packages/pulp/solverdir/cbc/osx/64/cbc
+	#
 	rm -f with_scipy/Library/lib/libpython3.9.dylib
 	rm -f with_scipy/Library/bin/python3.9
 	rm -f with_scipy/Library/bin/python3
