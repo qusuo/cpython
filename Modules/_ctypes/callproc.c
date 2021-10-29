@@ -1583,6 +1583,49 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 				(strcmp(nameC, "numpy.random._bounded_integers") == 0) || 
 				(strcmp(nameC, "numpy.random._common") == 0)) {
 			strcpy(nameC, "numpy_all"); // The module name is "numpy_all", to avoid confusion with numpy itself
+		} else if ((strcmp(nameC, "pandas.io.sas._sas") == 0) ||
+				(strcmp(nameC, "pandas._libs.index") == 0) ||
+				(strcmp(nameC, "pandas._libs.join") == 0) ||
+				(strcmp(nameC, "pandas._libs.parsers") == 0) ||
+				(strcmp(nameC, "pandas._libs.reduction") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslib") == 0) ||
+				(strcmp(nameC, "pandas._libs.sparse") == 0) ||
+				(strcmp(nameC, "pandas._libs.properties") == 0) ||
+				(strcmp(nameC, "pandas._libs.internals") == 0) ||
+				(strcmp(nameC, "pandas._libs.reshape") == 0) ||
+				(strcmp(nameC, "pandas._libs.ops") == 0) ||
+				(strcmp(nameC, "pandas._libs.indexing") == 0) ||
+				(strcmp(nameC, "pandas._libs.hashing") == 0) ||
+				(strcmp(nameC, "pandas._libs.lib") == 0) ||
+				(strcmp(nameC, "pandas._libs.hashtable") == 0) ||
+				(strcmp(nameC, "pandas._libs.algos") == 0) ||
+				(strcmp(nameC, "pandas._libs.json") == 0) ||
+				(strcmp(nameC, "pandas._libs.arrays") == 0) ||
+				(strcmp(nameC, "pandas._libs.window.indexers") == 0) ||
+				(strcmp(nameC, "pandas._libs.window.aggregations") == 0) ||
+				(strcmp(nameC, "pandas._libs.writers") == 0) ||
+				(strcmp(nameC, "pandas._libs.ops_dispatch") == 0) ||
+				(strcmp(nameC, "pandas._libs.groupby") == 0) ||
+				(strcmp(nameC, "pandas._libs.interval") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.dtypes") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.period") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.conversion") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.ccalendar") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.timedeltas") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.strptime") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.vectorized") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.nattype") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.base") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.timezones") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.timestamps") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.offsets") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.fields") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.np_datetime") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.parsing") == 0) ||
+				(strcmp(nameC, "pandas._libs.tslibs.tzconversion") == 0) ||
+				(strcmp(nameC, "pandas._libs.testing") == 0) ||
+				(strcmp(nameC, "pandas._libs.missing") == 0)) {
+			strcpy(nameC, "pandas_all"); // The module name is "pandas_all", to avoid confusion with pandas itself
 		} else if ((strcmp(nameC, "astropy.compiler_version") == 0) ||
 				(strcmp(nameC, "astropy.timeseries.periodograms.bls._impl") == 0) ||
 				(strcmp(nameC, "astropy.timeseries.periodograms.lombscargle.implementations.cython_impl") == 0) ||
@@ -1601,7 +1644,97 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 				(strcmp(nameC, "astropy.convolution._convolve") == 0) ||
 				(strcmp(nameC, "astropy.stats._stats") == 0)) {
 			strcpy(nameC, "astropy_all");
-		}	
+		} else if ((strcmp(nameC, "qutip.cy.checks") == 0) ||
+				(strcmp(nameC, "qutip.cy.piqs") == 0) ||
+				(strcmp(nameC, "qutip.cy.ptrace") == 0) ||
+				(strcmp(nameC, "qutip.cy.cqobjevo") == 0) ||
+				(strcmp(nameC, "qutip.cy.mcsolve") == 0) ||
+				(strcmp(nameC, "qutip.cy.spmatfuncs") == 0) ||
+				(strcmp(nameC, "qutip.cy.spconvert") == 0) ||
+				(strcmp(nameC, "qutip.cy.brtools") == 0) ||
+				(strcmp(nameC, "qutip.cy.stochastic") == 0) ||
+				(strcmp(nameC, "qutip.cy.heom") == 0) ||
+				(strcmp(nameC, "qutip.cy.br_tensor") == 0) ||
+				(strcmp(nameC, "qutip.cy.interpolate") == 0) ||
+				(strcmp(nameC, "qutip.cy.brtools_checks") == 0) ||
+				(strcmp(nameC, "qutip.cy.sparse_utils") == 0) ||
+				(strcmp(nameC, "qutip.cy.inter") == 0) ||
+				(strcmp(nameC, "qutip.cy.cqobjevo_factor") == 0) ||
+				(strcmp(nameC, "qutip.cy.graph_utils") == 0) ||
+				(strcmp(nameC, "qutip.cy.math") == 0) ||
+				(strcmp(nameC, "qutip.cy.spmath") == 0) ||
+				(strcmp(nameC, "qutip.control.cy_grape") == 0)) {
+			strcpy(nameC, "qutip_all");
+		} else if ((strcmp(nameC, "scipy._lib._uarray._uarray") == 0) ||
+				(strcmp(nameC, "scipy._lib._test_ccallback") == 0) ||
+				(strcmp(nameC, "scipy._lib._ccallback_c") == 0) ||
+				(strcmp(nameC, "scipy._lib._test_deprecation_call") == 0) ||
+				(strcmp(nameC, "scipy._lib._fpumode") == 0) ||
+				(strcmp(nameC, "scipy._lib.messagestream") == 0) ||
+				(strcmp(nameC, "scipy._lib._test_deprecation_def") == 0) ||
+				(strcmp(nameC, "scipy.cluster._hierarchy") == 0) ||
+				(strcmp(nameC, "scipy.cluster._optimal_leaf_ordering") == 0) ||
+				(strcmp(nameC, "scipy.cluster._vq") == 0) ||
+				(strcmp(nameC, "scipy.fft._pocketfft.pypocketfft") == 0) ||
+				(strcmp(nameC, "scipy.fftpack.convolve") == 0) ||
+				(strcmp(nameC, "scipy.integrate._test_multivariate") == 0) ||
+				(strcmp(nameC, "scipy.interpolate._fitpack") == 0) ||
+				(strcmp(nameC, "scipy.interpolate._bspl") == 0) ||
+				(strcmp(nameC, "scipy.interpolate.interpnd") == 0) ||
+				(strcmp(nameC, "scipy.interpolate._ppoly") == 0) ||
+				(strcmp(nameC, "scipy.io.matlab.mio_utils") == 0) ||
+				(strcmp(nameC, "scipy.io.matlab.streams") == 0) ||
+				(strcmp(nameC, "scipy.io.matlab.mio5_utils") == 0) ||
+				(strcmp(nameC, "scipy.linalg._solve_toeplitz") == 0) ||
+				(strcmp(nameC, "scipy.linalg._matfuncs_sqrtm_triu") == 0) ||
+				(strcmp(nameC, "scipy.linalg._decomp_update") == 0) ||
+				(strcmp(nameC, "scipy.ndimage._ni_label") == 0) ||
+				(strcmp(nameC, "scipy.ndimage._nd_image") == 0) ||
+				(strcmp(nameC, "scipy.ndimage._ctest") == 0) ||
+				(strcmp(nameC, "scipy.ndimage._cytest") == 0) ||
+				(strcmp(nameC, "scipy.optimize.moduleTNC") == 0) ||
+				(strcmp(nameC, "scipy.optimize._lsap_module") == 0) ||
+				(strcmp(nameC, "scipy.optimize._bglu_dense") == 0) ||
+				(strcmp(nameC, "scipy.optimize._highs._highs_constants") == 0) ||
+				(strcmp(nameC, "scipy.optimize._highs._highs_wrapper") == 0) ||
+				(strcmp(nameC, "scipy.optimize._lsq.givens_elimination") == 0) ||
+				(strcmp(nameC, "scipy.optimize.cython_optimize._zeros") == 0) ||
+				(strcmp(nameC, "scipy.optimize._group_columns") == 0) ||
+				(strcmp(nameC, "scipy.signal._spectral") == 0) ||
+				(strcmp(nameC, "scipy.signal._sosfilt") == 0) ||
+				(strcmp(nameC, "scipy.signal.spline") == 0) ||
+				(strcmp(nameC, "scipy.signal._peak_finding_utils") == 0) ||
+				(strcmp(nameC, "scipy.signal.sigtools") == 0) ||
+				(strcmp(nameC, "scipy.signal._max_len_seq_inner") == 0) ||
+				(strcmp(nameC, "scipy.signal._upfirdn_apply") == 0) ||
+				(strcmp(nameC, "scipy.sparse.csgraph._min_spanning_tree") == 0) ||
+				(strcmp(nameC, "scipy.sparse.csgraph._traversal") == 0) ||
+				(strcmp(nameC, "scipy.sparse.csgraph._tools") == 0) ||
+				(strcmp(nameC, "scipy.sparse.csgraph._matching") == 0) ||
+				(strcmp(nameC, "scipy.sparse.csgraph._reordering") == 0) ||
+				(strcmp(nameC, "scipy.sparse.csgraph._flow") == 0) ||
+				(strcmp(nameC, "scipy.sparse.csgraph._shortest_path") == 0) ||
+				(strcmp(nameC, "scipy.sparse._sparsetools") == 0) ||
+				(strcmp(nameC, "scipy.sparse._csparsetools") == 0) ||
+				(strcmp(nameC, "scipy.spatial.ckdtree") == 0) ||
+				(strcmp(nameC, "scipy.spatial._hausdorff") == 0) ||
+				(strcmp(nameC, "scipy.spatial._voronoi") == 0) ||
+				(strcmp(nameC, "scipy.spatial._distance_pybind") == 0) ||
+				(strcmp(nameC, "scipy.spatial._distance_wrap") == 0) ||
+				(strcmp(nameC, "scipy.spatial.transform.rotation") == 0) ||
+				(strcmp(nameC, "scipy.special.cython_special") == 0) ||
+				(strcmp(nameC, "scipy.special._comb") == 0) ||
+				(strcmp(nameC, "scipy.special._test_round") == 0) ||
+				(strcmp(nameC, "scipy.special.specfun") == 0) ||
+				(strcmp(nameC, "scipy.stats._qmc_cy") == 0) ||
+				(strcmp(nameC, "scipy.stats._boost.binom_ufunc") == 0) ||
+				(strcmp(nameC, "scipy.stats._boost.nbinom_ufunc") == 0) ||
+				(strcmp(nameC, "scipy.stats._boost.beta_ufunc") == 0) ||
+				(strcmp(nameC, "scipy.stats._sobol") == 0) ||
+				(strcmp(nameC, "scipy.stats.biasedurn") == 0) ||
+				(strcmp(nameC, "scipy.stats._stats") == 0)) {
+			strcpy(nameC, "scipy_all");
+		}
 		// The goal here is to avoid repeted calls to getenv("APPDIR") by using sys.prefix 
 		// that contains almost the same information.
 		wchar_t *prefix = Py_GetPrefix(); // sys.prefix = $APPDIR + "/Library"

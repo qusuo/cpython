@@ -1,6 +1,6 @@
 #! /bin/sh
 
-curl -OL https://github.com/holzschu/ios_system/releases/download/v2.8.0/ios_error.h
+curl -OL https://github.com/holzschu/ios_system/releases/download/v2.9.0/ios_error.h
 mkdir -p Python-aux
 pushd Python-aux
 curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libffi.xcframework.zip
@@ -16,9 +16,9 @@ curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libpng.xcf
 curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libxslt.xcframework.zip
 curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libexslt.xcframework.zip
 curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libfftw3.xcframework.zip
-curl -OL https://github.com/holzschu/ios_system/releases/download/v2.8.0/ios_system.xcframework.zip
+curl -OL https://github.com/holzschu/ios_system/releases/download/v2.9.0/ios_system.xcframework.zip
 
-rm -rf libffi.xcframework crypto.xcframework openssl.xcframework openblas.xcframework ios_system.xcframework libzmq.xcframework libjpeg.xcframework libtiff.xcframework freetype.xcframework harfbuzz.xcframework libpng.xcframework libxslt.xcframework libexslt.xcframework
+rm -rf libffi.xcframework crypto.xcframework openssl.xcframework openblas.xcframework ios_system.xcframework libzmq.xcframework libjpeg.xcframework libtiff.xcframework freetype.xcframework harfbuzz.xcframework libpng.xcframework libxslt.xcframework libexslt.xcframework libfftw3.xcframework
 unzip -q libffi.xcframework.zip
 unzip -q crypto.xcframework.zip
 unzip -q openssl.xcframework.zip
