@@ -92,7 +92,9 @@ find . -name \*.o -delete  >> make_osx.log 2>&1
 make  -j 4 >> make_osx.log 2>&1 
 mkdir -p build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
 cp libpython3.9.dylib build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
+cp python.exe build/lib.macosx-${OSX_VERSION}-x86_64-3.9/python3.9  >> make_install_osx.log 2>&1
 make  -j 4 install >> make_install_osx.log 2>&1
+# exit 0 # Debugging embedded packages in Modules/Setup
 # Force reinstall and upgrade of pip, setuptools 
 echo Starting package installation  >> make_install_osx.log 2>&1
 python3.9 -m pip install pip --upgrade >> make_install_osx.log 2>&1
@@ -311,7 +313,8 @@ pushd packages >> make_install_osx.log 2>&1
 pushd ipykernel >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1 
+# ipykernel needs "-m pip install .", won't install itself with "setup.py install"
+python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1 
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 export PYZMQ_BACKEND=cffi
@@ -334,7 +337,8 @@ export PYZMQ_BACKEND_CFFI=1
 env PYZMQ_BACKEND_CFFI=1 CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ " PYZMQ_BACKEND=cffi python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/zmq/backend/cffi >> $PREFIX/make_install_osx.log 2>&1
 cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/zmq/backend/cffi/_cffi.*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/zmq/backend/cffi >> $PREFIX/make_install_osx.log 2>&1
-env PYZMQ_BACKEND_CFFI=1 CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ " PYZMQ_BACKEND=cffi python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
+# "-m pip install ." fails, "python3.9 setup.py install bdist_egg" works for now
+env PYZMQ_BACKEND_CFFI=1 CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ " PYZMQ_BACKEND=cffi python3.9 setup.py install bdist_egg >> $PREFIX/make_install_osx.log 2>&1
 echo Done installing PyZMQ with CFFI >> $PREFIX/make_install_osx.log 2>&1
 echo PyZMQ libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
@@ -1095,18 +1099,18 @@ then
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 	cp site_original.cfg site.cfg >> $PREFIX/make_install_osx.log 2>&1
 	sed -i bak "s|__main_directory__|${PREFIX}/Frameworks_macosx|" site.cfg >> $PREFIX/make_install_osx.log 2>&1
-	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 	# pip install . : can't install because version number is not PEP440
  	# Must remove old scipy before:
  	rm -rf $PREFIX/Library/lib/python3.9/site-packages/scipy*  >> $PREFIX/make_install_osx.log 2>&1
- 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
+ 	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
 	echo scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	echo number of scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print | wc -l >> $PREFIX/make_install_osx.log 2>&1
 	# 95 libraries by the last count
 	# copy them to build/lib.macosx:
-	for library in scipy/odr/__odrpack.cpython-39-darwin.so scipy/cluster/_hierarchy.cpython-39-darwin.so scipy/cluster/_optimal_leaf_ordering.cpython-39-darwin.so scipy/cluster/_vq.cpython-39-darwin.so scipy/ndimage/_ni_label.cpython-39-darwin.so scipy/ndimage/_nd_image.cpython-39-darwin.so scipy/ndimage/_ctest.cpython-39-darwin.so scipy/ndimage/_cytest.cpython-39-darwin.so scipy/linalg/_solve_toeplitz.cpython-39-darwin.so scipy/linalg/cython_blas.cpython-39-darwin.so scipy/linalg/_flapack.cpython-39-darwin.so scipy/linalg/_flinalg.cpython-39-darwin.so scipy/linalg/cython_lapack.cpython-39-darwin.so scipy/linalg/_fblas.cpython-39-darwin.so scipy/linalg/_matfuncs_sqrtm_triu.cpython-39-darwin.so scipy/linalg/_decomp_update.cpython-39-darwin.so scipy/linalg/_interpolative.cpython-39-darwin.so scipy/optimize/_trlib/_trlib.cpython-39-darwin.so scipy/optimize/_zeros.cpython-39-darwin.so scipy/optimize/moduleTNC.cpython-39-darwin.so scipy/optimize/__nnls.cpython-39-darwin.so scipy/optimize/minpack2.cpython-39-darwin.so scipy/optimize/_lbfgsb.cpython-39-darwin.so scipy/optimize/_lsap_module.cpython-39-darwin.so scipy/optimize/_bglu_dense.cpython-39-darwin.so scipy/optimize/_highs/_highs_constants.cpython-39-darwin.so scipy/optimize/_highs/_mpswriter.cpython-39-darwin.so scipy/optimize/_highs/_highs_wrapper.cpython-39-darwin.so scipy/optimize/_lsq/givens_elimination.cpython-39-darwin.so scipy/optimize/cython_optimize/_zeros.cpython-39-darwin.so scipy/optimize/_minpack.cpython-39-darwin.so scipy/optimize/_group_columns.cpython-39-darwin.so scipy/optimize/_slsqp.cpython-39-darwin.so scipy/optimize/_cobyla.cpython-39-darwin.so scipy/integrate/_test_odeint_banded.cpython-39-darwin.so scipy/integrate/vode.cpython-39-darwin.so scipy/integrate/_test_multivariate.cpython-39-darwin.so scipy/integrate/lsoda.cpython-39-darwin.so scipy/integrate/_quadpack.cpython-39-darwin.so scipy/integrate/_odepack.cpython-39-darwin.so scipy/integrate/_dop.cpython-39-darwin.so scipy/io/matlab/mio_utils.cpython-39-darwin.so scipy/io/matlab/streams.cpython-39-darwin.so scipy/io/matlab/mio5_utils.cpython-39-darwin.so scipy/io/_test_fortran.cpython-39-darwin.so scipy/_lib/_uarray/_uarray.cpython-39-darwin.so scipy/_lib/_test_ccallback.cpython-39-darwin.so scipy/_lib/_ccallback_c.cpython-39-darwin.so scipy/_lib/_test_deprecation_call.cpython-39-darwin.so scipy/_lib/_fpumode.cpython-39-darwin.so scipy/_lib/messagestream.cpython-39-darwin.so scipy/_lib/_test_deprecation_def.cpython-39-darwin.so scipy/special/_ellip_harm_2.cpython-39-darwin.so scipy/special/cython_special.cpython-39-darwin.so scipy/special/_comb.cpython-39-darwin.so scipy/special/_test_round.cpython-39-darwin.so scipy/special/_ufuncs.cpython-39-darwin.so scipy/special/specfun.cpython-39-darwin.so scipy/special/_ufuncs_cxx.cpython-39-darwin.so scipy/fftpack/convolve.cpython-39-darwin.so scipy/interpolate/_fitpack.cpython-39-darwin.so scipy/interpolate/_bspl.cpython-39-darwin.so scipy/interpolate/dfitpack.cpython-39-darwin.so scipy/interpolate/interpnd.cpython-39-darwin.so scipy/interpolate/_ppoly.cpython-39-darwin.so scipy/fft/_pocketfft/pypocketfft.cpython-39-darwin.so scipy/sparse/linalg/isolve/_iterative.cpython-39-darwin.so scipy/sparse/linalg/eigen/arpack/_arpack.cpython-39-darwin.so scipy/sparse/linalg/dsolve/_superlu.cpython-39-darwin.so scipy/sparse/_sparsetools.cpython-39-darwin.so scipy/sparse/csgraph/_min_spanning_tree.cpython-39-darwin.so scipy/sparse/csgraph/_traversal.cpython-39-darwin.so scipy/sparse/csgraph/_tools.cpython-39-darwin.so scipy/sparse/csgraph/_matching.cpython-39-darwin.so scipy/sparse/csgraph/_reordering.cpython-39-darwin.so scipy/sparse/csgraph/_flow.cpython-39-darwin.so scipy/sparse/csgraph/_shortest_path.cpython-39-darwin.so scipy/sparse/_csparsetools.cpython-39-darwin.so scipy/spatial/_hausdorff.cpython-39-darwin.so scipy/spatial/_voronoi.cpython-39-darwin.so scipy/spatial/ckdtree.cpython-39-darwin.so scipy/spatial/qhull.cpython-39-darwin.so scipy/spatial/transform/rotation.cpython-39-darwin.so scipy/spatial/_distance_wrap.cpython-39-darwin.so scipy/signal/_spectral.cpython-39-darwin.so scipy/signal/_sosfilt.cpython-39-darwin.so scipy/signal/spline.cpython-39-darwin.so scipy/signal/_peak_finding_utils.cpython-39-darwin.so scipy/signal/sigtools.cpython-39-darwin.so scipy/signal/_max_len_seq_inner.cpython-39-darwin.so scipy/signal/_upfirdn_apply.cpython-39-darwin.so scipy/stats/_sobol.cpython-39-darwin.so scipy/stats/mvn.cpython-39-darwin.so scipy/stats/_stats.cpython-39-darwin.so scipy/stats/statlib.cpython-39-darwin.so
+	for library in scipy/odr/__odrpack.cpython-39-darwin.so scipy/linalg/cython_blas.cpython-39-darwin.so scipy/linalg/_flapack.cpython-39-darwin.so scipy/linalg/_flinalg.cpython-39-darwin.so scipy/linalg/cython_lapack.cpython-39-darwin.so scipy/linalg/_fblas.cpython-39-darwin.so scipy/linalg/_interpolative.cpython-39-darwin.so scipy/optimize/_trlib/_trlib.cpython-39-darwin.so scipy/optimize/_zeros.cpython-39-darwin.so scipy/optimize/__nnls.cpython-39-darwin.so scipy/optimize/minpack2.cpython-39-darwin.so scipy/optimize/_lbfgsb.cpython-39-darwin.so scipy/optimize/_minpack.cpython-39-darwin.so scipy/optimize/_slsqp.cpython-39-darwin.so scipy/optimize/_cobyla.cpython-39-darwin.so scipy/integrate/_test_odeint_banded.cpython-39-darwin.so scipy/integrate/vode.cpython-39-darwin.so scipy/integrate/lsoda.cpython-39-darwin.so scipy/integrate/_quadpack.cpython-39-darwin.so scipy/integrate/_odepack.cpython-39-darwin.so scipy/integrate/_dop.cpython-39-darwin.so scipy/special/_ellip_harm_2.cpython-39-darwin.so scipy/special/_ufuncs.cpython-39-darwin.so scipy/special/_ufuncs_cxx.cpython-39-darwin.so scipy/sparse/linalg/isolve/_iterative.cpython-39-darwin.so scipy/sparse/linalg/eigen/arpack/_arpack.cpython-39-darwin.so scipy/sparse/linalg/dsolve/_superlu.cpython-39-darwin.so scipy/spatial/qhull.cpython-39-darwin.so scipy/interpolate/dfitpack.cpython-39-darwin.so scipy/io/_test_fortran.cpython-39-darwin.so scipy/stats/mvn.cpython-39-darwin.so scipy/stats/statlib.cpython-39-darwin.so
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/$directory >> $PREFIX/make_install_osx.log 2>&1
@@ -1117,6 +1121,73 @@ then
 			install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/$library  >> $PREFIX/make_install_osx.log 2>&1
 		fi
 	done
+	# Making a big scipy library to load many modules (67 out of 95):
+	echo "Making a big scipy library to load many modules"  >> $PREFIX/make_install_osx.log 2>&1
+	pushd build/temp.macosx-${OSX_VERSION}-x86_64-3.9  >> $PREFIX/make_install_osx.log 2>&1
+	# find is cute, but it fails in the script. Need to know why. Also move the last 2 frameworks to the list.
+	clang -v -undefined error -dynamiclib \
+		-isysroot $OSX_SDKROOT \
+		-lz -lm -lc++ \
+		-lpython3.9 \
+		-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
+		-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
+		-L. \
+		-O3 -Wall  \
+		`find scipy/_lib -name \*.o` \
+		`find scipy/cluster -name \*.o` \
+		`find scipy/fft -name \*.o` \
+		`find scipy/fftpack -name \*.o` \
+		scipy/integrate/tests/_test_multivariate.o \
+		`find scipy/interpolate -name \*.o` \
+		`find scipy/io -name \*.o` \
+		scipy/linalg/_solve_toeplitz.o \
+		scipy/linalg/_matfuncs_sqrtm_triu.o \
+		scipy/linalg/_decomp_update.o \
+		`find scipy/ndimage -name \*.o` \
+		scipy/optimize/tnc/moduleTNC.o \
+		scipy/optimize/tnc/tnc.o \
+		scipy/optimize/_lsap_module.o \
+		-lrectangular_lsap \
+		scipy/optimize/_bglu_dense.o \
+		`find scipy/optimize/_highs -name \*.o` \
+		-lbasiclu \
+		scipy/optimize/_lsq/givens_elimination.o \
+		scipy/optimize/zeros.o \
+		scipy/optimize/_group_columns.o \
+		`find scipy/signal -name \*.o` \
+		`find scipy/spatial/ckdtree -name \*.o` \
+		`find scipy/sparse/csgraph -name \*.o` \
+		`find scipy/sparse/sparsetools -name \*.o` \
+		scipy/sparse/_csparsetools.o \
+		scipy/spatial/ckdtree.o \
+		scipy/spatial/_voronoi.o \
+		scipy/spatial/_hausdorff.o \
+		scipy/spatial/src/distance_wrap.o \
+		scipy/spatial/transform/rotation.o \
+		scipy/spatial/src/distance_pybind.o \
+		`find . -name specfunmodule.o` \
+		`find . -name fortranobject.o -path '*/special/*'` \
+		scipy/special/cython_special.o \
+		scipy/special/sf_error.o \
+		`find . -name _logit.o` \
+		scipy/special/amos_wrappers.o \
+		scipy/special/cdf_wrappers.o \
+		scipy/special/specfun_wrappers.o \
+		-lsc_amos -lsc_cephes -lsc_mach -lsc_cdf -lsc_specfun -lrootfind \
+		scipy/special/_comb.o \
+		scipy/special/_test_round.o \
+		`find scipy/stats/ -name \*.o` \
+		-L$PREFIX/Library/lib \
+		`find $PREFIX/Library/lib/python3.9/site-packages -name libnpymath.a` \
+		`find $PREFIX/Library/lib/python3.9/site-packages -name libnpyrandom.a` \
+		-L/usr/local/lib -lgfortran \
+		-L$PREFIX/Frameworks_macosx/lib -lopenblas \
+		-o ../scipy.so  >> $PREFIX/make_install_osx.log 2>&1
+	echo "Done"  >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+	cp build/scipy.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/ >> $PREFIX/make_install_osx.log 2>&1
+	# Fix the reference to libopenblas.dylib -> openblas.framework
+	install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/scipy.so  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# seaborn: data position solved with SEABORN_DATA, set in main App. Let's install it by default. 
@@ -1136,8 +1207,8 @@ then
 	# We build the non-cpp-version of protobuf. Slower, but more reliable.
 	pushd packages >> make_install_osx.log 2>&1
 	rm -rf protobuf*  >> $PREFIX/make_install_osx.log 2>&1
-	python3.9 -m pip download protobuf --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
-	# This will cause an error if the version number changes. In that case, re-install protoc from release: 
+	python3.9 -m pip download protobuf==3.18.0 --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
+	# If the version number changes, re-install protoc from release: 
 	# (protoc, system install, needs to have the same version number as protobuf)
 	# https://github.com/protocolbuffers/protobuf/releases
 	# Apparently coremltools can work with any protobuf version
@@ -1209,7 +1280,7 @@ then
 	# edited setup.py to avoid inclusion of -mmacosx-version-min=10.9 when compiling for iOS.
 	cp ../qutip_setup.py  ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
-	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
 	echo qutip libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	echo number of qutip libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
@@ -1219,6 +1290,22 @@ then
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/qutip/control >> $PREFIX/make_install_osx.log 2>&1
 	cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/qutip/cy/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/qutip/cy >> $PREFIX/make_install_osx.log 2>&1
 	cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/qutip/control/*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/qutip/control >> $PREFIX/make_install_osx.log 2>&1
+	# Making a single qutip dynamic library:
+	echo Making a single qutip library for OSX: >> $PREFIX/make_install_osx.log 2>&1
+	clang -v -undefined error -dynamiclib \
+		-isysroot $OSX_SDKROOT \
+		-lz -lm -lc++ \
+		-lpython3.9 \
+		-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
+		-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
+		-O3 -Wall  \
+		-DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
+		-DCYTHON_USE_DICT_VERSIONS=0 \
+		`find build -name \*.o` \
+		-L$PREFIX/Library/lib \
+		-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
+		-o build/qutip.so  >> $PREFIX/make_install_osx.log 2>&1
+			cp build/qutip.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1	
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# 
@@ -1330,12 +1417,16 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
 	# pysal: 
 	pushd packages >> make_install_osx.log 2>&1
 	pushd pysal >> $PREFIX/make_install_osx.log 2>&1
-	# Disable giddy and splot, as it installs quantecon, which installs numba, which installs llvmlite, which uses a JIT compiler.
+	# Disabled giddy and splot, as it installs quantecon, which installs numba, which installs llvmlite, which uses a JIT compiler.
+	# segregation==v2.0.0 for the same reason
 	cp ../requirements_pysal.txt ./requirements.txt >> make_install_osx.log 2>&1
+	cp ../setup_pysal.py ./setup.py  >> make_install_osx.log 2>&1
 	cp ../frozen_pysal.py ./pysal/frozen.py >> make_install_osx.log 2>&1
 	cp ../base_pysal.py ./pysal/base.py >> make_install_osx.log 2>&1
-	# Here, we need "python3.9 -m pip install .", as "python3.9 setup.py install" results in package not visible from pip afterwards
-	python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1 
+	# Here, we need "python3.9 -m pip install .", as "python3.9 setup.py install" does not install actually
+	# ...but now "python3.9 -m pip install ." uninstalls a lot of packages, including numpy, and installs numba. Not good either
+	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG " LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
+	# TODO: restore packages that were uninstalled: numpy, dateutil, jsonschema ?
 	# Also need to update access/datasets.py:
 	cp ../datasets_pysal_access.py $PYTHONHOME/lib/python3.9/site-packages/access/datasets.py
 	popd  >> $PREFIX/make_install_osx.log 2>&1
@@ -2028,7 +2119,7 @@ then
 	sed -i bak "s|__main_directory__|${PREFIX}/Frameworks_iphoneos|" site.cfg >> $PREFIX/make_ios.log 2>&1
 	# make sure all frameworks are linked with python3.9
 	# -falign-functions=8: see https://github.com/Homebrew/homebrew-core/pull/70096
-	env CC=clang CXX=clang++ \
+	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 \
 CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX $DEBUG" \
   CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG -falign-functions=8" \
 CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" \
@@ -2040,7 +2131,7 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 	echo number of scipy libraries for iOS: >> $PREFIX/make_ios.log 2>&1
 	find build -name \*.so -print | wc -l >> $PREFIX/make_ios.log 2>&1
 	# 95 libraries! We do this automatically:
-	for library in scipy/odr/__odrpack.cpython-39-darwin.so scipy/cluster/_hierarchy.cpython-39-darwin.so scipy/cluster/_optimal_leaf_ordering.cpython-39-darwin.so scipy/cluster/_vq.cpython-39-darwin.so scipy/ndimage/_ni_label.cpython-39-darwin.so scipy/ndimage/_nd_image.cpython-39-darwin.so scipy/ndimage/_ctest.cpython-39-darwin.so scipy/ndimage/_cytest.cpython-39-darwin.so scipy/linalg/_solve_toeplitz.cpython-39-darwin.so scipy/linalg/cython_blas.cpython-39-darwin.so scipy/linalg/_flapack.cpython-39-darwin.so scipy/linalg/_flinalg.cpython-39-darwin.so scipy/linalg/cython_lapack.cpython-39-darwin.so scipy/linalg/_fblas.cpython-39-darwin.so scipy/linalg/_matfuncs_sqrtm_triu.cpython-39-darwin.so scipy/linalg/_decomp_update.cpython-39-darwin.so scipy/linalg/_interpolative.cpython-39-darwin.so scipy/optimize/_trlib/_trlib.cpython-39-darwin.so scipy/optimize/_zeros.cpython-39-darwin.so scipy/optimize/moduleTNC.cpython-39-darwin.so scipy/optimize/__nnls.cpython-39-darwin.so scipy/optimize/minpack2.cpython-39-darwin.so scipy/optimize/_lbfgsb.cpython-39-darwin.so scipy/optimize/_lsap_module.cpython-39-darwin.so scipy/optimize/_bglu_dense.cpython-39-darwin.so scipy/optimize/_highs/_highs_constants.cpython-39-darwin.so scipy/optimize/_highs/_mpswriter.cpython-39-darwin.so scipy/optimize/_highs/_highs_wrapper.cpython-39-darwin.so scipy/optimize/_lsq/givens_elimination.cpython-39-darwin.so scipy/optimize/cython_optimize/_zeros.cpython-39-darwin.so scipy/optimize/_minpack.cpython-39-darwin.so scipy/optimize/_group_columns.cpython-39-darwin.so scipy/optimize/_slsqp.cpython-39-darwin.so scipy/optimize/_cobyla.cpython-39-darwin.so scipy/integrate/_test_odeint_banded.cpython-39-darwin.so scipy/integrate/vode.cpython-39-darwin.so scipy/integrate/_test_multivariate.cpython-39-darwin.so scipy/integrate/lsoda.cpython-39-darwin.so scipy/integrate/_quadpack.cpython-39-darwin.so scipy/integrate/_odepack.cpython-39-darwin.so scipy/integrate/_dop.cpython-39-darwin.so scipy/io/matlab/mio_utils.cpython-39-darwin.so scipy/io/matlab/streams.cpython-39-darwin.so scipy/io/matlab/mio5_utils.cpython-39-darwin.so scipy/io/_test_fortran.cpython-39-darwin.so scipy/_lib/_uarray/_uarray.cpython-39-darwin.so scipy/_lib/_test_ccallback.cpython-39-darwin.so scipy/_lib/_ccallback_c.cpython-39-darwin.so scipy/_lib/_test_deprecation_call.cpython-39-darwin.so scipy/_lib/_fpumode.cpython-39-darwin.so scipy/_lib/messagestream.cpython-39-darwin.so scipy/_lib/_test_deprecation_def.cpython-39-darwin.so scipy/special/_ellip_harm_2.cpython-39-darwin.so scipy/special/cython_special.cpython-39-darwin.so scipy/special/_comb.cpython-39-darwin.so scipy/special/_test_round.cpython-39-darwin.so scipy/special/_ufuncs.cpython-39-darwin.so scipy/special/specfun.cpython-39-darwin.so scipy/special/_ufuncs_cxx.cpython-39-darwin.so scipy/fftpack/convolve.cpython-39-darwin.so scipy/interpolate/_fitpack.cpython-39-darwin.so scipy/interpolate/_bspl.cpython-39-darwin.so scipy/interpolate/dfitpack.cpython-39-darwin.so scipy/interpolate/interpnd.cpython-39-darwin.so scipy/interpolate/_ppoly.cpython-39-darwin.so scipy/fft/_pocketfft/pypocketfft.cpython-39-darwin.so scipy/sparse/linalg/isolve/_iterative.cpython-39-darwin.so scipy/sparse/linalg/eigen/arpack/_arpack.cpython-39-darwin.so scipy/sparse/linalg/dsolve/_superlu.cpython-39-darwin.so scipy/sparse/_sparsetools.cpython-39-darwin.so scipy/sparse/csgraph/_min_spanning_tree.cpython-39-darwin.so scipy/sparse/csgraph/_traversal.cpython-39-darwin.so scipy/sparse/csgraph/_tools.cpython-39-darwin.so scipy/sparse/csgraph/_matching.cpython-39-darwin.so scipy/sparse/csgraph/_reordering.cpython-39-darwin.so scipy/sparse/csgraph/_flow.cpython-39-darwin.so scipy/sparse/csgraph/_shortest_path.cpython-39-darwin.so scipy/sparse/_csparsetools.cpython-39-darwin.so scipy/spatial/_hausdorff.cpython-39-darwin.so scipy/spatial/_voronoi.cpython-39-darwin.so scipy/spatial/ckdtree.cpython-39-darwin.so scipy/spatial/qhull.cpython-39-darwin.so scipy/spatial/transform/rotation.cpython-39-darwin.so scipy/spatial/_distance_wrap.cpython-39-darwin.so scipy/signal/_spectral.cpython-39-darwin.so scipy/signal/_sosfilt.cpython-39-darwin.so scipy/signal/spline.cpython-39-darwin.so scipy/signal/_peak_finding_utils.cpython-39-darwin.so scipy/signal/sigtools.cpython-39-darwin.so scipy/signal/_max_len_seq_inner.cpython-39-darwin.so scipy/signal/_upfirdn_apply.cpython-39-darwin.so scipy/stats/_sobol.cpython-39-darwin.so scipy/stats/mvn.cpython-39-darwin.so scipy/stats/_stats.cpython-39-darwin.so scipy/stats/statlib.cpython-39-darwin.so
+	for library in scipy/odr/__odrpack.cpython-39-darwin.so scipy/linalg/cython_blas.cpython-39-darwin.so scipy/linalg/_flapack.cpython-39-darwin.so scipy/linalg/_flinalg.cpython-39-darwin.so scipy/linalg/cython_lapack.cpython-39-darwin.so scipy/linalg/_fblas.cpython-39-darwin.so scipy/linalg/_interpolative.cpython-39-darwin.so scipy/optimize/_trlib/_trlib.cpython-39-darwin.so scipy/optimize/_zeros.cpython-39-darwin.so scipy/optimize/__nnls.cpython-39-darwin.so scipy/optimize/minpack2.cpython-39-darwin.so scipy/optimize/_lbfgsb.cpython-39-darwin.so scipy/optimize/_minpack.cpython-39-darwin.so scipy/optimize/_slsqp.cpython-39-darwin.so scipy/optimize/_cobyla.cpython-39-darwin.so scipy/integrate/_test_odeint_banded.cpython-39-darwin.so scipy/integrate/vode.cpython-39-darwin.so scipy/integrate/lsoda.cpython-39-darwin.so scipy/integrate/_quadpack.cpython-39-darwin.so scipy/integrate/_odepack.cpython-39-darwin.so scipy/integrate/_dop.cpython-39-darwin.so scipy/special/_ellip_harm_2.cpython-39-darwin.so scipy/special/_ufuncs.cpython-39-darwin.so scipy/special/_ufuncs_cxx.cpython-39-darwin.so scipy/sparse/linalg/isolve/_iterative.cpython-39-darwin.so scipy/sparse/linalg/eigen/arpack/_arpack.cpython-39-darwin.so scipy/sparse/linalg/dsolve/_superlu.cpython-39-darwin.so scipy/spatial/qhull.cpython-39-darwin.so scipy/interpolate/dfitpack.cpython-39-darwin.so scipy/io/_test_fortran.cpython-39-darwin.so scipy/stats/mvn.cpython-39-darwin.so scipy/stats/statlib.cpython-39-darwin.so
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/$directory >> $PREFIX/make_ios.log 2>&1
@@ -2051,6 +2142,70 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 			install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.darwin-arm64-3.9/$library  >> $PREFIX/make_ios.log 2>&1
 		fi		
 	done
+	# Making a big scipy library to load many modules (67 out of 95):
+	pushd build/temp.macosx-${OSX_VERSION}-x86_64-3.9  >> $PREFIX/make_ios.log 2>&1
+	clang -v -undefined error -dynamiclib \
+		-arch arm64 -miphoneos-version-min=14.0 \
+		-isysroot $IOS_SDKROOT \
+		-lz -lm -lc++ \
+		-lpython3.9 \
+		-L$PREFIX/build/lib.darwin-arm64-3.9 \
+		-L. \
+		-O3 -Wall  \
+		`find scipy/_lib -name \*.o` \
+		`find scipy/cluster -name \*.o` \
+		`find scipy/fft -name \*.o` \
+		`find scipy/fftpack -name \*.o` \
+		scipy/integrate/tests/_test_multivariate.o \
+		`find scipy/interpolate -name \*.o` \
+		`find scipy/io -name \*.o` \
+		scipy/linalg/_solve_toeplitz.o \
+		scipy/linalg/_matfuncs_sqrtm_triu.o \
+		scipy/linalg/_decomp_update.o \
+		`find scipy/ndimage -name \*.o` \
+		scipy/optimize/tnc/moduleTNC.o \
+		scipy/optimize/tnc/tnc.o \
+		scipy/optimize/_lsap_module.o \
+		-lrectangular_lsap \
+		scipy/optimize/_bglu_dense.o \
+		`find scipy/optimize/_highs -name \*.o` \
+		-lbasiclu \
+		scipy/optimize/_lsq/givens_elimination.o \
+		scipy/optimize/zeros.o \
+		scipy/optimize/_group_columns.o \
+		`find scipy/signal -name \*.o` \
+		`find scipy/spatial/ckdtree -name \*.o` \
+		`find scipy/sparse/csgraph -name \*.o` \
+		`find scipy/sparse/sparsetools -name \*.o` \
+		scipy/sparse/_csparsetools.o \
+		scipy/spatial/ckdtree.o \
+		scipy/spatial/_voronoi.o \
+		scipy/spatial/_hausdorff.o \
+		scipy/spatial/src/distance_wrap.o \
+		scipy/spatial/transform/rotation.o \
+		scipy/spatial/src/distance_pybind.o \
+		`find . -name specfunmodule.o` \
+		`find . -name fortranobject.o -path '*/special/*'` \
+		scipy/special/cython_special.o \
+		scipy/special/sf_error.o \
+		`find . -name _logit.o` \
+		scipy/special/amos_wrappers.o \
+		scipy/special/cdf_wrappers.o \
+		scipy/special/specfun_wrappers.o \
+		-lsc_amos -lsc_cephes -lsc_mach -lsc_cdf -lsc_specfun -lrootfind \
+		scipy/special/_comb.o \
+		scipy/special/_test_round.o \
+		`find scipy/stats/ -name \*.o` \
+		-L$PREFIX/Library/lib \
+		`find $PREFIX/Library/lib/python3.9/site-packages -name libnpymath.a` \
+		`find $PREFIX/Library/lib/python3.9/site-packages -name libnpyrandom.a` \
+		-L$PREFIX/Frameworks_iphoneos/lib -lopenblas -lgfortran \
+		-F$PREFIX/Frameworks_iphoneos -framework ios_system \
+		-o ../scipy.so  >> $PREFIX/make_ios.log 2>&1
+	popd  >> $PREFIX/make_ios.log 2>&1	
+	cp build/scipy.so $PREFIX/build/lib.darwin-arm64-3.9/ >> $PREFIX/make_ios.log 2>&1
+	# Fix the reference to libopenblas.dylib -> openblas.framework
+	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.darwin-arm64-3.9/scipy.so  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	# coremltools:
@@ -2146,6 +2301,24 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 python3.9 setup.py build >> $PREFIX/make
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/qutip/control >> $PREFIX/make_ios.log 2>&1
 	cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/qutip/cy/*.so $PREFIX/build/lib.darwin-arm64-3.9/qutip/cy >> $PREFIX/make_ios.log 2>&1
 	cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/qutip/control/*.so $PREFIX/build/lib.darwin-arm64-3.9/qutip/control >> $PREFIX/make_ios.log 2>&1
+	  # Making a single qutip dynamic library:
+	  echo Making a single qutip library for iOS: >> $PREFIX/make_ios.log 2>&1
+	  clang -v -undefined error -dynamiclib \
+		  -isysroot $IOS_SDKROOT \
+		  -lz -lm -lc++ \
+		  -lpython3.9 \
+		  -F$PREFIX/Frameworks_iphoneos -framework ios_system \
+		  -L$PREFIX/Frameworks_iphoneos/lib \
+		  -L$PREFIX/build/lib.darwin-arm64-3.9 \
+		  -O3 -Wall -arch arm64 \
+		  -miphoneos-version-min=14.0 \
+		  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
+		  -DCYTHON_USE_DICT_VERSIONS=0 \
+		  `find build -name \*.o` \
+		  -L$PREFIX/Library/lib \
+		  -Lbuild/temp.macosx-${OSX_VERSION}-arm64-3.9 \
+		  -o build/qutip.so  >> $PREFIX/make_ios.log 2>&1
+	cp build/qutip.so $PREFIX/build/lib.darwin-arm64-3.9 >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1	
 	# statsmodels:
