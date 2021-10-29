@@ -181,7 +181,7 @@ do
 	done
 done
 
-for library in numpy pandas astropy
+for library in numpy pandas 
 do
 	name=${library}_all
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
@@ -273,6 +273,41 @@ do
 		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
 	done
 done
+
+# Single-module astropy
+for library in astropy
+do
+	name=${library}_all
+	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
+	do
+		framework=${package}-${name}
+		for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.9 lib.darwin-arm64-3.9 lib.darwin-x86_64-3.9
+		do
+			echo "Creating: " ${architecture}/Frameworks/${name}.framework
+			directory=build/${architecture}/Frameworks/
+			rm -rf $directory/$framework.framework
+			mkdir -p $directory
+			mkdir -p $directory/$framework.framework
+			libraryFile=build/${architecture}/${library}
+			cp $libraryFile.so $directory/$framework.framework/$framework
+			cp plists/basic_Info.plist $directory/$framework.framework/Info.plist
+			plutil -replace CFBundleExecutable -string $framework $directory/$framework.framework/Info.plist
+			plutil -replace CFBundleName -string $framework $directory/$framework.framework/Info.plist
+			# underscore is not allowed in CFBundleIdentifier:
+			signature=${framework//_/-}
+			plutil -replace CFBundleIdentifier -string Nicolas-Holzschuch.$signature  $directory/$framework.framework/Info.plist
+			# change framework id and libpython:
+			install_name_tool -change $libpython @rpath/${package}.framework/${package}  $directory/$framework.framework/$framework
+			install_name_tool -id @rpath/$framework.framework/$framework  $directory/$framework.framework/$framework
+		done
+		# Edit the Info.plist file:
+		edit_Info_plist $framework
+		# Create the 3-architecture XCFramework:
+		rm -rf XcFrameworks/$framework.xcframework
+		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+	done
+done
+
 
 if [ $USE_FORTRAN == 1 ];
 then
