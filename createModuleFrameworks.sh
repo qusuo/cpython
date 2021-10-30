@@ -72,7 +72,7 @@ edit_Info_plist_noSimulator()
 # lzma functions are forbidden on the AppStore. 
 # You can build the lzma modyle by adding the lzma headers in the Include path and adding _lzma to this list,
 # but you can't submit to the AppStore.
-for name in _bz2 _cffi_backend _crypt _ctypes _ctypes_test _dbm _decimal _hashlib _lsprof _multiprocessing _opcode _posixshmem _queue _sqlite3 _ssl _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz kiwisolver syslog xxlimited zlib 
+for name in _bz2 _cffi_backend _crypt _ctypes _ctypes_test _dbm _decimal _hashlib _lsprof _multiprocessing _opcode _posixshmem _queue _sqlite3 _ssl _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz kiwisolver syslog xxlimited 
 do 
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
@@ -219,7 +219,7 @@ then
 	# cryptography.hazmat.bindings._rust
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
-		for name in _bz2 _cffi_backend _crypt _ctypes _ctypes_test _dbm _decimal _hashlib _lsprof _multiprocessing _opcode _posixshmem _queue _sqlite3 _ssl _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz kiwisolver syslog xxlimited zlib zmq.backend.cffi._cffi argon2._ffi kiwisolver  PIL._imagingmath PIL._imagingft PIL._imagingtk PIL._imagingmorph PIL._imaging matplotlib.backends._backend_agg matplotlib.backends._tkagg matplotlib._ttconv matplotlib._path matplotlib._qhull matplotlib.ft2font matplotlib._c_internal_utils matplotlib._tri matplotlib._contour matplotlib._image lxml.etree lxml.objectify lxml.sax lxml.html.diff lxml.html.clean lxml._elementpath lxml.builder cryptography.hazmat.bindings._padding cryptography.hazmat.bindings._openssl regex._regex wordcloud.query_integral_image pyfftw.pyfftw numpy_all pandas_all 
+		for name in _bz2 _cffi_backend _crypt _ctypes _ctypes_test _dbm _decimal _hashlib _lsprof _multiprocessing _opcode _posixshmem _queue _sqlite3 _ssl _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz kiwisolver syslog xxlimited zmq.backend.cffi._cffi argon2._ffi kiwisolver  PIL._imagingmath PIL._imagingft PIL._imagingtk PIL._imagingmorph PIL._imaging matplotlib.backends._backend_agg matplotlib.backends._tkagg matplotlib._ttconv matplotlib._path matplotlib._qhull matplotlib.ft2font matplotlib._c_internal_utils matplotlib._tri matplotlib._contour matplotlib._image lxml.etree lxml.objectify lxml.sax lxml.html.diff lxml.html.clean lxml._elementpath lxml.builder cryptography.hazmat.bindings._padding cryptography.hazmat.bindings._openssl regex._regex wordcloud.query_integral_image pyfftw.pyfftw numpy_all pandas_all 
 		do 
 			framework=${package}-${name}
 			echo $framework
