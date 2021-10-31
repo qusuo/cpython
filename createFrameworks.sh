@@ -72,6 +72,7 @@ rm -f Library/bin/python3.9
 rm -f Library/bin/python3
 rm -f packages/*.tar.gz
 rm -f packages/setuptools-*.zip
+rm -rf Library/lib/python3.9/lib-dynload
 # Create fake binaries for pip
 touch Library/bin/python3
 touch Library/bin/python3.9
@@ -103,6 +104,7 @@ if [ -e "with_scipy/Library" ];then
 	rm -f with_scipy/Library/lib/libpython3.9.dylib
 	rm -f with_scipy/Library/bin/python3.9
 	rm -f with_scipy/Library/bin/python3
+	rm -rf with_scipy/Library/lib/python3.9/lib-dynload
 	# Create fake binaries for pip
 	touch with_scipy/Library/bin/python3
 	touch with_scipy/Library/bin/python3.9

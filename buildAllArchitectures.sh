@@ -37,7 +37,7 @@ fi
 # 1) compile for OSX (required)
 find . -name \*.o -delete
 find Library -type f -name direct_url.jsonbak -delete
-env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L. -lpython3.9" OPT="$DEBUG" ./configure --prefix=$PREFIX/Library --with-system-ffi --enable-shared \
+env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT -lz" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L. -lpython3.9" OPT="$DEBUG" ./configure --prefix=$PREFIX/Library --with-system-ffi --enable-shared \
     $EXTRA_CONFIGURE_FLAGS_OSX \
 	--without-computed-gotos \
 	ac_cv_file__dev_ptmx=no \
@@ -81,6 +81,7 @@ cp -r $XCFRAMEWORKS_DIR/libproj.xcframework/macos-x86_64/libproj.framework  $PRE
 #
 rm -rf build/lib.macosx-${OSX_VERSION}-x86_64-3.9
 make -j 4 >& make_osx.log
+# exit 0 # Debugging embedded packages in Modules/Setup
 mkdir -p build/lib.macosx-${OSX_VERSION}-x86_64-3.9  > make_install_osx.log 2>&1
 cp libpython3.9.dylib build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
 make  -j 4 install  >> make_install_osx.log 2>&1
@@ -94,7 +95,6 @@ mkdir -p build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&
 cp libpython3.9.dylib build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
 cp python.exe build/lib.macosx-${OSX_VERSION}-x86_64-3.9/python3.9  >> make_install_osx.log 2>&1
 make  -j 4 install >> make_install_osx.log 2>&1
-# exit 0 # Debugging embedded packages in Modules/Setup
 # Force reinstall and upgrade of pip, setuptools 
 echo Starting package installation  >> make_install_osx.log 2>&1
 python3.9 -m pip install pip --upgrade >> make_install_osx.log 2>&1
@@ -426,8 +426,6 @@ clang -v -undefined error -dynamiclib \
 -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
 -L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
 -O3 -Wall \
--DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
--DCYTHON_USE_DICT_VERSIONS=0 \
 `find build -name \*.o` \
 -L$PREFIX/Library/lib \
 -Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
@@ -483,6 +481,20 @@ mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/PIL/  >> $PREFIX/mak
 echo Pillow libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/PIL/*.so  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/PIL/ >> $PREFIX/make_install_osx.log 2>&1
+# Single library PIL.so
+clang -v -undefined error -dynamiclib \
+-isysroot $OSX_SDKROOT \
+-lz -lm -lc++ \
+-lpython3.9 \
+-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
+-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
+-O3 -Wall \
+`find build -name \*.o` \
+-L$PREFIX/Library/lib \
+-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
+-L/usr/local/lib -ljpeg -ltiff -L/opt/local/lib -lfreetype \
+-o build/PIL.so  >> $PREFIX/make_install_osx.log 2>&1
+cp build/PIL.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 ## matplotlib itself:
@@ -519,6 +531,18 @@ mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/lxml/  >> $PREFIX/ma
 mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/lxml/html/  >> $PREFIX/make_install_osx.log 2>&1
 cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/lxml/*.so  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/lxml/ >> $PREFIX/make_install_osx.log 2>&1
 cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/lxml/html/*.so  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/lxml/html/ >> $PREFIX/make_install_osx.log 2>&1
+# Single library for lxml:
+clang -v -undefined error -dynamiclib \
+	-isysroot $OSX_SDKROOT \
+	-lz -lm -lc++ -lpython3.9 \
+	-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
+	-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
+	-O3 -Wall \
+	`find build -name \*.o` \
+	-L$PREFIX/Library/lib -Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
+	-lxml2 -lxslt -lexslt \
+-o build/lxml.so >> $PREFIX/make_install_osx.log 2>&1
+cp build/lxml.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # cryptography:
@@ -711,8 +735,6 @@ clang -v -undefined error -dynamiclib \
 -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
 -L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
 -O3 -Wall  \
--DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
--DCYTHON_USE_DICT_VERSIONS=0 \
 `find build -name \*.o` \
 -L$PREFIX/Library/lib \
 -Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
@@ -862,13 +884,11 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/mak
 		-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
 		-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
 		-O3 -Wall  \
-		-DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
-		-DCYTHON_USE_DICT_VERSIONS=0 \
 		`find build -name \*.o` \
 		-L$PREFIX/Library/lib \
 		-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
 		-o build/astropy.so  >> $PREFIX/make_install_osx.log 2>&1
-			cp build/astropy.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1
+	cp build/astropy.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# geopandas and cartopy: require Shapely (GEOS), fiona (GDAL), pyproj (PROJ), rtree
@@ -942,6 +962,18 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/mak
 		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/$directory >> $PREFIX/make_install_osx.log 2>&1
 		cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/$library $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/$library >> $PREFIX/make_install_osx.log 2>&1
 	done
+	clang -v -undefined error -dynamiclib \
+		-isysroot $OSX_SDKROOT \
+		-lz -lm -lc++ -lpython3.9 \
+		-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
+		-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
+		-O3 -Wall \
+		`find build -name \*.o` \
+		-L$PREFIX/Library/lib \
+		-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
+		-F$PREFIX/Frameworks_macosx -framework libgdal \
+		-o build/fiona.so >> $PREFIX/make_install_osx.log 2>&1
+	cp build/fiona.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# PyProj (interface for Proj)
@@ -978,6 +1010,18 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/mak
 		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/$directory >> $PREFIX/make_install_osx.log 2>&1
 		cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/$library $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/$library >> $PREFIX/make_install_osx.log 2>&1
 	done
+	clang -v -undefined error -dynamiclib \
+		-isysroot $OSX_SDKROOT \
+		-lz -lm -lc++ -lpython3.9 \
+		-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
+		-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
+		-O3 -Wall \
+		`find build -name \*.o` \
+		-L$PREFIX/Library/lib \
+		-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
+		-F$PREFIX/Frameworks_macosx -framework libproj \
+		-o build/pyproj.so >> $PREFIX/make_install_osx.log 2>&1
+	cp build/pyproj.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# rtree:
@@ -1009,6 +1053,17 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/mak
 		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/$directory >> $PREFIX/make_install_osx.log 2>&1
 		cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/$library $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/$library >> $PREFIX/make_install_osx.log 2>&1
 	done
+	clang -v -undefined error -dynamiclib \
+		-isysroot $OSX_SDKROOT \
+		-lz -lm -lc++ -lpython3.9 \
+		-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
+		-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
+		-O3 -Wall \
+		`find build -name \*.o` \
+		-L$PREFIX/Library/lib \
+		-F$PREFIX/Frameworks_macosx -framework libgdal \
+		-o build/rasterio.so >> $PREFIX/make_install_osx.log 2>&1
+	cp build/rasterio.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1
     popd >> $PREFIX/make_install_osx.log 2>&1
     popd >> make_install_osx.log 2>&1
     # mercantile, geopy, contextily are all pure-python: 
@@ -1299,8 +1354,6 @@ then
 		-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
 		-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 \
 		-O3 -Wall  \
-		-DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
-		-DCYTHON_USE_DICT_VERSIONS=0 \
 		`find build -name \*.o` \
 		-L$PREFIX/Library/lib \
 		-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
@@ -1498,7 +1551,7 @@ env CC=clang CXX=clang++ \
 	CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT" \
 	CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT" \
 	CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT" \
-	LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" \
+	LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -lz -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" \
 	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -L. -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" \
 	PLATFORM=iphoneos \
 	OPT="$DEBUG" \
@@ -1667,9 +1720,25 @@ find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/PIL/  >> $PREFIX/make_ios.log 2>&1
 cp ./build/lib.macosx-${OSX_VERSION}-arm64-3.9/PIL/*.so  $PREFIX/build/lib.darwin-arm64-3.9/PIL/ >> $PREFIX/make_ios.log 2>&1
 # _imagingmath.cpython-39-darwin.so
+# _imagingft.cpython-39-darwin.so
 # _imagingtk.cpython-39-darwin.so
 # _imagingmorph.cpython-39-darwin.so
 # _imaging.cpython-39-darwin.so
+#
+# Single library PIL.so
+clang -v -undefined error -dynamiclib \
+	-isysroot $IOS_SDKROOT \
+	-lz -lm \
+	-lpython3.9 \
+	-F$PREFIX/Frameworks_iphoneos -framework ios_system -framework freetype \
+	-L$PREFIX/Frameworks_iphoneos/lib -ljpeg -ltiff \
+	-L$PREFIX/build/lib.darwin-arm64-3.9 \
+	-O3 -Wall -arch arm64 \
+	-miphoneos-version-min=14.0 \
+	`find build -name \*.o` \
+	-L$PREFIX/Library/lib \
+	-o build/PIL.so  >> $PREFIX/make_ios.log 2>&1
+cp build/PIL.so $PREFIX/build/lib.darwin-arm64-3.9 >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 ## matplotlib
@@ -1701,6 +1770,20 @@ mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/lxml/  >> $PREFIX/make_ios.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/lxml/html/  >> $PREFIX/make_ios.log 2>&1
 cp ./build/lib.macosx-${OSX_VERSION}-arm64-3.9/lxml/*.so  $PREFIX/build/lib.darwin-arm64-3.9/lxml/ >> $PREFIX/make_ios.log 2>&1
 cp ./build/lib.macosx-${OSX_VERSION}-arm64-3.9/lxml/html/*.so  $PREFIX/build/lib.darwin-arm64-3.9/lxml/html/ >> $PREFIX/make_ios.log 2>&1
+# Single library for lxml:
+clang -v -undefined error -dynamiclib \
+	-arch arm64 -miphoneos-version-min=14.0 \
+	-isysroot $IOS_SDKROOT \
+	-lz -lm -lc++ -lpython3.9 \
+	-F$PREFIX/Frameworks_iphoneos -framework ios_system  \
+	-L$PREFIX/Frameworks_iphoneos/lib -lxslt -lexslt \
+	-L$PREFIX/build/lib.darwin-arm64-3.9 \
+	-O3 -Wall \
+	`find build -name \*.o` \
+	-L$PREFIX/Library/lib \
+	-lxml2  \
+	-o build/lxml.so >> $PREFIX/make_ios.log 2>&1
+cp build/lxml.so $PREFIX/build/lib.darwin-arm64-3.9 >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # cryptography:
@@ -1996,6 +2079,16 @@ do
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/$directory >> $PREFIX/make_ios.log 2>&1
 	cp ./build/lib.macosx-${OSX_VERSION}-arm64-3.9/$library $PREFIX/build/lib.darwin-arm64-3.9/$library >> $PREFIX/make_ios.log 2>&1
 done
+clang -v -undefined error -dynamiclib \
+	-arch arm64 -miphoneos-version-min=14.0 \
+	-isysroot $IOS_SDKROOT \
+	-lz -lm -lc++  \
+	-O3 -Wall \
+	`find build -name \*.o` \
+	-L$PREFIX -lpython3.9 \
+	-F$PREFIX/Frameworks_iphoneos -framework libgdal \
+	-o build/fiona.so >> $PREFIX/make_ios.log 2>&1
+cp build/fiona.so $PREFIX/build/lib.darwin-arm64-3.9 >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # PyProj (interface for Proj)
@@ -2019,6 +2112,16 @@ do
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/$directory >> $PREFIX/make_ios.log 2>&1
 	cp ./build/lib.macosx-${OSX_VERSION}-arm64-3.9/$library $PREFIX/build/lib.darwin-arm64-3.9/$library >> $PREFIX/make_ios.log 2>&1
 done
+clang -v -undefined error -dynamiclib \
+	-arch arm64 -miphoneos-version-min=14.0 \
+	-isysroot $IOS_SDKROOT \
+	-lz -lm -lc++ -lpython3.9 \
+	-L$PREFIX/build/lib.darwin-arm64-3.9 \
+	-O3 -Wall \
+	`find build -name \*.o` \
+	-F$PREFIX/Frameworks_iphoneos -framework libproj \
+	-o build/pyproj.so >> $PREFIX/make_ios.log 2>&1
+cp build/pyproj.so $PREFIX/build/lib.darwin-arm64-3.9 >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # Packages used by geopandas:
@@ -2043,6 +2146,17 @@ do
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/$directory >> $PREFIX/make_ios.log 2>&1
 	cp ./build/lib.macosx-${OSX_VERSION}-arm64-3.9/$library $PREFIX/build/lib.darwin-arm64-3.9/$library >> $PREFIX/make_ios.log 2>&1
 done
+clang -v -undefined error -dynamiclib \
+		-arch arm64 -miphoneos-version-min=14.0 \
+		-isysroot $IOS_SDKROOT \
+		-lz -lm -lc++ -lpython3.9 \
+		-L$PREFIX/build/lib.darwin-arm64-3.9 \
+		-O3 -Wall \
+		`find build -name \*.o` \
+		-L$PREFIX/Library/lib \
+		-F$PREFIX/Frameworks_iphoneos -framework libgdal \
+		-o build/rasterio.so >> $PREFIX/make_ios.log 2>&1
+cp build/rasterio.so $PREFIX/build/lib.darwin-arm64-3.9 >> $PREFIX/make_ios.log 2>&1
 popd >> $PREFIX/make_ios.log 2>&1
 popd >> make_ios.log 2>&1
 # 
@@ -2423,7 +2537,7 @@ env CC=clang CXX=clang++ \
 	CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT" \
 	CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT" \
 	CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT" \
-	LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib" \
+	LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -lz -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib" \
 	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $SIM_SDKROOT -lz -L. -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib" \
 	PLATFORM=iphonesimulator \
 	OPT="$DEBUG" \
@@ -2552,6 +2666,21 @@ env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14
 	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -framework freetype -L$PREFIX/build/lib.darwin-x86_64-3.9 -lz -lpython3.9 -L$PREFIX/Frameworks_iphonesimulator/lib/ -ljpeg -ltiff" PLATFORM=iphonesimulator python3.9 setup.py build  >> $PREFIX/make_simulator.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/PIL/  >> $PREFIX/make_simulator.log 2>&1
 cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/PIL/*.so  $PREFIX/build/lib.darwin-x86_64-3.9/PIL/ >> $PREFIX/make_simulator.log 2>&1
+# Single library PIL.so
+clang -v -undefined error -dynamiclib \
+-isysroot $SIM_SDKROOT \
+-lz -lm \
+-lpython3.9 \
+-F$PREFIX/Frameworks_iphonesimulator -framework ios_system -framework freetype \
+-L$PREFIX/Frameworks_iphonesimulator/lib -ljpeg -ltiff \
+-L$PREFIX/build/lib.darwin-x86_64-3.9 \
+-O3 -Wall \
+-arch x86_64 -miphonesimulator-version-min=14.0 \
+`find build -name \*.o` \
+-L$PREFIX/Library/lib \
+-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
+-o build/PIL.so  >> $PREFIX/make_simulator.log 2>&1
+cp build/PIL.so $PREFIX/build/lib.darwin-x86_64-3.9 >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 ## matplotlib
@@ -2578,6 +2707,20 @@ mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/lxml/  >> $PREFIX/make_simulator.lo
 mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/lxml/html/  >> $PREFIX/make_simulator.log 2>&1
 cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/lxml/*.so  $PREFIX/build/lib.darwin-x86_64-3.9/lxml/ >> $PREFIX/make_simulator.log 2>&1
 cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/lxml/html/*.so  $PREFIX/build/lib.darwin-x86_64-3.9/lxml/html/ >> $PREFIX/make_simulator.log 2>&1
+# Single library for lxml:
+clang -v -undefined error -dynamiclib \
+	-arch x86_64 -miphonesimulator-version-min=14.0 \
+	-isysroot $SIM_SDKROOT \
+	-lz -lm -lc++ -lpython3.9 \
+	-F$PREFIX/Frameworks_iphonesimulator -framework ios_system  \
+	-L$PREFIX/Frameworks_iphonesimulator/lib -lxslt -lexslt \
+	-L$PREFIX/build/lib.darwin-x86_64-3.9 \
+	-O3 -Wall \
+	`find build -name \*.o` \
+	-L$PREFIX/Library/lib -Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
+	-lxml2  \
+	-o build/lxml.so >> $PREFIX/make_simulator.log 2>&1
+cp build/lxml.so $PREFIX/build/lib.darwin-x86_64-3.9 >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 # cryptography: 
@@ -2817,6 +2960,16 @@ $PREFIX/build/lib.darwin-x86_64-3.9/erfa >> $PREFIX/make_simulator.log 2>&1
 		mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/$directory >> $PREFIX/make_simulator.log 2>&1
 		cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/$library $PREFIX/build/lib.darwin-x86_64-3.9/$library >> $PREFIX/make_simulator.log 2>&1
 	done
+	clang -v -undefined error -dynamiclib \
+		-arch x86_64 -miphonesimulator-version-min=14.0 \
+		-isysroot $SIM_SDKROOT \
+		-lz -lm -lc++ \
+		-O3 -Wall \
+		`find build -name \*.o` \
+		-L$PREFIX -lpython3.9 \
+		-F$PREFIX/Frameworks_iphonesimulator -framework libgdal \
+		-o build/fiona.so >> $PREFIX/make_simulator.log 2>&1
+	cp build/fiona.so $PREFIX/build/lib.darwin-x86_64-3.9 >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1
 	# PyProj (interface for Proj)
@@ -2839,6 +2992,16 @@ $PREFIX/build/lib.darwin-x86_64-3.9/erfa >> $PREFIX/make_simulator.log 2>&1
 		mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/$directory >> $PREFIX/make_simulator.log 2>&1
 		cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/$library $PREFIX/build/lib.darwin-x86_64-3.9/$library >> $PREFIX/make_simulator.log 2>&1
 	done
+	clang -v -undefined error -dynamiclib \
+		-arch x86_64 -miphonesimulator-version-min=14.0 \
+		-isysroot $SIM_SDKROOT \
+		-lz -lm -lc++ -lpython3.9 \
+		-L$PREFIX/build/lib.darwin-x86_64-3.9 \
+		-O3 -Wall \
+		`find build -name \*.o` \
+		-F$PREFIX/Frameworks_iphonesimulator -framework libproj \
+		-o build/pyproj.so >> $PREFIX/make_simulator.log 2>&1
+	cp build/pyproj.so $PREFIX/build/lib.darwin-x86_64-3.9 >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1
 fi

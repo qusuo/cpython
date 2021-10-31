@@ -1734,6 +1734,51 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 				(strcmp(nameC, "scipy.stats.biasedurn") == 0) ||
 				(strcmp(nameC, "scipy.stats._stats") == 0)) {
 			strcpy(nameC, "scipy_all");
+		} else if ((strcmp(nameC, "PIL._imagingft") == 0) ||
+				(strcmp(nameC, "PIL._imagingmath") == 0) ||
+				(strcmp(nameC, "PIL._imagingtk") == 0) ||
+				(strcmp(nameC, "PIL._imagingmorph") == 0) ||
+				(strcmp(nameC, "PIL._imaging") == 0)) {
+			strcpy(nameC, "PIL_all");
+		} else if ((strcmp(nameC, "lxml.etree") == 0) ||
+				(strcmp(nameC, "lxml.objectify") == 0) ||
+				(strcmp(nameC, "lxml.sax") == 0) ||
+				(strcmp(nameC, "lxml.html.diff") == 0) ||
+				(strcmp(nameC, "lxml.html.clean") == 0) ||
+				(strcmp(nameC, "lxml._elementpath") == 0) ||
+				(strcmp(nameC, "lxml.builder") == 0)) {
+			strcpy(nameC, "lxml_all");
+		} else if ((strcmp(nameC, "fiona.schema") == 0) ||
+				(strcmp(nameC, "fiona.ogrext") == 0) ||
+				(strcmp(nameC, "fiona._crs") == 0) ||
+				(strcmp(nameC, "fiona._err") == 0) ||
+				(strcmp(nameC, "fiona._transform") == 0) ||
+				(strcmp(nameC, "fiona._shim") == 0) ||
+				(strcmp(nameC, "fiona._geometry") == 0) ||
+				(strcmp(nameC, "fiona._env") == 0)) {
+			strcpy(nameC, "fiona_all");
+		} else if ((strcmp(nameC, "pyproj._transformer") == 0) ||
+				(strcmp(nameC, "pyproj._datadir") == 0) ||
+				(strcmp(nameC, "pyproj.list") == 0) ||
+				(strcmp(nameC, "pyproj._compat") == 0) ||
+				(strcmp(nameC, "pyproj._crs") == 0) ||
+				(strcmp(nameC, "pyproj._network") == 0) ||
+				(strcmp(nameC, "pyproj._geod") == 0) ||
+				(strcmp(nameC, "pyproj.database") == 0) ||
+				(strcmp(nameC, "pyproj._sync") == 0)) {
+			strcpy(nameC, "pyproj_all");
+		} else if ((strcmp(nameC, "rasterio._fill") == 0) ||
+				(strcmp(nameC, "rasterio._crs") == 0) ||
+				(strcmp(nameC, "rasterio._err") == 0) ||
+				(strcmp(nameC, "rasterio._warp") == 0) ||
+				(strcmp(nameC, "rasterio._transform") == 0) ||
+				(strcmp(nameC, "rasterio._example") == 0) ||
+				(strcmp(nameC, "rasterio._io") == 0) ||
+				(strcmp(nameC, "rasterio._base") == 0) ||
+				(strcmp(nameC, "rasterio.shutil") == 0) ||
+				(strcmp(nameC, "rasterio._env") == 0) ||
+				(strcmp(nameC, "rasterio._features") == 0)) {
+			strcpy(nameC, "rasterio_all");
 		}
 		// The goal here is to avoid repeted calls to getenv("APPDIR") by using sys.prefix 
 		// that contains almost the same information.

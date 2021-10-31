@@ -1650,6 +1650,51 @@ class FileFinder:
                             "scipy.stats.biasedurn",
                             "scipy.stats._stats"]:
                         frameworkName = pythonName + "-" + "scipy_all"
+                    elif fullname in ["PIL._imagingft",
+                            "PIL._imagingmath",
+                            "PIL._imagingtk",
+                            "PIL._imagingmorph",
+                            "PIL._imaging"]:
+                        frameworkName = pythonName + "-" + "PIL_all"
+                    elif fullname in ["lxml.etree",
+                            "lxml.objectify",
+                            "lxml.sax",
+                            "lxml.html.diff",
+                            "lxml.html.clean",
+                            "lxml._elementpath",
+                            "lxml.builder"]:
+                        frameworkName = pythonName + "-" + "lxml_all"
+                    elif fullname in ["fiona.schema",
+                            "fiona.ogrext",
+                            "fiona._crs",
+                            "fiona._err",
+                            "fiona._transform",
+                            "fiona._shim",
+                            "fiona._geometry",
+                            "fiona._env"]:
+                        frameworkName = pythonName + "-" + "fiona_all"
+                    elif fullname in ["pyproj._transformer",
+                            "pyproj._datadir",
+                            "pyproj.list",
+                            "pyproj._compat",
+                            "pyproj._crs",
+                            "pyproj._network",
+                            "pyproj._geod",
+                            "pyproj.database",
+                            "pyproj._sync"]:
+                        frameworkName = pythonName + "-" + "pyproj_all"
+                    elif fullname in ["rasterio._fill",
+                            "rasterio._crs",
+                            "rasterio._err",
+                            "rasterio._warp",
+                            "rasterio._transform",
+                            "rasterio._example",
+                            "rasterio._io",
+                            "rasterio._base",
+                            "rasterio.shutil",
+                            "rasterio._env",
+                            "rasterio._features"]:
+                        frameworkName = pythonName + "-" + "rasterio_all"
                     else:
                         frameworkName = pythonName + "-" + fullname
                     home, tail = _path_split(sys.prefix)
