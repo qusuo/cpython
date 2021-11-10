@@ -1145,6 +1145,7 @@ if [ $USE_FORTRAN == 1 ];
 then
 	# Copy the version of Library created until now so it can be used for "standard" version of the App:
 	mkdir -p $PREFIX/with_scipy  >> make_install_osx.log 2>&1
+	rm -rf $PREFIX/with_scipy/Library/*  >> make_install_osx.log 2>&1
 	cp -r $PREFIX/Library $PREFIX/with_scipy >> make_install_osx.log 2>&1
 	export PYTHONHOME=$PREFIX/with_scipy/Library/
 	# pybind11 is required.
@@ -1157,8 +1158,12 @@ then
 	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 	# pip install . : can't install because version number is not PEP440
  	# Must remove old scipy before:
- 	rm -rf $PREFIX/Library/lib/python3.9/site-packages/scipy*  >> $PREFIX/make_install_osx.log 2>&1
+ 	echo "Any old scipy before installs?" >> $PREFIX/make_install_osx.log 2>&1
+ 	ls -d $PREFIX/Library/lib/python3.9/site-packages/scipy*  >> $PREFIX/make_install_osx.log 2>&1
+ 	echo "Installing scipy:" >> $PREFIX/make_install_osx.log 2>&1
  	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
+ 	echo "After install" >> $PREFIX/make_install_osx.log 2>&1
+ 	ls -d $PREFIX/Library/lib/python3.9/site-packages/scipy*  >> $PREFIX/make_install_osx.log 2>&1
 	echo scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	echo number of scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
@@ -1314,6 +1319,7 @@ then
 	pushd scikit-learn >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" PLATFORM=macosx python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
+	# Last time, something installed scikit-learn==1.0.1 -- without uninstalling sklearn==1.0.dev0. WHO?
 	echo scikit-learn libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	echo number of scikit-learn libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
@@ -1399,10 +1405,9 @@ then
 	cp ../setup_statsmodels.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
 	find statsmodels -name \*.pyx -exec touch {} \; -print  >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
-	# Here, we need "python3.9 -m pip install .", as "python3.9 setup.py install" results in package not visible from pip afterwards
-env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
-    # pip still deleted the version number:
-    cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/statsmodels/_version.py $PYTHONHOME/lib/python3.9/site-packages/statsmodels/_version.py 
+	# "python3.9 -m pip install ." removes the iOS extensions to Cython modules. 
+	# python3.9 setup.py install used to fail, it now works.
+env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
 	echo statsmodels libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	echo number of statsmodels libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
@@ -1432,7 +1437,8 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
 		GEOS_INCLUDE_PATH=$PREFIX/Frameworks_macosx/include \
 		GEOS_LIBRARY_PATH=$PREFIX/Frameworks_macosx/lib \
 		python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
-	# Here, we need "python3.9 -m pip install .", as "python3.9 setup.py install" results in package not visible from pip afterwards
+	# Here: "python3.9 -m pip install ." removes the iOS elements from Cythonized source code.
+	# python3.9 setup.py install used to not work, seems to work now.
 	env CC=clang CXX=clang++ \
 		CPPFLAGS="-isysroot $OSX_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 -I $PREFIX/Frameworks_macosx/include" \
 		CFLAGS="-isysroot $OSX_SDKROOT $DEBUG  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 -I $PREFIX/Frameworks_macosx/include/" \
@@ -1442,9 +1448,7 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
 		PLATFORM=macosx \
 		GEOS_INCLUDE_PATH=$PREFIX/Frameworks_macosx/include \
 		GEOS_LIBRARY_PATH=$PREFIX/Frameworks_macosx/lib \
-		python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
-	# Apparently pip *still* deleted the version number:
-	cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/pygeos/_version.py $PYTHONHOME/lib/python3.9/site-packages/pygeos/_version.py 
+		python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
 	for library in pygeos/_geos.cpython-39-darwin.so pygeos/lib.cpython-39-darwin.so pygeos/_geometry.cpython-39-darwin.so
 	do
 		directory=$(dirname $library)
@@ -1477,9 +1481,7 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
 	cp ../frozen_pysal.py ./pysal/frozen.py >> make_install_osx.log 2>&1
 	cp ../base_pysal.py ./pysal/base.py >> make_install_osx.log 2>&1
 	# Here, we need "python3.9 -m pip install .", as "python3.9 setup.py install" does not install actually
-	# ...but now "python3.9 -m pip install ." uninstalls a lot of packages, including numpy, and installs numba. Not good either
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG " LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
-	# TODO: restore packages that were uninstalled: numpy, dateutil, jsonschema ?
 	# Also need to update access/datasets.py:
 	cp ../datasets_pysal_access.py $PYTHONHOME/lib/python3.9/site-packages/access/datasets.py
 	popd  >> $PREFIX/make_install_osx.log 2>&1
@@ -1675,8 +1677,6 @@ clang -v -undefined error -dynamiclib \
 -L$PREFIX/build/lib.darwin-arm64-3.9 \
 -O3 -Wall -arch arm64 \
 -miphoneos-version-min=14.0 \
--DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
--DCYTHON_USE_DICT_VERSIONS=0 \
 `find build -name \*.o` \
 -L$PREFIX/Library/lib \
 -Lbuild/temp.macosx-${OSX_VERSION}-arm64-3.9 \
@@ -1933,8 +1933,6 @@ clang -v -undefined error -dynamiclib \
 -L$PREFIX/build/lib.darwin-arm64-3.9 \
 -O3 -Wall -arch arm64 \
 -miphoneos-version-min=14.0 \
--DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
--DCYTHON_USE_DICT_VERSIONS=0 \
 `find build -name \*.o` \
 -L$PREFIX/Library/lib \
 -Lbuild/temp.macosx-${OSX_VERSION}-arm64-3.9 \
@@ -2024,8 +2022,6 @@ $PREFIX/build/lib.darwin-arm64-3.9/erfa/ >> $PREFIX/make_ios.log 2>&1
 		  -L$PREFIX/build/lib.darwin-arm64-3.9 \
 		  -O3 -Wall -arch arm64 \
 		  -miphoneos-version-min=14.0 \
-		  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
-		  -DCYTHON_USE_DICT_VERSIONS=0 \
 		  `find build -name \*.o` \
 		  -L$PREFIX/Library/lib \
 		  -Lbuild/temp.macosx-${OSX_VERSION}-arm64-3.9 \
@@ -2426,8 +2422,6 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 python3.9 setup.py build >> $PREFIX/make
 		  -L$PREFIX/build/lib.darwin-arm64-3.9 \
 		  -O3 -Wall -arch arm64 \
 		  -miphoneos-version-min=14.0 \
-		  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 \
-		  -DCYTHON_USE_DICT_VERSIONS=0 \
 		  `find build -name \*.o` \
 		  -L$PREFIX/Library/lib \
 		  -Lbuild/temp.macosx-${OSX_VERSION}-arm64-3.9 \
