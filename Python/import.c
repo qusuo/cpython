@@ -2369,15 +2369,15 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
         return NULL;
     }
 #if TARGET_OS_IPHONE
-    fprintf(stderr, "_imp_create_dynamic_impl, name = ");
-    PyObject_Print(name, stderr, 0);
-    PyObject_Print(name, stderr, Py_PRINT_RAW);
-    fprintf(stderr, " path = ");
-    PyObject_Print(path, stderr, 0);
-    PyObject_Print(path, stderr, Py_PRINT_RAW);
-    fprintf(stderr, " file = ");
-    PyObject_Print(file, stderr, 0);
-    fprintf(stderr, " \n");
+    // fprintf(stderr, "_imp_create_dynamic_impl, name = ");
+    // PyObject_Print(name, stderr, 0);
+    // PyObject_Print(name, stderr, Py_PRINT_RAW);
+    // fprintf(stderr, " path = ");
+    // PyObject_Print(path, stderr, 0);
+    // PyObject_Print(path, stderr, Py_PRINT_RAW);
+    // fprintf(stderr, " file = ");
+    // PyObject_Print(file, stderr, 0);
+    // fprintf(stderr, " \n");
     char newPathString[MAXPATHLEN];
     wchar_t prefixCopy[MAXPATHLEN]; 
     int argc;
@@ -2385,7 +2385,6 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
     Py_GetArgcArgv(&argc, &argv_orig);
     char nameC[MAXPATHLEN];
 	strcpy(nameC, PyUnicode_AsUTF8(name));
-    fprintf(stderr, "nameC = %s test= %x\n", nameC, strcmp(nameC, "PIL._imaging"));
 	// New special case to reduce number of modules: all numpy modules are merged into one:
 	if ((strcmp(nameC, "numpy.core._operand_flag_tests") == 0) || 
 			(strcmp(nameC, "numpy.core._multiarray_umath") == 0) || 
@@ -2621,7 +2620,7 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
 		// If it did not work, we call getenv("APPDIR")
 		sprintf(newPathString, "%s/Frameworks/%S-%s.framework/%S-%s", getenv("APPDIR"), pythonName, nameC, pythonName, nameC);
 	}
-    fprintf(stderr, "New path: %s\n", newPathString);
+    // fprintf(stderr, "New path: %s\n", newPathString);
     path = PyUnicode_FromString(newPathString);
     PyObject_SetAttrString(spec, "origin", path);
 #endif

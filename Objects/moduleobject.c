@@ -577,19 +577,23 @@ _PyModule_Clear(PyObject *m)
     // Unclear whether this is required for scipy, but it does no harm to call destructors.
     // 01/05/21: starting tests on astropy and sklearn. If it does not crash, we keep it.
     // 10/07/21: adding statsmodels
-    // 29/10/21: added lxml
+    // 29/10/21: added lxml, pyfftw, pygeos, wordcloud, qutip (all cython modules).
     int moduleNeedsCleanup = 0;
     PyModuleObject *mod = (PyModuleObject *)m;
 	if (mod->md_name != NULL) {
 		const char* utf8name = PyUnicode_AsUTF8(mod->md_name);
 		if ((strncmp(utf8name, "_asyncio", 8) == 0) 
 				|| (strncmp(utf8name, "lxml.", 5) == 0) 
-				|| (strncmp(utf8name, "pandas.", 7) == 0) 
 				|| (strncmp(utf8name, "numpy.", 6) == 0)
+				|| (strncmp(utf8name, "qutip.", 6) == 0)
 				|| (strncmp(utf8name, "scipy.", 6) == 0)
+				|| (strncmp(utf8name, "pandas.", 7) == 0) 
+				|| (strncmp(utf8name, "pyfftw.", 7) == 0)
+				|| (strncmp(utf8name, "pygeos.", 7) == 0)
 				|| (strncmp(utf8name, "astropy.", 8) == 0)
-				|| (strncmp(utf8name, "statsmodels.", 12) == 0)
-				|| (strncmp(utf8name, "sklearn.", 8) == 0)) {
+				|| (strncmp(utf8name, "sklearn.", 8) == 0) 
+				|| (strncmp(utf8name, "wordcloud.", 10) == 0)
+				|| (strncmp(utf8name, "statsmodels.", 12) == 0)) {
 			// iOS, debug:
 			// fprintf(thread_stderr, "Module = %x name = %s refCount = %zd ", mod, utf8name, m->ob_refcnt);
 			if (mod->md_def && mod->md_def->m_free) {
