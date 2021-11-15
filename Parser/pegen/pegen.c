@@ -269,6 +269,7 @@ static void
 raise_tokenizer_init_error(PyObject *filename)
 {
     if (!(PyErr_ExceptionMatches(PyExc_LookupError)
+          || PyErr_ExceptionMatches(PyExc_SyntaxError)
           || PyErr_ExceptionMatches(PyExc_ValueError)
           || PyErr_ExceptionMatches(PyExc_UnicodeDecodeError))) {
         return;
@@ -313,6 +314,7 @@ tokenizer_error(Parser *p)
 
     const char *msg = NULL;
     PyObject* errtype = PyExc_SyntaxError;
+    Py_ssize_t col_offset = -1;
     switch (p->tok->done) {
         case E_TOKEN:
             msg = "invalid token";
@@ -345,17 +347,17 @@ tokenizer_error(Parser *p)
             errtype = PyExc_IndentationError;
             msg = "too many levels of indentation";
             break;
-        case E_LINECONT:
+        case E_LINECONT: {
+            col_offset = p->tok->cur - p->tok->buf - 1;
             msg = "unexpected character after line continuation character";
             break;
+        }
         default:
             msg = "unknown parsing error";
     }
 
-    PyErr_Format(errtype, msg);
-    // There is no reliable column information for this error
-    PyErr_SyntaxLocationObject(p->tok->filename, p->tok->lineno, 0);
-
+    RAISE_ERROR_KNOWN_LOCATION(p, errtype, p->tok->lineno,
+                               col_offset >= 0 ? col_offset : 0, msg);
     return -1;
 }
 
@@ -640,7 +642,10 @@ _PyPegen_fill_token(Parser *p)
     if (t->bytes == NULL) {
         return -1;
     }
-    PyArena_AddPyObject(p->arena, t->bytes);
+    if (PyArena_AddPyObject(p->arena, t->bytes) < 0) {
+        Py_DECREF(t->bytes);
+        return -1;
+    }
 
     int lineno = type == STRING ? p->tok->first_lineno : p->tok->lineno;
     const char *line_start = type == STRING ? p->tok->multi_line_start : p->tok->line_start;
