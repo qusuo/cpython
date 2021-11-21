@@ -1642,6 +1642,7 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 				(strcmp(nameC, "astropy.table._column_mixins") == 0) ||
 				(strcmp(nameC, "astropy.cosmology.scalar_inv_efuncs") == 0) ||
 				(strcmp(nameC, "astropy.convolution._convolve") == 0) ||
+				(strcmp(nameC, "astropy.stats._fast_sigma_clip") == 0) || 
 				(strcmp(nameC, "astropy.stats._stats") == 0)) {
 			strcpy(nameC, "astropy_all");
 		} else if ((strcmp(nameC, "qutip.cy.checks") == 0) ||

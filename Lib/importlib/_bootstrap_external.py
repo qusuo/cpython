@@ -1558,6 +1558,7 @@ class FileFinder:
                             "astropy.table._column_mixins",
                             "astropy.cosmology.scalar_inv_efuncs",
                             "astropy.convolution._convolve",
+                            "astropy.stats._fast_sigma_clip", 
                             "astropy.stats._stats"]:
                         frameworkName = pythonName + "-" + "astropy_all"
                     elif fullname in ["qutip.cy.checks",
