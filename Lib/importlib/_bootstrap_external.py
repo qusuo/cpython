@@ -1555,6 +1555,7 @@ class FileFinder:
                     # Merged numpy, pandas and astropy modules into a single framework:
                     if fullname in ["numpy.core._operand_flag_tests", 
                     "numpy.core._multiarray_umath", 
+                    "numpy.core._multiarray_tests", 
                     "numpy.core._simd", 
                     "numpy.linalg.lapack_lite", 
                     "numpy.linalg._umath_linalg", 

@@ -2393,6 +2393,7 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
 	// New special case to reduce number of modules: all numpy modules are merged into one:
 	if ((strcmp(nameC, "numpy.core._operand_flag_tests") == 0) || 
 			(strcmp(nameC, "numpy.core._multiarray_umath") == 0) || 
+			(strcmp(nameC, "numpy.core._multiarray_tests") == 0) || 
 			(strcmp(nameC, "numpy.core._simd") == 0) || 
 			(strcmp(nameC, "numpy.linalg.lapack_lite") == 0) || 
 			(strcmp(nameC, "numpy.linalg._umath_linalg") == 0) || 
