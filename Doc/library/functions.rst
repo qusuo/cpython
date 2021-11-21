@@ -507,7 +507,7 @@ are always available.  They are listed here in alphabetical order.
    a suite of Python statements which is then executed (unless a syntax error
    occurs). [#]_ If it is a code object, it is simply executed.  In all cases,
    the code that's executed is expected to be valid as file input (see the
-   section "File input" in the Reference Manual). Be aware that the
+   section :ref:`file-input` in the Reference Manual). Be aware that the
    :keyword:`nonlocal`, :keyword:`yield`,  and :keyword:`return`
    statements may not be used outside of
    function definitions even within the context of code passed to the
@@ -675,6 +675,13 @@ are always available.  They are listed here in alphabetical order.
    value of that attribute.  For example, ``getattr(x, 'foobar')`` is equivalent to
    ``x.foobar``.  If the named attribute does not exist, *default* is returned if
    provided, otherwise :exc:`AttributeError` is raised.
+
+   .. note::
+
+      Since :ref:`private name mangling <private-name-mangling>` happens at
+      compilation time, one must manually mangle a private attribute's
+      (attributes with two leading underscores) name in order to retrieve it with
+      :func:`getattr`.
 
 
 .. function:: globals()
@@ -855,8 +862,8 @@ are always available.  They are listed here in alphabetical order.
    Return ``True`` if *class* is a subclass (direct, indirect or :term:`virtual
    <abstract base class>`) of *classinfo*.  A
    class is considered a subclass of itself. *classinfo* may be a tuple of class
-   objects, in which case every entry in *classinfo* will be checked. In any other
-   case, a :exc:`TypeError` exception is raised.
+   objects, in which case return ``True`` if *class* is a subclass of any entry
+   in *classinfo*.  In any other case, a :exc:`TypeError` exception is raised.
 
 
 .. function:: iter(object[, sentinel])
@@ -957,7 +964,7 @@ are always available.  They are listed here in alphabetical order.
 
 
 .. _func-memoryview:
-.. class:: memoryview(obj)
+.. class:: memoryview(object)
    :noindex:
 
    Return a "memory view" object created from the given argument.  See
@@ -1143,9 +1150,9 @@ are always available.  They are listed here in alphabetical order.
    * ``'replace'`` causes a replacement marker (such as ``'?'``) to be inserted
      where there is malformed data.
 
-   * ``'surrogateescape'`` will represent any incorrect bytes as code
-     points in the Unicode Private Use Area ranging from U+DC80 to
-     U+DCFF.  These private code points will then be turned back into
+   * ``'surrogateescape'`` will represent any incorrect bytes as low
+     surrogate code units ranging from U+DC80 to U+DCFF.
+     These surrogate code units will then be turned back into
      the same bytes when the ``surrogateescape`` error handler is used
      when writing data.  This is useful for processing files in an
      unknown encoding.
@@ -1291,8 +1298,11 @@ are always available.  They are listed here in alphabetical order.
    coercion rules for binary arithmetic operators apply.  For :class:`int`
    operands, the result has the same type as the operands (after coercion)
    unless the second argument is negative; in that case, all arguments are
-   converted to float and a float result is delivered.  For example, ``10**2``
-   returns ``100``, but ``10**-2`` returns ``0.01``.
+   converted to float and a float result is delivered.  For example, ``pow(10, 2)``
+   returns ``100``, but ``pow(10, -2)`` returns ``0.01``.  For a negative base of
+   type :class:`int` or :class:`float` and a non-integral exponent, a complex
+   result is delivered.  For example, ``pow(-9, 0.5)`` returns a value close
+   to ``3j``.
 
    For :class:`int` operands *base* and *exp*, if *mod* is present, *mod* must
    also be of integer type and *mod* must be nonzero. If *mod* is present and
@@ -1495,18 +1505,23 @@ are always available.  They are listed here in alphabetical order.
    object allows it.  For example, ``setattr(x, 'foobar', 123)`` is equivalent to
    ``x.foobar = 123``.
 
+   .. note::
+
+      Since :ref:`private name mangling <private-name-mangling>` happens at
+      compilation time, one must manually mangle a private attribute's
+      (attributes with two leading underscores) name in order to set it with
+      :func:`setattr`.
+
 
 .. class:: slice(stop)
            slice(start, stop[, step])
-
-   .. index:: single: Numerical Python
 
    Return a :term:`slice` object representing the set of indices specified by
    ``range(start, stop, step)``.  The *start* and *step* arguments default to
    ``None``.  Slice objects have read-only data attributes :attr:`~slice.start`,
    :attr:`~slice.stop` and :attr:`~slice.step` which merely return the argument
    values (or their default).  They have no other explicit functionality;
-   however they are used by Numerical Python and other third party extensions.
+   however they are used by NumPy and other third party packages.
    Slice objects are also generated when extended indexing syntax is used.  For
    example: ``a[start:stop:step]`` or ``a[start:stop, i]``.  See
    :func:`itertools.islice` for an alternate version that returns an iterator.
@@ -1532,6 +1547,15 @@ are always available.  They are listed here in alphabetical order.
    stable if it guarantees not to change the relative order of elements that
    compare equal --- this is helpful for sorting in multiple passes (for
    example, sort by department, then by salary grade).
+
+   The sort algorithm uses only ``<`` comparisons between items.  While
+   defining an :meth:`~object.__lt__` method will suffice for sorting,
+   :PEP:`8` recommends that all six :ref:`rich comparisons
+   <comparisons>` be implemented.  This will help avoid bugs when using
+   the same data with other ordering tools such as :func:`max` that rely
+   on a different underlying method.  Implementing all six comparisons
+   also helps avoid confusion for mixed type comparisons which can call
+   reflected the :meth:`~object.__gt__` method.
 
    For sorting examples and a brief sorting tutorial, see :ref:`sortinghowto`.
 
@@ -1631,7 +1655,7 @@ are always available.  They are listed here in alphabetical order.
    not found in statically compiled languages or languages that only support
    single inheritance.  This makes it possible to implement "diamond diagrams"
    where multiple base classes implement the same method.  Good design dictates
-   that this method have the same calling signature in every case (because the
+   that such implementations have the same calling signature in every case (because the
    order of calls is determined at runtime, because that order adapts
    to changes in the class hierarchy, and because that order can include
    sibling classes that are unknown prior to runtime).
@@ -1675,7 +1699,7 @@ are always available.  They are listed here in alphabetical order.
 
 
 .. class:: type(object)
-           type(name, bases, dict)
+           type(name, bases, dict, **kwds)
 
    .. index:: object: type
 
@@ -1703,6 +1727,13 @@ are always available.  They are listed here in alphabetical order.
       >>> X = type('X', (), dict(a=1))
 
    See also :ref:`bltin-type-objects`.
+
+   Keyword arguments provided to the three argument form are passed to the
+   appropriate metaclass machinery (usually :meth:`~object.__init_subclass__`)
+   in the same way that keywords in a class
+   definition (besides *metaclass*) would.
+
+   See also :ref:`class-customization`.
 
    .. versionchanged:: 3.6
       Subclasses of :class:`type` which don't override ``type.__new__`` may no

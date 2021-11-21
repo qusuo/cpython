@@ -17,12 +17,10 @@
 
 --------------
 
-This module provides runtime support for type hints as specified by
-:pep:`484`, :pep:`526`, :pep:`544`, :pep:`586`, :pep:`589`, and :pep:`591`.
-The most fundamental support consists of the types :data:`Any`, :data:`Union`,
-:data:`Tuple`, :data:`Callable`, :class:`TypeVar`, and
-:class:`Generic`.  For full specification please see :pep:`484`.  For
-a simplified introduction to type hints see :pep:`483`.
+This module provides runtime support for type hints. The most fundamental
+support consists of the types :data:`Any`, :data:`Union`, :data:`Callable`,
+:class:`TypeVar`, and :class:`Generic`. For a full specification, please see
+:pep:`484`. For a simplified introduction to type hints, see :pep:`483`.
 
 
 The function below takes and returns a string and is annotated as follows::
@@ -33,6 +31,33 @@ The function below takes and returns a string and is annotated as follows::
 In the function ``greeting``, the argument ``name`` is expected to be of type
 :class:`str` and the return type :class:`str`. Subtypes are accepted as
 arguments.
+
+.. _relevant-peps:
+
+Relevant PEPs
+=============
+
+Since the initial introduction of type hints in :pep:`484` and :pep:`483`, a
+number of PEPs have modified and enhanced Python's framework for type
+annotations. These include:
+
+* :pep:`526`: Syntax for Variable Annotations
+     *Introducing* syntax for annotating variables outside of function
+     definitions, and :data:`ClassVar`
+* :pep:`544`: Protocols: Structural subtyping (static duck typing)
+     *Introducing* :class:`Protocol` and the
+     :func:`@runtime_checkable<runtime_checkable>` decorator
+* :pep:`585`: Type Hinting Generics In Standard Collections
+     *Introducing* :class:`types.GenericAlias` and the ability to use standard
+     library classes as :ref:`generic types<types-genericalias>`
+* :pep:`586`: Literal Types
+     *Introducing* :class:`Literal`
+* :pep:`589`: TypedDict: Type Hints for Dictionaries with a Fixed Set of Keys
+     *Introducing* :class:`TypedDict`
+* :pep:`591`: Adding a final qualifier to typing
+     *Introducing* :data:`Final` and the :func:`@final<final>` decorator
+* :pep:`593`: Flexible function and variable annotations
+     *Introducing* :class:`Annotated`
 
 Type aliases
 ============
@@ -232,8 +257,8 @@ A user-defined class can be defined as a generic class.
 single type parameter ``T`` . This also makes ``T`` valid as a type within the
 class body.
 
-The :class:`Generic` base class defines :meth:`__class_getitem__` so that
-``LoggedVar[t]`` is valid as a type::
+The :class:`Generic` base class defines :meth:`~object.__class_getitem__` so
+that ``LoggedVar[t]`` is valid as a type::
 
    from collections.abc import Iterable
 
@@ -656,10 +681,10 @@ These can be used as types in annotations using ``[]``, each having a unique syn
    .. versionadded:: 3.8
 
    .. versionchanged:: 3.9.1
-      ``Literal`` now de-duplicates parameters.  Equality comparison of
+      ``Literal`` now de-duplicates parameters.  Equality comparisons of
       ``Literal`` objects are no longer order dependent. ``Literal`` objects
       will now raise a :exc:`TypeError` exception during equality comparisons
-      if one of their parameters are not :term:`immutable`.
+      if one of their parameters are not :term:`hashable`.
 
 .. data:: ClassVar
 
@@ -1179,7 +1204,11 @@ Other concrete types
    Generic type ``IO[AnyStr]`` and its subclasses ``TextIO(IO[str])``
    and ``BinaryIO(IO[bytes])``
    represent the types of I/O streams such as returned by
-   :func:`open`. These types are also in the ``typing.io`` namespace.
+   :func:`open`.
+
+   .. deprecated-removed:: 3.8 3.12
+      These types are also in the ``typing.io`` namespace, which was
+      never supported by type checkers and will be removed.
 
 .. class:: Pattern
            Match
@@ -1189,7 +1218,11 @@ Other concrete types
    :func:`re.match`.  These types (and the corresponding functions)
    are generic in ``AnyStr`` and can be made specific by writing
    ``Pattern[str]``, ``Pattern[bytes]``, ``Match[str]``, or
-   ``Match[bytes]``. These types are also in the ``typing.re`` namespace.
+   ``Match[bytes]``.
+
+   .. deprecated-removed:: 3.8 3.12
+      These types are also in the ``typing.re`` namespace, which was
+      never supported by type checkers and will be removed.
 
    .. deprecated:: 3.9
       Classes ``Pattern`` and ``Match`` from :mod:`re` now support ``[]``.
@@ -1710,9 +1743,14 @@ Introspection helpers
 .. class:: ForwardRef
 
    A class used for internal typing representation of string forward references.
-   For example, ``list["SomeClass"]`` is implicitly transformed into
-   ``list[ForwardRef("SomeClass")]``.  This class should not be instantiated by
+   For example, ``List["SomeClass"]`` is implicitly transformed into
+   ``List[ForwardRef("SomeClass")]``.  This class should not be instantiated by
    a user, but may be used by introspection tools.
+
+   .. note::
+      :pep:`585` generic types such as ``list["SomeClass"]`` will not be
+      implicitly transformed into ``list[ForwardRef("SomeClass")]`` and thus
+      will not automatically resolve to ``list[SomeClass]``.
 
    .. versionadded:: 3.7.4
 

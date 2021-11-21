@@ -588,22 +588,15 @@ _PyModule_Clear(PyObject *m)
 				|| (strncmp(utf8name, "numpy.", 6) == 0)
 				|| (strncmp(utf8name, "qutip.", 6) == 0)
 				|| (strncmp(utf8name, "scipy.", 6) == 0)
-<<<<<<< HEAD
-=======
 				|| (strncmp(utf8name, "fiona.", 6) == 0)
 				|| (strncmp(utf8name, "pyproj.", 7) == 0)
->>>>>>> cf8a9ab342b3339d749ae2c5e96d9ae6b5bf6b65
 				|| (strncmp(utf8name, "pandas.", 7) == 0) 
 				|| (strncmp(utf8name, "pyfftw.", 7) == 0)
 				|| (strncmp(utf8name, "pygeos.", 7) == 0)
 				|| (strncmp(utf8name, "astropy.", 8) == 0)
-<<<<<<< HEAD
-				|| (strncmp(utf8name, "sklearn.", 8) == 0) 
-=======
 				|| (strncmp(utf8name, "shapely.", 8) == 0)
 				|| (strncmp(utf8name, "sklearn.", 8) == 0) 
 				|| (strncmp(utf8name, "rasterio.", 9) == 0)
->>>>>>> cf8a9ab342b3339d749ae2c5e96d9ae6b5bf6b65
 				|| (strncmp(utf8name, "wordcloud.", 10) == 0)
 				|| (strncmp(utf8name, "statsmodels.", 12) == 0)) {
 			// iOS, debug:

@@ -304,6 +304,9 @@ _PyImport_Fini2(void)
     PyMemAllocatorEx old_alloc;
     _PyMem_SetDefaultAllocator(PYMEM_DOMAIN_RAW, &old_alloc);
 
+    // Reset PyImport_Inittab
+    PyImport_Inittab = _PyImport_Inittab;
+
     /* Free memory allocated by PyImport_ExtendInittab() */
     PyMem_RawFree(inittab_copy);
     inittab_copy = NULL;
@@ -742,7 +745,9 @@ _PyImport_FixupExtensionObject(PyObject *mod, PyObject *name,
         return -1;
     }
 
-    if (_Py_IsMainInterpreter(tstate)) {
+    // bpo-44050: Extensions and def->m_base.m_copy can be updated
+    // when the extension module doesn't support sub-interpreters.
+    if (_Py_IsMainInterpreter(tstate) || def->m_size == -1) {
         if (def->m_size == -1) {
             if (def->m_base.m_copy) {
                 /* Somebody already imported the module,
@@ -1948,7 +1953,7 @@ PyImport_ImportModuleLevelObject(PyObject *name, PyObject *globals,
     }
 
     if (mod != NULL && mod != Py_None) {
-        if (import_ensure_initialized(tstate, mod, name) < 0) {
+        if (import_ensure_initialized(tstate, mod, abs_name) < 0) {
             goto error;
         }
     }
@@ -2388,6 +2393,7 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
 	// New special case to reduce number of modules: all numpy modules are merged into one:
 	if ((strcmp(nameC, "numpy.core._operand_flag_tests") == 0) || 
 			(strcmp(nameC, "numpy.core._multiarray_umath") == 0) || 
+			(strcmp(nameC, "numpy.core._multiarray_tests") == 0) || 
 			(strcmp(nameC, "numpy.core._simd") == 0) || 
 			(strcmp(nameC, "numpy.linalg.lapack_lite") == 0) || 
 			(strcmp(nameC, "numpy.linalg._umath_linalg") == 0) || 

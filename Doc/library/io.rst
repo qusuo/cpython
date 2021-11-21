@@ -155,16 +155,6 @@ High-level Module Interface
    when an unsupported operation is called on a stream.
 
 
-In-memory streams
-^^^^^^^^^^^^^^^^^
-
-It is also possible to use a :class:`str` or :term:`bytes-like object` as a
-file for both reading and writing.  For strings :class:`StringIO` can be used
-like a file opened in text mode.  :class:`BytesIO` can be used like a file
-opened in binary mode.  Both provide full read-write capabilities with random
-access.
-
-
 .. seealso::
 
    :mod:`sys`
@@ -324,6 +314,9 @@ I/O Base Classes
       Read and return a list of lines from the stream.  *hint* can be specified
       to control the number of lines read: no more lines will be read if the
       total size (in bytes/characters) of all lines so far exceeds *hint*.
+
+      *hint* values of ``0`` or less, as well as ``None``, are treated as no
+      hint.
 
       Note that it's already possible to iterate on file objects using ``for
       line in file: ...`` without calling ``file.readlines()``.

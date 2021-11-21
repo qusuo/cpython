@@ -102,9 +102,10 @@ process and user.
 
 .. data:: environ
 
-   A :term:`mapping` object representing the string environment. For example,
-   ``environ['HOME']`` is the pathname of your home directory (on some platforms),
-   and is equivalent to ``getenv("HOME")`` in C.
+   A :term:`mapping` object where keys and values are strings that represent
+   the process environment.  For example, ``environ['HOME']`` is the pathname
+   of your home directory (on some platforms), and is equivalent to
+   ``getenv("HOME")`` in C.
 
    This mapping is captured the first time the :mod:`os` module is imported,
    typically during Python startup as part of processing :file:`site.py`.  Changes
@@ -126,7 +127,7 @@ process and user.
 
    .. note::
 
-      On some platforms, including FreeBSD and Mac OS X, setting ``environ`` may
+      On some platforms, including FreeBSD and macOS, setting ``environ`` may
       cause memory leaks.  Refer to the system documentation for
       :c:func:`putenv`.
 
@@ -141,10 +142,10 @@ process and user.
 
 .. data:: environb
 
-   Bytes version of :data:`environ`: a :term:`mapping` object representing the
-   environment as byte strings. :data:`environ` and :data:`environb` are
-   synchronized (modify :data:`environb` updates :data:`environ`, and vice
-   versa).
+   Bytes version of :data:`environ`: a :term:`mapping` object where both keys
+   and values are :class:`bytes` objects representing the process environment.
+   :data:`environ` and :data:`environb` are synchronized (modifying
+   :data:`environb` updates :data:`environ`, and vice versa).
 
    :data:`environb` is only available if :data:`supports_bytes_environ` is
    ``True``.
@@ -301,7 +302,7 @@ process and user.
 
    .. note::
 
-      On Mac OS X, :func:`getgroups` behavior differs somewhat from
+      On macOS, :func:`getgroups` behavior differs somewhat from
       other Unix platforms. If the Python interpreter was built with a
       deployment target of :const:`10.5` or earlier, :func:`getgroups` returns
       the list of effective group ids associated with the current user process;
@@ -448,7 +449,7 @@ process and user.
 
    .. note::
 
-      On some platforms, including FreeBSD and Mac OS X, setting ``environ`` may
+      On some platforms, including FreeBSD and macOS, setting ``environ`` may
       cause memory leaks. Refer to the system documentation for :c:func:`putenv`.
 
    .. audit-event:: os.putenv key,value os.putenv
@@ -486,7 +487,7 @@ process and user.
 
    .. availability:: Unix.
 
-   .. note:: On Mac OS X, the length of *groups* may not exceed the
+   .. note:: On macOS, the length of *groups* may not exceed the
       system-defined maximum number of effective group ids, typically 16.
       See the documentation for :func:`getgroups` for cases where it may not
       return the same group list set by calling setgroups().
@@ -1280,11 +1281,11 @@ or `the MSDN <https://msdn.microsoft.com/en-us/library/z0kc8e3z.aspx>`_ on Windo
    On Linux, if *offset* is given as ``None``, the bytes are read from the
    current position of *in_fd* and the position of *in_fd* is updated.
 
-   The second case may be used on Mac OS X and FreeBSD where *headers* and
+   The second case may be used on macOS and FreeBSD where *headers* and
    *trailers* are arbitrary sequences of buffers that are written before and
    after the data from *in_fd* is written. It returns the same as the first case.
 
-   On Mac OS X and FreeBSD, a value of ``0`` for *count* specifies to send until
+   On macOS and FreeBSD, a value of ``0`` for *count* specifies to send until
    the end of *in_fd* is reached.
 
    All platforms support sockets as *out_fd* file descriptor, and some platforms
@@ -1895,7 +1896,7 @@ features:
       Added the *dir_fd* parameter.
 
    .. versionchanged:: 3.6
-      Accepts a :term:`path-like object` for *src* and *dst*.
+      Accepts a :term:`path-like object`.
 
    .. versionchanged:: 3.8
       On Windows, now opens reparse points that represent another path
@@ -2115,6 +2116,7 @@ features:
 
    Remove (delete) the file *path*.  If *path* is a directory, an
    :exc:`IsADirectoryError` is raised.  Use :func:`rmdir` to remove directories.
+   If the file does not exist, a :exc:`FileNotFoundError` is raised.
 
    This function can support :ref:`paths relative to directory descriptors
    <dir_fd>`.
@@ -2656,7 +2658,7 @@ features:
       String that uniquely identifies the type of the filesystem that
       contains the file.
 
-   On Mac OS systems, the following attributes may also be available:
+   On macOS systems, the following attributes may also be available:
 
    .. attribute:: st_rsize
 
@@ -3249,9 +3251,9 @@ These functions are all available on Linux only.
    indirectly through the :class:`PathLike` interface). If it is a str,
    it is encoded with the filesystem encoding.  *flags* may be
    :data:`XATTR_REPLACE` or :data:`XATTR_CREATE`. If :data:`XATTR_REPLACE` is
-   given and the attribute does not exist, ``EEXISTS`` will be raised.
+   given and the attribute does not exist, ``ENODATA`` will be raised.
    If :data:`XATTR_CREATE` is given and the attribute already exists, the
-   attribute will not be created and ``ENODATA`` will be raised.
+   attribute will not be created and ``EEXISTS`` will be raised.
 
    This function can support :ref:`specifying a file descriptor <path_fd>` and
    :ref:`not following symlinks <follow_symlinks>`.
@@ -3964,12 +3966,12 @@ written in Python, such as a mail server's external command delivery program.
    the Standard C function :c:func:`system`, and has the same limitations.
    Changes to :data:`sys.stdin`, etc. are not reflected in the environment of
    the executed command. If *command* generates any output, it will be sent to
-   the interpreter standard output stream.
+   the interpreter standard output stream. The C standard does not
+   specify the meaning of the return value of the C function, so the return
+   value of the Python function is system-dependent.
 
    On Unix, the return value is the exit status of the process encoded in the
-   format specified for :func:`wait`.  Note that POSIX does not specify the
-   meaning of the return value of the C :c:func:`system` function, so the return
-   value of the Python function is system-dependent.
+   format specified for :func:`wait`.
 
    On Windows, the return value is that returned by the system shell after
    running *command*.  The shell is given by the Windows environment variable
@@ -4388,7 +4390,7 @@ operating system.
 
 .. function:: sched_setparam(pid, param)
 
-   Set a scheduling parameters for the process with PID *pid*. A *pid* of 0 means
+   Set the scheduling parameters for the process with PID *pid*. A *pid* of 0 means
    the calling process. *param* is a :class:`sched_param` instance.
 
 

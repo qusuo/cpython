@@ -708,6 +708,10 @@ call fails (for example because the path doesn't exist).
       >>> Path.home()
       PosixPath('/home/antoine')
 
+   Note that unlike :func:`os.path.expanduser`, on POSIX systems a
+   :exc:`KeyError` or :exc:`RuntimeError` will be raised, and on Windows systems a
+   :exc:`RuntimeError` will be raised if home directory can't be resolved.
+
    .. versionadded:: 3.5
 
 
@@ -763,6 +767,10 @@ call fails (for example because the path doesn't exist).
       >>> p = PosixPath('~/films/Monty Python')
       >>> p.expanduser()
       PosixPath('/home/eric/films/Monty Python')
+
+   Note that unlike :func:`os.path.expanduser`, on POSIX systems a
+   :exc:`KeyError` or :exc:`RuntimeError` will be raised, and on Windows systems a
+   :exc:`RuntimeError` will be raised if home directory can't be resolved.
 
    .. versionadded:: 3.5
 
@@ -1119,6 +1127,20 @@ call fails (for example because the path doesn't exist).
       of :func:`os.symlink`'s.
 
 
+.. method:: Path.link_to(target)
+
+   Make *target* a hard link to this path.
+
+   .. warning::
+
+      This function does not make this path a hard link to *target*, despite
+      the implication of the function and argument names. The argument order
+      (target, link) is the reverse of :func:`Path.symlink_to`, but matches
+      that of :func:`os.link`.
+
+   .. versionadded:: 3.8
+
+
 .. method:: Path.touch(mode=0o666, exist_ok=True)
 
    Create a file at this given path.  If *mode* is given, it is combined
@@ -1141,13 +1163,6 @@ call fails (for example because the path doesn't exist).
 
    .. versionchanged:: 3.8
       The *missing_ok* parameter was added.
-
-
-.. method:: Path.link_to(target)
-
-   Create a hard link pointing to a path named *target*.
-
-   .. versionadded:: 3.8
 
 
 .. method:: Path.write_bytes(data)
