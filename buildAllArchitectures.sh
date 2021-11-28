@@ -34,6 +34,26 @@ then
 	fi
 fi
 
+# Function to download source, using curl for speed, pip if jq is not available:
+# For fast downloads, you need the jq command: https://stedolan.github.io/jq/
+# Source: https://github.com/pypa/pip/issues/1884#issuecomment-800483766
+downloadSource() 
+{
+   package=$1
+   echo "Downloading " $package
+   if which jq;
+   then
+   	   # jq exists, let's use it:
+   	   url=https://pypi.org/pypi/${package}/json
+   	   address=`curl $url | jq -r '.releases[.info.version][] | select(.packagetype=="sdist") | .url'`
+   	   curl -OL $address
+   else 
+   	   # We do not have jq, let's use pip:
+	   # (this still tries to install dependencies, but is faster than --no-binary :all:) 
+   	   env NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" python3.9 -m pip download --no-deps --no-binary $package $package
+   fi
+}
+
 # 1) compile for OSX (required)
 find . -name \*.o -delete
 find Library -type f -name direct_url.jsonbak -delete
@@ -77,6 +97,7 @@ cp -r $XCFRAMEWORKS_DIR/libgdal.xcframework/macos-x86_64/libgdal.framework/Heade
 cp -r $XCFRAMEWORKS_DIR/libgdal.xcframework/macos-x86_64/libgdal.framework  $PREFIX/Frameworks_macosx/
 cp -r $XCFRAMEWORKS_DIR/libproj.xcframework/macos-x86_64/libproj.framework/Headers/* $PREFIX/Frameworks_macosx/include
 cp -r $XCFRAMEWORKS_DIR/libproj.xcframework/macos-x86_64/libproj.framework  $PREFIX/Frameworks_macosx/
+cp  /usr/local/lib/libgfortran.dylib $PREFIX/Frameworks_macosx/lib/libgfortran.dylib 
 # TODO: add downloading of proj data set + install in Library/share/proj.
 #
 rm -rf build/lib.macosx-${OSX_VERSION}-x86_64-3.9
@@ -114,7 +135,8 @@ echo Installing MarkupSafe with no extensions >> $PREFIX/make_install_osx.log 2>
 mkdir -p packages >> $PREFIX/make_install_osx.log 2>&1
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 rm -rf  MarkupSafe* >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip download --no-binary :all: markupsafe >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip download --no-deps --no-binary MarkupSafe MarkupSafe >> $PREFIX/make_install_osx.log 2>&1
+downloadSource MarkupSafe >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf MarkupSafe*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm MarkupSafe*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd MarkupSafe* >> $PREFIX/make_install_osx.log 2>&1
@@ -135,7 +157,8 @@ python3.9 -m pip install entrypoints --upgrade >> make_install_osx.log 2>&1
 echo Installing send2trash >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
 rm -rf Send2Trash*  >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip download send2trash --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip download --no-deps --no-binary Send2Trash Send2Trash >> $PREFIX/make_install_osx.log 2>&1
+downloadSource Send2Trash >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf Send2Trash*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm Send2Trash*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd Send2Trash* >> $PREFIX/make_install_osx.log 2>&1
@@ -151,7 +174,8 @@ echo done installing send2trash >> make_install_osx.log 2>&1
 echo Installing pyrsistent with no extension >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
 rm -rf pyrsistent* >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip download pyrsistent --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip download --no-deps --no-binary pyrsistent pyrsistent >> $PREFIX/make_install_osx.log 2>&1
+downloadSource pyrsistent >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf pyrsistent*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm pyrsistent*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd pyrsistent* >> $PREFIX/make_install_osx.log 2>&1
@@ -159,7 +183,7 @@ sed -i bak 's/^if platform.python_implementation/#&/' setup.py  >> $PREFIX/make_
 sed -i bak 's/^    extensions = /#&/' setup.py  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
-rm -rf pyrsistent* >> $PREFIX/make_install_osx.log 2>&1
+# rm -rf pyrsistent* >> $PREFIX/make_install_osx.log 2>&1
 popd >> $PREFIX/make_install_osx.log 2>&1
 echo done installing pyrsistent >> make_install_osx.log 2>&1
 # end pyrsistent
@@ -195,7 +219,8 @@ python3.9 -m pip install pickleshare --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip uninstall cffi -y >> $PREFIX/make_install_osx.log 2>&1
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 rm -rf cffi-* >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip download cffi --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip download --no-deps --no-binary cffi cffi >> $PREFIX/make_install_osx.log 2>&1
+downloadSource cffi >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf cffi*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm cffi*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd cffi-* >> $PREFIX/make_install_osx.log 2>&1
@@ -216,7 +241,8 @@ python3.9 -m pip install prompt-toolkit==3.0.7 >> make_install_osx.log 2>&1
 echo Installing IPython for OSX  >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
 rm -rf ipython*  >>  $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip download ipython --no-binary :all: >>  $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip download --no-deps --no-binary ipython ipython >>  $PREFIX/make_install_osx.log 2>&1
+downloadSource ipython >> $PREFIX/make_install_osx.log 2>&1
 tar xzf ipython-7*.tar.gz  >>  $PREFIX/make_install_osx.log 2>&1
 rm ipython-7*.tar.gz  >>  $PREFIX/make_install_osx.log 2>&1
 pushd ipython-7* >>  $PREFIX/make_install_osx.log 2>&1
@@ -287,7 +313,8 @@ mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/argon2/  >> make_ins
 cp $PREFIX/Library/lib/python3.9/site-packages/argon2/_ffi.abi3.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/argon2/_ffi.abi3.so  >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
 rm -rf argon2-cffi* >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip download argon2-cffi --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip download --no-deps --no-binary argon2-cffi argon2-cffi >> $PREFIX/make_install_osx.log 2>&1
+downloadSource argon2-cffi >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf argon2-cffi*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm argon2-cffi*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
@@ -327,7 +354,8 @@ python3.9 -m pip uninstall pyzmq -y >> $PREFIX/make_install_osx.log 2>&1
 # Then install our own version:
 pushd packages  >> make_install_osx.log 2>&1
 rm -rf pyzmq* >> $PREFIX/make_install_osx.log 2>&1 
-env PLATFORM=macosx python3.9 -m pip download pyzmq --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
+# env PLATFORM=macosx python3.9 -m pip download --no-deps --no-binary pyzmq pyzmq >> $PREFIX/make_install_osx.log 2>&1
+downloadSource pyzmq >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf pyzmq*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm pyzmq*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd pyzmq* >> $PREFIX/make_install_osx.log 2>&1
@@ -450,7 +478,8 @@ python3.9 -m pip install cycler --upgrade  >> make_install_osx.log 2>&1
 ## kiwisolver
 pushd packages >> make_install_osx.log 2>&1
 rm -rf kiwisolver* >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip download --no-binary :all: kiwisolver >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip download --no-deps --no-binary kiwisolver kiwisolver >> $PREFIX/make_install_osx.log 2>&1
+downloadSource kiwisolver >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf kiwisolver*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm kiwisolver*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd kiwisolver* >> $PREFIX/make_install_osx.log 2>&1
@@ -465,7 +494,8 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 ## Pillow
 pushd packages >> make_install_osx.log 2>&1
 rm -rf Pillow*  >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip download --no-binary :all: Pillow >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip download --no-deps --no-binary Pillow Pillow >> $PREFIX/make_install_osx.log 2>&1
+downloadSource Pillow >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf Pillow*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm Pillow*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd Pillow*  >> $PREFIX/make_install_osx.log 2>&1
@@ -516,7 +546,8 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 # lxml:
 pushd packages >> make_install_osx.log 2>&1
 rm -rf lxml*  >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip download --no-binary :all: lxml >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip download --no-deps --no-binary lxml lxml >> $PREFIX/make_install_osx.log 2>&1
+downloadSource lxml >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf lxml*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf lxml*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd lxml*  >> $PREFIX/make_install_osx.log 2>&1
@@ -550,7 +581,7 @@ pushd packages >> make_install_osx.log 2>&1
 rm -rf cryptography* >> $PREFIX/make_install_osx.log 2>&1
 # This builds cryptography with rust (new version), assuming you have rustc in the path (see line 8)
 # If you don't have rust, you can add CRYPTOGRAPHY_DONT_BUILD_RUST=1
-python3.9 -m pip download cryptography==3.4.8 --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip download --no-deps cryptography==3.4.8 --no-binary cryptography >> $PREFIX/make_install_osx.log 2>&1
 tar xzvf cryptography*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm -rf cryptography*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd cryptography* >> $PREFIX/make_install_osx.log 2>&1
@@ -586,13 +617,15 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 # Download nltk, so we can change the position for downloaded data (in data.py and in downloader.py)
 pushd packages >> make_install_osx.log 2>&1
 rm -rf nltk* >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip download nltk --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip download --no-deps nltk --no-binary nltk >> $PREFIX/make_install_osx.log 2>&1
+downloadSource nltk  >> $PREFIX/make_install_osx.log 2>&1
 unzip nltk*.zip >> $PREFIX/make_install_osx.log 2>&1
 rm nltk*.zip >> $PREFIX/make_install_osx.log 2>&1
 pushd nltk*  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 sed -i bak 's/return os.path.join(homedir, "nltk_data")/return os.path.join\(homedir, "Documents\/nltk_data"\)/' nltk/downloader.py >> $PREFIX/make_install_osx.log 2>&1
-sed -i bak 's/path.append(os.path.expanduser(str("~\/nltk_data")))/path.append\(os.path.expanduser\(str\("~\/Documents\/nltk_data"\)\)\)/' nltk/data.py >> $PREFIX/make_install_osx.log 2>&1
+# Not strictly necessary anymore since NLTK_DATA is used, but let's keep it.
+sed -i bak 's/path.append(os.path.expanduser("~\/nltk_data"))/path.append\(os.path.expanduser\("~\/Documents\/nltk_data"\)\)/' nltk/data.py >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
@@ -619,7 +652,8 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 # pyfftw: uses libfftw.
 pushd packages >> make_install_osx.log 2>&1
 rm -rf pyFFTW-* >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip download pyfftw --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip download --no-deps pyfftw --no-binary pyfftw >> $PREFIX/make_install_osx.log 2>&1
+downloadSource pyFFTW  >> $PREFIX/make_install_osx.log 2>&1
 tar xzf pyFFTW-*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm pyFFTW-*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd pyFFTW-*  >> $PREFIX/make_install_osx.log 2>&1
@@ -650,7 +684,8 @@ if [ $USE_FORTRAN == 1 ];
 then
 	pushd packages >> make_install_osx.log 2>&1
 	rm -rf cvxopt-*  >> $PREFIX/make_install_osx.log 2>&1
-	python3.9 -m pip download --no-binary :all: cvxopt  >> $PREFIX/make_install_osx.log 2>&1
+	# python3.9 -m pip download --no-deps cvxopt --no-binary cvxopt >> $PREFIX/make_install_osx.log 2>&1
+    downloadSource cvxopt  >> $PREFIX/make_install_osx.log 2>&1
 	tar xzf cvxopt-*.tar.gz  >>  $PREFIX/make_install_osx.log 2>&1
 	rm cvxopt-*.tar.gz  >>  $PREFIX/make_install_osx.log 2>&1
 	pushd cvxopt-* >>  $PREFIX/make_install_osx.log 2>&1
@@ -700,15 +735,16 @@ fi
 # Pandas
 pushd packages >> make_install_osx.log 2>&1
 rm -rf pandas*  >> $PREFIX/make_install_osx.log 2>&1
-env NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" python3.9 -m pip download pandas --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
+# env NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" python3.9 -m pip download --no-deps pandas --no-binary pandas >> $PREFIX/make_install_osx.log 2>&1
+downloadSource pandas  >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf pandas*  >> $PREFIX/make_install_osx.log 2>&1
 rm pandas*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
 pushd pandas*  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 sed -i bak 's/warnings.warn(msg)/# iOS: lzma is forbidden on the AppStore\
-    import os\
-    if (sys.platform != "darwin" or not os.uname().machine.startswith("iP")):\
-        &/' pandas/compat/__init__.py >> $PREFIX/make_install_osx.log 2>&1
+        import os\
+        if (sys.platform != "darwin" or not os.uname().machine.startswith("iP")):\
+            &/' pandas/compat/__init__.py >> $PREFIX/make_install_osx.log 2>&1
 # To make a single module, we need these functions to be static:
 sed -i bak 's/PyObject. char_to_string/static &/' ./pandas/_libs/tslibs/util.pxd >> $PREFIX/make_install_osx.log 2>&1
 sed -i bak 's/^void.*traced/static &/' ./pandas/_libs/src/klib/khash_python.h >> $PREFIX/make_install_osx.log 2>&1
@@ -779,7 +815,7 @@ then
 	# (Remember to upgrade the version number regularly)
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf bokeh-2.2.3  >> $PREFIX/make_install_osx.log 2>&1
-	python3.9 -m pip download bokeh==2.2.3  >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip download --no-deps bokeh==2.2.3  >> $PREFIX/make_install_osx.log 2>&1
 	tar xvzf bokeh-2.2.3.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 	pushd bokeh-2.2.3 >> $PREFIX/make_install_osx.log 2>&1
 	cp ../bokeh_sampledata.py bokeh/util/sampledata.py >> $PREFIX/make_install_osx.log 2>&1
@@ -806,7 +842,8 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/erfa/ >> $PREFIX/make_install
 	python3.9 -m pip install extension_helpers >> $PREFIX/make_install_osx.log 2>&1
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf astropy*  >> $PREFIX/make_install_osx.log 2>&1
-	env NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" python3.9 -m pip download --no-binary :all: astropy >> $PREFIX/make_install_osx.log 2>&1
+	# env NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" python3.9 -m pip download --no-deps astropy --no-binary astropy >> $PREFIX/make_install_osx.log 2>&1
+    downloadSource astropy  >> $PREFIX/make_install_osx.log 2>&1
 	tar xvzf astropy*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
 	rm astropy*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
 	pushd astropy*  >> $PREFIX/make_install_osx.log 2>&1
@@ -1154,16 +1191,15 @@ then
 	pushd scipy  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 	cp site_original.cfg site.cfg >> $PREFIX/make_install_osx.log 2>&1
+	# git pull upstream tags/v1.7.1 == get v1.7.1 from upstream (this one compiles)
+	# v1.7.2 fails at compiling, for syntax error.
 	sed -i bak "s|__main_directory__|${PREFIX}/Frameworks_macosx|" site.cfg >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 	# pip install . : can't install because version number is not PEP440
- 	# Must remove old scipy before:
- 	echo "Any old scipy before installs?" >> $PREFIX/make_install_osx.log 2>&1
- 	ls -d $PREFIX/Library/lib/python3.9/site-packages/scipy*  >> $PREFIX/make_install_osx.log 2>&1
  	echo "Installing scipy:" >> $PREFIX/make_install_osx.log 2>&1
  	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
  	echo "After install" >> $PREFIX/make_install_osx.log 2>&1
- 	ls -d $PREFIX/Library/lib/python3.9/site-packages/scipy*  >> $PREFIX/make_install_osx.log 2>&1
+ 	ls -d $PYTHONHOME/lib/python3.9/site-packages/scipy*  >> $PREFIX/make_install_osx.log 2>&1
 	echo scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	echo number of scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
@@ -1184,7 +1220,6 @@ then
 	# Making a big scipy library to load many modules (67 out of 95):
 	echo "Making a big scipy library to load many modules"  >> $PREFIX/make_install_osx.log 2>&1
 	pushd build/temp.macosx-${OSX_VERSION}-x86_64-3.9  >> $PREFIX/make_install_osx.log 2>&1
-	# find is cute, but it fails in the script. Need to know why. Also move the last 2 frameworks to the list.
 	clang -v -undefined error -dynamiclib \
 		-isysroot $OSX_SDKROOT \
 		-lz -lm -lc++ \
@@ -1215,6 +1250,7 @@ then
 		scipy/optimize/zeros.o \
 		scipy/optimize/_group_columns.o \
 		`find scipy/signal -name \*.o` \
+		`find build/src.macosx-11.5-x86_64-3.9/scipy/signal -name \*.o`\
 		`find scipy/spatial/ckdtree -name \*.o` \
 		`find scipy/sparse/csgraph -name \*.o` \
 		`find scipy/sparse/sparsetools -name \*.o` \
@@ -1224,7 +1260,6 @@ then
 		scipy/spatial/_hausdorff.o \
 		scipy/spatial/src/distance_wrap.o \
 		scipy/spatial/transform/rotation.o \
-		scipy/spatial/src/distance_pybind.o \
 		`find . -name specfunmodule.o` \
 		`find . -name fortranobject.o -path '*/special/*'` \
 		scipy/special/cython_special.o \
@@ -2284,6 +2319,7 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 		scipy/optimize/zeros.o \
 		scipy/optimize/_group_columns.o \
 		`find scipy/signal -name \*.o` \
+		`find build/src.macosx-11.5-x86_64-3.9/scipy/signal -name \*.o`\
 		`find scipy/spatial/ckdtree -name \*.o` \
 		`find scipy/sparse/csgraph -name \*.o` \
 		`find scipy/sparse/sparsetools -name \*.o` \
@@ -2293,7 +2329,6 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 		scipy/spatial/_hausdorff.o \
 		scipy/spatial/src/distance_wrap.o \
 		scipy/spatial/transform/rotation.o \
-		scipy/spatial/src/distance_pybind.o \
 		`find . -name specfunmodule.o` \
 		`find . -name fortranobject.o -path '*/special/*'` \
 		scipy/special/cython_special.o \
