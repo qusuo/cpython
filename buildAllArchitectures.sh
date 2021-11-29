@@ -1259,6 +1259,7 @@ then
 		scipy/spatial/_voronoi.o \
 		scipy/spatial/_hausdorff.o \
 		scipy/spatial/src/distance_wrap.o \
+		scipy/spatial/src/distance_pybind.o \
 		scipy/spatial/transform/rotation.o \
 		`find . -name specfunmodule.o` \
 		`find . -name fortranobject.o -path '*/special/*'` \
@@ -2328,6 +2329,7 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 		scipy/spatial/_voronoi.o \
 		scipy/spatial/_hausdorff.o \
 		scipy/spatial/src/distance_wrap.o \
+		scipy/spatial/src/distance_pybind.o \
 		scipy/spatial/transform/rotation.o \
 		`find . -name specfunmodule.o` \
 		`find . -name fortranobject.o -path '*/special/*'` \

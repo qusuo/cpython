@@ -1749,8 +1749,8 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 				(strcmp(nameC, "scipy.spatial.ckdtree") == 0) ||
 				(strcmp(nameC, "scipy.spatial._hausdorff") == 0) ||
 				(strcmp(nameC, "scipy.spatial._voronoi") == 0) ||
-				(strcmp(nameC, "scipy.spatial._distance_pybind") == 0) ||
 				(strcmp(nameC, "scipy.spatial._distance_wrap") == 0) ||
+				(strcmp(nameC, "scipy.spatial._distance_pybind") == 0) ||
 				(strcmp(nameC, "scipy.spatial.transform.rotation") == 0) ||
 				(strcmp(nameC, "scipy.special.cython_special") == 0) ||
 				(strcmp(nameC, "scipy.special._comb") == 0) ||
