@@ -72,6 +72,7 @@ rm -f Library/bin/python3.9
 rm -f Library/bin/python3
 rm -f packages/*.tar.gz
 rm -f packages/setuptools-*.zip
+rm -f packages/*.whl
 rm -rf Library/lib/python3.9/lib-dynload
 # Create fake binaries for pip
 touch Library/bin/python3
@@ -80,8 +81,8 @@ touch Library/bin/python3.9
 # change direct_url.json files to have a more meaningful URL:
 APP=$(basename `dirname $PWD`)
 find Library -type f -name direct_url.json -exec sed -i bak  "s/file:.*packages/${APP}/g" {} \; -print
-# matplotlib: (needs work) (as in: does not work)
-echo '{"url": "Carnets/matplotlib-3.3.2", "dir_info": {}}' > /tmp/mpl.json
+# matplotlib: installed from git repo, so version is "git+https://github.com/", so we fix that:
+echo '{"url": "Carnets/matplotlib-3.4.0", "dir_info": {}}' > /tmp/mpl.json
 find Library/lib/python3.9/site-packages/matplotlib-3.*.dist-info -name direct_url.json -exec mv /tmp/mpl.json {} \; -print
 find Library -type f -name direct_url.jsonbak -delete
 cp $PREFIX/build/lib.darwin-arm64-3.9/_sysconfigdata__darwin_darwin.py $PREFIX/Library/lib/python3.9/_sysconfigdata__darwin_darwin.py
@@ -112,8 +113,8 @@ if [ -e "with_scipy/Library" ];then
 # change direct_url.json files to have a more meaningful URL:
 APP=$(basename `dirname $PWD`)
 find with_scipy/Library -type f -name direct_url.json -exec sed -i bak  "s/file:.*packages/${APP}/g" {} \; -print
-# matplotlib: (needs work)
-echo '{"url": "Carnets/matplotlib-3.3.2", "dir_info": {}}' > /tmp/mpl.json
+# matplotlib: (see above)
+echo '{"url": "Carnets/matplotlib-3.4.0", "dir_info": {}}' > /tmp/mpl.json
 find with_scipy/Library/lib/python3.9/site-packages/matplotlib-3.*.dist-info -name direct_url.json -exec mv /tmp/mpl.json {} \; -print
 find with_scipy/Library -type f -name direct_url.jsonbak -delete
 cp $PREFIX/build/lib.darwin-arm64-3.9/_sysconfigdata__darwin_darwin.py $PREFIX/with_scipy/Library/lib/python3.9/_sysconfigdata__darwin_darwin.py

@@ -1,7 +1,8 @@
 import os
+import platform
+import shutil
 import subprocess
 import sys
-from distutils.spawn import find_executable
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -47,9 +48,9 @@ def get_proj_dir() -> Path:
         proj_dir = INTERNAL_PROJ_DIR
         print(f"Internally compiled directory being used {INTERNAL_PROJ_DIR}.")
     elif proj_dir is None and not INTERNAL_PROJ_DIR.exists():
-        proj = find_executable("proj", path=sys.prefix)
+        proj = shutil.which("proj", path=sys.prefix)
         if proj is None:
-            proj = find_executable("proj")
+            proj = shutil.which("proj")
         if proj is None:
             raise SystemExit(
                 "proj executable not found. Please set the PROJ_DIR variable. "
@@ -109,7 +110,11 @@ def get_cythonize_options():
     # Configure optional Cython coverage.
     cythonize_options = {
         "language_level": sys.version_info[0],
-        "compiler_directives": {"embedsignature": True},
+        "compiler_directives": {
+            "c_string_type": "str",
+            "c_string_encoding": "utf-8",
+            "embedsignature": True,
+        },
     }
     if os.environ.get("PYPROJ_FULL_COVERAGE"):
         cythonize_options["compiler_directives"].update(linetrace=True)
@@ -158,7 +163,9 @@ def get_extension_modules():
 
     proj_version = get_proj_version(proj_dir)
     check_proj_version(proj_version)
-    proj_version_major, proj_version_minor, proj_version_patch = proj_version.split(".")
+    proj_version_major, proj_version_minor, proj_version_patch = parse_version(
+        proj_version
+    ).base_version.split(".")
 
     # setup extension options
     ext_options = {
@@ -187,6 +194,7 @@ def get_extension_modules():
             "CTE_PROJ_VERSION_MAJOR": int(proj_version_major),
             "CTE_PROJ_VERSION_MINOR": int(proj_version_minor),
             "CTE_PROJ_VERSION_PATCH": int(proj_version_patch),
+            "CTE_PYTHON_IMPLEMENTATION": platform.python_implementation(),
         },
         **get_cythonize_options(),
     )
