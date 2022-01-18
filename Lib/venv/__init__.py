@@ -16,6 +16,9 @@ import types
 CORE_VENV_DEPS = ('pip', 'setuptools')
 logger = logging.getLogger(__name__)
 
+ios = ((sys.platform == 'darwin') and os.uname().machine.startswith('iP'))
+
+
 
 class EnvBuilder:
     """
@@ -70,7 +73,8 @@ class EnvBuilder:
         true_system_site_packages = self.system_site_packages
         self.system_site_packages = False
         self.create_configuration(context)
-        self.setup_python(context)
+        if not ios:
+            self.setup_python(context)
         if self.with_pip:
             self._setup_pip(context)
         if not self.upgrade:
@@ -352,6 +356,10 @@ class EnvBuilder:
         text = text.replace('__VENV_PROMPT__', context.prompt)
         text = text.replace('__VENV_BIN_NAME__', context.bin_name)
         text = text.replace('__VENV_PYTHON__', context.env_exe)
+        # on iOS, HOME can change at each new install:
+        if ios:
+            homeDir = os.getenv('HOME')
+            text = text.replace(homeDir, '$HOME')
         return text
 
     def install_scripts(self, context, path):
@@ -369,6 +377,28 @@ class EnvBuilder:
         """
         binpath = context.bin_path
         plen = len(path)
+        # iOS version: simplified script
+        if ios: 
+            srcfile = os.path.join(path, 'ios/activate')
+            dstdir = binpath
+            dstfile = os.path.join(dstdir, 'activate')
+            with open(srcfile, 'rb') as f:
+                data = f.read()
+                try:
+                    data = data.decode('utf-8')
+                    data = self.replace_variables(data, context)
+                    data = data.encode('utf-8')
+                except UnicodeError as e:
+                    data = None
+                    logger.warning('unable to copy script %r, '
+                                   'may be binary: %s', srcfile, e)
+            if data is not None:
+                with open(dstfile, 'wb') as f:
+                    f.write(data)
+                shutil.copymode(srcfile, dstfile)
+            return
+        # Not iOS version:
+
         for root, dirs, files in os.walk(path):
             if root == path: # at top-level, remove irrelevant dirs
                 for d in dirs[:]:
@@ -432,6 +462,44 @@ def main(args=None):
     else:
         import argparse
 
+        # iOS/a-Shell: reduced set of options. Very reduced:
+        if ios:
+            parser = argparse.ArgumentParser(prog=__name__,
+                                             description='Creates virtual Python '
+                                                         'environments in one or '
+                                                         'more target '
+                                                         'directories.'
+                                                         ' On iOS, virtual '
+                                                         'environments are only '
+                                                         'for user-installed '
+                                                         'packages. System '
+                                                         'packages are shared '
+                                                         'between all virtual '
+                                                         'environments',
+                                             epilog='Once an environment has been '
+                                                    'created, you may wish to '
+                                                    'activate it by '
+                                                    'sourcing the activate script '
+                                                    'in its bin directory.')
+            parser.add_argument('dirs', metavar='ENV_DIR', nargs='+',
+                                help='A directory to create the environment in.')
+            parser.add_argument('--clear', default=False, action='store_true',
+                                dest='clear', help='Delete the contents of the '
+                                                   'environment directory if it '
+                                                   'already exists, before '
+                                                   'environment creation.')
+            options = parser.parse_args(args)
+            builder = EnvBuilder(system_site_packages=False,
+                    clear=options.clear,
+                    symlinks=False,
+                    upgrade=False,
+                    with_pip=False,
+                    prompt='',
+                    upgrade_deps=False)
+            for d in options.dirs:
+                builder.create(d)
+            return
+        # End iOS
         parser = argparse.ArgumentParser(prog=__name__,
                                          description='Creates virtual Python '
                                                      'environments in one or '
