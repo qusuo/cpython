@@ -13052,6 +13052,14 @@ os_get_terminal_size_impl(PyObject *module, int fd)
      * If this happens, and the optional fd argument is not present,
      * the ioctl below will fail returning EBADF. This is what we want.
      */
+#if TARGET_OS_IPHONE
+	// ioctl will not five us the right answer for stdout:
+	if ((fd == fileno(stdout)) || (fd == fileno(thread_stdout)))
+	{ 
+		columns = atoi(getenv("COLUMNS"));
+		lines = atoi(getenv("LINES")); 
+	} else 
+#endif
 
 #ifdef TERMSIZE_USE_IOCTL
     {
