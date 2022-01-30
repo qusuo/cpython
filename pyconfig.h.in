@@ -613,7 +613,7 @@
 /* Define to 1 if you have the <libutil.h> header file. */
 #undef HAVE_LIBUTIL_H
 
-/* Define you have libuuid. */
+/* Define to 1 if you have the `uuid' library (-luuid). */
 #undef HAVE_LIBUUID
 
 /* Define if you have the 'link' function. */
@@ -1631,11 +1631,6 @@
 
 /* Define on FreeBSD to activate all library features */
 #undef __BSD_VISIBLE
-
-/* Define to 1 if type `char' is unsigned and you are not using gcc.  */
-#ifndef __CHAR_UNSIGNED__
-# undef __CHAR_UNSIGNED__
-#endif
 
 /* Define to 'long' if <time.h> doesn't define. */
 #undef clock_t
