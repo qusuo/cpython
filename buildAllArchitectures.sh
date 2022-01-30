@@ -37,15 +37,22 @@ fi
 # Function to download source, using curl for speed, pip if jq is not available:
 # For fast downloads, you need the jq command: https://stedolan.github.io/jq/
 # Source: https://github.com/pypa/pip/issues/1884#issuecomment-800483766
+# Can take version as an optional argument: downloadSource pyFFTW 0.12.0
 downloadSource() 
 {
    package=$1
+   if [ $# -eq 1 ]
+   then
+   	   command=.releases\[.info.version]\[\]\|select\(.packagetype==\"sdist\"\)\|.url
+   else
+   	   command=.releases\[\"$2\"\]\[\]\|select\(.packagetype==\"sdist\"\)\|.url
+   fi
    echo "Downloading " $package
    if which jq;
    then
    	   # jq exists, let's use it:
    	   url=https://pypi.org/pypi/${package}/json
-   	   address=`curl $url | jq -r '.releases[.info.version][] | select(.packagetype=="sdist") | .url'`
+   	   address=`curl $url | jq -r $command`
    	   curl -OL $address
    else 
    	   # We do not have jq, let's use pip:
@@ -56,6 +63,7 @@ downloadSource()
 
 # 1) compile for OSX (required)
 find . -name \*.o -delete
+rm -rf Library/lib/python3.9/site-packages/* 
 find Library -type f -name direct_url.jsonbak -delete
 env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT -lz" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L. -lpython3.9" OPT="$DEBUG" ./configure --prefix=$PREFIX/Library --with-system-ffi --enable-shared \
     $EXTRA_CONFIGURE_FLAGS_OSX \
@@ -109,13 +117,15 @@ make  -j 4 install  >> make_install_osx.log 2>&1
 export PYTHONHOME=$PREFIX/Library
 # When working on frozen importlib, we need to compile twice:
 # Otherwise, we can comment the next 6 lines
-make regen-importlib >> make_osx.log 2>&1
-find . -name \*.o -delete  >> make_osx.log 2>&1
-make  -j 4 >> make_osx.log 2>&1 
-mkdir -p build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
-cp libpython3.9.dylib build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
-cp python.exe build/lib.macosx-${OSX_VERSION}-x86_64-3.9/python3.9  >> make_install_osx.log 2>&1
-make  -j 4 install >> make_install_osx.log 2>&1
+# make regen-importlib >> make_osx.log 2>&1
+# find . -name \*.o -delete  >> make_osx.log 2>&1
+# make  -j 4 >> make_osx.log 2>&1 
+# mkdir -p build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
+# cp libpython3.9.dylib build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
+# cp python.exe build/lib.macosx-${OSX_VERSION}-x86_64-3.9/python3.9  >> make_install_osx.log 2>&1
+# make  -j 4 install >> make_install_osx.log 2>&1
+# We should make this automatic:
+cp -r Lib/venv/scripts/ios Library/lib/python3.9/venv/scripts/  >> make_install_osx.log 2>&1
 # Force reinstall and upgrade of pip, setuptools 
 echo Starting package installation  >> make_install_osx.log 2>&1
 python3.9 -m pip install pip --upgrade >> make_install_osx.log 2>&1
@@ -309,14 +319,14 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip uninstall argon2-cffi -y >> make_install_osx.log 2>&1
 python3.9 -m pip install argon2-cffi --upgrade >> make_install_osx.log 2>&1
 # Download argon2 now, while the dependencies are working
-mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/argon2/  >> make_install_osx.log 2>&1
-cp $PREFIX/Library/lib/python3.9/site-packages/argon2/_ffi.abi3.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/argon2/_ffi.abi3.so  >> make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/_argon2_cffi_bindings/  >> make_install_osx.log 2>&1
+cp $PREFIX/Library/lib/python3.9/site-packages/_argon2_cffi_bindings/_ffi.abi3.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/_argon2_cffi_bindings/_ffi.abi3.so  >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
-rm -rf argon2-cffi* >> $PREFIX/make_install_osx.log 2>&1
+rm -rf argon2-cffi-bindings* >> $PREFIX/make_install_osx.log 2>&1
 # python3.9 -m pip download --no-deps --no-binary argon2-cffi argon2-cffi >> $PREFIX/make_install_osx.log 2>&1
-downloadSource argon2-cffi >> $PREFIX/make_install_osx.log 2>&1
-tar xvzf argon2-cffi*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
-rm argon2-cffi*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+downloadSource argon2-cffi-bindings >> $PREFIX/make_install_osx.log 2>&1
+tar xvzf argon2-cffi-bindings*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+rm argon2-cffi-bindings*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Now install everything we need:
 # python3.9 -m pip install jupyter --upgrade >> make_install_osx.log 2>&1
@@ -652,8 +662,9 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 # pyfftw: uses libfftw.
 pushd packages >> make_install_osx.log 2>&1
 rm -rf pyFFTW-* >> $PREFIX/make_install_osx.log 2>&1
+# 0.13 does not compile, for some reasons. Stick to 0.12:
 # python3.9 -m pip download --no-deps pyfftw --no-binary pyfftw >> $PREFIX/make_install_osx.log 2>&1
-downloadSource pyFFTW  >> $PREFIX/make_install_osx.log 2>&1
+downloadSource pyFFTW 0.12.0 >> $PREFIX/make_install_osx.log 2>&1
 tar xzf pyFFTW-*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm pyFFTW-*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd pyFFTW-*  >> $PREFIX/make_install_osx.log 2>&1
@@ -1250,7 +1261,7 @@ then
 		scipy/optimize/zeros.o \
 		scipy/optimize/_group_columns.o \
 		`find scipy/signal -name \*.o` \
-		`find build/src.macosx-11.5-x86_64-3.9/scipy/signal -name \*.o`\
+		`find build/src.macosx-11.6-x86_64-3.9/scipy/signal -name \*.o`\
 		`find scipy/spatial/ckdtree -name \*.o` \
 		`find scipy/sparse/csgraph -name \*.o` \
 		`find scipy/sparse/sparsetools -name \*.o` \
@@ -1650,14 +1661,14 @@ popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 echo Done installing PyZMQ for iOS >> make_ios.log 2>&1
 # end pyzmq
-# Installing argon2-cffi:
-echo Installing argon2-cffi for iphoneos >> make_ios.log 2>&1
+# Installing argon2-cffi-bindings:
+echo Installing argon2-cffi-bindings for iphoneos >> make_ios.log 2>&1
 pushd packages  >> $PREFIX/make_ios.log 2>&1
-pushd argon2-cffi* >> $PREFIX/make_ios.log 2>&1
+pushd argon2-cffi-bindings* >> $PREFIX/make_ios.log 2>&1
 rm -rf build/* >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.9" PLATFORM=iphoneos ARGON2_CFFI_USE_SSE2=0 python3.9 setup.py build >> $PREFIX/make_ios.log 2>&1
-mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/argon2/  >> make_ios.log 2>&1
-cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/argon2/_ffi.abi3.so $PREFIX/build/lib.darwin-arm64-3.9/argon2/_ffi.abi3.so >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/_argon2_cffi_bindings/  >> make_ios.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-arm64-3.9/_argon2_cffi_bindings/_ffi.abi3.so $PREFIX/build/lib.darwin-arm64-3.9/_argon2_cffi_bindings/_ffi.abi3.so >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # Numpy:
@@ -2320,7 +2331,7 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 		scipy/optimize/zeros.o \
 		scipy/optimize/_group_columns.o \
 		`find scipy/signal -name \*.o` \
-		`find build/src.macosx-11.5-x86_64-3.9/scipy/signal -name \*.o`\
+		`find build/src.macosx-11.6-x86_64-3.9/scipy/signal -name \*.o`\
 		`find scipy/spatial/ckdtree -name \*.o` \
 		`find scipy/sparse/csgraph -name \*.o` \
 		`find scipy/sparse/sparsetools -name \*.o` \
@@ -2627,14 +2638,14 @@ popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 echo Done installing PyZMQ for iOS simulator >> make_simulator.log 2>&1
 # end pyzmq
-# Installing argon2-cffi:
-echo Installing argon2-cffi for iphonesimulator >> make_simulator.log 2>&1
+# Installing argon2-cffi-bindings:
+echo Installing argon2-cffi-bindings for iphonesimulator >> make_simulator.log 2>&1
 pushd packages >> $PREFIX/make_simulator.log 2>&1
-pushd argon2-cffi* >> $PREFIX/make_simulator.log 2>&1
+pushd argon2-cffi-bindings* >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/* >> $PREFIX/make_simulator.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $SIM_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib -L$PREFIX/build/lib.darwin-x86_64-3.9" PLATFORM=iphonesimulator ARGON2_CFFI_USE_SSE2=0 python3.9 setup.py build >> $PREFIX/make_simulator.log 2>&1
-mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/argon2/  >> $PREFIX/make_simulator.log 2>&1
-cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/argon2/_ffi.abi3.so $PREFIX/build/lib.darwin-x86_64-3.9/argon2/_ffi.abi3.so  >> $PREFIX/make_simulator.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/_argon2_cffi_bindings/  >> $PREFIX/make_simulator.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-x86_64-3.9/_argon2_cffi_bindings/_ffi.abi3.so $PREFIX/build/lib.darwin-x86_64-3.9/_argon2_cffi_bindings/_ffi.abi3.so  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 # Numpy:

@@ -5923,6 +5923,7 @@ parse_posix_spawn_flags(PyObject *module, const char *func_name, PyObject *setpg
 
     }
 
+#ifdef HAVE_SIGSET_T
    if (setsigmask) {
         sigset_t set;
         if (!_Py_Sigset_Converter(setsigmask, &set)) {
@@ -5948,6 +5949,13 @@ parse_posix_spawn_flags(PyObject *module, const char *func_name, PyObject *setpg
         }
         all_flags |= POSIX_SPAWN_SETSIGDEF;
     }
+#else
+    if (setsigmask || setsigdef) {
+        PyErr_SetString(PyExc_NotImplementedError,
+                        "sigset is not supported on this platform");
+        goto fail;
+    }
+#endif
 
     if (scheduler) {
 #ifdef POSIX_SPAWN_SETSCHEDULER
@@ -13044,6 +13052,14 @@ os_get_terminal_size_impl(PyObject *module, int fd)
      * If this happens, and the optional fd argument is not present,
      * the ioctl below will fail returning EBADF. This is what we want.
      */
+#if TARGET_OS_IPHONE
+	// ioctl will not five us the right answer for stdout:
+	if ((fd == fileno(stdout)) || (fd == fileno(thread_stdout)))
+	{ 
+		columns = atoi(getenv("COLUMNS"));
+		lines = atoi(getenv("LINES")); 
+	} else 
+#endif
 
 #ifdef TERMSIZE_USE_IOCTL
     {

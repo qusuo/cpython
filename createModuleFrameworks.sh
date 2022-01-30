@@ -108,7 +108,7 @@ done
 # argon2/_ffi, cryptography/hazmat/bindings/_padding, cryptography//hazmat/bindings/_openssl and cryptography/hazmat/bindings/_rust. 
 # Separate because suffix is .abi3.so
 # removed until we can cross-compile: cryptography/hazmat/bindings/_rust 
-for library in argon2/_ffi cryptography/hazmat/bindings/_padding cryptography/hazmat/bindings/_openssl 
+for library in _argon2_cffi_bindings/_ffi cryptography/hazmat/bindings/_padding cryptography/hazmat/bindings/_openssl 
 do
 	# replace all "/" with "."
 	name=${library//\//.}
