@@ -380,26 +380,26 @@ class EnvBuilder:
         plen = len(path)
         # iOS version: simplified script
         if ios: 
-            srcfile = os.path.join(path, 'ios/activate')
-            dstdir = binpath
-            dstfile = os.path.join(dstdir, 'activate')
-            with open(srcfile, 'rb') as f:
-                data = f.read()
-                try:
-                    data = data.decode('utf-8')
-                    data = self.replace_variables(data, context)
-                    data = data.encode('utf-8')
-                except UnicodeError as e:
-                    data = None
-                    logger.warning('unable to copy script %r, '
-                                   'may be binary: %s', srcfile, e)
-            if data is not None:
-                with open(dstfile, 'wb') as f:
-                    f.write(data)
-                shutil.copymode(srcfile, dstfile)
+            for file in ['activate', 'activate.py', 'deactivate.py']:
+                srcfile = os.path.join(path, 'ios', file)
+                dstdir = binpath
+                dstfile = os.path.join(dstdir, file)
+                with open(srcfile, 'rb') as f:
+                    data = f.read()
+                    try:
+                        data = data.decode('utf-8')
+                        data = self.replace_variables(data, context)
+                        data = data.encode('utf-8')
+                    except UnicodeError as e:
+                        data = None
+                        logger.warning('unable to copy script %r, '
+                                       'may be binary: %s', srcfile, e)
+                if data is not None:
+                    with open(dstfile, 'wb') as f:
+                        f.write(data)
+                    shutil.copymode(srcfile, dstfile)
             return
         # Not iOS version:
-
         for root, dirs, files in os.walk(path):
             if root == path: # at top-level, remove irrelevant dirs
                 for d in dirs[:]:
