@@ -1506,6 +1506,9 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
 	popd  >> $PREFIX/make_install_osx.log 2>&1
     # Pure Python dependencies for pysal. 
 	python3.9 -m pip install install networkx --upgrade >> $PREFIX/make_install_osx.log 2>&1
+	# fix for networkx & compatibility with matplotlib 3.4+
+	# temporary until next version of networkx is out
+	cp packages/networkx_drawing_nx_pylab.py $PYTHONHOME/lib/python3.9/site-packages/networkx/drawing/nx_pylab.py >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip install install pytest --upgrade >> $PREFIX/make_install_osx.log 2>&1
 	# pysal (and mapclassify). Can't download with pip, so submodule. Pure Python, so no need to replicate for iOS and Simulator.
 	# pysal contains mapclassify.
