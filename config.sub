@@ -17,7 +17,7 @@ timestamp='2021-08-14'
 # General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, see <http://www.gnu.org/licenses/>.
+# along with this program; if not, see <https://www.gnu.org/licenses/>.
 #
 # As a special exception to the GNU General Public License, if you
 # distribute this file as part of a program that contains a
@@ -62,12 +62,11 @@ timestamp='2021-08-14'
 me=`echo "$0" | sed -e 's,.*/,,'`
 
 usage="\
-Usage: $0 [OPTION] CPU-MFR-OPSYS
-       $0 [OPTION] ALIAS
+Usage: $0 [OPTION] CPU-MFR-OPSYS or ALIAS
 
 Canonicalize a configuration name.
 
-Operation modes:
+Options:
   -h, --help         print this help, then exit
   -t, --time-stamp   print date of last modification, then exit
   -v, --version      print version number, then exit
@@ -104,7 +103,7 @@ while test $# -gt 0 ; do
 
     *local*)
        # First pass through any local machine types.
-       echo $1
+       echo "$1"
        exit ;;
 
     * )
@@ -781,6 +780,45 @@ case $basic_machine in
 		vendor=hp
 		;;
 	hp9k8[0-9][0-9] | hp8[0-9][0-9])
+		cpu=hppa1.0
+		vendor=hp
+		;;
+	i*86v32)
+		cpu=`echo "$1" | sed -e 's/86.*/86/'`
+		vendor=pc
+		basic_os=sysv32
+		;;
+	i*86v4*)
+		cpu=`echo "$1" | sed -e 's/86.*/86/'`
+		vendor=pc
+		basic_os=sysv4
+		;;
+	i*86v)
+		cpu=`echo "$1" | sed -e 's/86.*/86/'`
+		vendor=pc
+		basic_os=sysv
+		;;
+	i*86sol2)
+		cpu=`echo "$1" | sed -e 's/86.*/86/'`
+		vendor=pc
+		basic_os=solaris2
+		;;
+	j90 | j90-cray)
+		cpu=j90
+		vendor=cray
+		basic_os=${basic_os:-unicos}
+		;;
+	iris | iris4d)
+		cpu=mips
+		vendor=sgi
+		case $basic_os in
+		    irix*)
+			;;
+		    *)
+			basic_os=irix4
+			;;
+		esac
+		;;
 	miniframe)
 		cpu=m68000
 		vendor=convergent
@@ -1569,9 +1607,6 @@ case $cpu-$vendor in
 	*-be)
 		os=beos
 		;;
-	*-haiku)
-		os=-haiku
-		;;
 	*-ibm)
 		os=aix
 		;;
@@ -1625,9 +1660,6 @@ case $cpu-$vendor in
 		;;
 	i370-*)
 		os=mvs
-		;;
-	*-next)
-		os=-nextstep3
 		;;
 	*-gould)
 		os=sysv
@@ -1845,7 +1877,7 @@ echo "$cpu-$vendor-${kernel:+$kernel-}$os"
 exit
 
 # Local variables:
-# eval: (add-hook 'write-file-hooks 'time-stamp)
+# eval: (add-hook 'before-save-hook 'time-stamp)
 # time-stamp-start: "timestamp='"
 # time-stamp-format: "%:y-%02m-%02d"
 # time-stamp-end: "'"

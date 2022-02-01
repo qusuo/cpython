@@ -17,7 +17,7 @@ timestamp='2021-06-03'
 # General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, see <http://www.gnu.org/licenses/>.
+# along with this program; if not, see <https://www.gnu.org/licenses/>.
 #
 # As a special exception to the GNU General Public License, if you
 # distribute this file as part of a program that contains a
@@ -49,7 +49,7 @@ Usage: $0 [OPTION]
 
 Output the configuration name of the system \`$me' is run on.
 
-Operation modes:
+Options:
   -h, --help         print this help, then exit
   -t, --time-stamp   print date of last modification, then exit
   -v, --version      print version number, then exit
@@ -259,7 +259,7 @@ case $UNAME_MACHINE:$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_VERSION in
 		release='-gnu'
 		;;
 	    *)
-		release=`echo ${UNAME_RELEASE}|sed -e 's/[-_].*/\./'`
+		release=`echo "$UNAME_RELEASE" | sed -e 's/[-_].*//' | cut -d. -f1,2`
 		;;
 	esac
 	# Since CPU_TYPE-MANUFACTURER-KERNEL-OPERATING_SYSTEM:
@@ -331,35 +331,35 @@ case $UNAME_MACHINE:$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_VERSION in
 	ALPHA_CPU_TYPE=`/usr/sbin/psrinfo -v | sed -n -e 's/^  The alpha \(.*\) processor.*$/\1/p' | head -n 1`
 	case $ALPHA_CPU_TYPE in
 	    "EV4 (21064)")
-		UNAME_MACHINE="alpha" ;;
+		UNAME_MACHINE=alpha ;;
 	    "EV4.5 (21064)")
-		UNAME_MACHINE="alpha" ;;
+		UNAME_MACHINE=alpha ;;
 	    "LCA4 (21066/21068)")
-		UNAME_MACHINE="alpha" ;;
+		UNAME_MACHINE=alpha ;;
 	    "EV5 (21164)")
-		UNAME_MACHINE="alphaev5" ;;
+		UNAME_MACHINE=alphaev5 ;;
 	    "EV5.6 (21164A)")
-		UNAME_MACHINE="alphaev56" ;;
+		UNAME_MACHINE=alphaev56 ;;
 	    "EV5.6 (21164PC)")
-		UNAME_MACHINE="alphapca56" ;;
+		UNAME_MACHINE=alphapca56 ;;
 	    "EV5.7 (21164PC)")
-		UNAME_MACHINE="alphapca57" ;;
+		UNAME_MACHINE=alphapca57 ;;
 	    "EV6 (21264)")
-		UNAME_MACHINE="alphaev6" ;;
+		UNAME_MACHINE=alphaev6 ;;
 	    "EV6.7 (21264A)")
-		UNAME_MACHINE="alphaev67" ;;
+		UNAME_MACHINE=alphaev67 ;;
 	    "EV6.8CB (21264C)")
-		UNAME_MACHINE="alphaev68" ;;
+		UNAME_MACHINE=alphaev68 ;;
 	    "EV6.8AL (21264B)")
-		UNAME_MACHINE="alphaev68" ;;
+		UNAME_MACHINE=alphaev68 ;;
 	    "EV6.8CX (21264D)")
-		UNAME_MACHINE="alphaev68" ;;
+		UNAME_MACHINE=alphaev68 ;;
 	    "EV6.9A (21264/EV69A)")
-		UNAME_MACHINE="alphaev69" ;;
+		UNAME_MACHINE=alphaev69 ;;
 	    "EV7 (21364)")
-		UNAME_MACHINE="alphaev7" ;;
+		UNAME_MACHINE=alphaev7 ;;
 	    "EV7.9 (21364A)")
-		UNAME_MACHINE="alphaev79" ;;
+		UNAME_MACHINE=alphaev79 ;;
 	esac
 	# A Pn.n version is a patched version.
 	# A Vn.n version is a released version.
@@ -437,10 +437,10 @@ case $UNAME_MACHINE:$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_VERSION in
 	# This test works for both compilers.
 	if test "$CC_FOR_BUILD" != no_compiler_found; then
 	    if (echo '#ifdef __amd64'; echo IS_64BIT_ARCH; echo '#endif') | \
-		(CCOPTS= $CC_FOR_BUILD -E - 2>/dev/null) | \
+		(CCOPTS="" $CC_FOR_BUILD -E - 2>/dev/null) | \
 		grep IS_64BIT_ARCH >/dev/null
 	    then
-		SUN_ARCH="x86_64"
+		SUN_ARCH=x86_64
 	    fi
 	fi
 	SUN_REL=`echo "$UNAME_RELEASE" | sed -e 's/[^.]*//'`
@@ -536,21 +536,21 @@ case $UNAME_MACHINE:$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_VERSION in
 #endif
 	#if defined (host_mips) && defined (MIPSEB)
 	#if defined (SYSTYPE_SYSV)
-	  printf ("mips-mips-riscos%ssysv\n", argv[1]); exit (0);
+	  printf ("mips-mips-riscos%ssysv\\n", argv[1]); exit (0);
 	#endif
 	#if defined (SYSTYPE_SVR4)
-	  printf ("mips-mips-riscos%ssvr4\n", argv[1]); exit (0);
+	  printf ("mips-mips-riscos%ssvr4\\n", argv[1]); exit (0);
 	#endif
 	#if defined (SYSTYPE_BSD43) || defined(SYSTYPE_BSD)
-	  printf ("mips-mips-riscos%sbsd\n", argv[1]); exit (0);
+	  printf ("mips-mips-riscos%sbsd\\n", argv[1]); exit (0);
 	#endif
 	#endif
 	  exit (-1);
 	}
 EOF
-	$CC_FOR_BUILD -o $dummy $dummy.c &&
-	  dummyarg=`echo "${UNAME_RELEASE}" | sed -n 's/\([0-9]*\).*/\1/p'` &&
-	  SYSTEM_NAME=`$dummy $dummyarg` &&
+	$CC_FOR_BUILD -o "$dummy" "$dummy.c" &&
+	  dummyarg=`echo "$UNAME_RELEASE" | sed -n 's/\([0-9]*\).*/\1/p'` &&
+	  SYSTEM_NAME=`"$dummy" "$dummyarg"` &&
 	    { echo "$SYSTEM_NAME"; exit; }
 	GUESS=mips-mips-riscos$UNAME_RELEASE
 	;;
@@ -636,7 +636,7 @@ EOF
 			exit(0);
 			}
 EOF
-		if $CC_FOR_BUILD -o $dummy $dummy.c && SYSTEM_NAME=`$dummy`
+		if $CC_FOR_BUILD -o "$dummy" "$dummy.c" && SYSTEM_NAME=`"$dummy"`
 		then
 			GUESS=$SYSTEM_NAME
 		else
@@ -650,7 +650,7 @@ EOF
 	;;
     *:AIX:*:[4567])
 	IBM_CPU_ID=`/usr/sbin/lsdev -C -c processor -S available | sed 1q | awk '{ print $1 }'`
-	if /usr/sbin/lsattr -El ${IBM_CPU_ID} | grep ' POWER' >/dev/null 2>&1; then
+	if /usr/sbin/lsattr -El "$IBM_CPU_ID" | grep ' POWER' >/dev/null 2>&1; then
 		IBM_ARCH=rs6000
 	else
 		IBM_ARCH=powerpc
@@ -739,7 +739,7 @@ EOF
 		    exit (0);
 		}
 EOF
-		    (CCOPTS= $CC_FOR_BUILD -o $dummy $dummy.c 2>/dev/null) && HP_ARCH=`$dummy`
+		    (CCOPTS="" $CC_FOR_BUILD -o "$dummy" "$dummy.c" 2>/dev/null) && HP_ARCH=`"$dummy"`
 		    test -z "$HP_ARCH" && HP_ARCH=hppa
 		fi ;;
 	esac
@@ -756,12 +756,12 @@ EOF
 	    # $ CC_FOR_BUILD="cc +DA2.0w" ./config.guess
 	    # => hppa64-hp-hpux11.23
 
-	    if echo __LP64__ | (CCOPTS= $CC_FOR_BUILD -E - 2>/dev/null) |
+	    if echo __LP64__ | (CCOPTS="" $CC_FOR_BUILD -E - 2>/dev/null) |
 		grep -q __LP64__
 	    then
-		HP_ARCH="hppa2.0w"
+		HP_ARCH=hppa2.0w
 	    else
-		HP_ARCH="hppa64"
+		HP_ARCH=hppa64
 	    fi
 	fi
 	GUESS=$HP_ARCH-hp-hpux$HPUX_REV
@@ -797,7 +797,7 @@ EOF
 	  exit (0);
 	}
 EOF
-	$CC_FOR_BUILD -o $dummy $dummy.c && SYSTEM_NAME=`$dummy` &&
+	$CC_FOR_BUILD -o "$dummy" "$dummy.c" && SYSTEM_NAME=`"$dummy"` &&
 		{ echo "$SYSTEM_NAME"; exit; }
 	GUESS=unknown-hitachi-hiuxwe2
 	;;
@@ -849,7 +849,7 @@ EOF
 	GUESS=ymp-cray-unicos$CRAY_REL
 	;;
     CRAY*[A-Z]90:*:*:*)
-	echo ${UNAME_MACHINE}-cray-unicos${UNAME_RELEASE} \
+	echo "$UNAME_MACHINE"-cray-unicos"$UNAME_RELEASE" \
 	| sed -e 's/CRAY.*\([A-Z]90\)/\1/' \
 	      -e y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/ \
 	      -e 's/\.[^.]*$/.X/'
@@ -907,9 +907,9 @@ EOF
 	UNAME_PROCESSOR=`/usr/bin/uname -p`
 	case $UNAME_PROCESSOR in
 	    amd64)
-		echo x86_64-unknown-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'` ;;
-	    *)
-		echo ${UNAME_PROCESSOR}-unknown-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'` ;;
+		UNAME_PROCESSOR=x86_64 ;;
+	    i386)
+		UNAME_PROCESSOR=i586 ;;
 	esac
 	FREEBSD_REL=`echo "$UNAME_RELEASE" | sed -e 's/[-(].*//'`
 	GUESS=$UNAME_PROCESSOR-unknown-freebsd$FREEBSD_REL
@@ -941,18 +941,6 @@ EOF
 		GUESS=ia64-unknown-interix$UNAME_RELEASE
 		;;
 	esac ;;
-    [345]86:Windows_95:* | [345]86:Windows_98:* | [345]86:Windows_NT:*)
-	echo i${UNAME_MACHINE}-pc-mks
-	exit ;;
-    8664:Windows_NT:*)
-	echo x86_64-pc-mks
-	exit ;;
-    i*:Windows_NT*:* | Pentium*:Windows_NT*:*)
-	# How do we know it's Interix rather than the generic POSIX subsystem?
-	# It also conflicts with pre-2.0 versions of AT&T UWIN. Should we
-	# UNAME_MACHINE based on the output of uname instead of i386?
-	echo i586-pc-interix
-	exit ;;
     i*:UWIN*:*)
 	GUESS=$UNAME_MACHINE-pc-uwin
 	;;
@@ -1248,7 +1236,7 @@ EOF
 	# uname -m prints for DJGPP always 'pc', but it prints nothing about
 	# the processor, so we play safe by assuming i586.
 	# Note: whatever this is, it MUST be the same as what config.sub
-	# prints for the "djgpp" host, or else GDB configury will decide that
+	# prints for the "djgpp" host, or else GDB configure will decide that
 	# this is a cross-build.
 	GUESS=i586-pc-msdosdjgpp
 	;;
@@ -1282,9 +1270,9 @@ EOF
 	test -r /etc/.relid \
 	&& OS_REL=.`sed -n 's/[^ ]* [^ ]* \([0-9][0-9]\).*/\1/p' < /etc/.relid`
 	/bin/uname -p 2>/dev/null | grep 86 >/dev/null \
-	  && { echo i486-ncr-sysv4.3${OS_REL}; exit; }
+	  && { echo i486-ncr-sysv4.3"$OS_REL"; exit; }
 	/bin/uname -p 2>/dev/null | /bin/grep entium >/dev/null \
-	  && { echo i586-ncr-sysv4.3${OS_REL}; exit; } ;;
+	  && { echo i586-ncr-sysv4.3"$OS_REL"; exit; } ;;
     3[34]??:*:4.0:* | 3[34]??,*:*:4.0:*)
 	/bin/uname -p 2>/dev/null | grep 86 >/dev/null \
 	  && { echo i486-ncr-sysv4; exit; } ;;
@@ -1293,11 +1281,11 @@ EOF
 	test -r /etc/.relid \
 	    && OS_REL=.`sed -n 's/[^ ]* [^ ]* \([0-9][0-9]\).*/\1/p' < /etc/.relid`
 	/bin/uname -p 2>/dev/null | grep 86 >/dev/null \
-	    && { echo i486-ncr-sysv4.3${OS_REL}; exit; }
+	    && { echo i486-ncr-sysv4.3"$OS_REL"; exit; }
 	/bin/uname -p 2>/dev/null | /bin/grep entium >/dev/null \
-	    && { echo i586-ncr-sysv4.3${OS_REL}; exit; }
+	    && { echo i586-ncr-sysv4.3"$OS_REL"; exit; }
 	/bin/uname -p 2>/dev/null | /bin/grep pteron >/dev/null \
-	    && { echo i586-ncr-sysv4.3${OS_REL}; exit; } ;;
+	    && { echo i586-ncr-sysv4.3"$OS_REL"; exit; } ;;
     m68*:LynxOS:2.*:* | m68*:LynxOS:3.0*:*)
 	GUESS=m68k-unknown-lynxos$UNAME_RELEASE
 	;;
@@ -1448,7 +1436,7 @@ EOF
 	;;
     *:procnto*:*:* | *:QNX:[0123456789]*:*)
 	UNAME_PROCESSOR=`uname -p`
-	if test "$UNAME_PROCESSOR" = "x86"; then
+	if test "$UNAME_PROCESSOR" = x86; then
 		UNAME_PROCESSOR=i386
 		UNAME_MACHINE=pc
 	fi
@@ -1705,11 +1693,10 @@ EOF
 esac
 
 cat >&2 <<EOF
-$0: unable to guess system type
 
-This script, last modified $timestamp, has failed to recognize
-the operating system you are using. It is advised that you
-download the most up to date version of the config scripts from
+This script (version $timestamp), has failed to recognize the
+operating system you are using. If your script is old, overwrite *all*
+copies of config.guess and config.sub with the latest versions from:
 
   https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
 and
@@ -1723,10 +1710,9 @@ script_age=`expr "$thisyear" - "$our_year"`
 if test "$script_age" -lt 3 ; then
    cat >&2 <<EOF
 
-If the version you run ($0) is already up to date, please
-send the following data and any information you think might be
-pertinent to <config-patches@gnu.org> in order to provide the needed
-information to handle your system.
+If $0 has already been updated, send the following data and any
+information you think might be pertinent to config-patches@gnu.org to
+provide the necessary information to handle your system.
 
 config.guess timestamp = $timestamp
 
@@ -1745,17 +1731,17 @@ hostinfo               = `(hostinfo) 2>/dev/null`
 /usr/bin/oslevel       = `(/usr/bin/oslevel) 2>/dev/null`
 /usr/convex/getsysinfo = `(/usr/convex/getsysinfo) 2>/dev/null`
 
-UNAME_MACHINE = ${UNAME_MACHINE}
-UNAME_RELEASE = ${UNAME_RELEASE}
-UNAME_SYSTEM  = ${UNAME_SYSTEM}
-UNAME_VERSION = ${UNAME_VERSION}
+UNAME_MACHINE = "$UNAME_MACHINE"
+UNAME_RELEASE = "$UNAME_RELEASE"
+UNAME_SYSTEM  = "$UNAME_SYSTEM"
+UNAME_VERSION = "$UNAME_VERSION"
 EOF
 fi
 
 exit 1
 
 # Local variables:
-# eval: (add-hook 'write-file-hooks 'time-stamp)
+# eval: (add-hook 'before-save-hook 'time-stamp)
 # time-stamp-start: "timestamp='"
 # time-stamp-format: "%:y-%02m-%02d"
 # time-stamp-end: "'"
