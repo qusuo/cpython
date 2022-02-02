@@ -357,10 +357,6 @@ class EnvBuilder:
         text = text.replace('__VENV_PROMPT__', context.prompt)
         text = text.replace('__VENV_BIN_NAME__', context.bin_name)
         text = text.replace('__VENV_PYTHON__', context.env_exe)
-        # on iOS, HOME can change at each new install:
-        if ios:
-            homeDir = os.getenv('HOME')
-            text = text.replace(homeDir, '$HOME')
         return text
 
     def install_scripts(self, context, path):
@@ -386,14 +382,6 @@ class EnvBuilder:
                 dstfile = os.path.join(dstdir, file)
                 with open(srcfile, 'rb') as f:
                     data = f.read()
-                    try:
-                        data = data.decode('utf-8')
-                        data = self.replace_variables(data, context)
-                        data = data.encode('utf-8')
-                    except UnicodeError as e:
-                        data = None
-                        logger.warning('unable to copy script %r, '
-                                       'may be binary: %s', srcfile, e)
                 if data is not None:
                     with open(dstfile, 'wb') as f:
                         f.write(data)
