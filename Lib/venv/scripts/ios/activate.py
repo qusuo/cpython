@@ -16,8 +16,9 @@ if (os.environ.get('_OLD_VIRTUAL_PATH') is not None):
 
 path = os.environ['PATH']
 
-virtualEnvDir = "__VENV_DIR__"
-virtualEnvDir.replace('$HOME', homePath)
+# Always recompute the path based on the current directory:
+virtualEnvDir = os.path.dirname(os.path.realpath(__file__)) # newEnvironment/bin
+virtualEnvDir = os.path.dirname(virtualEnvDir) # newEnvironment
 os.environ['_OLD_VIRTUAL_PATH'] = path
 os.environ['PYTHONPYCACHEPREFIX'] = os.path.join(virtualEnvDir, "__pycache__")
 os.environ['PYTHONUSERBASE'] = virtualEnvDir
