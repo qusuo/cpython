@@ -3,8 +3,8 @@
 
 deactivate
 setenv _OLD_VIRTUAL_PATH $PATH
-setenv PYTHONPYCACHEPREFIX __VENV_DIR__/__pycache__
-setenv PYTHONUSERBASE __VENV_DIR__
-setenv PATH __VENV_DIR__/bin:$PATH
-setenv VIRTUAL_ENV __VENV_DIR__
+setenv PYTHONPYCACHEPREFIX $__VENV_DIR__/__pycache__
+setenv PYTHONUSERBASE $__VENV_DIR__
+setenv PATH $__VENV_DIR__/bin:$PATH
+setenv VIRTUAL_ENV $__VENV_DIR__
 
