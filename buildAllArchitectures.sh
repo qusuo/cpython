@@ -1348,7 +1348,7 @@ then
 		scipy/optimize/zeros.o \
 		scipy/optimize/_group_columns.o \
 		`find scipy/signal -name \*.o` \
-		`find build/src.macosx-11.6-x86_64-3.9/scipy/signal -name \*.o`\
+		`find build/src.macosx-${OSX_VERSION}-x86_64-3.9/scipy/signal -name \*.o`\
 		`find scipy/spatial/ckdtree -name \*.o` \
 		`find scipy/sparse/csgraph -name \*.o` \
 		`find scipy/sparse/sparsetools -name \*.o` \
@@ -2421,7 +2421,7 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 		scipy/optimize/zeros.o \
 		scipy/optimize/_group_columns.o \
 		`find scipy/signal -name \*.o` \
-		`find build/src.macosx-11.6-x86_64-3.9/scipy/signal -name \*.o`\
+		`find build/src.macosx-${OSX_VERSION}-x86_64-3.9/scipy/signal -name \*.o`\
 		`find scipy/spatial/ckdtree -name \*.o` \
 		`find scipy/sparse/csgraph -name \*.o` \
 		`find scipy/sparse/sparsetools -name \*.o` \
