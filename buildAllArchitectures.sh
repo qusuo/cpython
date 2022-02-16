@@ -253,9 +253,9 @@ pushd packages >> make_install_osx.log 2>&1
 rm -rf ipython*  >>  $PREFIX/make_install_osx.log 2>&1
 # python3.9 -m pip download --no-deps --no-binary ipython ipython >>  $PREFIX/make_install_osx.log 2>&1
 downloadSource ipython >> $PREFIX/make_install_osx.log 2>&1
-tar xzf ipython-7*.tar.gz  >>  $PREFIX/make_install_osx.log 2>&1
-rm ipython-7*.tar.gz  >>  $PREFIX/make_install_osx.log 2>&1
-pushd ipython-7* >>  $PREFIX/make_install_osx.log 2>&1
+tar xzf ipython-8*.tar.gz  >>  $PREFIX/make_install_osx.log 2>&1
+rm ipython-8*.tar.gz  >>  $PREFIX/make_install_osx.log 2>&1
+pushd ipython-8* >>  $PREFIX/make_install_osx.log 2>&1
 # That's one large sed replace, but it's a single file in the repository.
 # We need system_ios to replace system_piped *and* system_raw.
 sed -i bak 's/^    system = system_piped/    # iOS: use system_ios instead\
@@ -382,6 +382,9 @@ echo PyZMQ libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
+# Unset so that other packages can be installed
+unset PYZMQ_BACKEND_CFFI
+unset PYZMQ_BACKEND
 python3.9 -m pip install qtpy --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install qtconsole --upgrade >> make_install_osx.log 2>&1
 # python3.9 -m pip install babel --upgrade >> make_install_osx.log 2>&1
@@ -404,6 +407,90 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Now: jupyter
 python3.9 -m pip install jupyter --upgrade >> make_install_osx.log 2>&1
+#
+# Start work on jupyterlab/retrolab:
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+pushd nbclassic  >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install json5 --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install jupyter-packaging  >> $PREFIX/make_install_osx.log 2>&1
+# jupyterlab-server:
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+downloadSource jupyterlab-server >> $PREFIX/make_install_osx.log 2>&1
+tar xvzf jupyterlab_server*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+rm jupyterlab_server*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+pushd jupyterlab_server* >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# jupyterlab. No need to use submodules, we take the code directly from pip.
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+downloadSource jupyterlab >> $PREFIX/make_install_osx.log 2>&1
+tar xvzf jupyterlab*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+rm jupyterlab*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+pushd jupyterlab-* >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# Translations. All of them. 
+pip install jupyterlab-language-pack-ar-SA >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-ca-ES >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-cs-CZ >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-da-DK >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-de-DE >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-el-GR >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-es-ES >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-et-EE >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-fi-FI >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-fr-FR >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-he-IL >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-hu-HU >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-hy-AM >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-id-ID >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-it-IT >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-ja-JP >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-ko-KR >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-lt-LT >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-nl-NL >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-no-NO >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-pl-PL >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-pt-BR >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-ro-RO >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-ru-RU >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-si-LK >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-tr-TR >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-uk-UA >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-vi-VN >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-zh-CN >> $PREFIX/make_install_osx.log 2>&1
+pip install jupyterlab-language-pack-zh-TW >> $PREFIX/make_install_osx.log 2>&1
+# retrolab: Same as jupyterlab, unmodified package from pip.
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+downloadSource retrolab >> $PREFIX/make_install_osx.log 2>&1
+tar xvzf retrolab*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+rm retrolab*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+pushd retrolab-* >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py install  >> $PREFIX/make_install_osx.log 2>&1
+# -m pip install . == tries to download everything, so no.
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# Disable "New console" and "New terminal" buttons:
+mkdir -p $PREFIX/Library/etc/jupyter/labconfig >> $PREFIX/make_install_osx.log 2>&1
+cp Library_etc_jupyter_labconfig_page_config.json $PREFIX/Library/etc/jupyter/labconfig/page_config.json
+# Automatic launch browser, use URL, no Terminals:
+cp jupyter_server_serverapp.py $PREFIX/Library/lib/python3.9/site-packages/jupyter_server/serverapp.py
+popd  >> $PREFIX/make_install_osx.log 2>&1
+#
+# done jupyterlab/retrolab
+#
 # Cython (edited for iOS, reinitialize types at each run):
 pushd packages >> make_install_osx.log 2>&1
 pushd cython >> $PREFIX/make_install_osx.log 2>&1
