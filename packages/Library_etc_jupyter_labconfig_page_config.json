@@ -1,0 +1,6 @@
+{
+  "disabledExtensions": {
+    "@retrolab/tree-extension:new-console": true,
+    "@retrolab/tree-extension:new-terminal": true
+  }
+}

@@ -23,9 +23,6 @@
 [submodule "packages/matplotlib"]
 	path = packages/matplotlib
 	url = https://github.com/holzschu/matplotlib.git
-[submodule "packages/jupyterlab"]
-	path = packages/jupyterlab
-	url = https://github.com/holzschu/jupyterlab.git
 [submodule "packages/nbclassic"]
 	path = packages/nbclassic
 	url = https://github.com/holzschu/nbclassic.git
