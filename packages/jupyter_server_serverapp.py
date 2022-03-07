@@ -1178,6 +1178,7 @@ class ServerApp(JupyterApp):
         else:
             return not addr.is_loopback
 
+    # iOS change: use_redirect_file to False 
     use_redirect_file = Bool(
         False,
         config=True,
@@ -1207,6 +1208,7 @@ class ServerApp(JupyterApp):
        """,
     )
 
+    # iOS change: open_browser to True
     open_browser = Bool(
         True,
         config=True,
@@ -1681,6 +1683,7 @@ class ServerApp(JupyterApp):
         ),
     )
 
+    # iOS change: terminals_enabled to False
     terminals_enabled = Bool(
         False,
         config=True,
