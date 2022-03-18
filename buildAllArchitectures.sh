@@ -420,6 +420,7 @@ python3.9 -m pip install json5 --upgrade >> make_install_osx.log 2>&1
 python3.9 -m pip install jupyter-packaging  >> $PREFIX/make_install_osx.log 2>&1
 # jupyterlab-server:
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
+rm -rf jupyterlab_server* >> $PREFIX/make_install_osx.log 2>&1
 downloadSource jupyterlab-server >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf jupyterlab_server*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm jupyterlab_server*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -431,6 +432,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # jupyterlab. No need to use submodules, we take the code directly from pip.
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
+rm -rf jupyterlab-* >> $PREFIX/make_install_osx.log 2>&1
 downloadSource jupyterlab >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf jupyterlab*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm jupyterlab*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -471,22 +473,50 @@ pip install jupyterlab-language-pack-uk-UA >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-vi-VN >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-zh-CN >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-zh-TW >> $PREFIX/make_install_osx.log 2>&1
+# matplotlib extension:
+# "pip install ipympl" installs newer versions of numpy, matplotlib, etc
+# breaks all the rest of the script.
+# python setup.py install does not work for ipympl
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+rm -rf ipympl-*  >> $PREFIX/make_install_osx.log 2>&1
+downloadSource ipympl >> $PREFIX/make_install_osx.log 2>&1
+tar xvzf ipympl*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+rm ipympl*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+pushd ipympl-* >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+# "-m pip install ." fails, "python3.9 setup.py install bdist_egg" works for now
+env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 setup.py install bdist_egg >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
 # retrolab: Same as jupyterlab, unmodified package from pip.
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
+rm -rf retrolab-*  >> $PREFIX/make_install_osx.log 2>&1
 downloadSource retrolab >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf retrolab*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm retrolab*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd retrolab-* >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-python3.9 setup.py install  >> $PREFIX/make_install_osx.log 2>&1
+# Disable autozoom:
+sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/tree.html  >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/notebooks.html  >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/edit.html  >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/consoles.html  >> $PREFIX/make_install_osx.log 2>&1
+sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/terminals.html  >> $PREFIX/make_install_osx.log 2>&1
+#
+python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
+python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
 # -m pip install . == tries to download everything, so no.
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Disable "New console" and "New terminal" buttons:
 mkdir -p $PREFIX/Library/etc/jupyter/labconfig >> $PREFIX/make_install_osx.log 2>&1
-cp Library_etc_jupyter_labconfig_page_config.json $PREFIX/Library/etc/jupyter/labconfig/page_config.json
-# Automatic launch browser, use URL, no Terminals:
-cp jupyter_server_serverapp.py $PREFIX/Library/lib/python3.9/site-packages/jupyter_server/serverapp.py
+cp Library_etc_jupyter_labconfig_page_config.json $PREFIX/Library/etc/jupyter/labconfig/page_config.json >> $PREFIX/make_install_osx.log 2>&1
+# TODO: make these changes with sed.
+# move location of ipynb_checkpoints:
+cp jupyter_server_services_contents_filecheckpoints.py $PREFIX/Library/lib/python3.9/site-packages/jupyter_server/services/contents/filecheckpoints.py >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# directory if no local access:
+cp jupyter_server_services_kernels_kernelmanager.py $PREFIX/Library/lib/python3.9/site-packages/jupyter_server/services/kernels/kernelmanager.py >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 #
 # done jupyterlab/retrolab
@@ -576,7 +606,8 @@ python3.9 -m pip install cycler --upgrade  >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
 rm -rf kiwisolver* >> $PREFIX/make_install_osx.log 2>&1
 # python3.9 -m pip download --no-deps --no-binary kiwisolver kiwisolver >> $PREFIX/make_install_osx.log 2>&1
-downloadSource kiwisolver >> $PREFIX/make_install_osx.log 2>&1
+# kiwisolver 1.4.0 requires cppy, which will require debugging
+downloadSource kiwisolver 1.3.2 >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf kiwisolver*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm kiwisolver*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd kiwisolver* >> $PREFIX/make_install_osx.log 2>&1
@@ -885,49 +916,71 @@ then
 	python3.9 -m pip install --upgrade jupyter_contrib_nbextensions >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip install --upgrade jupyter_nbextensions_configurator >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip install --upgrade ipysheet >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip install --upgrade widgetsnbextension >> $PREFIX/make_install_osx.log 2>&1
 	# Bug fix for cell_filter (jquery, not jqueryui): 
 	cp packages/cell_filter.js $PREFIX/Library/lib/python3.9/site-packages/jupyter_contrib_nbextensions/nbextensions/cell_filter/cell_filter.js
-	# ipysheet.renderer_nbext has disappeared?
+	# replace template_path with template_paths to avoid errors at loading: 
+	# Remove these lines in jupyter_contrib_nbextensions is updated (above 0.5.1) or latex_envs (above 1.4.6)
+	cp packages/jupyter_contrib_nbextensions/latex_envs_latex_envs.py $PREFIX/Library/lib/python3.9/site-packages/latex_envs/latex_envs.py
+	cp packages/jupyter_contrib_nbextensions/config_scripts/highlight_html_cfg.py $PREFIX/Library/lib/python3.9/site-packages/jupyter_contrib_nbextensions/config_scripts/highlight_html_cfg.py
+	cp packages/jupyter_contrib_nbextensions/config_scripts/highlight_latex_cfg.py $PREFIX/Library/lib/python3.9/site-packages/jupyter_contrib_nbextensions/config_scripts/highlight_latex_cfg.py
+	cp packages/jupyter_contrib_nbextensions/nbconvert_support/exporter_inliner.py $PREFIX/Library/lib/python3.9/site-packages/jupyter_contrib_nbextensions/nbconvert_support/exporter_inliner.py
+	cp packages/jupyter_contrib_nbextensions/nbconvert_support/toc2.py $PREFIX/Library/lib/python3.9/site-packages/jupyter_contrib_nbextensions/nbconvert_support/toc2.py
+	cp packages/jupyter_contrib_nbextensions/install.py $PREFIX/Library/lib/python3.9/site-packages/jupyter_contrib_nbextensions/install.py
+	cp packages/jupyter_contrib_nbextensions/migrate.py $PREFIX/Library/lib/python3.9/site-packages/jupyter_contrib_nbextensions/migrate.py
 	# widgetsnbextension is a bit special, because of the need to add touchscreen support:
-	pushd packages >> $PREFIX/make_install_osx.log 2>&1
-	rm -rf  widgetsnbextension* >> $PREFIX/make_install_osx.log 2>&1
-	python3.9 -m pip download --no-binary :all: widgetsnbextension==4.0.0a0 >> $PREFIX/make_install_osx.log 2>&1
-	tar xzvf widgetsnbextension*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
-	rm  widgetsnbextension*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
-	pushd  widgetsnbextension* >> $PREFIX/make_install_osx.log 2>&1
-	# force build a first time to download node_module, then clear everything, replace mouse.js and force rebuild:
-	rm widgetsnbextension/static/* >> $PREFIX/make_install_osx.log 2>&1
-	cp ../touch_widgetsnbextension_setup.py setup.py >> $PREFIX/make_install_osx.log 2>&1
-	python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
-	rm -rf build >> $PREFIX/make_install_osx.log 2>&1
-	rm widgetsnbextension/static/* >> $PREFIX/make_install_osx.log 2>&1
-	# Need to specify clang because widgetsnbextensions update node.js for watchpack-chokidar2/node_modules/fsevents
-	cp ../touch_widgetsnbextension_node_modules_mouse.js node_modules/jquery-ui/ui/widgets/mouse.js >> $PREFIX/make_install_osx.log 2>&1
-	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" PLATFORM=macosx python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
-	popd  >> $PREFIX/make_install_osx.log 2>&1
-	popd  >> $PREFIX/make_install_osx.log 2>&1
+	# Touchscreen support not working anymore as of iOS 15.3. This is disabled.
+	# pushd packages >> $PREFIX/make_install_osx.log 2>&1
+	# rm -rf  widgetsnbextension* >> $PREFIX/make_install_osx.log 2>&1
+	# python3.9 -m pip download --no-binary :all: widgetsnbextension==4.0.0a0 >> $PREFIX/make_install_osx.log 2>&1
+	# tar xzvf widgetsnbextension*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+	# rm  widgetsnbextension*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+	# pushd  widgetsnbextension* >> $PREFIX/make_install_osx.log 2>&1
+	# # force build a first time to download node_module, then clear everything, replace mouse.js and force rebuild:
+	# rm widgetsnbextension/static/* >> $PREFIX/make_install_osx.log 2>&1
+	# cp ../touch_widgetsnbextension_setup.py setup.py >> $PREFIX/make_install_osx.log 2>&1
+	# python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
+	# rm -rf build >> $PREFIX/make_install_osx.log 2>&1
+	# rm widgetsnbextension/static/* >> $PREFIX/make_install_osx.log 2>&1
+	# # Need to specify clang because widgetsnbextensions update node.js for watchpack-chokidar2/node_modules/fsevents
+	# cp ../touch_widgetsnbextension_node_modules_mouse.js node_modules/jquery-ui/ui/widgets/mouse.js >> $PREFIX/make_install_osx.log 2>&1
+	# env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" PLATFORM=macosx python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+	# popd  >> $PREFIX/make_install_osx.log 2>&1
+	# popd  >> $PREFIX/make_install_osx.log 2>&1
 	# dill: preparing for the next step
 	python3.9 -m pip install dill >> $PREFIX/make_install_osx.log 2>&1
 	# bokeh: Pure Python, only one modification, where it stores data:
-	# Must install from pip, not github, so we must provide a version number:
-	# (Remember to upgrade the version number regularly)
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
-    downloadSource bokeh >> $PREFIX/make_install_osx.log 2>&1
-	rm -rf bokeh-2.*  >> $PREFIX/make_install_osx.log 2>&1
-	tar xvzf bokeh-2.*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
-	pushd bokeh-2.* >> $PREFIX/make_install_osx.log 2>&1
-	cp bokeh/util/sampledata.py ../bokeh_oldsampledata.py >> $PREFIX/make_install_osx.log 2>&1
+	rm -rf bokeh-*  >> $PREFIX/make_install_osx.log 2>&1
+	downloadSource bokeh  >> $PREFIX/make_install_osx.log 2>&1
+	tar xvzf bokeh-*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+	pushd bokeh-* >> $PREFIX/make_install_osx.log 2>&1
 	cp ../bokeh_sampledata.py bokeh/util/sampledata.py >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# Also jupyter_bokeh for jupyterlab:
-	pip install jupyter_bokeh  >> $PREFIX/make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
+	rm -rf jupyter-bokeh-*  >> $PREFIX/make_install_osx.log 2>&1
+	downloadSource jupyter-bokeh >> $PREFIX/make_install_osx.log 2>&1
+	tar xvzf jupyter_bokeh*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+	rm jupyter_bokeh*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+	pushd jupyter_bokeh-* >> $PREFIX/make_install_osx.log 2>&1
+	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+	# "-m pip install ." fails, "python3.9 setup.py install bdist_egg" works for now
+	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 setup.py install bdist_egg >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# pyerfa (for astropy 4.6.2)
 	# Cannot be downloaded with 'pip download' because numpy won't compile, so cloned (not forked):
 	# must call 'git submodule update --init --recursive' to get liberfa
+	# Try using downloadSource now. If it works, remove submodule.
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
-	pushd pyerfa  >> $PREFIX/make_install_osx.log 2>&1
+	# pushd pyerfa  >> $PREFIX/make_install_osx.log 2>&1
+	downloadSource pyerfa  >> $PREFIX/make_install_osx.log 2>&1
+	tar xvzf pyerfa*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
+	pushd pyerfa-*  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 	# pip install . does not work here 
@@ -949,6 +1002,9 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/erfa/ >> $PREFIX/make_install
 	rm astropy*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
 	pushd astropy*  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+	# Remove dependency to jinja2 for build: 
+	# See PR https://github.com/astropy/astropy/commit/8f6ab831fb8c44d8758318faa890aaaa4cb5ac25
+    sed -i bak '/jinja2/d' pyproject.toml
 	# We need to edit the position of .astropy (updated for 4.6.2):
 	sed -i bak 's/^        homedir = os.path.expanduser(...)/&\
         # iOS: change homedir to HOME\/Documents\
@@ -961,7 +1017,9 @@ if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
 	LIBRARY_PATH="astropy.convolution"\
 /' astropy/convolution/convolve.py  >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+	# pip install . pulls the old version from pip, so fails.
+#	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py install  >> $PREFIX/make_install_osx.log 2>&1
 	echo astropy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/  >> $PREFIX/make_install_osx.log 2>&1
@@ -1569,8 +1627,6 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
     # Pure Python dependencies for pysal. 
 	python3.9 -m pip install install networkx --upgrade >> $PREFIX/make_install_osx.log 2>&1
 	# fix for networkx & compatibility with matplotlib 3.4+
-	# temporary until next version of networkx is out
-	cp packages/networkx_drawing_nx_pylab.py $PYTHONHOME/lib/python3.9/site-packages/networkx/drawing/nx_pylab.py >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip install install pytest --upgrade >> $PREFIX/make_install_osx.log 2>&1
 	# pysal (and mapclassify). Can't download with pip, so submodule. Pure Python, so no need to replicate for iOS and Simulator.
 	# pysal contains mapclassify.
@@ -2057,7 +2113,7 @@ then
 	# bokeh, dill: pure Python installs
 	# pyerfa (for astropy)
 	pushd packages >> $PREFIX/make_ios.log 2>&1
-	pushd pyerfa  >> $PREFIX/make_ios.log 2>&1
+	pushd pyerfa-*  >> $PREFIX/make_ios.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX $DEBUG" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX $DEBUG" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT $DEBUG" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.9 $DEBUG" PLATFORM=iphoneos python3.9 setup.py build >> $PREFIX/make_ios.log 2>&1
 	echo pyerfa libraries for iOS: >> $PREFIX/make_ios.log 2>&1
@@ -2941,7 +2997,7 @@ then
 	# bokeh, dill: pure Python installs
 	# pyerfa (for astropy)
 	pushd packages >> $PREFIX/make_simulator.log 2>&1
-	pushd pyerfa  >> $PREFIX/make_simulator.log 2>&1
+	pushd pyerfa-*  >> $PREFIX/make_simulator.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX $DEBUG" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX $DEBUG" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PANDAS/pandas/_libs/src/ $DEBUG" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib -L$PREFIX/build/lib.darwin-x86_64-3.9 $DEBUG" PLATFORM=iphonesimulator python3.9 setup.py build >> $PREFIX/make_simulator.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/erfa/  >> $PREFIX/make_simulator.log 2>&1
