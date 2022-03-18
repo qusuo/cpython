@@ -245,8 +245,8 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 # First, install the "standard" pyzmq: 
 python3.9 -m pip install pyzmq  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip install certifi >> make_install_osx.log 2>&1
-# Let's install the proper version of prompt-toolkit for Ipython:
-python3.9 -m pip install prompt-toolkit==3.0.7 >> make_install_osx.log 2>&1
+# Let's install prompt-toolkit for Ipython:
+python3.9 -m pip install prompt-toolkit >> make_install_osx.log 2>&1
 # ipython: just two files to change, we use sed to patch it: 
 echo Installing IPython for OSX  >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
@@ -912,14 +912,17 @@ then
 	# Must install from pip, not github, so we must provide a version number:
 	# (Remember to upgrade the version number regularly)
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
-	rm -rf bokeh-2.2.3  >> $PREFIX/make_install_osx.log 2>&1
-	python3.9 -m pip download --no-deps bokeh==2.2.3  >> $PREFIX/make_install_osx.log 2>&1
-	tar xvzf bokeh-2.2.3.tar.gz >> $PREFIX/make_install_osx.log 2>&1
-	pushd bokeh-2.2.3 >> $PREFIX/make_install_osx.log 2>&1
+    downloadSource bokeh >> $PREFIX/make_install_osx.log 2>&1
+	rm -rf bokeh-2.*  >> $PREFIX/make_install_osx.log 2>&1
+	tar xvzf bokeh-2.*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
+	pushd bokeh-2.* >> $PREFIX/make_install_osx.log 2>&1
+	cp bokeh/util/sampledata.py ../bokeh_oldsampledata.py >> $PREFIX/make_install_osx.log 2>&1
 	cp ../bokeh_sampledata.py bokeh/util/sampledata.py >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
+	# Also jupyter_bokeh for jupyterlab:
+	pip install jupyter_bokeh  >> $PREFIX/make_install_osx.log 2>&1
 	# pyerfa (for astropy 4.6.2)
 	# Cannot be downloaded with 'pip download' because numpy won't compile, so cloned (not forked):
 	# must call 'git submodule update --init --recursive' to get liberfa
@@ -1504,34 +1507,6 @@ then
 	# 
 	# also must add astro-gala (if possible), cartopy
 	# 
-	# jupyterlab requires node.js, which does not exist on iOS for the time being. 
-	# jupyterlab: try again, but with specific version number, to have precompiled javascript
-	# Now, jupyterlab:
-	# python3.9 -m pip install idna --upgrade >> make_install_osx.log 2>&1
-	# python3.9 -m pip install anyio --upgrade >> make_install_osx.log 2>&1
-	# python3.9 -m pip install json --upgrade >> make_install_osx.log 2>&1
-	# python3.9 -m pip install chardet --upgrade >> make_install_osx.log 2>&1
-	# python3.9 -m pip install requests --upgrade >> make_install_osx.log 2>&1
-	# python3.9 -m pip install sniffio --upgrade >> make_install_osx.log 2>&1
-	# python3.9 -m pip install jupyter-server --upgrade >> make_install_osx.log 2>&1
-	# # nbclassic for jupyterlab:
-	# pushd packages >> make_install_osx.log 2>&1
-	# pushd nbclassic  >> $PREFIX/make_install_osx.log 2>&1
-	# rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-	# python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-	# python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
-	# popd  >> $PREFIX/make_install_osx.log 2>&1
-	# popd  >> $PREFIX/make_install_osx.log 2>&1
-	# # jupyterlab:
-	# pushd packages >> make_install_osx.log 2>&1
-	# pushd jupyterlab  >> $PREFIX/make_install_osx.log 2>&1
-	# rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-	# python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-	# python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
-	# popd  >> $PREFIX/make_install_osx.log 2>&1
-	# popd  >> $PREFIX/make_install_osx.log 2>&1
-	# # jupyterlab-server:
-	# python3.9 -m pip install jupyterlab-server --upgrade >> make_install_osx.log 2>&1
 	# statsmodels:
 	pushd packages >> make_install_osx.log 2>&1
 	pushd statsmodels >> $PREFIX/make_install_osx.log 2>&1
