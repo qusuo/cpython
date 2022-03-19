@@ -1347,9 +1347,6 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/mak
 # scipy
 if [ $USE_FORTRAN == 1 ];
 then
-	# Needed to build scipy since it uses Fortran:
-	# But must also be unset since it uses C++:
-	# export LIBRARY_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
 	# Copy the version of Library created until now so it can be used for "standard" version of the App:
 	mkdir -p $PREFIX/with_scipy  >> make_install_osx.log 2>&1
 	rm -rf $PREFIX/with_scipy/Library/*  >> make_install_osx.log 2>&1
@@ -1522,6 +1519,7 @@ then
 	# The llvm-project repository has a compiler with "-fopenmp", and you'll also need to add the directory to "-L":
 	# ../llvm-project/build_osx/bin/clang -fopenmp ~/src/test.c -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -arch arm64 -miphoneos-version-min=14.0 -L ../llvm-project/build-iphoneos/lib
 	# TODO: try with "-fopenmp" for efficiency vs. stability
+	python3.9 -m pip install threadpoolctl >> make_install_osx.log 2>&1
 	pushd packages >> make_install_osx.log 2>&1
 	pushd scikit-learn >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
@@ -1665,7 +1663,6 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
 	cp ../datasets_pysal_access.py $PYTHONHOME/lib/python3.9/site-packages/access/datasets.py
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
-	# unset LIBRARY_PATH
 	export PYTHONHOME=$PREFIX/Library/	
 fi # scipy, USE_FORTRAN == 1
 fi # APP == "Carnets"
