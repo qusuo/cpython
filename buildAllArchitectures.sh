@@ -239,8 +239,8 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 # First, install the "standard" pyzmq: 
 python3.9 -m pip install pyzmq  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip install certifi >> make_install_osx.log 2>&1
-# Let's install the proper version of prompt-toolkit for Ipython:
-python3.9 -m pip install prompt-toolkit==3.0.7 >> make_install_osx.log 2>&1
+# Let's install prompt-toolkit for Ipython:
+python3.9 -m pip install prompt-toolkit >> make_install_osx.log 2>&1
 # ipython: just two files to change, we use sed to patch it: 
 echo Installing IPython for OSX  >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
@@ -961,7 +961,7 @@ then
 	python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
-	# jupyter-bokeh:
+	# Also jupyter_bokeh for jupyterlab:
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf jupyter-bokeh-*  >> $PREFIX/make_install_osx.log 2>&1
 	downloadSource jupyter-bokeh >> $PREFIX/make_install_osx.log 2>&1
