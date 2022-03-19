@@ -620,8 +620,8 @@ rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 sed -i bak 's/^if sys.platform == "darwin"/& and not os.uname\(\).machine.startswith\("iP"\)/' src/PIL/ImageShow.py >> $PREFIX/make_install_osx.log 2>&1
 sed -i bak 's/    if sys.platform == "darwin"/& and not os.uname\(\).machine.startswith\("iP"\)/' src/PIL/ImageGrab.py >> $PREFIX/make_install_osx.log 2>&1
 #
-env CC=clang CXX=clang++ LDSHARED="clang -v -undefined error -dynamiclib -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
-env CC=clang CXX=clang++ LDSHARED="clang -v -undefined error -dynamiclib -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT"  CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT"  CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/PIL/  >> $PREFIX/make_install_osx.log 2>&1
 echo Pillow libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
@@ -636,7 +636,7 @@ clang -v -undefined error -dynamiclib \
 `find build -name \*.o` \
 -L$PREFIX/Library/lib \
 -Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.9 \
--L/usr/local/lib -ljpeg -ltiff -L/opt/local/lib -lfreetype \
+-L/usr/local/lib -ljpeg -ltiff -L/opt/X11/lib -lfreetype \
 -o build/PIL.so  >> $PREFIX/make_install_osx.log 2>&1
 cp build/PIL.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
@@ -645,9 +645,9 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
 pushd matplotlib  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/" LDFLAGS="-L/opt/X11/lib" LDSHARED="clang -v -undefined error -dynamiclib -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT"  CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 # Need to install matplotlib from the git repository so pip gets the proper version number:
-env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/" LDFLAGS="-L/opt/X11/lib" LDSHARED="clang -v -undefined error -dynamiclib -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 -m pip install git+https://github.com/holzschu/matplotlib.git --upgrade >> $PREFIX/make_install_osx.log 2>&1
+env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 -m pip install git+https://github.com/holzschu/matplotlib.git --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # cp the dynamic libraries to build/lib.macosx.../
 echo matplotlib libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
@@ -1092,9 +1092,10 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/mak
 	# Shapely (interface for geos)
 	pushd packages >> make_install_osx.log 2>&1
 	rm -rf Shapely* >> $PREFIX/make_install_osx.log 2>&1
-	pip3.9 download shapely --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
+	downloadSource Shapely >> $PREFIX/make_install_osx.log 2>&1
 	tar xvzf Shapely-*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
 	pushd Shapely-* >> $PREFIX/make_install_osx.log 2>&1
+	cp ./setup.py setup.bak.py  >> $PREFIX/make_install_osx.log 2>&1
 	cp ../setup_Shapely.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 	# Make sure we rebuild Cython files:
@@ -1129,6 +1130,10 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/mak
 	# Fiona (interface for GDAL)
 	pushd packages >> make_install_osx.log 2>&1
 	# We need to install from the repository, because the source from pip do not include the .pyx files.
+	# Install munch before (requirement): 
+	python3.9 -m pip install cligj >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip install click_plugins >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip install munch >> $PREFIX/make_install_osx.log 2>&1
 	pushd Fiona >> $PREFIX/make_install_osx.log 2>&1
 	# Make sure we rebuild Cython files:
 	cp ../setup_Fiona.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
@@ -1150,7 +1155,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/mak
 		PLATFORM=macosx \
 		GDAL_VERSION=3.4.0 \
 		python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
-	# also installs: clijg, click_plugins, munch
+	# also installs: cligj, click_plugins, munch
 	echo "Fiona libraries for OSX: "  >> $PREFIX/make_install_osx.log 2>&1
 	find . -name \*.so  >> $PREFIX/make_install_osx.log 2>&1
 	for library in fiona/schema.cpython-39-darwin.so fiona/ogrext.cpython-39-darwin.so fiona/_crs.cpython-39-darwin.so fiona/_err.cpython-39-darwin.so fiona/_transform.cpython-39-darwin.so fiona/_shim.cpython-39-darwin.so fiona/_geometry.cpython-39-darwin.so fiona/_env.cpython-39-darwin.so
@@ -1233,6 +1238,8 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/mak
     python3.9 -m pip install geopandas >> $PREFIX/make_install_osx.log 2>&1
     # Packages used by geopandas:
     # rasterio: must use submodule since the Pip version does not include the Cython sources:
+	python3.9 -m pip install snuggs >> $PREFIX/make_install_osx.log 2>&1
+	python3.9 -m pip install affine >> $PREFIX/make_install_osx.log 2>&1
 	pushd packages >> make_install_osx.log 2>&1
 	pushd rasterio >> $PREFIX/make_install_osx.log 2>&1
 	touch rasterio/*.pyx >> $PREFIX/make_install_osx.log 2>&1
@@ -1269,6 +1276,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/mak
 	then
 		export LIBRARY_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
 		# scikit-build (for OpenCV):
+		python3.9 -m pip install distro >> $PREFIX/make_install_osx.log 2>&1
 		# Submodule forked because many changes to help cmake in the right direction.
 		pushd packages >> make_install_osx.log 2>&1
 		pushd scikit-build >> $PREFIX/make_install_osx.log 2>&1
@@ -1339,6 +1347,8 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/astropy/stats/ >> $PREFIX/mak
 # scipy
 if [ $USE_FORTRAN == 1 ];
 then
+	# Needed to build scipy since it uses Fortran:
+	# But must also be unset since it uses C++:
 	# export LIBRARY_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
 	# Copy the version of Library created until now so it can be used for "standard" version of the App:
 	mkdir -p $PREFIX/with_scipy  >> make_install_osx.log 2>&1
@@ -1354,6 +1364,8 @@ then
 	# git pull upstream tags/v1.7.1 == get v1.7.1 from upstream (this one compiles)
 	# v1.7.2 fails at compiling, for syntax error.
 	sed -i bak "s|__main_directory__|${PREFIX}/Frameworks_macosx|" site.cfg >> $PREFIX/make_install_osx.log 2>&1
+	# Only for OSX: gfortran needs -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib:
+	sed -i bak "s|-lgfortran|-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib &|g" site.cfg >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 	# pip install . : can't install because version number is not PEP440
  	echo "Installing scipy:" >> $PREFIX/make_install_osx.log 2>&1
@@ -1565,6 +1577,7 @@ then
 	# also must add astro-gala (if possible), cartopy
 	# 
 	# statsmodels:
+	python3.9 -m pip install patsy >> $PREFIX/make_install_osx.log 2>&1
 	pushd packages >> make_install_osx.log 2>&1
 	pushd statsmodels >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
