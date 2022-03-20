@@ -2,6 +2,7 @@
 # you cannot run it directly
 
 import os
+import sys
 
 homePath = os.environ['HOME']
 libraryPath = os.path.join(homePath, "Library")
@@ -12,6 +13,8 @@ if (os.environ.get('_OLD_VIRTUAL_PATH') is not None):
     os.environ['PYTHONUSERBASE'] = libraryPath
     os.environ['PATH'] = os.environ['_OLD_VIRTUAL_PATH']
     del os.environ['_OLD_VIRTUAL_PATH']
+    virtualEnvPath = os.path.join(os.environ['VIRTUAL_ENV'], "lib/python3.9/site-packages")
+    sys.path.remove(virtualEnvPath)
     del os.environ['VIRTUAL_ENV']
 
 path = os.environ['PATH']
@@ -24,4 +27,16 @@ os.environ['PYTHONPYCACHEPREFIX'] = os.path.join(virtualEnvDir, "__pycache__")
 os.environ['PYTHONUSERBASE'] = virtualEnvDir
 os.environ['VIRTUAL_ENV'] = virtualEnvDir
 os.environ['PATH'] = virtualEnvDir + '/bin:' + path
-
+# Edit sys paths too:
+libraryPath = os.path.join(libraryPath, "lib/python3.9/site-packages")
+if (libraryPath in sys.path): 
+    sys.path.remove(libraryPath)
+if (libraryPath.startswith("/private")):
+    libraryPath = libraryPath.removeprefix("/private")
+    if (libraryPath in sys.path): 
+        sys.path.remove(libraryPath)
+else:
+    libraryPath = os.path.join("/private", libraryPath)
+    if (libraryPath in sys.path): 
+        sys.path.remove(libraryPath)
+sys.path.insert(6, os.path.join(virtualEnvDir, "lib/python3.9/site-packages"))
