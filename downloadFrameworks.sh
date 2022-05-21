@@ -16,9 +16,10 @@ curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libpng.xcf
 curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libxslt.xcframework.zip
 curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libexslt.xcframework.zip
 curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libfftw3.xcframework.zip
+curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/libfftw3_threads.xcframework.zip
 curl -OL https://github.com/holzschu/ios_system/releases/download/v3.0.1/ios_system.xcframework.zip
 
-rm -rf libffi.xcframework crypto.xcframework openssl.xcframework openblas.xcframework ios_system.xcframework libzmq.xcframework libjpeg.xcframework libtiff.xcframework freetype.xcframework harfbuzz.xcframework libpng.xcframework libxslt.xcframework libexslt.xcframework libfftw3.xcframework
+rm -rf libffi.xcframework crypto.xcframework openssl.xcframework openblas.xcframework ios_system.xcframework libzmq.xcframework libjpeg.xcframework libtiff.xcframework freetype.xcframework harfbuzz.xcframework libpng.xcframework libxslt.xcframework libexslt.xcframework libfftw3.xcframework libfftw3_threads.xcframework
 unzip -q libffi.xcframework.zip
 unzip -q crypto.xcframework.zip
 unzip -q openssl.xcframework.zip
@@ -32,6 +33,7 @@ unzip -q libpng.xcframework.zip
 unzip -q libxslt.xcframework.zip
 unzip -q libexslt.xcframework.zip
 unzip -q libfftw3.xcframework.zip
+unzip -q libfftw3_threads.xcframework.zip
 unzip -q ios_system.xcframework.zip
 
 popd
