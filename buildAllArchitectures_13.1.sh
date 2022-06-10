@@ -547,6 +547,8 @@ else
 	find build -name \*.a >> $PREFIX/make_install_osx.log 2>&1
 	cp build/temp.macosx-${OSX_VERSION}-x86_64-3.9/libnpyrandom.a $PREFIX/Library/lib/python3.9/site-packages/numpy-*.egg/numpy/random/lib/libnpyrandom.a >> $PREFIX/make_install_osx.log 2>&1
 	cp build/temp.macosx-${OSX_VERSION}-x86_64-3.9/libnpymath.a  $PREFIX/Library/lib/python3.9/site-packages/numpy-*.egg/numpy/core/lib/libnpymath.a >> $PREFIX/make_install_osx.log 2>&1
+	cp build/temp.macosx-${OSX_VERSION}-x86_64-3.9/libnpyrandom.a $PREFIX/Library/lib/python3.9/site-packages/numpy/random/lib/libnpyrandom.a >> $PREFIX/make_install_osx.log 2>&1
+	cp build/temp.macosx-${OSX_VERSION}-x86_64-3.9/libnpymath.a  $PREFIX/Library/lib/python3.9/site-packages/numpy/core/lib/libnpymath.a >> $PREFIX/make_install_osx.log 2>&1
 	find $PREFIX/Library/lib/python3.9/site-packages/numpy* -name \*.a >> $PREFIX/make_install_osx.log 2>&1
 fi
 echo numpy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
@@ -602,7 +604,6 @@ python3.9 -m pip install cycler --upgrade  >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
 rm -rf kiwisolver* >> $PREFIX/make_install_osx.log 2>&1
 # python3.9 -m pip download --no-deps --no-binary kiwisolver kiwisolver >> $PREFIX/make_install_osx.log 2>&1
-# kiwisolver 1.4.0 requires cppy
 python3.9 -m pip install cppy --upgrade  >> make_install_osx.log 2>&1
 downloadSource kiwisolver >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf kiwisolver*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -613,7 +614,8 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
 env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 echo kiwisolver libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
-cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/kiwisolver.cpython-39-darwin.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/  >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/kiwisolver  >> $PREFIX/make_install_osx.log 2>&1
+cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/kiwisolver/_cext.cpython-39-darwin.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/kiwisolver/  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 ## Pillow
@@ -1832,10 +1834,14 @@ else
     # numpy is now at numpy-1.21.0.dev0+714.g50a393ae8-py3.9-macosx-10.15-x86_64.egg//numpy/random/lib
 	cp build/temp.macosx-${OSX_VERSION}-arm64-3.9/libnpyrandom.a $PREFIX/Library/lib/python3.9/site-packages/numpy-*.egg/numpy/random/lib/libnpyrandom.a >> $PREFIX/make_ios.log 2>&1
 	cp build/temp.macosx-${OSX_VERSION}-arm64-3.9/libnpymath.a  $PREFIX/Library/lib/python3.9/site-packages/numpy-*.egg/numpy/core/lib/libnpymath.a >> $PREFIX/make_ios.log 2>&1
+	cp build/temp.macosx-${OSX_VERSION}-arm64-3.9/libnpyrandom.a $PREFIX/Library/lib/python3.9/site-packages/numpy/random/lib/libnpyrandom.a >> $PREFIX/make_ios.log 2>&1
+	cp build/temp.macosx-${OSX_VERSION}-arm64-3.9/libnpymath.a  $PREFIX/Library/lib/python3.9/site-packages/numpy/core/lib/libnpymath.a >> $PREFIX/make_ios.log 2>&1
 	if [ $USE_FORTRAN == 1 ];
 	then
 		cp build/temp.macosx-${OSX_VERSION}-arm64-3.9/libnpyrandom.a $PREFIX/with_scipy/Library/lib/python3.9/site-packages/numpy-*.egg/numpy/random/lib/libnpyrandom.a >> $PREFIX/make_ios.log 2>&1
 		cp build/temp.macosx-${OSX_VERSION}-arm64-3.9/libnpymath.a  $PREFIX/with_scipy/Library/lib/python3.9/site-packages/numpy-*.egg/numpy/core/lib/libnpymath.a >> $PREFIX/make_ios.log 2>&1
+		cp build/temp.macosx-${OSX_VERSION}-arm64-3.9/libnpyrandom.a $PREFIX/with_scipy/Library/lib/python3.9/site-packages/numpy/random/lib/libnpyrandom.a >> $PREFIX/make_ios.log 2>&1
+		cp build/temp.macosx-${OSX_VERSION}-arm64-3.9/libnpymath.a  $PREFIX/with_scipy/Library/lib/python3.9/site-packages/numpy/core/lib/libnpymath.a >> $PREFIX/make_ios.log 2>&1
 	fi
 fi
 echo numpy libraries for iOS: >> $PREFIX/make_ios.log 2>&1
@@ -1891,7 +1897,8 @@ pushd packages >> make_ios.log 2>&1
 pushd kiwisolver* >> $PREFIX/make_ios.log 2>&1
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.9 " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.9 -lz -lpython3.9" PLATFORM=iphoneos python3.9 setup.py build  >> $PREFIX/make_ios.log 2>&1
-cp ./build/lib.macosx-${OSX_VERSION}-arm64-3.9/kiwisolver.cpython-39-darwin.so $PREFIX/build/lib.darwin-arm64-3.9/  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/kiwisolver/  >> $PREFIX/make_ios.log 2>&1
+cp ./build/lib.macosx-${OSX_VERSION}-arm64-3.9/kiwisolver/_cext.cpython-39-darwin.so $PREFIX/build/lib.darwin-arm64-3.9/kiwisolver/  >> $PREFIX/make_ios.log 2>&1
 echo kiwisolver libraries for iOS: >> $PREFIX/make_ios.log 2>&1
 find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
@@ -2837,7 +2844,8 @@ pushd packages >> make_simulator.log 2>&1
 pushd kiwisolver* >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/build/lib.darwin-x86_64-3.9 " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $SIM_SDKROOT -lz -L$PREFIX/build/lib.darwin-x86_64-3.9 -lpython3.9 -F$PREFIX/Frameworks_iphonesimulator -framework ios_system" PLATFORM=iphonesimulator python3.9 setup.py build  >> $PREFIX/make_simulator.log 2>&1
-cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/kiwisolver.cpython-39-darwin.so $PREFIX/build/lib.darwin-x86_64-3.9/  >> $PREFIX/make_simulator.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/kiwisolver/  >> $PREFIX/make_simulator.log 2>&1
+cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.9/kiwisolver/_cext.cpython-39-darwin.so $PREFIX/build/lib.darwin-x86_64-3.9/kiwisolver/  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 ## Pillow
