@@ -16,7 +16,7 @@ then
 	fi
 fi
 
-OSX_VERSION=`sw_vers -productVersion |awk -F. '{print $1"."$2}'`
+OSX_VERSION=11.5 # `sw_vers -productVersion |awk -F. '{print $1"."$2}'`
 
 edit_Info_plist() 
 {
@@ -71,7 +71,7 @@ edit_Info_plist_noSimulator()
 # lzma functions are forbidden on the AppStore. 
 # You can build the lzma modyle by adding the lzma headers in the Include path and adding _lzma to this list,
 # but you can't submit to the AppStore.
-for name in _bz2 _cffi_backend _crypt _ctypes _ctypes_test _dbm _decimal _hashlib _lsprof _multiprocessing _opcode _posixshmem _queue _sqlite3 _ssl _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz kiwisolver syslog xxlimited 
+for name in _bz2 _cffi_backend _crypt _ctypes _ctypes_test _dbm _decimal _hashlib _lsprof _multiprocessing _opcode _posixshmem _queue _sqlite3 _ssl _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz syslog xxlimited 
 do 
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
@@ -144,7 +144,7 @@ done
 
 # Pillow, matplotlib, lxml (more than 2 levels of hierarchy, suffix is .cpython-39-darwin.so)
 # except for zmq/backend/cffi/_cffi where it's .abi3.so for MacOSX and .cpython-39-darwin.so for iOS & Simulator
-for library in zmq/backend/cffi/_cffi matplotlib/_ttconv matplotlib/_path matplotlib/_qhull matplotlib/ft2font matplotlib/_c_internal_utils matplotlib/_tri matplotlib/_contour matplotlib/_image matplotlib/backends/_backend_agg matplotlib/backends/_tkagg  regex/_regex wordcloud/query_integral_image pyfftw/pyfftw 
+for library in kiwisolver/_cext zmq/backend/cffi/_cffi matplotlib/_ttconv matplotlib/_path matplotlib/_qhull matplotlib/ft2font matplotlib/_c_internal_utils matplotlib/_tri matplotlib/_contour matplotlib/_image matplotlib/backends/_backend_agg matplotlib/backends/_tkagg  regex/_regex wordcloud/query_integral_image pyfftw/pyfftw 
 do
 	# replace all "/" with ".
 	name=${library//\//.}
@@ -435,7 +435,7 @@ fi  # [ $APP == "Carnets" ];
 exit 0
 
 # old code for Python 1-level modules 
-for name in _asyncio _bisect _blake2 _bz2 _codecs_cn _codecs_hk _codecs_iso2022 _codecs_jp _codecs_kr _codecs_tw _contextvars _crypt _csv _ctypes _ctypes_test _datetime _dbm _decimal _elementtree _hashlib _heapq _json _lsprof _md5 _multibytecodec _multiprocessing _opcode _pickle _posixshmem _posixsubprocess _queue _random _sha1 _sha256 _sha3 _sha512 _socket _sqlite3 _ssl _statistics _struct _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz _zoneinfo array audioop binascii cmath fcntl grp math mmap parser pyexpat resource select syslog termios unicodedata xxlimited zlib _cffi_backend kiwisolver 
+for name in _asyncio _bisect _blake2 _bz2 _codecs_cn _codecs_hk _codecs_iso2022 _codecs_jp _codecs_kr _codecs_tw _contextvars _crypt _csv _ctypes _ctypes_test _datetime _dbm _decimal _elementtree _hashlib _heapq _json _lsprof _md5 _multibytecodec _multiprocessing _opcode _pickle _posixshmem _posixsubprocess _queue _random _sha1 _sha256 _sha3 _sha512 _socket _sqlite3 _ssl _statistics _struct _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz _zoneinfo array audioop binascii cmath fcntl grp math mmap parser pyexpat resource select syslog termios unicodedata xxlimited zlib _cffi_backend 
 do 
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do

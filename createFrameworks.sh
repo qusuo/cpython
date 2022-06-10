@@ -5,7 +5,7 @@
 #  name /usr/lib/libSystem.B.dylib (offset 24)
 #  name /System/Library/Frameworks/CoreFoundation.framework/CoreFoundation (offset 24)
 
-OSX_VERSION=`sw_vers -productVersion |awk -F. '{print $1"."$2}'`
+OSX_VERSION=11.5  # `sw_vers -productVersion |awk -F. '{print $1"."$2}'`
 export PREFIX=$PWD
 
 for name in python3_ios pythonA pythonB pythonC pythonD pythonE
