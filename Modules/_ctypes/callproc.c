@@ -1665,11 +1665,11 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 				(strcmp(nameC, "astropy.io.votable.tablewriter") == 0) ||
 				(strcmp(nameC, "astropy.utils._compiler") == 0) ||
 				(strcmp(nameC, "astropy.utils.xml._iterparser") == 0) ||
-				(strcmp(nameC, "astropy.modeling._projections") == 0) ||
+				// (strcmp(nameC, "astropy.modeling._projections") == 0) ||
 				(strcmp(nameC, "astropy.time._parse_times") == 0) ||
 				(strcmp(nameC, "astropy.table._np_utils") == 0) ||
 				(strcmp(nameC, "astropy.table._column_mixins") == 0) ||
-				(strcmp(nameC, "astropy.cosmology.scalar_inv_efuncs") == 0) ||
+				(strcmp(nameC, "astropy.cosmology.flrw.scalar_inv_efuncs") == 0) ||
 				(strcmp(nameC, "astropy.convolution._convolve") == 0) ||
 				(strcmp(nameC, "astropy.stats._fast_sigma_clip") == 0) || 
 				(strcmp(nameC, "astropy.stats._stats") == 0)) {
