@@ -427,7 +427,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 # jupyterlab. No need to use submodules, we take the code directly from pip.
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 rm -rf jupyterlab-* >> $PREFIX/make_install_osx.log 2>&1
-downloadSource jupyterlab 4.0.0a22 >> $PREFIX/make_install_osx.log 2>&1
+downloadSource jupyterlab >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf jupyterlab*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm jupyterlab*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd jupyterlab-* >> $PREFIX/make_install_osx.log 2>&1
@@ -470,7 +470,7 @@ pip install jupyterlab-language-pack-zh-TW >> $PREFIX/make_install_osx.log 2>&1
 # retrolab: Same as jupyterlab, unmodified package from pip.
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 rm -rf retrolab-*  >> $PREFIX/make_install_osx.log 2>&1
-downloadSource retrolab 0.4.0a1 >> $PREFIX/make_install_osx.log 2>&1
+downloadSource retrolab >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf retrolab*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 rm retrolab*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 pushd retrolab-* >> $PREFIX/make_install_osx.log 2>&1
@@ -498,7 +498,7 @@ cp jupyter_server_services_contents_fileio.py $PREFIX/Library/lib/python3.9/site
 cp jupyter_server_services_kernels_kernelmanager.py $PREFIX/Library/lib/python3.9/site-packages/jupyter_server/services/kernels/kernelmanager.py >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
-# Add caret-color to all css files: 
+# Add caret-color to all css files:
 find $PREFIX/Library/share/jupyter -type f -name \*.css -exec sed -i bak 's/--jp-editor-cursor-color: var(--jp-ui-font-color0);/&\
   caret-color: var(--jp-ui-font-color0);/' {} \; -print  >> $PREFIX/make_install_osx.log 2>&1
 #
