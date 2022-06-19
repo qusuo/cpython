@@ -579,6 +579,7 @@ _PyModule_Clear(PyObject *m)
     // 10/07/21: adding statsmodels
     // 29/10/21: added lxml, pyfftw, pygeos, wordcloud, qutip (all cython modules).
     // 02/11/21: pygeos, pyproj, fiona, statsmodels, rasterio, shapely
+    // 17/06/22: contourpy
     int moduleNeedsCleanup = 0;
     PyModuleObject *mod = (PyModuleObject *)m;
 	if (mod->md_name != NULL) {
@@ -599,13 +600,19 @@ _PyModule_Clear(PyObject *m)
 				|| (strncmp(utf8name, "rasterio.", 9) == 0)
 				|| (strncmp(utf8name, "wordcloud.", 10) == 0)
 				|| (strncmp(utf8name, "statsmodels.", 12) == 0)) {
-			// iOS, debug:
-			// fprintf(thread_stderr, "Module = %x name = %s refCount = %zd ", mod, utf8name, m->ob_refcnt);
-			if (mod->md_def && mod->md_def->m_free) {
-				// fprintf(thread_stderr, "module has a free function: %x", mod->md_def->m_free);
-				moduleNeedsCleanup = 1;
+			// scipy.spatial._distance_pybind uses pybind, not cython. 
+			// same with scipy.fft._pocketfft.pypocketfft
+			// pybind cleanup function is already called, and can't be called twice. 
+			if ((strncmp(utf8name, "scipy.spatial._distance_pybind", 30) != 0) && 
+				(strncmp(utf8name, "scipy.fft._pocketfft.pypocketfft", 32) != 0)) {
+				// iOS, debug:
+				// fprintf(thread_stderr, "Module = %x name = %s refCount = %zd ", mod, utf8name, m->ob_refcnt);
+				if (mod->md_def && mod->md_def->m_free) {
+					// fprintf(thread_stderr, "module has a free function: %x", mod->md_def->m_free);
+					moduleNeedsCleanup = 1;
+				}
+				// fprintf(thread_stderr, "\n");
 			}
-			// fprintf(thread_stderr, "\n");
 		}
 	}
 #endif
