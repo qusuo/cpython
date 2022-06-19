@@ -144,7 +144,7 @@ done
 
 # Pillow, matplotlib, lxml (more than 2 levels of hierarchy, suffix is .cpython-39-darwin.so)
 # except for zmq/backend/cffi/_cffi where it's .abi3.so for MacOSX and .cpython-39-darwin.so for iOS & Simulator
-for library in kiwisolver/_cext zmq/backend/cffi/_cffi matplotlib/_ttconv matplotlib/_path matplotlib/_qhull matplotlib/ft2font matplotlib/_c_internal_utils matplotlib/_tri matplotlib/_contour matplotlib/_image matplotlib/backends/_backend_agg matplotlib/backends/_tkagg  regex/_regex wordcloud/query_integral_image pyfftw/pyfftw 
+for library in kiwisolver/_cext zmq/backend/cffi/_cffi matplotlib/_ttconv matplotlib/_path matplotlib/_qhull matplotlib/ft2font matplotlib/_c_internal_utils matplotlib/_tri matplotlib/_image matplotlib/backends/_backend_agg matplotlib/backends/_tkagg  regex/_regex contourpy/_contourpy wordcloud/query_integral_image pyfftw/pyfftw 
 do
 	# replace all "/" with ".
 	name=${library//\//.}
