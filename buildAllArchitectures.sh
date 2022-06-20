@@ -11,7 +11,8 @@ export OSX_SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
 export IOS_SDKROOT=$(xcrun --sdk iphoneos --show-sdk-path)
 export SIM_SDKROOT=$(xcrun --sdk iphonesimulator --show-sdk-path)
 export DEBUG="-O3 -Wall"
-export USE_CACHED_PACKAGES=1
+# Comment this line to re-download all package source from PyPi
+# export USE_CACHED_PACKAGES=1
 # DEBUG="-g"
 export OSX_VERSION=11.5 # $(sw_vers -productVersion |awk -F. '{print $1"."$2}')
 # Numpy sets it to 10.9 otherwise. gfortran needs it to 11.5 (for scipy at least)
@@ -83,7 +84,7 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
 	ac_cv_func_setpgid=no \
 	ac_cv_func_setpgrp=no \
 	ac_cv_func_setuid=no \
-    ac_cv_func_forkpty=no \
+    ac_cv_func_forkpty=no \
     ac_cv_func_openpty=no \
 	ac_cv_func_clock_settime=no >& configure_osx.log
 # enable-framework incompatible with local install
@@ -169,7 +170,7 @@ echo Installing send2trash >> make_install_osx.log 2>&1
 pushd packages >> make_install_osx.log 2>&1
 downloadSource Send2Trash >> $PREFIX/make_install_osx.log 2>&1
 pushd Send2Trash* >> $PREFIX/make_install_osx.log 2>&1
-if [! -f send2trash/__init__.pybak ];
+if [ ! -f send2trash/__init__.pybak ];
 then
 	sed -i bak "s/^import sys/&, os/" send2trash/__init__.py  >> $PREFIX/make_install_osx.log 2>&1
 	sed -i bak "s/^if sys.platform == .darwin./& and not os.uname\(\).machine.startswith\('iP'\)/" send2trash/__init__.py  >> $PREFIX/make_install_osx.log 2>&1
@@ -443,23 +444,23 @@ downloadSource retrolab >> $PREFIX/make_install_osx.log 2>&1
 pushd retrolab-* >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 # Disable autozoom:
-if [! -f retrolab/templates/tree.htmlbak ]; 
+if [ ! -f retrolab/templates/tree.htmlbak ]; 
 then
 sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/tree.html  >> $PREFIX/make_install_osx.log 2>&1
 fi
-if [! -f retrolab/templates/notebooks.htmlbak ]; 
+if [ ! -f retrolab/templates/notebooks.htmlbak ]; 
 then
 sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/notebooks.html  >> $PREFIX/make_install_osx.log 2>&1
 fi
-if [! -f retrolab/templates/edit.htmlbak ]; 
+if [ ! -f retrolab/templates/edit.htmlbak ]; 
 then
 sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/edit.html  >> $PREFIX/make_install_osx.log 2>&1
 fi
-if [! -f retrolab/templates/consoles.htmlbak ]; 
+if [ ! -f retrolab/templates/consoles.htmlbak ]; 
 then
 sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/consoles.html  >> $PREFIX/make_install_osx.log 2>&1
 fi
-if [! -f retrolab/templates/terminals.htmlbak ]; 
+if [ ! -f retrolab/templates/terminals.htmlbak ]; 
 then
 sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/terminals.html  >> $PREFIX/make_install_osx.log 2>&1
 fi
@@ -585,11 +586,11 @@ pushd Pillow*  >> $PREFIX/make_install_osx.log 2>&1
 cp ../setup_Pillow.py ./setup.py >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 # image show and image capture not implemented on iOS.
-if [! -f src/PIL/ImageShow.pybak ];
+if [ ! -f src/PIL/ImageShow.pybak ];
 then
 sed -i bak 's/^if sys.platform == "darwin"/& and not os.uname\(\).machine.startswith\("iP"\)/' src/PIL/ImageShow.py >> $PREFIX/make_install_osx.log 2>&1
 fi
-if [! -f src/PIL/ImageGrab.pybak ];
+if [ ! -f src/PIL/ImageGrab.pybak ];
 then
 sed -i bak 's/    if sys.platform == "darwin"/& and not os.uname\(\).machine.startswith\("iP"\)/' src/PIL/ImageGrab.py >> $PREFIX/make_install_osx.log 2>&1
 fi
@@ -860,7 +861,7 @@ downloadSource pandas  >> $PREFIX/make_install_osx.log 2>&1
 pushd pandas*  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 # To make a single module, we need these functions to be static:
-if [! -f pandas/_libs/tslibs/util.pxdbak ];
+if [ ! -f pandas/_libs/tslibs/util.pxdbak ];
 then
 sed -i bak 's/PyObject. char_to_string/static &/' ./pandas/_libs/tslibs/util.pxd >> $PREFIX/make_install_osx.log 2>&1
 fi
@@ -986,14 +987,14 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/erfa/ >> $PREFIX/make_install
     sed -i bak '/jinja2/d' pyproject.toml
 	# We need to edit the position of .astropy (updated for 4.6.2):
 	# Only do this once!
-	if [! -f astropy/config/paths.pybak ];
+	if [ ! -f astropy/config/paths.pybak ];
 	then
 	sed -i bak 's/^        homedir = os.path.expanduser(...)/&\
         # iOS: change homedir to HOME\/Documents\
         if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
             homedir = homedir + "\/Documents"/' astropy/config/paths.py  >> $PREFIX/make_install_osx.log 2>&1
 	fi
-	if [! -f astropy/convolution/convolve.pybak ];
+	if [ ! -f astropy/convolution/convolve.pybak ];
 	then
 	sed -i bak 's/^LIBRARY_PATH = os.path.dirname(__file__)/# iOS: For load_library to work, we need to give it special arguments\
 &\
@@ -1857,7 +1858,7 @@ env CC=clang CXX=clang++ \
 	ac_cv_func_setpgid=no \
 	ac_cv_func_setpgrp=no \
 	ac_cv_func_setuid=no \
-    ac_cv_func_forkpty=no \
+    ac_cv_func_forkpty=no \
     ac_cv_func_openpty=no \
 	ac_cv_func_clock_settime=no >& configure_ios.log
 # --without-pymalloc  when debugging memory
@@ -2966,7 +2967,7 @@ env CC=clang CXX=clang++ \
 	ac_cv_func_setpgid=no \
 	ac_cv_func_setpgrp=no \
 	ac_cv_func_setuid=no \
-    ac_cv_func_forkpty=no \
+    ac_cv_func_forkpty=no \
     ac_cv_func_openpty=no \
 	ac_cv_func_clock_settime=no >& configure_simulator.log
 #	--without-pymalloc 
