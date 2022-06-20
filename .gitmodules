@@ -56,9 +56,6 @@
 [submodule "packages/pysal"]
 	path = packages/pysal
 	url = https://github.com/pysal/pysal.git
-[submodule "packages/statsmodels"]
-	path = packages/statsmodels
-	url = https://github.com/statsmodels/statsmodels.git
 [submodule "packages/pygeos"]
 	path = packages/pygeos
 	url = https://github.com/pygeos/pygeos.git
