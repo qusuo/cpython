@@ -117,34 +117,34 @@ rm -rf build/lib.macosx-${OSX_VERSION}-x86_64-3.9
 make -j 4 >& make_osx.log
 # exit 0 # Debugging embedded packages in Modules/Setup
 mkdir -p build/lib.macosx-${OSX_VERSION}-x86_64-3.9  > make_install_osx.log 2>&1
-cp libpython3.9.dylib build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
-make  -j 4 install  >> make_install_osx.log 2>&1
+cp libpython3.9.dylib build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> $PREFIX/make_install_osx.log 2>&1
+make  -j 4 install  >> $PREFIX/make_install_osx.log 2>&1
 export PYTHONHOME=$PREFIX/Library
 # When working on frozen importlib, we need to compile twice:
 # Otherwise, we can comment the next 6 lines
-# make regen-importlib >> make_osx.log 2>&1
-# find . -name \*.o -delete  >> make_osx.log 2>&1
-# make  -j 4 >> make_osx.log 2>&1 
-# mkdir -p build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
-# cp libpython3.9.dylib build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> make_install_osx.log 2>&1
-# cp python.exe build/lib.macosx-${OSX_VERSION}-x86_64-3.9/python3.9  >> make_install_osx.log 2>&1
-# make  -j 4 install >> make_install_osx.log 2>&1
+# make regen-importlib >> $PREFIX/make_osx.log 2>&1
+# find . -name \*.o -delete  >> $PREFIX/make_osx.log 2>&1
+# make  -j 4 >> $PREFIX/make_osx.log 2>&1 
+# mkdir -p build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> $PREFIX/make_install_osx.log 2>&1
+# cp libpython3.9.dylib build/lib.macosx-${OSX_VERSION}-x86_64-3.9  >> $PREFIX/make_install_osx.log 2>&1
+# cp python.exe build/lib.macosx-${OSX_VERSION}-x86_64-3.9/python3.9  >> $PREFIX/make_install_osx.log 2>&1
+# make  -j 4 install >> $PREFIX/make_install_osx.log 2>&1
 # We should make this automatic:
-cp -r Lib/venv/scripts/ios Library/lib/python3.9/venv/scripts/  >> make_install_osx.log 2>&1
+cp -r Lib/venv/scripts/ios Library/lib/python3.9/venv/scripts/  >> $PREFIX/make_install_osx.log 2>&1
 # Force reinstall and upgrade of pip, setuptools 
-echo Starting package installation  >> make_install_osx.log 2>&1
-python3.9 -m pip install pip --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install setuptools --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install setuptools-rust --upgrade >> make_install_osx.log 2>&1
+echo Starting package installation  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install pip --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install setuptools --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install setuptools-rust --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # Pure-python packages that do not depend on anything, keep latest version:
 # Order of packages: packages dependent on something after the one they depend on
-python3.9 -m pip install six --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install html5lib --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install urllib3 --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install webencodings --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install wheel --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install pygments --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install Babel --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install six --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install html5lib --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install urllib3 --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install webencodings --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install wheel --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install pygments --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install Babel --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # markupsafe: prevent compilation of extension:
 echo Installing MarkupSafe with no extensions >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p packages >> $PREFIX/make_install_osx.log 2>&1
@@ -156,17 +156,17 @@ python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # rm -rf MarkupSafe* >> $PREFIX/make_install_osx.log 2>&1
 popd >> $PREFIX/make_install_osx.log 2>&1
-echo Done installing MarkupSafe >> make_install_osx.log 2>&1
+echo Done installing MarkupSafe >> $PREFIX/make_install_osx.log 2>&1
 # end markupsafe 
-python3.9 -m pip install jinja2 --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install attrs --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install appnope --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install packaging --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install bleach --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install entrypoints --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install jinja2 --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install attrs --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install appnope --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install packaging --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install bleach --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install entrypoints --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # send2trash: don't use OSX FSMoveObjectToTrashSync
-echo Installing send2trash >> make_install_osx.log 2>&1
-pushd packages >> make_install_osx.log 2>&1
+echo Installing send2trash >> $PREFIX/make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource Send2Trash >> $PREFIX/make_install_osx.log 2>&1
 pushd Send2Trash* >> $PREFIX/make_install_osx.log 2>&1
 if [! -f send2trash/__init__.pybak ];
@@ -178,11 +178,11 @@ python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # rm -rf Send2Trash* >> $PREFIX/make_install_osx.log 2>&1
 popd >> $PREFIX/make_install_osx.log 2>&1
-echo done installing send2trash >> make_install_osx.log 2>&1
+echo done installing send2trash >> $PREFIX/make_install_osx.log 2>&1
 # end send2trash
 # pyrsistent: prevent compilation of extension:
-echo Installing pyrsistent with no extension >> make_install_osx.log 2>&1
-pushd packages >> make_install_osx.log 2>&1
+echo Installing pyrsistent with no extension >> $PREFIX/make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource pyrsistent >> $PREFIX/make_install_osx.log 2>&1
 pushd pyrsistent* >> $PREFIX/make_install_osx.log 2>&1
 sed -i bak 's/^if platform.python_implementation/#&/' setup.py  >> $PREFIX/make_install_osx.log 2>&1
@@ -191,34 +191,34 @@ python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # rm -rf pyrsistent* >> $PREFIX/make_install_osx.log 2>&1
 popd >> $PREFIX/make_install_osx.log 2>&1
-echo done installing pyrsistent >> make_install_osx.log 2>&1
+echo done installing pyrsistent >> $PREFIX/make_install_osx.log 2>&1
 # end pyrsistent
-python3.9 -m pip install ptyprocess --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install jsonschema --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install mistune --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install docutils --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install m2r --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install traitlets --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install pexpect --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install ipython-genutils --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install jupyter-core --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install nbformat --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install pandocfilters --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install testpath --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install defusedxml --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install python-dateutil --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install ptyprocess --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install jsonschema --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install mistune --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install docutils --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install m2r --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install traitlets --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install pexpect --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install ipython-genutils --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install jupyter-core --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install nbformat --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install pandocfilters --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install testpath --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install defusedxml --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install python-dateutil --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # Let jedi install the version of parso it needs (since the latest version is not OK)
-# python3.9 -m pip install parso --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install jedi --upgrade >> make_install_osx.log 2>&1
+# python3.9 -m pip install parso --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install jedi --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # This simple trick prevents tornado from installing extensions:
-CC=/bin/false python3.9 -m pip install tornado --upgrade  >> make_install_osx.log 2>&1
-python3.9 -m pip install terminado --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install backcall --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install pandocfilters --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install decorator --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install prometheus-client --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install wcwidth --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install pickleshare --upgrade >> make_install_osx.log 2>&1
+CC=/bin/false python3.9 -m pip install tornado --upgrade  >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install terminado --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install backcall --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install pandocfilters --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install decorator --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install prometheus-client --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install wcwidth --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install pickleshare --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # To get further, we need cffi:
 # OSX install of cffi: we need to recompile or Python crashes. 
 # TODO: edit cffi code if static variables inside function create problems.
@@ -229,19 +229,19 @@ pushd cffi-* >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
 cp ../setup_cffi.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-# python3.9 -m pip install cffi --upgrade >> make_install_osx.log 2>&1
+# python3.9 -m pip install cffi --upgrade >> $PREFIX/make_install_osx.log 2>&1
 cp build/lib.macosx-${OSX_VERSION}-x86_64-*/_cffi_backend.cpython-39-darwin.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/  >> $PREFIX/make_install_osx.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ " python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # First, install the "standard" pyzmq: 
 python3.9 -m pip install pyzmq  >> $PREFIX/make_install_osx.log 2>&1
-python3.9 -m pip install certifi >> make_install_osx.log 2>&1
+python3.9 -m pip install certifi >> $PREFIX/make_install_osx.log 2>&1
 # Let's install prompt-toolkit for Ipython:
-python3.9 -m pip install prompt-toolkit >> make_install_osx.log 2>&1
+python3.9 -m pip install prompt-toolkit >> $PREFIX/make_install_osx.log 2>&1
 # ipython: just two files to change, we use sed to patch it: 
-echo Installing IPython for OSX  >> make_install_osx.log 2>&1
-pushd packages >> make_install_osx.log 2>&1
+echo Installing IPython for OSX  >> $PREFIX/make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource ipython >> $PREFIX/make_install_osx.log 2>&1
 pushd ipython-8* >>  $PREFIX/make_install_osx.log 2>&1
 # That's one large sed replace, but it's a single file in the repository.
@@ -292,24 +292,24 @@ python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
-# python3.9 -m pip install ipython --upgrade >> make_install_osx.log 2>&1
+# python3.9 -m pip install ipython --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # nbconvert has removed setup.py install. We install it and patch on the fly:
-echo Installing nbconvert and patch it for iOS  >> make_install_osx.log 2>&1
+echo Installing nbconvert and patch it for iOS  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip install nbconvert  >> $PREFIX/make_install_osx.log 2>&1
 cp packages/nbconvert_utils_pandoc.py $PREFIX/Library/lib/python3.9/site-packages/nbconvert/utils/pandoc.py  >> $PREFIX/make_install_osx.log 2>&1
 # argon2 for OSX: use precompiled binary. This might cause a crash later, as with cffi.
-python3.9 -m pip uninstall argon2-cffi -y >> make_install_osx.log 2>&1
-python3.9 -m pip install argon2-cffi --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip uninstall argon2-cffi -y >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install argon2-cffi --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # Download argon2 now, while the dependencies are working
-mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/_argon2_cffi_bindings/  >> make_install_osx.log 2>&1
-cp $PREFIX/Library/lib/python3.9/site-packages/_argon2_cffi_bindings/_ffi.abi3.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/_argon2_cffi_bindings/_ffi.abi3.so  >> make_install_osx.log 2>&1
-pushd packages >> make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/_argon2_cffi_bindings/  >> $PREFIX/make_install_osx.log 2>&1
+cp $PREFIX/Library/lib/python3.9/site-packages/_argon2_cffi_bindings/_ffi.abi3.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9/_argon2_cffi_bindings/_ffi.abi3.so  >> $PREFIX/make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource argon2-cffi-bindings >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Now install everything we need:
-# python3.9 -m pip install jupyter --upgrade >> make_install_osx.log 2>&1
+# python3.9 -m pip install jupyter --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # install mpmath manually because the repository is 2 years ahead of Pipy:
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd mpmath >> $PREFIX/make_install_osx.log 2>&1
 git pull  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
@@ -320,12 +320,12 @@ python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Now install sympy:
-python3.9 -m pip install sympy --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install sympy --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # For jupyter: 
 # ipykernel (edited to cleanup sockets when we close a kernel)
 unset PYZMQ_BACKEND_CFFI
 unset PYZMQ_BACKEND
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd ipykernel >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
@@ -337,11 +337,11 @@ export PYZMQ_BACKEND=cffi
 # depend on ipykernel:
 # Now we can install PyZMQ. We need to compile it ourselves to make sure it uses CFFI as a backend:
 # (the wheel uses Cython)
-echo Installing PyZMQ for OSX  >> make_install_osx.log 2>&1
+echo Installing PyZMQ for OSX  >> $PREFIX/make_install_osx.log 2>&1
 # First uninstall standard pyzmq 
 python3.9 -m pip uninstall pyzmq -y >> $PREFIX/make_install_osx.log 2>&1
 # Then install our own version:
-pushd packages  >> make_install_osx.log 2>&1
+pushd packages  >> $PREFIX/make_install_osx.log 2>&1
 downloadSource pyzmq >> $PREFIX/make_install_osx.log 2>&1
 pushd pyzmq* >> $PREFIX/make_install_osx.log 2>&1
 cp setup.py setup_pyzmq.back.py >> $PREFIX/make_install_osx.log 2>&1
@@ -361,12 +361,12 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 # Unset so that other packages can be installed
 unset PYZMQ_BACKEND_CFFI
 unset PYZMQ_BACKEND
-python3.9 -m pip install qtpy --upgrade >> make_install_osx.log 2>&1
-python3.9 -m pip install qtconsole --upgrade >> make_install_osx.log 2>&1
-# python3.9 -m pip install babel --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install qtpy --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.9 -m pip install qtconsole --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# python3.9 -m pip install babel --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # notebook
 # notebook (heavily edited to adapt to touchscreens and iOS)
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd notebook >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
@@ -374,7 +374,7 @@ python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # jupyter_client
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd jupyter_client >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 python3.9 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
@@ -382,7 +382,7 @@ python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Now: jupyter
-python3.9 -m pip install jupyter --upgrade >> make_install_osx.log 2>&1
+python3.9 -m pip install jupyter --upgrade >> $PREFIX/make_install_osx.log 2>&1
 #
 # jupyterlab/retrolab:
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
@@ -487,17 +487,17 @@ find $PREFIX/Library/share/jupyter -type f -name \*.css -exec sed -i bak 's/--jp
 # done jupyterlab/retrolab
 #
 # Cython (edited for iOS, reinitialize types at each run):
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd cython >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip install . --install-option="--no-cython-compile" >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
-# python3.9 -m pip install cython --upgrade >> make_install_osx.log 2>&1
+# python3.9 -m pip install cython --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # Numpy:
 # Cython options for numpy (and other packages: PEP489_MULTI_PHASE_INIT=0, USE_DICT_VERSIONS=0 to reduce
 # amount of memory allocated and not tracked. Also in numpy/tools/cythonize.py, "--cleanup 3" to free
 # all memory and reset pointers.
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd numpy >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 if [ $USE_FORTRAN == 0 ];
@@ -563,9 +563,9 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # For matplotlib:
 ## cycler:
-python3.9 -m pip install cycler --upgrade  >> make_install_osx.log 2>&1
+python3.9 -m pip install cycler --upgrade  >> $PREFIX/make_install_osx.log 2>&1
 ## kiwisolver
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 python3.9 -m pip install cppy --upgrade  >> $PREFIX/make_install_osx.log 2>&1
 downloadSource kiwisolver >> $PREFIX/make_install_osx.log 2>&1
 pushd kiwisolver* >> $PREFIX/make_install_osx.log 2>&1
@@ -579,7 +579,7 @@ cp ./build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/kiwisolver/_cext.cpython-
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 ## Pillow
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource Pillow >> $PREFIX/make_install_osx.log 2>&1
 pushd Pillow*  >> $PREFIX/make_install_osx.log 2>&1
 cp ../setup_Pillow.py ./setup.py >> $PREFIX/make_install_osx.log 2>&1
@@ -616,19 +616,19 @@ cp build/PIL.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/ma
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # pybind11 is required for contourpy. We update it so it works with iOS:
-# python3.9 -m pip install pybind11 --upgrade  >> make_install_osx.log 2>&1
+# python3.9 -m pip install pybind11 --upgrade  >> $PREFIX/make_install_osx.log 2>&1
 # avoid -mmacosx-version-min when compiling for iOS:
-# cp $PYTHONHOME/lib/python3.9/site-packages/pybind11/setup_helpers.py $PYTHONHOME/lib/python3.9/site-packages/pybind11/setup_helpers.bak >> make_install_osx.log 2>&1
-# cp packages/pybind11_setup_helpers.py $PYTHONHOME/lib/python3.9/site-packages/pybind11/setup_helpers.py >> make_install_osx.log 2>&1
-pushd packages >> make_install_osx.log 2>&1
-pushd pybind11 >> make_install_osx.log 2>&1
+# cp $PYTHONHOME/lib/python3.9/site-packages/pybind11/setup_helpers.py $PYTHONHOME/lib/python3.9/site-packages/pybind11/setup_helpers.bak >> $PREFIX/make_install_osx.log 2>&1
+# cp packages/pybind11_setup_helpers.py $PYTHONHOME/lib/python3.9/site-packages/pybind11/setup_helpers.py >> $PREFIX/make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+pushd pybind11 >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT"  CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ " PLATFORM=macosx python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT"  CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ " PLATFORM=macosx python3.9 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
-popd >> make_install_osx.log 2>&1
-popd >> make_install_osx.log 2>&1
+popd >> $PREFIX/make_install_osx.log 2>&1
+popd >> $PREFIX/make_install_osx.log 2>&1
 ## contourpy: 
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource contourpy >> $PREFIX/make_install_osx.log 2>&1
 pushd contourpy*  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
@@ -641,7 +641,7 @@ cp ./build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/contourpy/*.so  $PREFIX/b
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 ## matplotlib itself:
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd matplotlib  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf .eggs  >> $PREFIX/make_install_osx.log 2>&1
@@ -671,7 +671,7 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # lxml:
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource lxml >> $PREFIX/make_install_osx.log 2>&1
 pushd lxml*  >> $PREFIX/make_install_osx.log 2>&1
 cp ../setupinfo_lxml.py ./setupinfo.py  >> $PREFIX/make_install_osx.log 2>&1
@@ -699,7 +699,7 @@ cp build/lxml.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.9 >> $PREFIX/m
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # cryptography:
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 rm -rf cryptography* >> $PREFIX/make_install_osx.log 2>&1
 # This builds cryptography with rust (new version), assuming you have rustc in the path (see line 8)
 # If you don't have rust, you can add CRYPTOGRAPHY_DONT_BUILD_RUST=1
@@ -722,7 +722,7 @@ cp build//lib.macosx-${OSX_VERSION}-x86_64-cpython-39/cryptography/hazmat/bindin
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # regex (for nltk)
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 rm -rf regex*  >> $PREFIX/make_install_osx.log 2>&1
 pip3.9 download regex --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
 tar xvzf regex*.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
@@ -737,7 +737,7 @@ cp build//lib.macosx-${OSX_VERSION}-x86_64-cpython-39/regex/_regex.cpython-39-da
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Download nltk, so we can change the position for downloaded data (in data.py and in downloader.py)
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource nltk  >> $PREFIX/make_install_osx.log 2>&1
 pushd nltk*  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
@@ -748,11 +748,11 @@ python3.9 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # wordcloud: Cloned from github because we need to regenerate the C from Cython.
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd word_cloud  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-# set the version number to avoid issues
-cp ../setup_wordcloud.py setup.py  >> $PREFIX/make_install_osx.log 2>&1
+# set the version number to avoid issues. TODO: still needed?
+# cp ../setup_wordcloud.py setup.py  >> $PREFIX/make_install_osx.log 2>&1
 # Force rebuild of C file, to have Cython improved memory management:
 pushd wordcloud  >> $PREFIX/make_install_osx.log 2>&1
 cython query_integral_image.pyx  >> $PREFIX/make_install_osx.log 2>&1
@@ -768,7 +768,7 @@ cp build//lib.macosx-${OSX_VERSION}-x86_64-cpython-39/wordcloud/query_integral_i
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # pyfftw: uses libfftw.
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 # 0.13 does not compile, for some reasons. Stick to 0.12:
 downloadSource pyFFTW 0.12.0 >> $PREFIX/make_install_osx.log 2>&1
 pushd pyFFTW-*  >> $PREFIX/make_install_osx.log 2>&1
@@ -807,7 +807,7 @@ fi
 if [ $USE_FORTRAN == 1 ];
 then
 	export LIBRARY_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
-	pushd packages >> make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
     downloadSource cvxopt  >> $PREFIX/make_install_osx.log 2>&1
 	pushd cvxopt-* >>  $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
@@ -855,7 +855,7 @@ then
 	unset LIBRARY_PATH
 fi
 # Pandas
-pushd packages >> make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource pandas  >> $PREFIX/make_install_osx.log 2>&1
 pushd pandas*  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
@@ -956,9 +956,6 @@ then
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# pyerfa (for astropy 4.6.2)
-	# Cannot be downloaded with 'pip download' because numpy won't compile, so cloned (not forked):
-	# must call 'git submodule update --init --recursive' to get liberfa
-	# Try using downloadSource now. If it works, remove submodule.
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	# pushd pyerfa  >> $PREFIX/make_install_osx.log 2>&1
 	downloadSource pyerfa  >> $PREFIX/make_install_osx.log 2>&1
@@ -1076,7 +1073,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/astropy/stats/ >> $PRE
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# geopandas and cartopy: require Shapely (GEOS), fiona (GDAL), pyproj (PROJ), rtree
 	# Shapely (interface for geos)
-	pushd packages >> make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	downloadSource Shapely >> $PREFIX/make_install_osx.log 2>&1
 	pushd Shapely-* >> $PREFIX/make_install_osx.log 2>&1
 	cp ./setup.py setup.bak.py  >> $PREFIX/make_install_osx.log 2>&1
@@ -1112,7 +1109,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/astropy/stats/ >> $PRE
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# Fiona (interface for GDAL)
-	pushd packages >> make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	# We need to install from the repository, because the source from pip do not include the .pyx files.
 	# Install munch before (requirement): 
 	python3.9 -m pip install cligj >> $PREFIX/make_install_osx.log 2>&1
@@ -1162,7 +1159,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/astropy/stats/ >> $PRE
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# PyProj (interface for Proj)
-	pushd packages >> make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf pyproj-*  >> $PREFIX/make_install_osx.log 2>&1
 	env PROJ_VERSION=8.0.1 pip3.9 download pyproj --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
 	tar xvzf pyproj-*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -1209,7 +1206,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/astropy/stats/ >> $PRE
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# rtree:
-	pushd packages >> make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf Rtree-* >> $PREFIX/make_install_osx.log 2>&1
 	pip3.9 download --no-binary :all: rtree  >> $PREFIX/make_install_osx.log 2>&1
 	tar xzvf Rtree-*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
@@ -1225,7 +1222,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/astropy/stats/ >> $PRE
     # rasterio: must use submodule since the Pip version does not include the Cython sources:
 	python3.9 -m pip install snuggs >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip install affine >> $PREFIX/make_install_osx.log 2>&1
-	pushd packages >> make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	pushd rasterio >> $PREFIX/make_install_osx.log 2>&1
 	touch rasterio/*.pyx >> $PREFIX/make_install_osx.log 2>&1
 	cp ../setup_rasterio.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
@@ -1253,9 +1250,9 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/astropy/stats/ >> $PRE
     popd >> $PREFIX/make_install_osx.log 2>&1
     popd >> $PREFIX/make_install_osx.log 2>&1
     # mercantile, geopy, contextily are all pure-python: 
-    python3.9 -m pip install mercantile --upgrade >> make_install_osx.log 2>&1
-    python3.9 -m pip install geopy --upgrade >> make_install_osx.log 2>&1
-    python3.9 -m pip install contextily --upgrade >> make_install_osx.log 2>&1
+    python3.9 -m pip install mercantile --upgrade >> $PREFIX/make_install_osx.log 2>&1
+    python3.9 -m pip install geopy --upgrade >> $PREFIX/make_install_osx.log 2>&1
+    python3.9 -m pip install contextily --upgrade >> $PREFIX/make_install_osx.log 2>&1
     # cartopy requiresp Proj < 8, and I won't install two Proj, so it'll wait.
 	if [ $USE_FORTRAN == 1 ];	
 	then
@@ -1263,7 +1260,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/astropy/stats/ >> $PRE
 		# scikit-build (for OpenCV):
 		python3.9 -m pip install distro >> $PREFIX/make_install_osx.log 2>&1
 		# Submodule forked because many changes to help cmake in the right direction.
-		pushd packages >> make_install_osx.log 2>&1
+		pushd packages >> $PREFIX/make_install_osx.log 2>&1
 		pushd scikit-build >> $PREFIX/make_install_osx.log 2>&1
 		python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
 		popd >> $PREFIX/make_install_osx.log 2>&1
@@ -1333,11 +1330,11 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/astropy/stats/ >> $PRE
 if [ $USE_FORTRAN == 1 ];
 then
 	# Copy the version of Library created until now so it can be used for "standard" version of the App:
-	mkdir -p $PREFIX/with_scipy  >> make_install_osx.log 2>&1
-	rm -rf $PREFIX/with_scipy/Library/*  >> make_install_osx.log 2>&1
-	cp -r $PREFIX/Library $PREFIX/with_scipy >> make_install_osx.log 2>&1
+	mkdir -p $PREFIX/with_scipy  >> $PREFIX/make_install_osx.log 2>&1
+	rm -rf $PREFIX/with_scipy/Library/*  >> $PREFIX/make_install_osx.log 2>&1
+	cp -r $PREFIX/Library $PREFIX/with_scipy >> $PREFIX/make_install_osx.log 2>&1
 	export PYTHONHOME=$PREFIX/with_scipy/Library/
-	pushd packages >> make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	pushd scipy  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 	cp site_original.cfg site.cfg >> $PREFIX/make_install_osx.log 2>&1
@@ -1438,7 +1435,7 @@ then
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# Trying scipy 1.8.1:
-	pushd packages >> make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	pushd scipy-1.8.1  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 	cp site_original.cfg site.cfg >> $PREFIX/make_install_osx.log 2>&1
@@ -1548,17 +1545,17 @@ then
 	# seaborn: data position solved with SEABORN_DATA, set in main App. Let's install it by default. 
 	# Need to prevent seaborn from re-installing numpy-1.22 because we have numpy-1.24 already there, and it doesn't realize that 1.24 satisfies numpy>=1.15.
 	# need both --no-deps and --no-build-isolation
-	python3.9 -m pip install seaborn --upgrade --no-deps --no-build-isolation >> make_install_osx.log 2>&1
+	python3.9 -m pip install seaborn --upgrade --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
 	# Same with gym:
 	echo "Installing gym" >> $PREFIX/make_install_osx.log 2>&1
-	python3.9 -m pip install gym --upgrade --no-deps --no-build-isolation >> make_install_osx.log 2>&1
+	python3.9 -m pip install gym --upgrade --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
 	echo "Done installing gym" >> $PREFIX/make_install_osx.log 2>&1
 	# Protobuf (required for coremltools, for starter):
 	# Requires protoc with the same version number in the PATH: 
 	# curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.17.3/protoc-3.17.3-osx-x86_64.zip
 	# and follow instructions
 	# We build the non-cpp-version of protobuf. Slower, but more reliable.
-	pushd packages >> make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf protobuf*  >> $PREFIX/make_install_osx.log 2>&1
 	python3.9 -m pip download protobuf==3.18.0 --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
 	# If the version number changes, re-install protoc from release: 
@@ -1574,8 +1571,8 @@ then
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# coremltools:
-	python3.9 -m pip install tqdm  >> make_install_osx.log 2>&1
-	pushd packages >> make_install_osx.log 2>&1
+	python3.9 -m pip install tqdm  >> $PREFIX/make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	pushd coremltools >> $PREFIX/make_install_osx.log 2>&1
 	mkdir -p build_osx >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf  build_osx/*  >> $PREFIX/make_install_osx.log 2>&1
@@ -1608,8 +1605,8 @@ then
 	# The llvm-project repository has a compiler with "-fopenmp", and you'll also need to add the directory to "-L":
 	# ../llvm-project/build_osx/bin/clang -fopenmp ~/src/test.c -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -arch arm64 -miphoneos-version-min=14.0 -L ../llvm-project/build-iphoneos/lib
 	# TODO: try with "-fopenmp" for efficiency vs. stability
-	python3.9 -m pip install threadpoolctl >> make_install_osx.log 2>&1
-	pushd packages >> make_install_osx.log 2>&1
+	python3.9 -m pip install threadpoolctl >> $PREFIX/make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	pushd scikit-learn >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" PLATFORM=macosx python3.9 setup.py install >> $PREFIX/make_install_osx.log 2>&1
@@ -1629,7 +1626,7 @@ then
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# qutip. Can't download with pip, so submodule:
-	pushd packages >> make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	pushd qutip >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
 	# edited setup.py to avoid inclusion of -mmacosx-version-min=10.9 when compiling for iOS.
@@ -1666,11 +1663,13 @@ then
 	# statsmodels:
 	# TODO: update to latest version (git pull upstream)
 	python3.9 -m pip install patsy >> $PREFIX/make_install_osx.log 2>&1
-	pushd packages >> make_install_osx.log 2>&1
-	pushd statsmodels >> $PREFIX/make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
+	downloadSource statsmodels >> $PREFIX/make_install_osx.log 2>&1 
+	pushd statsmodels-* >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf .eggs  >> $PREFIX/make_install_osx.log 2>&1
-	cp ../setup_statsmodels.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
+	# Only for version number. Still needed?
+	# cp ../setup_statsmodels.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
 	find statsmodels -name \*.pyx -exec touch {} \; -print  >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.9 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.9 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 	# "python3.9 -m pip install ." removes the iOS extensions to Cython modules. 
@@ -1690,7 +1689,7 @@ then
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# also pygeos:
-	pushd packages >> make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	pushd pygeos >> $PREFIX/make_install_osx.log 2>&1
 	cp ../setup_pygeos.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
@@ -1731,7 +1730,7 @@ then
 	# pysal (and mapclassify). Can't download with pip, so submodule. Pure Python, so no need to replicate for iOS and Simulator.
 	# pysal contains mapclassify.
 	#  must install pointpats before pysal 
-	pushd packages >> make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	pushd pointpats >> $PREFIX/make_install_osx.log 2>&1
 	# Only change: opencv_contrib_python_headless instead of opencv_contrib_python
 	cp ../pointpats_requirements.txt requirements.txt >> $PREFIX/make_install_osx.log 2>&1
@@ -1741,14 +1740,14 @@ then
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# pysal: 
-	pushd packages >> make_install_osx.log 2>&1
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	pushd pysal >> $PREFIX/make_install_osx.log 2>&1
 	# Disabled giddy and splot, as it installs quantecon, which installs numba, which installs llvmlite, which uses a JIT compiler.
 	# segregation==v2.0.0 for the same reason
-	cp ../requirements_pysal.txt ./requirements.txt >> make_install_osx.log 2>&1
-	cp ../setup_pysal.py ./setup.py  >> make_install_osx.log 2>&1
-	cp ../frozen_pysal.py ./pysal/frozen.py >> make_install_osx.log 2>&1
-	cp ../base_pysal.py ./pysal/base.py >> make_install_osx.log 2>&1
+	cp ../requirements_pysal.txt ./requirements.txt >> $PREFIX/make_install_osx.log 2>&1
+	cp ../setup_pysal.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
+	cp ../frozen_pysal.py ./pysal/frozen.py >> $PREFIX/make_install_osx.log 2>&1
+	cp ../base_pysal.py ./pysal/base.py >> $PREFIX/make_install_osx.log 2>&1
 	# Here, we need "python3.9 -m pip install .", as "python3.9 setup.py install" does not install actually
 	# But "pip install ." does remove "our" numpy and install numpy 1.22 instead.
 	# --no-build-isolation and PIP_NO_BUILD_ISOLATION=false both fail to prevent this.
@@ -1871,8 +1870,8 @@ cp libpython3.9.dylib build/lib.darwin-arm64-3.9
 cp $PREFIX/build/lib.darwin-arm64-3.9/_sysconfigdata__darwin_darwin.py $PREFIX/Library/lib/python3.9/_sysconfigdata__darwin_darwin.py
 cp $PREFIX/build/lib.darwin-arm64-3.9/_sysconfigdata__darwin_darwin.py $PREFIX/with_scipy/Library/lib/python3.9/_sysconfigdata__darwin_darwin.py
 # cffi: compile with iOS SDK
-echo Installing cffi for iphoneos >> make_ios.log 2>&1
-pushd packages >> make_ios.log 2>&1
+echo Installing cffi for iphoneos >> $PREFIX/make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd cffi* >> $PREFIX/make_ios.log 2>&1
 # override setup.py for arm64 == iphoneos, not Apple Silicon
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
@@ -1889,8 +1888,8 @@ echo Installing PyZMQ for iOS  >> $PREFIX/make_ios.log 2>&1
 pushd packages  >> $PREFIX/make_ios.log 2>&1
 pushd pyzmq* >> $PREFIX/make_ios.log 2>&1
 rm -rf build/* >> $PREFIX/make_ios.log 2>&1
-export PYZMQ_BACKEND=cffi  >> make_ios.log 2>&1
-export PYZMQ_BACKEND_CFFI=1 >> make_ios.log 2>&1
+export PYZMQ_BACKEND=cffi  >> $PREFIX/make_ios.log 2>&1
+export PYZMQ_BACKEND_CFFI=1 >> $PREFIX/make_ios.log 2>&1
 env PYZMQ_BACKEND_CFFI=1 CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG -I$PREFIX" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG -I$PREFIX" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG  -I$PREFIX" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9 -lc++ -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.9" PLATFORM=iphoneos PYZMQ_BACKEND=cffi python3.9 setup.py build  >> $PREFIX/make_ios.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/zmq/backend/cffi >> $PREFIX/make_install_osx.log 2>&1
 cp build/lib.macosx-${OSX_VERSION}-arm64-cpython-39/zmq/backend/cffi/_cffi.*.so $PREFIX/build/lib.darwin-arm64-3.9/zmq/backend/cffi/  >> $PREFIX/make_ios.log 2>&1
@@ -1898,20 +1897,20 @@ echo PyZMQ libraries for iOS: >> $PREFIX/make_ios.log 2>&1
 find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
-echo Done installing PyZMQ for iOS >> make_ios.log 2>&1
+echo Done installing PyZMQ for iOS >> $PREFIX/make_ios.log 2>&1
 # end pyzmq
 # Installing argon2-cffi-bindings:
-echo Installing argon2-cffi-bindings for iphoneos >> make_ios.log 2>&1
+echo Installing argon2-cffi-bindings for iphoneos >> $PREFIX/make_ios.log 2>&1
 pushd packages  >> $PREFIX/make_ios.log 2>&1
 pushd argon2-cffi-bindings* >> $PREFIX/make_ios.log 2>&1
 rm -rf build/* >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.9" PLATFORM=iphoneos ARGON2_CFFI_USE_SSE2=0 python3.9 setup.py build >> $PREFIX/make_ios.log 2>&1
-mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/_argon2_cffi_bindings/  >> make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/_argon2_cffi_bindings/  >> $PREFIX/make_ios.log 2>&1
 cp build/lib.macosx-${OSX_VERSION}-arm64-cpython-39/_argon2_cffi_bindings/_ffi.abi3.so $PREFIX/build/lib.darwin-arm64-3.9/_argon2_cffi_bindings/_ffi.abi3.so >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # Numpy:
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd numpy >> $PREFIX/make_ios.log 2>&1
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 if [ $USE_FORTRAN == 0 ];
@@ -1980,14 +1979,14 @@ popd  >> $PREFIX/make_ios.log 2>&1
 if [ $USE_FORTRAN == 1 ];
 then
 	# change references to openblas back to the framework:
-	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.darwin-arm64-3.9/numpy/core/_multiarray_umath.cpython-39-darwin.so  >> make_ios.log 2>&1
-	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.darwin-arm64-3.9/numpy/linalg/_umath_linalg.cpython-39-darwin.so  >> make_ios.log 2>&1
-	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.darwin-arm64-3.9/numpy/linalg/lapack_lite.cpython-39-darwin.so  >> make_ios.log 2>&1
-	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.darwin-arm64-3.9/numpy.so  >> make_ios.log 2>&1
+	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.darwin-arm64-3.9/numpy/core/_multiarray_umath.cpython-39-darwin.so  >> $PREFIX/make_ios.log 2>&1
+	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.darwin-arm64-3.9/numpy/linalg/_umath_linalg.cpython-39-darwin.so  >> $PREFIX/make_ios.log 2>&1
+	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.darwin-arm64-3.9/numpy/linalg/lapack_lite.cpython-39-darwin.so  >> $PREFIX/make_ios.log 2>&1
+	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas   build/lib.darwin-arm64-3.9/numpy.so  >> $PREFIX/make_ios.log 2>&1
 fi
 # Matplotlib
 ## kiwisolver
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd kiwisolver* >> $PREFIX/make_ios.log 2>&1
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.9 " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.9 -lz -lpython3.9" PLATFORM=iphoneos python3.9 setup.py build  >> $PREFIX/make_ios.log 2>&1
@@ -1998,7 +1997,7 @@ find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 ## Pillow
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd Pillow* >> $PREFIX/make_ios.log 2>&1
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -I$PREFIX -I$PREFIX/Frameworks_iphoneos/include/" \
@@ -2034,7 +2033,7 @@ popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 
 ## contourpy: 
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd contourpy*  >> $PREFIX/make_ios.log 2>&1
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -I$PREFIX -I$PREFIX/Frameworks_iphoneos/include/" \
@@ -2050,7 +2049,7 @@ popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 
 ## matplotlib
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd matplotlib  >> $PREFIX/make_ios.log 2>&1
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -I$PREFIX -I$PREFIX/Frameworks_iphoneos/include/" \
@@ -2067,7 +2066,7 @@ cp ./build/lib.macosx-${OSX_VERSION}-arm64-cpython-39/matplotlib/backends/*.so  
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # lxml:
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd lxml*  >> $PREFIX/make_ios.log 2>&1
 rm -rf build/* >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ \
@@ -2095,7 +2094,7 @@ cp build/lxml.so $PREFIX/build/lib.darwin-arm64-3.9 >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # cryptography:
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd cryptography* >> $PREFIX/make_ios.log 2>&1
 rm -rf build/* >> $PREFIX/make_ios.log 2>&1
 # As of Feb. 11, 2021, rustc is unable to cross-compile a dynamic library for iOS. We stick to the old version.
@@ -2115,7 +2114,7 @@ cp build/lib.macosx-${OSX_VERSION}-arm64-cpython-39/cryptography/hazmat/bindings
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # regex (for nltk)
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd regex*  >> $PREFIX/make_ios.log 2>&1
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ \
@@ -2132,8 +2131,9 @@ cp build//lib.macosx-${OSX_VERSION}-arm64-cpython-39/regex/_regex.cpython-39-dar
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # wordcloud
-pushd packages >> make_ios.log 2>&1
-pushd word_cloud  >> $PREFIX/make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
+downloadSource wordcloud >> $PREFIX/make_ios.log 2>&1
+pushd wordcloud-*  >> $PREFIX/make_ios.log 2>&1
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ \
 	CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX -I$PREFIX/Frameworks_iphoneos/include/ $DEBUG  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0" \
@@ -2148,7 +2148,7 @@ cp build//lib.macosx-${OSX_VERSION}-arm64-cpython-39/wordcloud/query_integral_im
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # pyfftw: uses libfftw.
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd pyFFTW-*  >> $PREFIX/make_ios.log 2>&1
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ \
@@ -2168,7 +2168,7 @@ popd  >> $PREFIX/make_ios.log 2>&1
 # cvxopt: Requires BLAS, Lapack, uses libfftw3.a if present, uses SuiteSparse source (new submodule)
 if [ $USE_FORTRAN == 1 ];
 then
-	pushd packages >> make_ios.log 2>&1
+	pushd packages >> $PREFIX/make_ios.log 2>&1
 	pushd cvxopt-* >>  $PREFIX/make_ios.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 	env CC=clang CXX=clang++ \
@@ -2212,7 +2212,7 @@ then
 	popd  >> $PREFIX/make_ios.log 2>&1
 fi
 # Pandas:
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd pandas*  >> $PREFIX/make_ios.log 2>&1
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 # Needed to load parser/tokenizer.h before Parser/tokenizer.h:
@@ -2341,7 +2341,7 @@ $PREFIX/build/lib.darwin-arm64-3.9/erfa/ >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 # geopandas and cartopy: require Shapely, fiona, shapely
 # Shapely (interface for geos)
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd Shapely-* >> $PREFIX/make_ios.log 2>&1
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ \
@@ -2364,7 +2364,7 @@ done
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # Fiona (interface for GDAL)
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 # We need to install from the repository, because the source from pip do not include the .pyx files.
 pushd Fiona >> $PREFIX/make_ios.log 2>&1
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
@@ -2398,7 +2398,7 @@ cp build/fiona.so $PREFIX/build/lib.darwin-arm64-3.9 >> $PREFIX/make_ios.log 2>&
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # PyProj (interface for Proj)
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd pyproj-*  >> $PREFIX/make_ios.log 2>&1
 rm -rf build/* >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ \
@@ -2432,7 +2432,7 @@ popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # Packages used by geopandas:
 # rasterio: must use submodule since the Pip version does not include the Cython sources:
-pushd packages >> make_ios.log 2>&1
+pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd rasterio >> $PREFIX/make_ios.log 2>&1
 rm -rf build/ >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ \
@@ -2468,7 +2468,7 @@ popd >> $PREFIX/make_ios.log 2>&1
 # 
 if [ $USE_FORTRAN == 1 ];
 then
-    pushd packages >> make_ios.log 2>&1
+    pushd packages >> $PREFIX/make_ios.log 2>&1
     pushd opencv-python  >> $PREFIX/make_ios.log 2>&1
     # Compiling OpenCV for iOS, 
     # use Makefiles rather than Ninja because we need the dynamic library to be a -dynamiclib, not a -bundle.
@@ -2733,7 +2733,7 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	# coremltools:
-	pushd packages >> make_ios.log 2>&1
+	pushd packages >> $PREFIX/make_ios.log 2>&1
 	pushd coremltools >> $PREFIX/make_ios.log 2>&1
 	mkdir -p build_ios >> $PREFIX/make_ios.log 2>&1
 	rm -rf  build_ios/*  >> $PREFIX/make_ios.log 2>&1
@@ -2780,7 +2780,7 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 	# ../llvm-project/build_osx/bin/clang -fopenmp ~/src/test.c -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -arch arm64 -miphoneos-version-min=14.0 -L ../llvm-project/build-iphoneos/lib
 	# TODO: try with "-fopenmp" for efficiency vs. stability
 	# PYODIDE_PACKAGE_ABI=1 removes the check for OpenMP and the check that the compiler can produce executables. No other impacts.
-	pushd packages >> make_ios.log 2>&1
+	pushd packages >> $PREFIX/make_ios.log 2>&1
 	pushd scikit-learn >> $PREFIX/make_ios.log 2>&1
 	rm -rf build/* >> $PREFIX/make_ios.log 2>&1
 	env CC=clang CXX=clang++ \
@@ -2805,7 +2805,7 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 python3.9 setup.py build >> $PREFIX/make
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	# qutip. Can't download with pip, so submodule (also faster with submodule):
-	pushd packages >> make_ios.log 2>&1
+	pushd packages >> $PREFIX/make_ios.log 2>&1
 	pushd qutip >> $PREFIX/make_ios.log 2>&1
 	rm -rf build/* >> $PREFIX/make_ios.log 2>&1
 	env CC=clang CXX=clang++ \
@@ -2844,7 +2844,7 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 python3.9 setup.py build >> $PREFIX/make
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1	
 	# statsmodels:
-	pushd packages >> make_ios.log 2>&1
+	pushd packages >> $PREFIX/make_ios.log 2>&1
 	pushd statsmodels >> $PREFIX/make_ios.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 	env CC=clang CXX=clang++ \
@@ -2869,7 +2869,7 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 python3.9 setup.py build >> $PREFIX/make
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	# also pygeos:
-	pushd packages >> make_ios.log 2>&1
+	pushd packages >> $PREFIX/make_ios.log 2>&1
 	pushd pygeos >> $PREFIX/make_ios.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 	env CC=clang CXX=clang++ \
@@ -2980,8 +2980,8 @@ cp libpython3.9.dylib build/lib.darwin-x86_64-3.9
 cp $PREFIX/build/lib.darwin-x86_64-3.9/_sysconfigdata__darwin_darwin.py $PREFIX/Library/lib/python3.9/_sysconfigdata__darwin_darwin.py
 cp $PREFIX/build/lib.darwin-x86_64-3.9/_sysconfigdata__darwin_darwin.py $PREFIX/with_scipy/Library/lib/python3.9/_sysconfigdata__darwin_darwin.py
 # cffi: compile with iOS SDK
-echo Installing cffi for iphonesimulator >> make_simulator.log 2>&1
-pushd packages >> make_simulator.log 2>&1
+echo Installing cffi for iphonesimulator >> $PREFIX/make_simulator.log 2>&1
+pushd packages >> $PREFIX/make_simulator.log 2>&1
 pushd cffi* >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
 # override setup.py for arm64 == iphoneos, not Apple Silicon
@@ -3004,10 +3004,10 @@ mkdir -p $PREFIX/build/lib.darwin-x86_64-3.9/zmq/backend/cffi/ >> $PREFIX/make_s
 cp build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/zmq/backend/cffi/_cffi.*.so $PREFIX/build/lib.darwin-x86_64-3.9/zmq/backend/cffi/  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
-echo Done installing PyZMQ for iOS simulator >> make_simulator.log 2>&1
+echo Done installing PyZMQ for iOS simulator >> $PREFIX/make_simulator.log 2>&1
 # end pyzmq
 # Installing argon2-cffi-bindings:
-echo Installing argon2-cffi-bindings for iphonesimulator >> make_simulator.log 2>&1
+echo Installing argon2-cffi-bindings for iphonesimulator >> $PREFIX/make_simulator.log 2>&1
 pushd packages >> $PREFIX/make_simulator.log 2>&1
 pushd argon2-cffi-bindings* >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/* >> $PREFIX/make_simulator.log 2>&1
@@ -3017,7 +3017,7 @@ cp build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/_argon2_cffi_bindings/_ffi.
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 # Numpy:
-pushd packages >> make_simulator.log 2>&1
+pushd packages >> $PREFIX/make_simulator.log 2>&1
 pushd numpy >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
 rm -f site.cfg  >> $PREFIX/make_simulator.log 2>&1
@@ -3058,7 +3058,7 @@ popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 # Matplotlib
 ## kiwisolver
-pushd packages >> make_simulator.log 2>&1
+pushd packages >> $PREFIX/make_simulator.log 2>&1
 pushd kiwisolver* >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/build/lib.darwin-x86_64-3.9 " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $SIM_SDKROOT -lz -L$PREFIX/build/lib.darwin-x86_64-3.9 -lpython3.9 -F$PREFIX/Frameworks_iphonesimulator -framework ios_system" PLATFORM=iphonesimulator python3.9 setup.py build  >> $PREFIX/make_simulator.log 2>&1
@@ -3067,7 +3067,7 @@ cp ./build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/kiwisolver/_cext.cpython-
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 ## Pillow
-pushd packages >> make_simulator.log 2>&1
+pushd packages >> $PREFIX/make_simulator.log 2>&1
 pushd Pillow* >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -I$PREFIX -I$PREFIX/Frameworks_iphonesimulator/include/" \
@@ -3095,7 +3095,7 @@ cp build/PIL.so $PREFIX/build/lib.darwin-x86_64-3.9 >> $PREFIX/make_simulator.lo
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 ## contourpy: 
-pushd packages >> make_simulator.log 2>&1
+pushd packages >> $PREFIX/make_simulator.log 2>&1
 pushd contourpy*  >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
 env CC=clang CXX=clang++ CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -I$PREFIX -I$PREFIX/Frameworks_iphonesimulator/include/" \
@@ -3110,7 +3110,7 @@ cp ./build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/contourpy/*.so  $PREFIX/b
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 ## matplotlib
-pushd packages >> make_simulator.log 2>&1
+pushd packages >> $PREFIX/make_simulator.log 2>&1
 pushd matplotlib  >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -I$PREFIX -I$PREFIX/Frameworks_iphonesimulator/include/" \
@@ -3125,7 +3125,7 @@ cp ./build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/matplotlib/backends/*.so 
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 # lxml:
-pushd packages >> make_simulator.log 2>&1
+pushd packages >> $PREFIX/make_simulator.log 2>&1
 pushd lxml*  >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/* >> $PREFIX/make_simulator.log 2>&1
 env CC=clang CXX=clang++ CPPFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphonesimulator/include/ -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphonesimulator/include/ -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT  -I$PREFIX/Frameworks_iphonesimulator/include/ -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphonesimulator -framework ios_system -L$PREFIX/Frameworks_iphonesimulator/lib -L$PREFIX/build/lib.darwin-x86_64-3.9 $DEBUG" PLATFORM=iphonesimulator python3.9 setup.py build --with-cython >> $PREFIX/make_simulator.log 2>&1
@@ -3150,7 +3150,7 @@ cp build/lxml.so $PREFIX/build/lib.darwin-x86_64-3.9 >> $PREFIX/make_simulator.l
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 # cryptography: 
-pushd packages >> make_simulator.log 2>&1
+pushd packages >> $PREFIX/make_simulator.log 2>&1
 pushd cryptography* >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/* >> $PREFIX/make_simulator.log 2>&1
 # As of Feb. 11, 2021, rustc is unable to cross-compile a dynamic library for iOS. We stick to the old version.
@@ -3168,7 +3168,7 @@ cp build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/cryptography/hazmat/binding
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 # regex (for nltk)
-pushd packages >> make_simulator.log 2>&1
+pushd packages >> $PREFIX/make_simulator.log 2>&1
 pushd regex*  >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
 env CC=clang CXX=clang++ \
@@ -3185,7 +3185,7 @@ cp build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/regex/_regex.cpython-39-dar
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 # wordcloud
-pushd packages >> make_simulator.log 2>&1
+pushd packages >> $PREFIX/make_simulator.log 2>&1
 pushd word_cloud  >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
 env CC=clang CXX=clang++ \
@@ -3201,7 +3201,7 @@ cp build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/wordcloud/query_integral_im
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 # pyfftw: uses libfftw3.
-pushd packages >> make_simulator.log 2>&1
+pushd packages >> $PREFIX/make_simulator.log 2>&1
 pushd pyFFTW-*  >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
 env CC=clang CXX=clang++ \
@@ -3219,7 +3219,7 @@ cp ./build/lib.macosx-${OSX_VERSION}-x86_64-cpython-39/pyfftw/pyfftw.cpython-39-
 popd  >> $PREFIX/make_simulator.log 2>&1
 popd  >> $PREFIX/make_simulator.log 2>&1
 # Pandas:
-pushd packages >> make_simulator.log 2>&1
+pushd packages >> $PREFIX/make_simulator.log 2>&1
 pushd pandas*  >> $PREFIX/make_simulator.log 2>&1
 rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
 # Need to load parser/tokenizer.h before Parser/tokenizer.h
@@ -3346,7 +3346,7 @@ $PREFIX/build/lib.darwin-x86_64-3.9/erfa >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1
 	# geopandas and cartopy: require Shapely (GEOS), fiona (GDAL), pyproj (PROJ), rtree
 	# Shapely (interface for geos)
-	pushd packages >> make_simulator.log 2>&1
+	pushd packages >> $PREFIX/make_simulator.log 2>&1
 	pushd Shapely-* >> $PREFIX/make_simulator.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $SIM_SDKROOT -I$PREFIX -I $PREFIX/Frameworks_iphonesimulator/include" \
@@ -3368,7 +3368,7 @@ $PREFIX/build/lib.darwin-x86_64-3.9/erfa >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1
 	popd  >> $PREFIX/make_simulator.log 2>&1	
 	# Fiona (interface for GDAL)
-	pushd packages >> make_simulator.log 2>&1
+	pushd packages >> $PREFIX/make_simulator.log 2>&1
 	# We need to install from the repository, because the source from pip do not include the .pyx files.
 	pushd Fiona >> $PREFIX/make_simulator.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_simulator.log 2>&1
