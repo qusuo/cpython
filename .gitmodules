@@ -38,9 +38,6 @@
 [submodule "packages/scikit-learn"]
 	path = packages/scikit-learn
 	url = https://github.com/holzschu/scikit-learn.git
-[submodule "packages/word_cloud"]
-	path = packages/word_cloud
-	url = https://github.com/amueller/word_cloud
 [submodule "packages/qutip"]
 	path = packages/qutip
 	url = https://github.com/qutip/qutip.git
@@ -74,3 +71,6 @@
 [submodule "packages/pointpats"]
 	path = packages/pointpats
 	url = https://github.com/pysal/pointpats
+[submodule "packages/pybind11"]
+	path = packages/pybind11
+	url = git@github.com:holzschu/pybind11.git
