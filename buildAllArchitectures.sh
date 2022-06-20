@@ -1870,7 +1870,10 @@ cp libpython3.9.dylib build/lib.darwin-arm64-3.9
 # Don't install for iOS
 # Compilation of specific packages:
 cp $PREFIX/build/lib.darwin-arm64-3.9/_sysconfigdata__darwin_darwin.py $PREFIX/Library/lib/python3.9/_sysconfigdata__darwin_darwin.py
+if [ $APP == "Carnets" ]; 
+then
 cp $PREFIX/build/lib.darwin-arm64-3.9/_sysconfigdata__darwin_darwin.py $PREFIX/with_scipy/Library/lib/python3.9/_sysconfigdata__darwin_darwin.py
+fi
 # cffi: compile with iOS SDK
 echo Installing cffi for iphoneos >> make_ios.log 2>&1
 pushd packages >> make_ios.log 2>&1
@@ -2979,7 +2982,10 @@ cp libpython3.9.dylib build/lib.darwin-x86_64-3.9
 # Don't install for iOS simulator
 # Compilation of specific packages:
 cp $PREFIX/build/lib.darwin-x86_64-3.9/_sysconfigdata__darwin_darwin.py $PREFIX/Library/lib/python3.9/_sysconfigdata__darwin_darwin.py
+if [ $APP == "Carnets" ]; 
+then
 cp $PREFIX/build/lib.darwin-x86_64-3.9/_sysconfigdata__darwin_darwin.py $PREFIX/with_scipy/Library/lib/python3.9/_sysconfigdata__darwin_darwin.py
+fi
 # cffi: compile with iOS SDK
 echo Installing cffi for iphonesimulator >> make_simulator.log 2>&1
 pushd packages >> make_simulator.log 2>&1
