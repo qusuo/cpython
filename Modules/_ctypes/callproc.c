@@ -1665,7 +1665,6 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 				(strcmp(nameC, "astropy.io.votable.tablewriter") == 0) ||
 				(strcmp(nameC, "astropy.utils._compiler") == 0) ||
 				(strcmp(nameC, "astropy.utils.xml._iterparser") == 0) ||
-				// (strcmp(nameC, "astropy.modeling._projections") == 0) ||
 				(strcmp(nameC, "astropy.time._parse_times") == 0) ||
 				(strcmp(nameC, "astropy.table._np_utils") == 0) ||
 				(strcmp(nameC, "astropy.table._column_mixins") == 0) ||
@@ -1798,7 +1797,7 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 				(strcmp(nameC, "pyproj._sync") == 0)) {
 			strcpy(nameC, "pyproj_all");
 		} else if ((strcmp(nameC, "rasterio._fill") == 0) ||
-				(strcmp(nameC, "rasterio._crs") == 0) ||
+				(strcmp(nameC, "rasterio.crs") == 0) ||
 				(strcmp(nameC, "rasterio._err") == 0) ||
 				(strcmp(nameC, "rasterio._warp") == 0) ||
 				(strcmp(nameC, "rasterio._transform") == 0) ||
@@ -1807,6 +1806,8 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 				(strcmp(nameC, "rasterio._base") == 0) ||
 				(strcmp(nameC, "rasterio.shutil") == 0) ||
 				(strcmp(nameC, "rasterio._env") == 0) ||
+				(strcmp(nameC, "rasterio._version") == 0) ||
+				(strcmp(nameC, "rasterio._filepath") == 0) ||
 				(strcmp(nameC, "rasterio._features") == 0)) {
 			strcpy(nameC, "rasterio_all");
 		}
