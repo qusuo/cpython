@@ -335,7 +335,7 @@ class BinaryDistribution(Distribution):
 setup(name=DISTNAME,
       # iOS: pip install and versioneer give us the wrong version (0+unknown)
       # version=versioneer.get_version(),
-      version = "0.13",
+      version = "0.13.1",
       maintainer=MAINTAINER,
       ext_modules=extensions,
       maintainer_email=MAINTAINER_EMAIL,
