@@ -598,6 +598,7 @@ _PyModule_Clear(PyObject *m)
 				|| (strncmp(utf8name, "shapely.", 8) == 0)
 				|| (strncmp(utf8name, "sklearn.", 8) == 0) 
 				|| (strncmp(utf8name, "rasterio.", 9) == 0)
+				|| (strncmp(utf8name, "cartoppy.", 9) == 0)
 				|| (strncmp(utf8name, "wordcloud.", 10) == 0)
 				|| (strncmp(utf8name, "statsmodels.", 12) == 0)) {
 			// scipy.spatial._distance_pybind uses pybind, not cython. 

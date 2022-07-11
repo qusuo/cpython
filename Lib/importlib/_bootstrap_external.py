@@ -1756,7 +1756,7 @@ class FileFinder:
                             "pyproj._sync"]:
                         frameworkName = pythonName + "-" + "pyproj_all"
                     elif fullname in ["rasterio._fill",
-                            "rasterio._crs",
+                            "rasterio.crs",
                             "rasterio._err",
                             "rasterio._warp",
                             "rasterio._transform",
@@ -1765,6 +1765,8 @@ class FileFinder:
                             "rasterio._base",
                             "rasterio.shutil",
                             "rasterio._env",
+                            "rasterio._version",
+                            "rasterio._filepath",
                             "rasterio._features"]:
                         frameworkName = pythonName + "-" + "rasterio_all"
                     else:

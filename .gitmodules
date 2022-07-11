@@ -1,9 +1,6 @@
 [submodule "packages/mpmath"]
 	path = packages/mpmath
 	url = https://github.com/fredrik-johansson/mpmath.git
-[submodule "packages/nbconvert"]
-	path = packages/nbconvert
-	url = https://github.com/holzschu/nbconvert.git
 [submodule "packages/ipykernel"]
 	path = packages/ipykernel
 	url = https://github.com/holzschu/ipykernel.git
@@ -29,18 +26,12 @@
 [submodule "packages/scipy"]
 	path = packages/scipy
 	url = https://github.com/holzschu/scipy.git
-[submodule "packages/gym"]
-	path = packages/gym
-	url = https://github.com/openai/gym.git
 [submodule "packages/coremltools"]
 	path = packages/coremltools
 	url = https://github.com/holzschu/coremltools.git
 [submodule "packages/scikit-learn"]
 	path = packages/scikit-learn
 	url = https://github.com/holzschu/scikit-learn.git
-[submodule "packages/word_cloud"]
-	path = packages/word_cloud
-	url = https://github.com/amueller/word_cloud
 [submodule "packages/qutip"]
 	path = packages/qutip
 	url = https://github.com/qutip/qutip.git
@@ -53,27 +44,21 @@
 [submodule "packages/rasterio"]
 	path = packages/rasterio
 	url = https://github.com/mapbox/rasterio.git
-[submodule "packages/mapclassify"]
-	path = packages/mapclassify
-	url = https://github.com/pysal/mapclassify.git
 [submodule "packages/pysal"]
 	path = packages/pysal
 	url = https://github.com/pysal/pysal.git
-[submodule "packages/statsmodels"]
-	path = packages/statsmodels
-	url = https://github.com/statsmodels/statsmodels.git
-[submodule "packages/pygeos"]
-	path = packages/pygeos
-	url = https://github.com/pygeos/pygeos.git
 [submodule "packages/scikit-build"]
 	path = packages/scikit-build
 	url = https://github.com/holzschu/scikit-build.git
 [submodule "packages/opencv-python"]
 	path = packages/opencv-python
 	url = https://github.com/holzschu/opencv-python.git
-[submodule "packages/pointpats"]
-	path = packages/pointpats
-	url = https://github.com/pysal/pointpats
 [submodule "packages/pybind11"]
 	path = packages/pybind11
 	url = git@github.com:holzschu/pybind11.git
+[submodule "packages/word_cloud"]
+	path = packages/word_cloud
+	url = https://github.com/amueller/word_cloud
+[submodule "packages/statsmodels"]
+	path = packages/statsmodels
+	url = git@github.com:statsmodels/statsmodels.git
