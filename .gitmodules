@@ -74,3 +74,6 @@
 [submodule "packages/pointpats"]
 	path = packages/pointpats
 	url = https://github.com/pysal/pointpats
+[submodule "packages/pybind11"]
+	path = packages/pybind11
+	url = git@github.com:holzschu/pybind11.git
