@@ -71,7 +71,8 @@ edit_Info_plist_noSimulator()
 # lzma functions are forbidden on the AppStore. 
 # You can build the lzma modyle by adding the lzma headers in the Include path and adding _lzma to this list,
 # but you can't submit to the AppStore.
-for name in _bz2 _cffi_backend _crypt _ctypes _ctypes_test _dbm _decimal _hashlib _lsprof _multiprocessing _opcode _posixshmem _queue _sqlite3 _ssl _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz syslog xxlimited 
+# Retrying lzma with a static library version:
+for name in _bz2 _cffi_backend _crypt _ctypes _ctypes_test _curses _dbm _decimal _hashlib _lsprof _lzma _multiprocessing _opcode _posixshmem _queue _sqlite3 _ssl _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz syslog xxlimited 
 do 
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
@@ -211,6 +212,48 @@ do
 		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
 	done
 done
+
+
+# for Crypto specifically, only in a-Shell: 
+if [ $APP == "a-Shell" ]; 
+then
+	for library in Crypto/PublicKey/_ec_ws Crypto/PublicKey/_ed448 Crypto/PublicKey/_ed25519 Crypto/PublicKey/_x25519 Crypto/Util/_strxor Crypto/Util/_cpuid_c Crypto/Hash/_BLAKE2b Crypto/Hash/_SHA256 Crypto/Hash/_keccak Crypto/Hash/_SHA224 Crypto/Hash/_RIPEMD160 Crypto/Hash/_ghash_portable Crypto/Hash/_MD2 Crypto/Hash/_SHA384 Crypto/Hash/_SHA512 Crypto/Hash/_SHA1 Crypto/Hash/_MD5 Crypto/Hash/_BLAKE2s Crypto/Hash/_MD4 Crypto/Hash/_poly1305 Crypto/Cipher/_raw_ocb Crypto/Cipher/_pkcs1_decode Crypto/Cipher/_raw_ctr Crypto/Cipher/_raw_arc2 Crypto/Cipher/_raw_eksblowfish Crypto/Cipher/_raw_des3 Crypto/Cipher/_raw_cbc Crypto/Cipher/_raw_aes Crypto/Cipher/_raw_ecb Crypto/Cipher/_chacha20 Crypto/Cipher/_raw_cfb Crypto/Cipher/_raw_des Crypto/Cipher/_raw_ofb Crypto/Cipher/_ARC4 Crypto/Cipher/_raw_blowfish Crypto/Cipher/_Salsa20 Crypto/Cipher/_raw_cast Crypto/Protocol/_scrypt Crypto/Math/_modexp \
+		Cryptodome/PublicKey/_ec_ws Cryptodome/PublicKey/_ed448 Cryptodome/PublicKey/_ed25519 Cryptodome/PublicKey/_x25519 Cryptodome/Util/_strxor Cryptodome/Util/_cpuid_c Cryptodome/Hash/_BLAKE2b Cryptodome/Hash/_SHA256 Cryptodome/Hash/_keccak Cryptodome/Hash/_SHA224 Cryptodome/Hash/_RIPEMD160 Cryptodome/Hash/_ghash_portable Cryptodome/Hash/_MD2 Cryptodome/Hash/_SHA384 Cryptodome/Hash/_SHA512 Cryptodome/Hash/_SHA1 Cryptodome/Hash/_MD5 Cryptodome/Hash/_BLAKE2s Cryptodome/Hash/_MD4 Cryptodome/Hash/_poly1305 Cryptodome/Cipher/_raw_ocb Cryptodome/Cipher/_pkcs1_decode Cryptodome/Cipher/_raw_ctr Cryptodome/Cipher/_raw_arc2 Cryptodome/Cipher/_raw_eksblowfish Cryptodome/Cipher/_raw_des3 Cryptodome/Cipher/_raw_cbc Cryptodome/Cipher/_raw_aes Cryptodome/Cipher/_raw_ecb Cryptodome/Cipher/_chacha20 Cryptodome/Cipher/_raw_cfb Cryptodome/Cipher/_raw_des Cryptodome/Cipher/_raw_ofb Cryptodome/Cipher/_ARC4 Cryptodome/Cipher/_raw_blowfish Cryptodome/Cipher/_Salsa20 Cryptodome/Cipher/_raw_cast Cryptodome/Protocol/_scrypt Cryptodome/Math/_modexp
+	do
+		# replace all "/" with ".
+		name=${library//\//.}
+		for package in python3_ios pythonA pythonB pythonC pythonD pythonE
+		do
+			framework=${package}-${name}
+			for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.9 lib.darwin-arm64-3.9 lib.darwin-x86_64-3.9
+			do
+				echo "Creating: " ${architecture}/Frameworks/${name}.framework
+				directory=build/${architecture}/Frameworks/
+				rm -rf $directory/$framework.framework
+				mkdir -p $directory
+				mkdir -p $directory/$framework.framework
+				libraryFile=build/${architecture}/${library}
+				cp $libraryFile.*.so $directory/$framework.framework/$framework
+				cp plists/basic_Info.plist $directory/$framework.framework/Info.plist
+				plutil -replace CFBundleExecutable -string $framework $directory/$framework.framework/Info.plist
+				plutil -replace CFBundleName -string $framework $directory/$framework.framework/Info.plist
+				# underscore is not allowed in CFBundleIdentifier:
+				signature=${framework//_/-}
+				plutil -replace CFBundleIdentifier -string Nicolas-Holzschuch.$signature  $directory/$framework.framework/Info.plist
+				# change framework id and libpython:
+				install_name_tool -change $libpython @rpath/${package}.framework/${package}  $directory/$framework.framework/$framework
+				install_name_tool -id @rpath/$framework.framework/$framework  $directory/$framework.framework/$framework
+
+			done
+			# Edit the Info.plist file:
+			edit_Info_plist $framework
+			# Create the 3-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.9/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.9/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		done
+	done
+fi  # [ $APP == "a-Shell" ];
+
 
 # for Carnets specifically (or all apps with Jupyter notebooks):
 if [ $APP == "Carnets" ]; 
