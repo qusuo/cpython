@@ -54,7 +54,7 @@ __all__ = [
     "requires_IEEE_754", "skip_unless_xattr", "requires_zlib",
     "anticipate_failure", "load_package_tests", "detect_api_mismatch",
     "check__all__", "skip_if_buggy_ucrt_strfptime",
-    "ignore_warnings",
+    "ignore_warnings", "check_sanitizer", "skip_if_sanitizer",
     # sys
     "is_jython", "is_android", "check_impl_detail", "unix_shell",
     "setswitchinterval",
@@ -642,6 +642,41 @@ def requires_mac_ver(*min_version):
         wrapper.min_version = min_version
         return wrapper
     return decorator
+
+
+def check_sanitizer(*, address=False, memory=False, ub=False):
+    """Returns True if Python is compiled with sanitizer support"""
+    if not (address or memory or ub):
+        raise ValueError('At least one of address, memory, or ub must be True')
+
+
+    _cflags = sysconfig.get_config_var('CFLAGS') or ''
+    _config_args = sysconfig.get_config_var('CONFIG_ARGS') or ''
+    memory_sanitizer = (
+        '-fsanitize=memory' in _cflags or
+        '--with-memory-sanitizer' in _config_args
+    )
+    address_sanitizer = (
+        '-fsanitize=address' in _cflags or
+        '--with-memory-sanitizer' in _config_args
+    )
+    ub_sanitizer = (
+        '-fsanitize=undefined' in _cflags or
+        '--with-undefined-behavior-sanitizer' in _config_args
+    )
+    return (
+        (memory and memory_sanitizer) or
+        (address and address_sanitizer) or
+        (ub and ub_sanitizer)
+    )
+
+
+def skip_if_sanitizer(reason=None, *, address=False, memory=False, ub=False):
+    """Decorator raising SkipTest if running with a sanitizer active."""
+    if not reason:
+        reason = 'not working with sanitizers active'
+    skip = check_sanitizer(address=address, memory=memory, ub=ub)
+    return unittest.skipIf(skip, reason)
 
 
 def system_must_validate_cert(f):
@@ -2355,9 +2390,6 @@ class PythonSymlink:
 
         self._platform_specific()
 
-    def _platform_specific(self):
-        pass
-
     if sys.platform == "win32":
         def _platform_specific(self):
             import _winapi
@@ -2384,6 +2416,9 @@ class PythonSymlink:
             self._env["PYTHONHOME"] = os.path.dirname(self.real)
             if sysconfig.is_python_build(True):
                 self._env["PYTHONPATH"] = os.path.dirname(os.__file__)
+    else:
+        def _platform_specific(self):
+            pass
 
     def __enter__(self):
         os.symlink(self.real, self.link)
@@ -3259,3 +3294,14 @@ def clear_ignored_deprecations(*tokens: object) -> None:
     if warnings.filters != new_filters:
         warnings.filters[:] = new_filters
         warnings._filters_mutated()
+
+
+@contextlib.contextmanager
+def adjust_int_max_str_digits(max_digits):
+    """Temporarily change the integer string conversion length limit."""
+    current = sys.get_int_max_str_digits()
+    try:
+        sys.set_int_max_str_digits(max_digits)
+        yield
+    finally:
+        sys.set_int_max_str_digits(current)

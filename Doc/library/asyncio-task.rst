@@ -20,7 +20,7 @@ Coroutines
 
 :term:`Coroutines <coroutine>` declared with the async/await syntax is the
 preferred way of writing asyncio applications.  For example, the following
-snippet of code (requires Python 3.7+) prints "hello", waits 1 second,
+snippet of code prints "hello", waits 1 second,
 and then prints "world"::
 
     >>> import asyncio
@@ -258,21 +258,6 @@ Creating Tasks
    The task is executed in the loop returned by :func:`get_running_loop`,
    :exc:`RuntimeError` is raised if there is no running loop in
    current thread.
-
-   This function has been **added in Python 3.7**.  Prior to
-   Python 3.7, the low-level :func:`asyncio.ensure_future` function
-   can be used instead::
-
-       async def coro():
-           ...
-
-       # In Python 3.7+
-       task = asyncio.create_task(coro())
-       ...
-
-       # This works in all Python versions but is less readable
-       task = asyncio.ensure_future(coro())
-       ...
 
    .. important::
 
@@ -991,7 +976,7 @@ Generator-based Coroutines
 .. note::
 
    Support for generator-based coroutines is **deprecated** and
-   is scheduled for removal in Python 3.10.
+   is removed in Python 3.11.
 
 Generator-based coroutines predate async/await syntax.  They are
 Python generators that use ``yield from`` expressions to await
@@ -1019,7 +1004,7 @@ enforced.
     This decorator should not be used for :keyword:`async def`
     coroutines.
 
-    .. deprecated-removed:: 3.8 3.10
+    .. deprecated-removed:: 3.8 3.11
 
        Use :keyword:`async def` instead.
 

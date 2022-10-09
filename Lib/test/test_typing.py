@@ -2455,10 +2455,18 @@ class ForwardRefTests(BaseTestCase):
         with self.assertRaises(TypeError):
             issubclass(int, fr)
 
+    def test_forwardref_only_str_arg(self):
+        with self.assertRaises(TypeError):
+            typing.ForwardRef(1)  # only `str` type is allowed
+
     def test_forward_equality(self):
         fr = typing.ForwardRef('int')
         self.assertEqual(fr, typing.ForwardRef('int'))
         self.assertNotEqual(List['int'], List[int])
+        self.assertNotEqual(fr, typing.ForwardRef('int', module=__name__))
+        frm = typing.ForwardRef('int', module=__name__)
+        self.assertEqual(frm, typing.ForwardRef('int', module=__name__))
+        self.assertNotEqual(frm, typing.ForwardRef('int', module='__other_name__'))
 
     def test_forward_equality_gth(self):
         c1 = typing.ForwardRef('C')
@@ -2494,6 +2502,14 @@ class ForwardRefTests(BaseTestCase):
         self.assertEqual(hash(c1), hash(c2))
         self.assertEqual(hash(c1_gth), hash(c2_gth))
         self.assertEqual(hash(c1), hash(c1_gth))
+
+        c3 = typing.ForwardRef('int', module=__name__)
+        c4 = typing.ForwardRef('int', module='__other_name__')
+
+        self.assertNotEqual(hash(c3), hash(c1))
+        self.assertNotEqual(hash(c3), hash(c1_gth))
+        self.assertNotEqual(hash(c3), hash(c4))
+        self.assertEqual(hash(c3), hash(typing.ForwardRef('int', module=__name__)))
 
     def test_forward_equality_namespace(self):
         class A:
@@ -4060,6 +4076,19 @@ class TypedDictTests(BaseTestCase):
             {'a': typing.Optional[int], 'b': int}
         )
 
+    def test_non_generic_subscript(self):
+        # For backward compatibility, subscription works
+        # on arbitrary TypedDict types.
+        class TD(TypedDict):
+            a: T
+        A = TD[int]
+        self.assertEqual(A.__origin__, TD)
+        self.assertEqual(A.__parameters__, ())
+        self.assertEqual(A.__args__, (int,))
+        a = A(a = 1)
+        self.assertIs(type(a), dict)
+        self.assertEqual(a, {'a': 1})
+
 
 class IOTests(BaseTestCase):
 
@@ -4157,6 +4186,13 @@ class RETests(BaseTestCase):
 
 
 class AnnotatedTests(BaseTestCase):
+
+    def test_new(self):
+        with self.assertRaisesRegex(
+            TypeError,
+            'Type Annotated cannot be instantiated',
+        ):
+            Annotated()
 
     def test_repr(self):
         self.assertEqual(

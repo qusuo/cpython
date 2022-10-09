@@ -1047,9 +1047,9 @@ Miscellaneous
 
    .. versionadded:: 3.4
 
-.. function:: set_executable()
+.. function:: set_executable(executable)
 
-   Sets the path of the Python interpreter to use when starting a child process.
+   Set the path of the Python interpreter to use when starting a child process.
    (By default :data:`sys.executable` is used).  Embedders will probably need to
    do some thing like ::
 
@@ -1648,6 +1648,7 @@ different machines. A manager object controls a server process which manages
 proxies.
 
 .. function:: multiprocessing.Manager()
+   :module:
 
    Returns a started :class:`~multiprocessing.managers.SyncManager` object which
    can be used for sharing objects between processes.  The returned manager

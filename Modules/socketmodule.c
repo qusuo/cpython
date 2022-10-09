@@ -1715,13 +1715,17 @@ getsockaddrarg(PySocketSockObject *s, PyObject *args,
 
         struct sockaddr_un* addr = &addrbuf->un;
 #ifdef __linux__
-        if (path.len > 0 && *(const char *)path.buf == 0) {
-            /* Linux abstract namespace extension */
+        if (path.len == 0 || *(const char *)path.buf == 0) {
+            /* Linux abstract namespace extension:
+               - Empty address auto-binding to an abstract address
+               - Address that starts with null byte */
             if ((size_t)path.len > sizeof addr->sun_path) {
                 PyErr_SetString(PyExc_OSError,
                                 "AF_UNIX path too long");
                 goto unix_out;
             }
+
+            *len_ret = path.len + offsetof(struct sockaddr_un, sun_path);
         }
         else
 #endif /* linux */
@@ -1733,10 +1737,13 @@ getsockaddrarg(PySocketSockObject *s, PyObject *args,
                 goto unix_out;
             }
             addr->sun_path[path.len] = 0;
+
+            /* including the tailing NUL */
+            *len_ret = path.len + offsetof(struct sockaddr_un, sun_path) + 1;
         }
         addr->sun_family = s->sock_family;
         memcpy(addr->sun_path, path.buf, path.len);
-        *len_ret = path.len + offsetof(struct sockaddr_un, sun_path);
+        
         retval = 1;
     unix_out:
         PyBuffer_Release(&path);
