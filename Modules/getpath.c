@@ -731,10 +731,29 @@ progname_to_dict(PyObject *dict, const char *key)
         if (!path) {
             return 0;
         }
+#if TARGET_OS_IPHONE
+        // _NSGetExecutablePath doesn't work on iOS, it gives the parent app
+        // We use real_executable to store the path and the name of the binary:
+        // This solution is a bit extreme, but the sandbox is really limiting:
+        int argc;
+        wchar_t **argv_orig;
+        Py_GetArgcArgv(&argc, &argv_orig);
+        wchar_t pythonName[12];
+        wcscpy(pythonName, argv_orig[0]);
+        if ((wcscmp(pythonName, L"python3") == 0) || (wcscmp(pythonName, L"python") == 0)) {
+            wcscpy(pythonName, L"python3_ios");
+        }
+        char pythonNameChar[12];
+		wcstombs(pythonNameChar, pythonName, 12);
+		// path is $APPDIR/Library/bin/python[A-E] or  $APPDIR/Library/bin/python3_ios
+        char *iospath = Py_GETENV("PYTHONHOME");
+        sprintf(path, "%s/bin/%s", iospath, pythonNameChar);
+#else
         if (_NSGetExecutablePath(path, &pathLen) != 0) {
             PyMem_RawFree(path);
             continue;
         }
+#endif
         // Only keep if the path is absolute
         if (path[0] == SEP) {
             int r = decode_to_dict(dict, key, path);

@@ -134,7 +134,7 @@ setup_spawnattr(posix_spawnattr_t* spawnattr)
         /* NOTREACHTED */
     }
     if (count != ocount) {
-        fprintf(stderr, "posix_spawnattr_setbinpref failed to copy\n");
+        fprintf(thread_stderr, "posix_spawnattr_setbinpref failed to copy\n");
         exit(1);
         /* NOTREACHTED */
     }

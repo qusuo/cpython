@@ -92,7 +92,11 @@ struct _PyTraceMalloc_Config {
      .tracing = 0, \
      .max_nframe = 1}
 
+#if !TARGET_OS_IPHONE
 PyAPI_DATA(struct _PyTraceMalloc_Config) _Py_tracemalloc_config;
+#else
+PyAPI_DATA(struct _PyTraceMalloc_Config) __thread _Py_tracemalloc_config;
+#endif
 
 /* Allocate memory directly from the O/S virtual memory system,
  * where supported. Otherwise fallback on malloc */

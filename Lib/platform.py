@@ -610,6 +610,9 @@ def _syscmd_file(target, default=''):
     if sys.platform in ('dos', 'win32', 'win16'):
         # XXX Others too ?
         return default
+    # iOS: no guarantee that 'file' is installed
+    if (sys.platform == 'darwin' and os.uname().machine.startswith('iP')):
+        return default
 
     try:
         import subprocess

@@ -2623,7 +2623,8 @@ def _proxy_bypass_macosx_sysconf(host, proxy_settings):
     return False
 
 
-if sys.platform == 'darwin':
+# iOS does not have proxies, so no _scproxy
+if sys.platform == 'darwin' and not os.uname().machine.startswith('iP'):
     from _scproxy import _get_proxy_settings, _get_proxies
 
     def proxy_bypass_macosx_sysconf(host):

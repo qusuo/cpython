@@ -32,6 +32,18 @@
 #  include <stddef.h>             // size_t
 #endif
 
+#ifdef __APPLE__
+/* for iOS system. Overrides exit(), abort() and the like */ 
+#include <TargetConditionals.h> 
+#if TARGET_OS_IPHONE
+#include "ios_error.h"
+#undef iswprint
+#undef getwchar
+#undef putwchar
+#define isatty ios_isatty
+#endif
+#endif
+
 #include <assert.h>               // assert()
 #include <wchar.h>                // wchar_t
 

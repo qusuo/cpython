@@ -642,6 +642,11 @@ if sys.platform == 'darwin':
             if not ':' in url:
                 url = 'file:'+url
 
+            # iOS: either iPhone or iPad (works with both iPhone and Simulator)
+            if (sys.platform == 'darwin' and os.uname().machine.startswith('iP')):
+                command = 'openurl %s' % url
+                rc = os.system(command)
+                return rc
             # new must be 0 or 1
             new = int(bool(new))
             if self.name == "default":
@@ -688,6 +693,11 @@ if sys.platform == 'darwin':
             self.name = val
 
         def open(self, url, new=0, autoraise=True):
+            # iOS: either iPhone or iPad (works with both iPhone and Simulator)
+            if (sys.platform == 'darwin' and os.uname().machine.startswith('iP')):
+                command = 'openurl "%s"' % url.replace('"', '%22')
+                rc = os.system(command)
+                return rc
             if self.name == 'default':
                 script = 'open location "%s"' % url.replace('"', '%22') # opens in default browser
             else:

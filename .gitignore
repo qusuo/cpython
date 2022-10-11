@@ -17,6 +17,7 @@
 *.pyo
 *.rej
 *.swp
+*.log
 *~
 *.gc??
 *.profclang?
@@ -36,6 +37,7 @@ gmon.out
 .coverage
 .mypy_cache/
 .pytest_cache/
+Library/
 .DS_Store
 
 *.exe
@@ -150,3 +152,8 @@ Python/frozen_modules/MANIFEST
 # Ignore ./python binary on Unix but still look into ./Python/ directory.
 /python
 !/Python/
+
+## iOS: 
+Library/bin/python3
+Library/bin/python3.9
+
