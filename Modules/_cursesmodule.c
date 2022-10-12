@@ -173,7 +173,11 @@ class _curses.window "PyCursesWindowObject *" "&PyCursesWindow_Type"
 static PyObject *PyCursesError;
 
 /* Tells whether setupterm() has been called to initialise terminfo.  */
+#if !TARGET_OS_IPHONE
 static int initialised_setupterm = FALSE;
+#else 
+static int initialised_setupterm = TRUE;
+#endif
 
 /* Tells whether initscr() has been called to initialise curses.  */
 static int initialised = FALSE;
@@ -644,7 +648,21 @@ Window_OneArgNoReturnVoidFunction(wtimeout, int, "i;delay")
 
 Window_NoArg2TupleReturnFunction(getyx, int, "ii")
 Window_NoArg2TupleReturnFunction(getbegyx, int, "ii")
+#if !TARGET_OS_IPHONE
 Window_NoArg2TupleReturnFunction(getmaxyx, int, "ii")
+#else
+static PyObject * PyCursesWindow_getmaxyx(PyCursesWindowObject *self, PyObject *Py_UNUSED(ignored))
+{
+	/* iOS version: we get window dimensions through environment variables */
+	/* getmaxyx is a macro, so no pointers (cf man page) */
+	int arg1, arg2;
+	arg1 = getenv("ROWS");
+	arg2 = getenv("COLUMNS");
+	// getmaxyx(self->win,arg1,arg2);
+	return Py_BuildValue("ii", arg1, arg2);
+}
+#endif
+
 Window_NoArg2TupleReturnFunction(getparyx, int, "ii")
 
 Window_OneArgNoReturnFunction(clearok, int, "i;True(1) or False(0)")
@@ -856,10 +874,18 @@ _curses_window_addstr_impl(PyCursesWindowObject *self, int group_left_1,
     {
         const char *str = PyBytes_AS_STRING(bytesobj);
         funcname = "addstr";
+#if !TARGET_OS_IPHONE
         if (use_xy)
             rtn = mvwaddstr(self->win,y,x,str);
         else
             rtn = waddstr(self->win,str);
+#else
+		if (use_xy)
+			fprintf(thread_stdout, "\033[%d;%dH", y, x);
+		fprintf(thread_stdout, "\033[4l"); // overwrite mode
+		rtn = fprintf(thread_stdout, "%s", str);
+		fflush(thread_stdout);		
+#endif
         Py_DECREF(bytesobj);
     }
     if (use_attr)
@@ -939,10 +965,21 @@ _curses_window_addnstr_impl(PyCursesWindowObject *self, int group_left_1,
     {
         const char *str = PyBytes_AS_STRING(bytesobj);
         funcname = "addnstr";
+#if !TARGET_OS_IPHONE
         if (use_xy)
             rtn = mvwaddnstr(self->win,y,x,str,n);
         else
             rtn = waddnstr(self->win,str,n);
+#else
+		if (use_xy)
+			fprintf(thread_stdout, "\033[%d;%dH", y, x);
+		fprintf(thread_stdout, "\033[4l"); // overwrite mode
+		if ((n > 0) && (strlen(str) > n))
+			rtn = fprintf(thread_stdout, "%.*s", n, str);
+		else
+			rtn = fprintf(thread_stdout, "%s", str);
+		fflush(thread_stdout);
+#endif
         Py_DECREF(bytesobj);
     }
     if (use_attr)
@@ -1550,7 +1587,17 @@ PyCursesWindow_GetStr(PyCursesWindowObject *self, PyObject *args)
     switch (PyTuple_Size(args)) {
     case 0:
         Py_BEGIN_ALLOW_THREADS
+#if !TARGET_OS_IPHONE
         rtn2 = wgetnstr(self->win,rtn, 1023);
+#else
+		for (int i = 0; i < 1023; i++) {
+			char c = getc(thread_stdin);
+			if ((c == '\r') || (c == '\n')) 
+				break;
+			putc(c, thread_stdout); 
+			rtn[i] = c;
+		}
+#endif
         Py_END_ALLOW_THREADS
         break;
     case 1:
@@ -1561,7 +1608,17 @@ PyCursesWindow_GetStr(PyCursesWindowObject *self, PyObject *args)
             return NULL;
         }
         Py_BEGIN_ALLOW_THREADS
+#if !TARGET_OS_IPHONE
         rtn2 = wgetnstr(self->win, rtn, Py_MIN(n, 1023));
+#else
+		for (int i = 0; i < Py_MIN(n, 1023); i++) {
+			char c = getc(thread_stdin);
+			if ((c == '\r') || (c == '\n')) 
+				break;
+			rtn2 = putc(c, thread_stdout); 
+			rtn[i] = c;
+		}
+#endif
         Py_END_ALLOW_THREADS
         break;
     case 2:
@@ -1857,10 +1914,18 @@ _curses_window_insstr_impl(PyCursesWindowObject *self, int group_left_1,
     {
         const char *str = PyBytes_AS_STRING(bytesobj);
         funcname = "insstr";
+#if !TARGET_OS_IPHONE
         if (use_xy)
             rtn = mvwinsstr(self->win,y,x,str);
         else
             rtn = winsstr(self->win,str);
+#else
+		if (use_xy)
+			fprintf(thread_stdout, "\033[%d;%dH", y, x);
+		fprintf(thread_stdout, "\033[4h"); // insert mode
+		rtn = fprintf(thread_stdout, "%s", str);
+		fflush(thread_stdout);		
+#endif		
         Py_DECREF(bytesobj);
     }
     if (use_attr)
