@@ -106,6 +106,15 @@ __attribute__ ((section (".PyRuntime")))
 _Py_COMP_DIAG_POP
 
 static int runtime_initialized = 0;
+#if TARGET_OS_IPHONE
+pthread_t pysleep_thread = NULL;
+void set_pysleep_thread(pthread_t val) {
+	pysleep_thread = val;
+}
+pthread_t get_pysleep_thread(void) {
+	return pysleep_thread;
+}
+#endif
 
 PyStatus
 _PyRuntime_Initialize(void)
@@ -336,12 +345,20 @@ _coerce_default_locale_settings(int warn, const _LocaleCoercionTarget *target)
 
     /* Set the relevant locale environment variable */
     if (setenv("LC_CTYPE", newloc, 1)) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr,
+#else
+        fprintf(thread_stderr,
+#endif
                 "Error setting LC_CTYPE, skipping C locale coercion\n");
         return 0;
     }
     if (warn) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, C_LOCALE_COERCION_WARNING, newloc);
+#else
+		fprintf(thread_stderr, C_LOCALE_COERCION_WARNING, newloc);
+#endif
     }
 
     /* Reconfigure with the overridden environment variables */
@@ -445,7 +462,11 @@ _Py_SetLocaleFromEnv(int category)
          * extension modules), so we make sure that they match the locale
          * configuration */
         if (setenv("LC_CTYPE", utf8_locale, 1)) {
+#if !TARGET_OS_IPHONE
             fprintf(stderr, "Warning: failed setting the LC_CTYPE "
+#else
+            fprintf(thread_stderr, "Warning: failed setting the LC_CTYPE "
+#endif
                             "environment variable to %s\n", utf8_locale);
         }
     }
@@ -1172,7 +1193,11 @@ init_interp_main(PyThreadState *tstate)
         {
             PyObject *warnings_module = PyImport_ImportModule("warnings");
             if (warnings_module == NULL) {
+#if !TARGET_OS_IPHONE
                 fprintf(stderr, "'import warnings' failed; traceback:\n");
+#else
+                fprintf(thread_stderr, "'import warnings' failed; traceback:\n");
+#endif
                 _PyErr_Print(tstate);
             }
             Py_XDECREF(warnings_module);
@@ -1300,6 +1325,42 @@ Py_Initialize(void)
     Py_InitializeEx(1);
 }
 
+#if TARGET_OS_IPHONE
+// Replaces Py_Initialize, but sets the name of the library being loaded to "name"
+// so dynamically loading modules will work.
+// Allows Vim (and others) to load python3_iOS, pythonA, pythonB... depending on
+// what is available.
+void
+Py_InitializeWithName(char* name)
+{
+	int install_sigs = 1;
+
+    PyStatus status;
+
+    status = _PyRuntime_Initialize();
+    if (_PyStatus_EXCEPTION(status)) {
+        Py_ExitStatusException(status);
+    }
+    _PyRuntimeState *runtime = &_PyRuntime;
+
+    if (runtime->initialized) {
+        /* bpo-33932: Calling Py_Initialize() twice does nothing. */
+        return;
+    }
+
+    PyConfig config;
+    _PyConfig_InitCompatConfig(&config);
+
+    config.install_signal_handlers = install_sigs;
+    // The only difference with Py_InitializeEx:
+    PyConfig_SetBytesArgv(&config, 1, &name);
+
+    status = Py_InitializeFromConfig(&config);
+    if (_PyStatus_EXCEPTION(status)) {
+        Py_ExitStatusException(status);
+    }
+}
+#endif
 
 PyStatus
 _Py_InitializeMain(void)
@@ -1810,6 +1871,15 @@ Py_FinalizeEx(void)
         status = -1;
     }
 
+#if TARGET_OS_IPHONE
+	// iOS: use pysleep_thread to tell pysleep() that the 
+	if (pysleep_thread != NULL) {
+		if (pysleep_thread != pthread_self()) {
+			pthread_cancel(pysleep_thread); 
+		}
+		pysleep_thread = NULL;
+	}
+#endif
     /* Disable signal handling */
     _PySignal_Fini();
 
@@ -1886,7 +1956,11 @@ Py_FinalizeEx(void)
     }
 
     if (dump_refs) {
+#if !TARGET_OS_IPHONE
         _Py_PrintReferences(stderr);
+#else
+        _Py_PrintReferences(thread_stderr);
+#endif
     }
 
     if (dump_refs_fp != NULL) {
@@ -1910,7 +1984,11 @@ Py_FinalizeEx(void)
      */
 
     if (dump_refs) {
+#if !TARGET_OS_IPHONE
         _Py_PrintReferenceAddresses(stderr);
+#else
+        _Py_PrintReferenceAddresses(thread_stderr);
+#endif
     }
 
     if (dump_refs_fp != NULL) {
@@ -1920,7 +1998,11 @@ Py_FinalizeEx(void)
 #endif /* Py_TRACE_REFS */
 #ifdef WITH_PYMALLOC
     if (malloc_stats) {
+#if !TARGET_OS_IPHONE
         _PyObject_DebugMallocStats(stderr);
+#else
+        _PyObject_DebugMallocStats(thread_stderr);
+#endif
     }
 #endif
 
@@ -2276,7 +2358,11 @@ create_stdio(const PyConfig *config, PyObject* io,
         write_through = Py_True;
     else
         write_through = Py_False;
+#if !TARGET_OS_IPHONE
     if (buffered_stdio && (isatty || fd == fileno(stderr)))
+#else
+    if (buffered_stdio && (isatty || fd == fileno(thread_stderr)))
+#endif
         line_buffering = Py_True;
     else
         line_buffering = Py_False;
@@ -2399,7 +2485,11 @@ init_sys_streams(PyThreadState *tstate)
        the shell already prevents that. */
 #ifndef MS_WINDOWS
     struct _Py_stat_struct sb;
+#if !TARGET_OS_IPHONE
     if (_Py_fstat_noraise(fileno(stdin), &sb) == 0 &&
+#else
+    if (_Py_fstat_noraise(fileno(thread_stdin), &sb) == 0 &&
+#endif
         S_ISDIR(sb.st_mode)) {
         return _PyStatus_ERR("<stdin> is a directory, cannot continue");
     }
@@ -2410,7 +2500,11 @@ init_sys_streams(PyThreadState *tstate)
     }
 
     /* Set sys.stdin */
+#if !TARGET_OS_IPHONE
     fd = fileno(stdin);
+#else
+    fd = fileno(thread_stdin);
+#endif
     /* Under some conditions stdin, stdout and stderr may not be connected
      * and fileno() may point to an invalid file descriptor. For example
      * GUI apps don't have valid standard streams by default.
@@ -2425,7 +2519,11 @@ init_sys_streams(PyThreadState *tstate)
     Py_DECREF(std);
 
     /* Set sys.stdout */
-    fd = fileno(stdout);
+#if !TARGET_OS_IPHONE
+	fd = fileno(stdout);
+#else
+   fd = fileno(thread_stdout);
+#endif
     std = create_stdio(config, iomod, fd, 1, "<stdout>",
                        config->stdio_encoding,
                        config->stdio_errors);
@@ -2437,7 +2535,11 @@ init_sys_streams(PyThreadState *tstate)
 
 #if 1 /* Disable this if you have trouble debugging bootstrap stuff */
     /* Set sys.stderr, replaces the preliminary stderr */
-    fd = fileno(stderr);
+#if !TARGET_OS_IPHONE
+	fd = fileno(stderr);
+#else
+	fd = fileno(thread_stderr);
+#endif
     std = create_stdio(config, iomod, fd, 1, "<stderr>",
                        config->stdio_encoding,
                        L"backslashreplace");
@@ -2727,7 +2829,7 @@ static void _Py_NO_RETURN
 fatal_error(int fd, int header, const char *prefix, const char *msg,
             int status)
 {
-    static int reentrant = 0;
+    static __thread int reentrant = 0;
 
     if (reentrant) {
         /* Py_FatalError() caused a second fatal error.
@@ -2825,14 +2927,18 @@ _Py_FatalErrorFunc(const char *func, const char *msg)
 void _Py_NO_RETURN
 _Py_FatalErrorFormat(const char *func, const char *format, ...)
 {
-    static int reentrant = 0;
+    static __thread int reentrant = 0;
     if (reentrant) {
         /* _Py_FatalErrorFormat() caused a second fatal error */
         fatal_error_exit(-1);
     }
     reentrant = 1;
 
+#if !TARGET_OS_IPHONE
     FILE *stream = stderr;
+#else
+    FILE *stream = thread_stderr;
+#endif
     const int fd = fileno(stream);
     PUTS(fd, "Fatal Python error: ");
     if (func) {
@@ -2928,8 +3034,13 @@ call_ll_exitfuncs(_PyRuntimeState *runtime)
         exitfunc();
     }
 
+#if !TARGET_OS_IPHONE
     fflush(stdout);
     fflush(stderr);
+#else
+    fflush(thread_stdout);
+    fflush(thread_stderr);
+#endif
 }
 
 void _Py_NO_RETURN

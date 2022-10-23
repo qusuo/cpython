@@ -243,13 +243,29 @@ _PyType_ClearCache(PyInterpreterState *interp)
     struct type_cache *cache = &interp->type_cache;
 #if MCACHE_STATS
     size_t total = cache->hits + cache->collisions + cache->misses;
+#if !TARGET_OS_IPHONE
     fprintf(stderr, "-- Method cache hits        = %zd (%d%%)\n",
+#else
+    fprintf(thread_stderr, "-- Method cache hits        = %zd (%d%%)\n",
+#endif
             cache->hits, (int) (100.0 * cache->hits / total));
+#if !TARGET_OS_IPHONE
     fprintf(stderr, "-- Method cache true misses = %zd (%d%%)\n",
+#else
+    fprintf(thread_stderr, "-- Method cache true misses = %zd (%d%%)\n",
+#endif
             cache->misses, (int) (100.0 * cache->misses / total));
+#if !TARGET_OS_IPHONE
     fprintf(stderr, "-- Method cache collisions  = %zd (%d%%)\n",
+#else
+    fprintf(thread_stderr, "-- Method cache collisions  = %zd (%d%%)\n",
+#endif
             cache->collisions, (int) (100.0 * cache->collisions / total));
+#if !TARGET_OS_IPHONE
     fprintf(stderr, "-- Method cache size        = %zd KiB\n",
+#else
+    fprintf(thread_stderr, "-- Method cache size        = %zd KiB\n",
+#endif
             sizeof(cache->hashtable) / 1024);
 #endif
 
@@ -6044,6 +6060,18 @@ inherit_slots(PyTypeObject *type, PyTypeObject *base)
 
 static int add_operators(PyTypeObject *);
 static int add_tp_new_wrapper(PyTypeObject *type);
+
+#if TARGET_OS_IPHONE
+// to reset PyTypeObject parameters at cleanup (required for Cython):
+void PyType_Reset(PyTypeObject* pt) {
+    // Need to decrement the tp_dict of the typeObjects too (unless it's NULL):
+    Py_XDECREF(pt->tp_dict);
+    pt->tp_dict = 0;
+    // TODO: should I call PyDict_Cleanup on the typeObjects tp_dict?
+    // And reset the TP_FLAGS_READY flag:
+    pt->tp_flags &= ~Py_TPFLAGS_READY;
+}
+#endif
 
 #define COLLECTION_FLAGS (Py_TPFLAGS_SEQUENCE | Py_TPFLAGS_MAPPING)
 

@@ -142,12 +142,21 @@ static void
 tracemalloc_error(const char *format, ...)
 {
     va_list ap;
+#if !TARGET_OS_IPHONE
     fprintf(stderr, "tracemalloc: ");
     va_start(ap, format);
     vfprintf(stderr, format, ap);
     va_end(ap);
     fprintf(stderr, "\n");
     fflush(stderr);
+#else // TARGET_OS_IPHONE
+    fprintf(thread_stderr, "tracemalloc: ");
+    va_start(ap, format);
+    vfprintf(thread_stderr, format, ap);
+    va_end(ap);
+    fprintf(thread_stderr, "\n");
+    fflush(thread_stderr);
+#endif
 }
 #endif
 

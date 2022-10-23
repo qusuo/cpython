@@ -1641,7 +1641,11 @@ _ctypes_init_fielddesc(void)
 struct fielddesc *
 _ctypes_get_fielddesc(const char *fmt)
 {
+#if !TARGET_OS_IPHONE
     static int initialized = 0;
+#else
+    static __thread int initialized = 0;
+#endif
     struct fielddesc *table = formattable;
 
     if (!initialized) {

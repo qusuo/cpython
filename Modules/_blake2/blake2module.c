@@ -145,9 +145,5 @@ static struct PyModuleDef blake2_module = {
 PyMODINIT_FUNC
 PyInit__blake2(void)
 {
-#if TARGET_OS_IPHONE
-	init_PyBlake2_BLAKE2bType();
-	init_PyBlake2_BLAKE2sType();
-#endif
     return PyModuleDef_Init(&blake2_module);
 }

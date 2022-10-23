@@ -168,7 +168,11 @@ typedef uint64_t ULLong;
 /* End Python #define linking */
 
 #ifdef DEBUG
+#if !TARGET_OS_IPHONE
 #define Bug(x) {fprintf(stderr, "%s\n", x); exit(1);}
+#else
+#define Bug(x) {fprintf(thread_stderr, "%s\n", x); exit(1);}
+#endif
 #endif
 
 #ifndef PRIVATE_MEM

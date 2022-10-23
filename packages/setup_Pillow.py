@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # > pyroma .
 # ------------------------------
 # Checking .
@@ -26,24 +26,29 @@ def get_version():
     return locals()["__version__"]
 
 
-NAME = "Pillow"
 PILLOW_VERSION = get_version()
 FREETYPE_ROOT = None
+HARFBUZZ_ROOT = None
+FRIBIDI_ROOT = None
 IMAGEQUANT_ROOT = None
 JPEG2K_ROOT = None
 JPEG_ROOT = None
 LCMS_ROOT = None
 TIFF_ROOT = None
 ZLIB_ROOT = None
+FUZZING_BUILD = "LIB_FUZZING_ENGINE" in os.environ
 
+if sys.platform == "win32" and sys.version_info >= (3, 11):
+    import atexit
 
-if sys.platform == "win32" and sys.version_info >= (3, 10):
-    warnings.warn(
-        f"Pillow {PILLOW_VERSION} does not support Python "
-        f"{sys.version_info.major}.{sys.version_info.minor} and does not provide "
-        "prebuilt Windows binaries. We do not recommend building from source on "
-        "Windows.",
-        RuntimeWarning,
+    atexit.register(
+        lambda: warnings.warn(
+            f"Pillow {PILLOW_VERSION} does not support Python "
+            f"{sys.version_info.major}.{sys.version_info.minor} and does not provide "
+            "prebuilt Windows binaries. We do not recommend building from source on "
+            "Windows.",
+            RuntimeWarning,
+        )
     )
 
 # iOS/simulator: adapt to the actual platform we are cross-compiling for:
@@ -125,7 +130,7 @@ _LIB_IMAGING = (
     "codec_fd",
 )
 
-DEBUG = False
+DEBUG = True # False
 
 
 class DependencyException(Exception):
@@ -168,7 +173,7 @@ def _find_library_dirs_ldconfig():
         # Assuming GLIBC's ldconfig (with option -p)
         # Alpine Linux uses musl that can't print cache
         args = ["/sbin/ldconfig", "-p"]
-        expr = fr".*\({abi_type}.*\) => (.*)"
+        expr = rf".*\({abi_type}.*\) => (.*)"
         env = dict(os.environ)
         env["LC_ALL"] = "C"
         env["LANG"] = "C"
@@ -186,7 +191,7 @@ def _find_library_dirs_ldconfig():
         return []
     [data, _] = p.communicate()
     if isinstance(data, bytes):
-        data = data.decode()
+        data = data.decode("latin1")
 
     dirs = []
     for dll in re.findall(expr, data):
@@ -230,6 +235,19 @@ def _find_library_file(self, library):
     return ret
 
 
+def _find_include_dir(self, dirname, include):
+    for directory in self.compiler.include_dirs:
+        _dbg("Checking for include file %s in %s", (include, directory))
+        if os.path.isfile(os.path.join(directory, include)):
+            _dbg("Found %s in %s", (include, directory))
+            return True
+        subdir = os.path.join(directory, dirname)
+        _dbg("Checking for include file %s in %s", (include, subdir))
+        if os.path.isfile(os.path.join(subdir, include)):
+            _dbg("Found %s in %s", (include, subdir))
+            return subdir
+
+
 def _cmd_exists(cmd):
     return any(
         os.access(os.path.join(path, cmd), os.X_OK)
@@ -238,28 +256,34 @@ def _cmd_exists(cmd):
 
 
 def _pkg_config(name):
-    try:
-        command = os.environ.get("PKG_CONFIG", "pkg-config")
-        command_libs = [command, "--libs-only-L", name]
-        command_cflags = [command, "--cflags-only-I", name]
-        if not DEBUG:
-            command_libs.append("--silence-errors")
-            command_cflags.append("--silence-errors")
-        libs = (
-            subprocess.check_output(command_libs)
-            .decode("utf8")
-            .strip()
-            .replace("-L", "")
-        )
-        cflags = (
-            subprocess.check_output(command_cflags)
-            .decode("utf8")
-            .strip()
-            .replace("-I", "")
-        )
-        return (libs, cflags)
-    except Exception:
-        pass
+    command = os.environ.get("PKG_CONFIG", "pkg-config")
+    for keep_system in (True, False):
+        try:
+            command_libs = [command, "--libs-only-L", name]
+            command_cflags = [command, "--cflags-only-I", name]
+            stderr = None
+            if keep_system:
+                command_libs.append("--keep-system-libs")
+                command_cflags.append("--keep-system-cflags")
+                stderr = subprocess.DEVNULL
+            if not DEBUG:
+                command_libs.append("--silence-errors")
+                command_cflags.append("--silence-errors")
+            libs = (
+                subprocess.check_output(command_libs, stderr=stderr)
+                .decode("utf8")
+                .strip()
+                .replace("-L", "")
+            )
+            cflags = (
+                subprocess.check_output(command_cflags)
+                .decode("utf8")
+                .strip()
+                .replace("-I", "")
+            )
+            return libs, cflags
+        except Exception:
+            pass
 
 
 class pil_build_ext(build_ext):
@@ -269,6 +293,7 @@ class pil_build_ext(build_ext):
             "jpeg",
             "tiff",
             "freetype",
+            "raqm",
             "lcms",
             "webp",
             "webpmux",
@@ -278,6 +303,7 @@ class pil_build_ext(build_ext):
         ]
 
         required = {"jpeg", "zlib"}
+        vendor = set()
 
         def __init__(self):
             for f in self.features:
@@ -289,6 +315,9 @@ class pil_build_ext(build_ext):
         def want(self, feat):
             return getattr(self, feat) is None
 
+        def want_vendor(self, feat):
+            return feat in self.vendor
+
         def __iter__(self):
             yield from self.features
 
@@ -298,6 +327,10 @@ class pil_build_ext(build_ext):
         build_ext.user_options
         + [(f"disable-{x}", None, f"Disable support for {x}") for x in feature]
         + [(f"enable-{x}", None, f"Enable support for {x}") for x in feature]
+        + [
+            (f"vendor-{x}", None, f"Use vendored version of {x}")
+            for x in ("raqm", "fribidi")
+        ]
         + [
             ("disable-platform-guessing", None, "Disable platform guessing on Linux"),
             ("debug", None, "Debug logging"),
@@ -312,6 +345,8 @@ class pil_build_ext(build_ext):
         for x in self.feature:
             setattr(self, f"disable_{x}", None)
             setattr(self, f"enable_{x}", None)
+        for x in ("raqm", "fribidi"):
+            setattr(self, f"vendor_{x}", None)
 
     def finalize_options(self):
         build_ext.finalize_options(self)
@@ -336,18 +371,43 @@ class pil_build_ext(build_ext):
                     raise ValueError(
                         f"Conflicting options: --enable-{x} and --disable-{x}"
                     )
+                if x == "freetype":
+                    _dbg("--disable-freetype implies --disable-raqm")
+                    if getattr(self, "enable_raqm"):
+                        raise ValueError(
+                            "Conflicting options: --enable-raqm and --disable-freetype"
+                        )
+                    setattr(self, "disable_raqm", True)
             if getattr(self, f"enable_{x}"):
                 _dbg("Requiring %s", x)
                 self.feature.required.add(x)
+                if x == "raqm":
+                    _dbg("--enable-raqm implies --enable-freetype")
+                    self.feature.required.add("freetype")
+        for x in ("raqm", "fribidi"):
+            if getattr(self, f"vendor_{x}"):
+                if getattr(self, "disable_raqm"):
+                    raise ValueError(
+                        f"Conflicting options: --vendor-{x} and --disable-raqm"
+                    )
+                if x == "fribidi" and not getattr(self, "vendor_raqm"):
+                    raise ValueError(
+                        f"Conflicting options: --vendor-{x} and not --vendor-raqm"
+                    )
+                _dbg("Using vendored version of %s", x)
+                self.feature.vendor.add(x)
 
-    def _update_extension(self, name, libraries, define_macros=None, include_dirs=None):
+    def _update_extension(self, name, libraries, define_macros=None, sources=None):
         for extension in self.extensions:
             if extension.name == name:
                 extension.libraries += libraries
                 if define_macros is not None:
                     extension.define_macros += define_macros
-                if include_dirs is not None:
-                    extension.include_dirs += include_dirs
+                if sources is not None:
+                    extension.sources += sources
+                if FUZZING_BUILD:
+                    extension.language = "c++"
+                    extension.extra_link_args = ["--stdlib=libc++"]
                 break
 
     def _remove_extension(self, name):
@@ -355,6 +415,27 @@ class pil_build_ext(build_ext):
             if extension.name == name:
                 self.extensions.remove(extension)
                 break
+
+    def get_macos_sdk_path(self):
+        try:
+            sdk_path = (
+                subprocess.check_output(["xcrun", "--show-sdk-path"])
+                .strip()
+                .decode("latin1")
+            )
+        except Exception:
+            sdk_path = None
+        if (
+            not sdk_path
+            or sdk_path == "/Applications/Xcode.app/Contents/Developer"
+            "/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+        ):
+            commandlinetools_sdk_path = (
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+            )
+            if os.path.exists(commandlinetools_sdk_path):
+                sdk_path = commandlinetools_sdk_path
+        return sdk_path
 
     def build_extensions(self):
 
@@ -373,6 +454,8 @@ class pil_build_ext(build_ext):
             TIFF_ROOT=("libtiff-5", "libtiff-4"),
             ZLIB_ROOT="zlib",
             FREETYPE_ROOT="freetype2",
+            HARFBUZZ_ROOT="harfbuzz",
+            FRIBIDI_ROOT="fribidi",
             LCMS_ROOT="lcms2",
             IMAGEQUANT_ROOT="libimagequant",
         ).items():
@@ -482,18 +565,20 @@ class pil_build_ext(build_ext):
                     _add_directory(library_dirs, "/usr/X11/lib")
                     _add_directory(include_dirs, "/usr/X11/include")
 
-            # SDK install path
-            try:
-                sdk_path = (
-                    subprocess.check_output(["xcrun", "--sdk", platform, "--show-sdk-path"])
-                    .strip()
-                    .decode("latin1")
-                )
-            except Exception:
-                sdk_path = None
-            if sdk_path:
-                _add_directory(library_dirs, os.path.join(sdk_path, "usr", "lib"))
-                _add_directory(include_dirs, os.path.join(sdk_path, "usr", "include"))
+                sdk_path = self.get_macos_sdk_path()
+                if sdk_path:
+                    _add_directory(library_dirs, os.path.join(sdk_path, "usr", "lib"))
+                    _add_directory(include_dirs, os.path.join(sdk_path, "usr", "include"))
+            elif (platform == "iphoneos"):
+                sdk_path = "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
+                if sdk_path:
+                    _add_directory(library_dirs, os.path.join(sdk_path, "usr", "lib"))
+                    _add_directory(include_dirs, os.path.join(sdk_path, "usr", "include"))
+            elif (platform == "iphonesimulator"):
+                sdk_path = "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk"
+                if sdk_path:
+                    _add_directory(library_dirs, os.path.join(sdk_path, "usr", "lib"))
+                    _add_directory(include_dirs, os.path.join(sdk_path, "usr", "include"))
         elif (
             sys.platform.startswith("linux")
             or sys.platform.startswith("gnu")
@@ -509,7 +594,11 @@ class pil_build_ext(build_ext):
                 # headers are at $PREFIX/include
                 # user libs are at $PREFIX/lib
                 _add_directory(
-                    library_dirs, os.path.join(os.environ["ANDROID_ROOT"], "lib")
+                    library_dirs,
+                    os.path.join(
+                        os.environ["ANDROID_ROOT"],
+                        "lib" if struct.calcsize("l") == 4 else "lib64",
+                    ),
                 )
 
         elif sys.platform.startswith("netbsd"):
@@ -662,6 +751,39 @@ class pil_build_ext(build_ext):
                     if subdir:
                         _add_directory(self.compiler.include_dirs, subdir, 0)
 
+        if feature.freetype and feature.want("raqm"):
+            if not feature.want_vendor("raqm"):  # want system Raqm
+                _dbg("Looking for Raqm")
+                if _find_include_file(self, "raqm.h"):
+                    if _find_library_file(self, "raqm"):
+                        feature.raqm = "raqm"
+                    elif _find_library_file(self, "libraqm"):
+                        feature.raqm = "libraqm"
+            else:  # want to build Raqm from src/thirdparty
+                _dbg("Looking for HarfBuzz")
+                feature.harfbuzz = None
+                hb_dir = _find_include_dir(self, "harfbuzz", "hb.h")
+                if hb_dir:
+                    if isinstance(hb_dir, str):
+                        _add_directory(self.compiler.include_dirs, hb_dir, 0)
+                    if _find_library_file(self, "harfbuzz"):
+                        feature.harfbuzz = "harfbuzz"
+                if feature.harfbuzz:
+                    if not feature.want_vendor("fribidi"):  # want system FriBiDi
+                        _dbg("Looking for FriBiDi")
+                        feature.fribidi = None
+                        fribidi_dir = _find_include_dir(self, "fribidi", "fribidi.h")
+                        if fribidi_dir:
+                            if isinstance(fribidi_dir, str):
+                                _add_directory(
+                                    self.compiler.include_dirs, fribidi_dir, 0
+                                )
+                            if _find_library_file(self, "fribidi"):
+                                feature.fribidi = "fribidi"
+                                feature.raqm = True
+                    else:  # want to build FriBiDi shim from src/thirdparty
+                        feature.raqm = True
+
         if feature.want("lcms"):
             _dbg("Looking for lcms")
             if _find_include_file(self, "lcms2.h"):
@@ -730,9 +852,11 @@ class pil_build_ext(build_ext):
         if feature.tiff:
             libs.append(feature.tiff)
             defs.append(("HAVE_LIBTIFF", None))
-            # FIXME the following define should be detected automatically
-            #       based on system libtiff, see #4237
-            if PLATFORM_MINGW:
+            if sys.platform == "win32":
+                # This define needs to be defined if-and-only-if it was defined
+                # when compiling LibTIFF. LibTIFF doesn't expose it in `tiffconf.h`,
+                # so we have to guess; by default it is defined in all Windows builds.
+                # See #4237, #5243, #5359 for more information.
                 defs.append(("USE_WIN32_FILEIO", None))
         if feature.xcb:
             libs.append(feature.xcb)
@@ -760,8 +884,24 @@ class pil_build_ext(build_ext):
             # for iOS and simulator, freetype is in a framework, not a library:
             if not(sys.platform == "darwin" and platform.startswith("iphone")):
                 libs = ["freetype"]
+            srcs = []
             defs = []
-            self._update_extension("PIL._imagingft", libs, defs)
+            if feature.raqm:
+                if not feature.want_vendor("raqm"):  # using system Raqm
+                    defs.append(("HAVE_RAQM", None))
+                    defs.append(("HAVE_RAQM_SYSTEM", None))
+                    libs.append(feature.raqm)
+                else:  # building Raqm from src/thirdparty
+                    defs.append(("HAVE_RAQM", None))
+                    srcs.append("src/thirdparty/raqm/raqm.c")
+                    libs.append(feature.harfbuzz)
+                    if not feature.want_vendor("fribidi"):  # using system FriBiDi
+                        defs.append(("HAVE_FRIBIDI_SYSTEM", None))
+                        libs.append(feature.fribidi)
+                    else:  # building FriBiDi shim from src/thirdparty
+                        srcs.append("src/thirdparty/fribidi-shim/fribidi.c")
+            self._update_extension("PIL._imagingft", libs, defs, srcs)
+
         else:
             self._remove_extension("PIL._imagingft")
 
@@ -786,7 +926,7 @@ class pil_build_ext(build_ext):
         else:
             self._remove_extension("PIL._webp")
 
-        tk_libs = ["psapi"] if sys.platform == "win32" else []
+        tk_libs = ["psapi"] if sys.platform in ("win32", "cygwin") else []
         self._update_extension("PIL._imagingtk", tk_libs)
 
         build_ext.build_extensions(self)
@@ -808,6 +948,12 @@ class pil_build_ext(build_ext):
             print(f"             [{v.strip()}")
         print("-" * 68)
 
+        raqm_extra_info = ""
+        if feature.want_vendor("raqm"):
+            raqm_extra_info += "bundled"
+            if feature.want_vendor("fribidi"):
+                raqm_extra_info += ", FriBiDi shim"
+
         options = [
             (feature.jpeg, "JPEG"),
             (feature.jpeg2000, "OPENJPEG (JPEG2000)", feature.openjpeg_version),
@@ -815,6 +961,7 @@ class pil_build_ext(build_ext):
             (feature.imagequant, "LIBIMAGEQUANT"),
             (feature.tiff, "LIBTIFF"),
             (feature.freetype, "FREETYPE2"),
+            (feature.raqm, "RAQM (Text shaping)", raqm_extra_info),
             (feature.lcms, "LITTLECMS2"),
             (feature.webp, "WEBP"),
             (feature.webpmux, "WEBPMUX"),
@@ -824,10 +971,10 @@ class pil_build_ext(build_ext):
         all = 1
         for option in options:
             if option[0]:
-                version = ""
+                extra_info = ""
                 if len(option) >= 3 and option[2]:
-                    version = f" ({option[2]})"
-                print(f"--- {option[1]} support available{version}")
+                    extra_info = f" ({option[2]})"
+                print(f"--- {option[1]} support available{extra_info}")
             else:
                 print(f"*** {option[1]} support not available")
                 all = 0
@@ -848,7 +995,7 @@ class pil_build_ext(build_ext):
 
 
 def debug_build():
-    return hasattr(sys, "gettotalrefcount")
+    return hasattr(sys, "gettotalrefcount") or FUZZING_BUILD
 
 
 files = ["src/_imaging.c"]
@@ -866,50 +1013,14 @@ ext_modules = [
     Extension("PIL._imagingmorph", ["src/_imagingmorph.c"]),
 ]
 
-with open("README.md") as f:
-    long_description = f.read()
-
 try:
     setup(
-        name=NAME,
         version=PILLOW_VERSION,
-        description="Python Imaging Library (Fork)",
-        long_description=long_description,
-        long_description_content_type="text/markdown",
-        license="HPND",
-        author="Alex Clark (PIL Fork Author)",
-        author_email="aclark@python-pillow.org",
-        url="https://python-pillow.org",
-        project_urls={
-            "Documentation": "https://pillow.readthedocs.io",
-            "Source": "https://github.com/python-pillow/Pillow",
-            "Funding": "https://tidelift.com/subscription/pkg/pypi-pillow?"
-            "utm_source=pypi-pillow&utm_medium=pypi",
-        },
-        classifiers=[
-            "Development Status :: 6 - Mature",
-            "License :: OSI Approved :: Historical Permission Notice and Disclaimer (HPND)",  # noqa: E501
-            "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.6",
-            "Programming Language :: Python :: 3.7",
-            "Programming Language :: Python :: 3.8",
-            "Programming Language :: Python :: 3.9",
-            "Programming Language :: Python :: 3 :: Only",
-            "Programming Language :: Python :: Implementation :: CPython",
-            "Programming Language :: Python :: Implementation :: PyPy",
-            "Topic :: Multimedia :: Graphics",
-            "Topic :: Multimedia :: Graphics :: Capture :: Digital Camera",
-            "Topic :: Multimedia :: Graphics :: Capture :: Screen Capture",
-            "Topic :: Multimedia :: Graphics :: Graphics Conversion",
-            "Topic :: Multimedia :: Graphics :: Viewers",
-        ],
-        python_requires=">=3.6",
         cmdclass={"build_ext": pil_build_ext},
         ext_modules=ext_modules,
         include_package_data=True,
         packages=["PIL"],
         package_dir={"": "src"},
-        keywords=["Imaging"],
         zip_safe=not (debug_build() or PLATFORM_MINGW),
     )
 except RequiredDependencyException as err:

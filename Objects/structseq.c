@@ -473,6 +473,7 @@ _PyStructSequence_InitType(PyTypeObject *type, PyStructSequence_Desc *desc,
 
     /* PyTypeObject has already been initialized */
     if (Py_REFCNT(type) != 0) {
+    	fprintf(stderr, "PyTypeObject %s has already been initialized. refcnt= %zd\n", type->tp_name, Py_REFCNT(type));
         PyErr_BadInternalCall();
         return -1;
     }
@@ -499,6 +500,7 @@ _PyStructSequence_InitType(PyTypeObject *type, PyStructSequence_Desc *desc,
     type->tp_members = members;
 
     if (PyType_Ready(type) < 0) {
+    	fprintf(stderr, "PyTypeObject %s is not ready\n", type->tp_name);
         PyMem_Free(members);
         return -1;
     }
@@ -507,6 +509,7 @@ _PyStructSequence_InitType(PyTypeObject *type, PyStructSequence_Desc *desc,
     if (initialize_structseq_dict(
             desc, type->tp_dict, n_members, n_unnamed_members) < 0) {
         PyMem_Free(members);
+    	fprintf(stderr, "initialize_structseq_dict failed for PyTypeObject %s\n", type->tp_name);
         Py_DECREF(type);
         return -1;
     }

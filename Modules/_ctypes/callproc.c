@@ -146,7 +146,11 @@ _ctypes_get_errobj(int **pspace)
 {
     PyObject *dict = PyThreadState_GetDict();
     PyObject *errobj;
+#if !TARGET_OS_IPHONE
     static PyObject *error_object_name;
+#else
+    static __thread PyObject *error_object_name;
+#endif
     if (dict == NULL) {
         PyErr_SetString(PyExc_RuntimeError,
                         "cannot get thread state");

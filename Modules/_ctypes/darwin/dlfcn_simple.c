@@ -81,8 +81,13 @@ static const char *error(int setget, const char *str, ...);
 /* Set and get the error string for use by dlerror */
 static const char *error(int setget, const char *str, ...)
 {
+#if !TARGET_OS_IPHONE
     static char errstr[ERR_STR_LEN];
     static int err_filled = 0;
+#else
+    static __thread char errstr[ERR_STR_LEN];
+    static __thread int err_filled = 0;
+#endif
     const char *retval;
     va_list arg;
     if (setget == 0)
@@ -213,7 +218,12 @@ static int darwin_dlclose(void *handle)
 /* dlsym, prepend the underscore and call dlsymIntern */
 static void *darwin_dlsym(void *handle, const char *symbol)
 {
+#if !TARGET_OS_IPHONE
     static char undersym[257];          /* Saves calls to malloc(3) */
+#else
+    static __thread char undersym[257];          /* Saves calls to malloc(3) */
+#endif
+
     int sym_len = strlen(symbol);
     void *value = NULL;
     char *malloc_sym = NULL;

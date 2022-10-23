@@ -1650,7 +1650,9 @@ class FileFinder:
             if sys.platform == 'darwin' and _os.uname().machine.startswith('iP'): 
                 _bootstrap._verbose_message('searching for {}', fullname, verbosity=2)
                 if self.path.startswith(sys.prefix) and suffix.endswith('.so'):
-                    pythonName = sys._base_executable # set in pathconfig.c
+                    pythonName = sys.orig_argv[0]
+                    if (pythonName == "python3") or (pythonName == "python"):
+                        pythonName = "python3_ios"
                     # Merged numpy, pandas and astropy modules into a single framework:
                     if fullname in ["numpy.core._operand_flag_tests", 
                     "numpy.core._multiarray_umath", 

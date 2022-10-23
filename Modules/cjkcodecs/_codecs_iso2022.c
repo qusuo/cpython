@@ -569,7 +569,11 @@ DECMAP(gb2312)
 static int
 ksx1001_init(void)
 {
+#if !TARGET_OS_IPHONE
     static int initialized = 0;
+#else
+    static __thread int initialized = 0;
+#endif
 
     if (!initialized && (
                     IMPORT_MAP(kr, cp949, &cp949_encmap, NULL) ||
@@ -606,7 +610,11 @@ ksx1001_encoder(const Py_UCS4 *data, Py_ssize_t *length)
 static int
 jisx0208_init(void)
 {
+#if !TARGET_OS_IPHONE
     static int initialized = 0;
+#else
+    static __thread int initialized = 0;
+#endif
 
     if (!initialized && (
                     IMPORT_MAP(jp, jisxcommon, &jisxcommon_encmap, NULL) ||
@@ -647,7 +655,11 @@ jisx0208_encoder(const Py_UCS4 *data, Py_ssize_t *length)
 static int
 jisx0212_init(void)
 {
+#if !TARGET_OS_IPHONE
     static int initialized = 0;
+#else
+    static __thread int initialized = 0;
+#endif
 
     if (!initialized && (
                     IMPORT_MAP(jp, jisxcommon, &jisxcommon_encmap, NULL) ||
@@ -684,7 +696,11 @@ jisx0212_encoder(const Py_UCS4 *data, Py_ssize_t *length)
 static int
 jisx0213_init(void)
 {
+#if !TARGET_OS_IPHONE
     static int initialized = 0;
+#else
+    static __thread int initialized = 0;
+#endif
 
     if (!initialized && (
                     jisx0208_init() ||
@@ -963,7 +979,11 @@ jisx0201_k_encoder(const Py_UCS4 *data, Py_ssize_t *length)
 static int
 gb2312_init(void)
 {
+#if !TARGET_OS_IPHONE
     static int initialized = 0;
+#else
+    static __thread int initialized = 0;
+#endif
 
     if (!initialized && (
                     IMPORT_MAP(cn, gbcommon, &gbcommon_encmap, NULL) ||

@@ -505,7 +505,11 @@ long Call_GetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv)
 {
     PyObject *mod, *func, *result;
     long retval;
+#if !TARGET_OS_IPHONE
     static PyObject *context;
+#else
+    static __thread PyObject *context;
+#endif
 
     if (context == NULL)
         context = PyUnicode_InternFromString("_ctypes.DllGetClassObject");
@@ -578,7 +582,11 @@ long Call_CanUnloadNow(void)
 {
     PyObject *mod, *func, *result;
     long retval;
+#if !TARGET_OS_IPHONE
     static PyObject *context;
+#else
+    static __thread PyObject *context;
+#endif
 
     if (context == NULL)
         context = PyUnicode_InternFromString("_ctypes.DllCanUnloadNow");

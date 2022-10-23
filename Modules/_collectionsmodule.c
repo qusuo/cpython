@@ -1674,7 +1674,7 @@ static void reset_deque_type() {
 	deque_type.tp_setattr =  0;                                  /* tp_setattr */
 	deque_type.tp_as_async =  0;                                  /* tp_as_async */
 	deque_type.tp_repr =  deque_repr;                         /* tp_repr */
-	deque_type.tp_as_number =  &deque_as_number;                   /* tp_as_number */
+	deque_type.tp_as_number =  0;                   /* tp_as_number */
 	deque_type.tp_as_sequence =  &deque_as_sequence;                 /* tp_as_sequence */
 	deque_type.tp_as_mapping =  0;                                  /* tp_as_mapping */
 	deque_type.tp_hash =  PyObject_HashNotImplemented;        /* tp_hash */
@@ -1683,7 +1683,7 @@ static void reset_deque_type() {
 	deque_type.tp_getattro =  PyObject_GenericGetAttr;            /* tp_getattro */
 	deque_type.tp_setattro =  0;                                  /* tp_setattro */
 	deque_type.tp_as_buffer =  0;                                  /* tp_as_buffer */
-	deque_type.tp_flags =  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC;   /* tp_flags */
+	deque_type.tp_flags =  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_SEQUENCE;   /* tp_flags */
 	deque_type.tp_doc =  deque_doc;                          /* tp_doc */
 	deque_type.tp_traverse =  (traverseproc)deque_traverse;       /* tp_traverse */
 	deque_type.tp_clear =  (inquiry)deque_clear;               /* tp_clear */

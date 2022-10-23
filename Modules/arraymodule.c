@@ -2192,7 +2192,11 @@ array_array___reduce_ex___impl(arrayobject *self, PyTypeObject *cls,
     PyObject *array_str;
     int typecode = self->ob_descr->typecode;
     int mformat_code;
+#if TARGET_OS_IPHONE
     static PyObject *array_reconstructor = NULL;
+#else
+    static __thread PyObject *array_reconstructor = NULL;
+#endif
     long protocol;
 
     array_state *state = get_array_state_by_class(cls);

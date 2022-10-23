@@ -285,7 +285,11 @@ PyFile_NewStdPrinter(int fd)
 {
     PyStdPrinter_Object *self;
 
+#if !TARGET_OS_IPHONE
     if (fd != fileno(stdout) && fd != fileno(stderr)) {
+#else
+    if (fd != fileno(thread_stdout) && fd != fileno(thread_stderr)) {
+#endif
         /* not enough infrastructure for PyErr_BadInternalCall() */
         return NULL;
     }

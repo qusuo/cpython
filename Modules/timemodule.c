@@ -140,7 +140,11 @@ Return the current time in nanoseconds since the Epoch.");
 static int
 _PyTime_GetClockWithInfo(_PyTime_t *tp, _Py_clock_info_t *info)
 {
+#if !TARGET_OS_IPHONE
     static int initialized = 0;
+#else 
+    static __thread int initialized = 0;
+#endif
 
     if (!initialized) {
         initialized = 1;
@@ -2113,6 +2117,10 @@ PyInit_time(void)
     return PyModuleDef_Init(&timemodule);
 }
 
+#if TARGET_OS_IPHONE
+extern void set_pysleep_thread(pthread_t val);
+extern pthread_t get_pysleep_thread(void);
+#endif
 
 // time.sleep() implementation.
 // On error, raise an exception and return -1.
@@ -2165,8 +2173,27 @@ pysleep(_PyTime_t timeout)
         ret = nanosleep(&timeout_ts, NULL);
         err = errno;
 #else
+#if TARGET_OS_IPHONE
+		PyInterpreterState *before = PyInterpreterState_Main();
+		set_pysleep_thread(pthread_self());
+#endif
         ret = select(0, (fd_set *)0, (fd_set *)0, (fd_set *)0, &timeout_tv);
         err = errno;
+#if TARGET_OS_IPHONE
+		// iOS: sometimes, we wake up from select and the main thread has been terminated.
+		// If we try to access anything, it will crash the entire app, so we detect it here.
+		if (get_pysleep_thread() == NULL) {
+			// This test detects all / most cases. See pylifecycle.c
+			pthread_exit(NULL); 
+		}
+		PyInterpreterState *after = PyInterpreterState_Main();
+		if (before != after) {
+			// Safety check. Not working with iOS14.4 SDK, but second line of defense.
+			pthread_exit(NULL); 
+		}
+		// All is well, normal operation, reset the pysleep_thread variable:
+		set_pysleep_thread(NULL);
+#endif
 #endif
         Py_END_ALLOW_THREADS
 

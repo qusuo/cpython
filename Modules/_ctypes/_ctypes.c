@@ -2161,7 +2161,11 @@ static PyObject *CreateSwappedType(PyTypeObject *type, PyObject *args, PyObject 
     PyObject *name = PyTuple_GET_ITEM(args, 0);
     PyObject *newname;
     PyObject *swapped_args;
+#if !TARGET_OS_IPHONE
     static PyObject *suffix;
+#else
+    static __thread PyObject *suffix;
+#endif
     Py_ssize_t i;
 
     swapped_args = PyTuple_New(PyTuple_GET_SIZE(args));
@@ -4678,7 +4682,7 @@ PyTypeObject PyCFuncPtr_Type = {
 
 #if TARGET_OS_IPHONE
 static void init_PyCFuncPtr_Type() {
-    PyCFuncPtr_Type.tp_name = "_ctypes.PyCFuncPtr";
+    PyCFuncPtr_Type.tp_name = "_ctypes.CFuncPtr";
     PyCFuncPtr_Type.tp_basicsize = sizeof(PyCFuncPtrObject);                   /* tp_basicsize */
     PyCFuncPtr_Type.tp_itemsize = 0;                                          /* tp_itemsize */
     PyCFuncPtr_Type.tp_dealloc = (destructor)PyCFuncPtr_dealloc;             /* tp_dealloc */
@@ -5360,7 +5364,11 @@ static void init_PyCArray_Type() {
 PyObject *
 PyCArrayType_from_ctype(PyObject *itemtype, Py_ssize_t length)
 {
+#if !TARGET_OS_IPHONE
     static PyObject *cache;
+#else
+    static __thread PyObject *cache;
+#endif
     PyObject *key;
     PyObject *result;
     char name[256];

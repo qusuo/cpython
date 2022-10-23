@@ -54,7 +54,11 @@ Py_FrozenMain(int argc, char **argv)
 #endif
 
     if (Py_VerboseFlag) {
+#if !TARGET_OS_IPHONE
         fprintf(stderr, "Python %s\n%s\n",
+#else
+        fprintf(thread_stderr, "Python %s\n%s\n",
+#endif
                 Py_GetVersion(), Py_GetCopyright());
     }
 
@@ -71,7 +75,11 @@ Py_FrozenMain(int argc, char **argv)
         sts = 0;
     }
 
+#if !TARGET_OS_IPHONE
     if (inspect && isatty((int)fileno(stdin))) {
+#else
+    if (inspect && ios_isatty((int)fileno(stdin))) {
+#endif
         sts = PyRun_AnyFile(stdin, "<stdin>") != 0;
     }
 

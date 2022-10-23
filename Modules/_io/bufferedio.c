@@ -748,7 +748,11 @@ _buffered_init(buffered *self)
 int
 _PyIO_trap_eintr(void)
 {
+#if !TARGET_OS_IPHONE
     static PyObject *eintr_int = NULL;
+#else
+    static __thread PyObject *eintr_int = NULL;
+#endif
     PyObject *typ, *val, *tb;
     PyOSErrorObject *env_err;
 

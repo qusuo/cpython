@@ -18,7 +18,11 @@ static const decode_map *big5_decmap = NULL;
 
 CODEC_INIT(big5hkscs)
 {
+#if !TARGET_OS_IPHONE
     static int initialized = 0;
+#else
+    static __thread int initialized = 0;
+#endif
 
     if (!initialized && IMPORT_MAP(tw, big5, &big5_encmap, &big5_decmap))
         return -1;

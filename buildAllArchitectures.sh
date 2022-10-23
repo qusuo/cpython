@@ -154,7 +154,6 @@ python3.11 -m pip install urllib3 --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install webencodings --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install wheel --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install pygments --upgrade >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install Babel --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # markupsafe: prevent compilation of extension:
 echo Installing MarkupSafe with no extensions >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p packages >> $PREFIX/make_install_osx.log 2>&1
@@ -168,7 +167,6 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 popd >> $PREFIX/make_install_osx.log 2>&1
 echo Done installing MarkupSafe >> $PREFIX/make_install_osx.log 2>&1
 # end markupsafe 
-python3.11 -m pip install jinja2 --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install attrs --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install appnope --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install packaging --upgrade >> $PREFIX/make_install_osx.log 2>&1
@@ -207,26 +205,18 @@ python3.11 -m pip install ptyprocess --upgrade >> $PREFIX/make_install_osx.log 2
 python3.11 -m pip install jsonschema --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install mistune --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install docutils --upgrade >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install m2r --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install traitlets --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install pexpect --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install ipython-genutils --upgrade >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install jupyter-core --upgrade >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install nbformat --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install pandocfilters --upgrade >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install testpath --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install defusedxml --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install python-dateutil --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # Let jedi install the version of parso it needs (since the latest version is not OK)
 # python3.11 -m pip install parso --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install jedi --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# This simple trick prevents tornado from installing extensions:
-CC=/bin/false python3.11 -m pip install tornado --upgrade  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install terminado --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install backcall --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install pandocfilters --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install decorator --upgrade >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install prometheus-client --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install wcwidth --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install pickleshare --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # To get further, we need cffi:
@@ -369,7 +359,9 @@ then
 	then
 		sed -i bak 's/^    split = name.split/    # iOS: we can only load frameworks:\
     if sys.platform == "darwin" and os.uname().machine.startswith("iP"):\
-        pythonName = sys._base_executable # set in pathconfig.c\
+        pythonName = sys.orig_argv[0]
+        if (pythonName == "python3") or (pythonName == "python"):
+            pythonName = "python3_ios"
         frameworkName = pythonName + "-" + name\
         home, tail = os.path.split(sys.prefix)\
         full_path = os.path.join(home, "Frameworks", frameworkName + ".framework", frameworkName)\
@@ -425,90 +417,18 @@ cp build//lib.macosx-${OSX_VERSION}-x86_64-cpython-311/regex/_regex.cpython-311-
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Done with a-Shell mini packages, copy result: 
-# TODO: check whether something is missing
+rm -rf Library_mini >> $PREFIX/make_install_osx.log 2>&1
 cp -r Library Library_mini >> $PREFIX/make_install_osx.log 2>&1
-# python3.11 -m pip install ipython --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# nbconvert has removed setup.py install. We install it and patch on the fly:
-echo Installing nbconvert and patch it for iOS  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install nbconvert  >> $PREFIX/make_install_osx.log 2>&1
-cp packages/nbconvert_utils_pandoc.py $PREFIX/Library/lib/python3.11/site-packages/nbconvert/utils/pandoc.py  >> $PREFIX/make_install_osx.log 2>&1
-# argon2 for OSX: use precompiled binary. This might cause a crash later, as with cffi.
-python3.11 -m pip uninstall argon2-cffi -y >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install argon2-cffi --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# Download argon2 now, while the dependencies are working
-mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/_argon2_cffi_bindings/  >> $PREFIX/make_install_osx.log 2>&1
-cp $PREFIX/Library/lib/python3.11/site-packages/_argon2_cffi_bindings/_ffi.abi3.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/_argon2_cffi_bindings/_ffi.abi3.so  >> $PREFIX/make_install_osx.log 2>&1
-pushd packages >> $PREFIX/make_install_osx.log 2>&1
-downloadSource argon2-cffi-bindings >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-# Now install everything we need:
-# python3.11 -m pip install jupyter --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# install mpmath manually because the repository is 2 years ahead of Pipy:
-pushd packages >> $PREFIX/make_install_osx.log 2>&1
-pushd mpmath >> $PREFIX/make_install_osx.log 2>&1
-git pull  >> $PREFIX/make_install_osx.log 2>&1
-rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-rm -rf .eggs  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
-# pip install . won't work anymore
-python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-# Now install sympy:
-python3.11 -m pip install sympy --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# For jupyter: 
-# ipykernel (edited to cleanup sockets when we close a kernel)
-unset PYZMQ_BACKEND_CFFI
-unset PYZMQ_BACKEND
-pushd packages >> $PREFIX/make_install_osx.log 2>&1
-pushd ipykernel >> $PREFIX/make_install_osx.log 2>&1
-rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-# ipykernel has removed setup.py. Try with "pip install .", then patch on the fly.
-# python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-# ipykernel needs "-m pip install .", won't install itself with "setup.py install"
-python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1 
-popd  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-export PYZMQ_BACKEND=cffi
-# depend on ipykernel:
-# Now we can install PyZMQ. We need to compile it ourselves to make sure it uses CFFI as a backend:
-# (the wheel uses Cython)
-echo Installing PyZMQ for OSX  >> $PREFIX/make_install_osx.log 2>&1
-# First uninstall standard pyzmq 
-python3.11 -m pip uninstall pyzmq -y >> $PREFIX/make_install_osx.log 2>&1
-# Then install our own version:
-pushd packages  >> $PREFIX/make_install_osx.log 2>&1
-downloadSource pyzmq >> $PREFIX/make_install_osx.log 2>&1
-pushd pyzmq* >> $PREFIX/make_install_osx.log 2>&1
-cp setup.py setup_pyzmq.back.py >> $PREFIX/make_install_osx.log 2>&1
-cp ../setup_pyzmq.py ./setup.py >> $PREFIX/make_install_osx.log 2>&1
-rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1 
-export PYZMQ_BACKEND_CFFI=1
-env PYZMQ_BACKEND_CFFI=1 CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " PYZMQ_BACKEND=cffi python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/zmq/backend/cffi >> $PREFIX/make_install_osx.log 2>&1
-cp build/lib.macosx-${OSX_VERSION}-x86_64-*/zmq/backend/cffi/_cffi.*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/zmq/backend/cffi >> $PREFIX/make_install_osx.log 2>&1
-# "-m pip install ." fails, "python3.11 setup.py install bdist_egg" works for now
-env PYZMQ_BACKEND_CFFI=1 CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " PYZMQ_BACKEND=cffi python3.11 setup.py install bdist_egg >> $PREFIX/make_install_osx.log 2>&1
-echo Done installing PyZMQ with CFFI >> $PREFIX/make_install_osx.log 2>&1
-echo PyZMQ libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
-find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-# Unset so that other packages can be installed
-unset PYZMQ_BACKEND_CFFI
-unset PYZMQ_BACKEND
-python3.11 -m pip install qtpy --upgrade >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install qtconsole --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# python3.11 -m pip install babel --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# notebook
-# notebook (heavily edited to adapt to touchscreens and iOS)
-pushd packages >> $PREFIX/make_install_osx.log 2>&1
-pushd notebook >> $PREFIX/make_install_osx.log 2>&1
-rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
+# Packages that are not included in a-Shell mini:
+python3.11 -m pip install Babel --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install jinja2 --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install testpath --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# This simple trick prevents tornado from installing extensions:
+CC=/bin/false python3.11 -m pip install tornado --upgrade  >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install terminado --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install jupyter-core --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install nbformat --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install prometheus-client --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # jupyter_client
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd jupyter_client >> $PREFIX/make_install_osx.log 2>&1
@@ -622,6 +542,89 @@ find $PREFIX/Library/share/jupyter -type f -name \*.css -exec sed -i bak 's/--jp
 #
 # done jupyterlab/retrolab
 #
+# End packages that are not included with a-Shell mini
+# python3.11 -m pip install ipython --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# nbconvert has removed setup.py install. We install it and patch on the fly:
+echo Installing nbconvert and patch it for iOS  >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install nbconvert  >> $PREFIX/make_install_osx.log 2>&1
+cp packages/nbconvert_utils_pandoc.py $PREFIX/Library/lib/python3.11/site-packages/nbconvert/utils/pandoc.py  >> $PREFIX/make_install_osx.log 2>&1
+# argon2 for OSX: use precompiled binary. This might cause a crash later, as with cffi.
+python3.11 -m pip uninstall argon2-cffi -y >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install argon2-cffi --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# Download argon2 now, while the dependencies are working
+mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/_argon2_cffi_bindings/  >> $PREFIX/make_install_osx.log 2>&1
+cp $PREFIX/Library/lib/python3.11/site-packages/_argon2_cffi_bindings/_ffi.abi3.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/_argon2_cffi_bindings/_ffi.abi3.so  >> $PREFIX/make_install_osx.log 2>&1
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+downloadSource argon2-cffi-bindings >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# Now install everything we need:
+# python3.11 -m pip install jupyter --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# install mpmath manually because the repository is 2 years ahead of Pipy:
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+pushd mpmath >> $PREFIX/make_install_osx.log 2>&1
+git pull  >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+rm -rf .eggs  >> $PREFIX/make_install_osx.log 2>&1
+python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
+# pip install . won't work anymore
+python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# Now install sympy:
+python3.11 -m pip install sympy --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# For jupyter: 
+# ipykernel (edited to cleanup sockets when we close a kernel)
+unset PYZMQ_BACKEND_CFFI
+unset PYZMQ_BACKEND
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+pushd ipykernel >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+# ipykernel has removed setup.py. Try with "pip install .", then patch on the fly.
+# python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+# ipykernel needs "-m pip install .", won't install itself with "setup.py install"
+python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1 
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+export PYZMQ_BACKEND=cffi
+# depend on ipykernel:
+# Now we can install PyZMQ. We need to compile it ourselves to make sure it uses CFFI as a backend:
+# (the wheel uses Cython)
+echo Installing PyZMQ for OSX  >> $PREFIX/make_install_osx.log 2>&1
+# First uninstall standard pyzmq 
+python3.11 -m pip uninstall pyzmq -y >> $PREFIX/make_install_osx.log 2>&1
+# Then install our own version:
+pushd packages  >> $PREFIX/make_install_osx.log 2>&1
+downloadSource pyzmq >> $PREFIX/make_install_osx.log 2>&1
+pushd pyzmq* >> $PREFIX/make_install_osx.log 2>&1
+cp setup.py setup_pyzmq.back.py >> $PREFIX/make_install_osx.log 2>&1
+cp ../setup_pyzmq.py ./setup.py >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1 
+export PYZMQ_BACKEND_CFFI=1
+env PYZMQ_BACKEND_CFFI=1 CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " PYZMQ_BACKEND=cffi python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/zmq/backend/cffi >> $PREFIX/make_install_osx.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-x86_64-*/zmq/backend/cffi/_cffi.*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/zmq/backend/cffi >> $PREFIX/make_install_osx.log 2>&1
+# "-m pip install ." fails, "python3.11 setup.py install bdist_egg" works for now
+env PYZMQ_BACKEND_CFFI=1 CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " PYZMQ_BACKEND=cffi python3.11 setup.py install bdist_egg >> $PREFIX/make_install_osx.log 2>&1
+echo Done installing PyZMQ with CFFI >> $PREFIX/make_install_osx.log 2>&1
+echo PyZMQ libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
+find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# Unset so that other packages can be installed
+unset PYZMQ_BACKEND_CFFI
+unset PYZMQ_BACKEND
+python3.11 -m pip install qtpy --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install qtconsole --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# python3.11 -m pip install babel --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# notebook
+# notebook (heavily edited to adapt to touchscreens and iOS)
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+pushd notebook >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
 # Cython (edited for iOS, reinitialize types at each run):
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd cython >> $PREFIX/make_install_osx.log 2>&1
@@ -2197,32 +2200,33 @@ do
 done
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
+popd  >> $PREFIX/make_ios.log 2>&1
 # lxml:
 pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd lxml*  >> $PREFIX/make_ios.log 2>&1
 rm -rf build/* >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ \
-env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX -I$PREFIX/Frameworks_iphoneos/include/ $DEBUG  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX -I$PREFIX/Frameworks_iphoneos/include/ -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.9  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.9 $DEBUG" PLATFORM=iphoneos python3.9 setup.py build  --with-cython >> $PREFIX/make_ios.log 2>&1
+env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX -I$PREFIX/Frameworks_iphoneos/include/ $DEBUG  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX -I$PREFIX/Frameworks_iphoneos/include/ -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.11  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.11 $DEBUG" PLATFORM=iphoneos python3.11 setup.py build  --with-cython >> $PREFIX/make_ios.log 2>&1
 echo lxml libraries for iOS: >> $PREFIX/make_ios.log 2>&1
 find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
-mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/lxml/  >> $PREFIX/make_ios.log 2>&1
-mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/lxml/html/  >> $PREFIX/make_ios.log 2>&1
-cp ./build/lib.macosx-${OSX_VERSION}-arm64-cpython-39/lxml/*.so  $PREFIX/build/lib.darwin-arm64-3.9/lxml/ >> $PREFIX/make_ios.log 2>&1
-cp ./build/lib.macosx-${OSX_VERSION}-arm64-cpython-39/lxml/html/*.so  $PREFIX/build/lib.darwin-arm64-3.9/lxml/html/ >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/lxml/  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/lxml/html/  >> $PREFIX/make_ios.log 2>&1
+cp ./build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/lxml/*.so  $PREFIX/build/lib.darwin-arm64-3.11/lxml/ >> $PREFIX/make_ios.log 2>&1
+cp ./build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/lxml/html/*.so  $PREFIX/build/lib.darwin-arm64-3.11/lxml/html/ >> $PREFIX/make_ios.log 2>&1
 # Single library for lxml:
 clang -v -undefined error -dynamiclib \
 	-arch arm64 -miphoneos-version-min=14.0 \
 	-isysroot $IOS_SDKROOT \
-	-lz -lm -lc++ -lpython3.9 \
+	-lz -lm -lc++ -lpython3.11 \
 	-F$PREFIX/Frameworks_iphoneos -framework ios_system  \
 	-L$PREFIX/Frameworks_iphoneos/lib -lxslt -lexslt \
-	-L$PREFIX/build/lib.darwin-arm64-3.9 \
+	-L$PREFIX/build/lib.darwin-arm64-3.11 \
 	-O3 -Wall \
 	`find build -name \*.o` \
 	-L$PREFIX/Library/lib \
 	-lxml2  \
 	-o build/lxml.so >> $PREFIX/make_ios.log 2>&1
-cp build/lxml.so $PREFIX/build/lib.darwin-arm64-3.9 >> $PREFIX/make_ios.log 2>&1
+cp build/lxml.so $PREFIX/build/lib.darwin-arm64-3.11 >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # cryptography:
@@ -2234,17 +2238,64 @@ env CRYPTOGRAPHY_DONT_BUILD_RUST=1 CC=clang CXX=clang++ \
 CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/ -DCRYPTOGRAPHY_OSRANDOM_ENGINE=CRYPTOGRAPHY_OSRANDOM_ENGINE_DEV_URANDOM" \
 CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/  -DCRYPTOGRAPHY_OSRANDOM_ENGINE=CRYPTOGRAPHY_OSRANDOM_ENGINE_DEV_URANDOM " \
 CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/  -DCRYPTOGRAPHY_OSRANDOM_ENGINE=CRYPTOGRAPHY_OSRANDOM_ENGINE_DEV_URANDOM" \
-LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.9 -L$PREFIX/Frameworks_iphoneos/lib/" \
-LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.9 -lz -lpython3.9 -L$PREFIX/Frameworks_iphoneos/lib/" \
-PLATFORM=iphoneos python3.9 setup.py build  >> $PREFIX/make_ios.log 2>&1
+LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.11 -L$PREFIX/Frameworks_iphoneos/lib/" \
+LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.11 -lz -lpython3.11 -L$PREFIX/Frameworks_iphoneos/lib/" \
+PLATFORM=iphoneos python3.11 setup.py build  >> $PREFIX/make_ios.log 2>&1
 echo cryptography libraries for iOS: >> $PREFIX/make_ios.log 2>&1
 find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
-mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/cryptography/  >> $PREFIX/make_ios.log 2>&1
-mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/cryptography/hazmat  >> $PREFIX/make_ios.log 2>&1
-mkdir -p $PREFIX/build/lib.darwin-arm64-3.9/cryptography/hazmat/bindings  >> $PREFIX/make_ios.log 2>&1
-cp build/lib.macosx-${OSX_VERSION}-arm64-cpython-39/cryptography/hazmat/bindings/*.so $PREFIX/build/lib.darwin-arm64-3.9/cryptography/hazmat/bindings  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/cryptography/  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/cryptography/hazmat  >> $PREFIX/make_ios.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/cryptography/hazmat/bindings  >> $PREFIX/make_ios.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/cryptography/hazmat/bindings/*.so $PREFIX/build/lib.darwin-arm64-3.11/cryptography/hazmat/bindings  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
+# pycryptodome:
+if [ $APP == "a-Shell" ]; 
+then
+	pushd packages >> $PREFIX/make_ios.log 2>&1
+	pushd pycryptodome-* >> $PREFIX/make_ios.log 2>&1
+	rm -rf build/* >> $PREFIX/make_ios.log 2>&1
+	rm .separate_namespace >> $PREFIX/make_ios.log 2>&1
+	env CC=clang CXX=clang++ \
+		CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/" \
+		CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/" \
+		CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/" \
+		LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.11 -L$PREFIX/Frameworks_iphoneos/lib/" \
+		LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.11 -lz -lpython3.11 $DEBUG" \
+		PLATFORM=iphoneos python3.11 setup.py build  >> $PREFIX/make_ios.log 2>&1
+	echo pycryptodome libraries for iOS: >> $PREFIX/make_ios.log 2>&1
+	find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
+	pushd build/lib.macosx-${OSX_VERSION}-arm64-cpython-311 >> $PREFIX/make_ios.log 2>&1
+	for library in `find Crypto -name \*.so`
+	do
+		directory=$(dirname $library)
+		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
+		cp $library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+	done
+	popd  >> $PREFIX/make_ios.log 2>&1
+	# pycryptodomex:
+	rm -rf build/* >> $PREFIX/make_ios.log 2>&1
+	touch .separate_namespace  >> $PREFIX/make_ios.log 2>&1
+	env CC=clang CXX=clang++ \
+		CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/" \
+		CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/" \
+		CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/" \
+		LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.11 -L$PREFIX/Frameworks_iphoneos/lib/" \
+		LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.11 -lz -lpython3.11 $DEBUG" \
+		PLATFORM=iphoneos python3.11 setup.py build  >> $PREFIX/make_ios.log 2>&1
+	echo pycryptodomex libraries for iOS: >> $PREFIX/make_ios.log 2>&1
+	find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
+	pushd build/lib.macosx-${OSX_VERSION}-arm64-cpython-311 >> $PREFIX/make_ios.log 2>&1
+	for library in `find Cryptodome -name \*.so`
+	do
+		directory=$(dirname $library)
+		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
+		cp $library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+	done
+	popd  >> $PREFIX/make_ios.log 2>&1
+	popd  >> $PREFIX/make_ios.log 2>&1
+	popd  >> $PREFIX/make_ios.log 2>&1
+fi # a-Shell (pycryptodome)
 # regex (for nltk)
 pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd regex*  >> $PREFIX/make_ios.log 2>&1
@@ -2253,13 +2304,13 @@ env CC=clang CXX=clang++ \
 	CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/" \
 	CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/" \
 	CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX  -I$PREFIX/Frameworks_iphoneos/include/" \
-	LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.9 -L$PREFIX/Frameworks_iphoneos/lib/" \
-	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.9 -lz -lpython3.9 $DEBUG" \
-	PLATFORM=iphoneos python3.9 setup.py build  >> $PREFIX/make_ios.log 2>&1
+	LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.11 -L$PREFIX/Frameworks_iphoneos/lib/" \
+	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/build/lib.darwin-arm64-3.11 -lz -lpython3.11 $DEBUG" \
+	PLATFORM=iphoneos python3.11 setup.py build  >> $PREFIX/make_ios.log 2>&1
 # copy the library in the right place:
 find . -name \*.so >> $PREFIX/make_ios.log 2>&1                                                                               
-mkdir -p  $PREFIX/build/lib.darwin-arm64-3.9/regex/ >> $PREFIX/make_ios.log 2>&1
-cp build//lib.macosx-${OSX_VERSION}-arm64-cpython-39/regex/_regex.cpython-39-darwin.so $PREFIX/build/lib.darwin-arm64-3.9/regex/ >> $PREFIX/make_ios.log 2>&1
+mkdir -p  $PREFIX/build/lib.darwin-arm64-3.11/regex/ >> $PREFIX/make_ios.log 2>&1
+cp build//lib.macosx-${OSX_VERSION}-arm64-cpython-311/regex/_regex.cpython-311-darwin.so $PREFIX/build/lib.darwin-arm64-3.11/regex/ >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 # wordcloud

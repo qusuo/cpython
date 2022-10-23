@@ -5734,6 +5734,173 @@ static PyMethodDef _decimal_methods [] =
   { NULL, NULL, 1, NULL }
 };
 
+#if TARGET_OS_IPHONE
+
+static void reset_PyDec_Type() {
+    PyDec_Type.tp_name = "decimal.Decimal";
+    PyDec_Type.tp_basicsize = sizeof(PyDecObject);
+    PyDec_Type.tp_itemsize = 0;
+    PyDec_Type.tp_dealloc = (destructor) dec_dealloc;
+    PyDec_Type.tp_vectorcall_offset = 0;
+    PyDec_Type.tp_getattr = (getattrfunc) 0;
+    PyDec_Type.tp_setattr = (setattrfunc) 0;
+    PyDec_Type.tp_as_async = 0;
+    PyDec_Type.tp_repr = (reprfunc) dec_repr;
+    PyDec_Type.tp_as_number = &dec_number_methods;
+    PyDec_Type.tp_as_sequence = 0;
+    PyDec_Type.tp_as_mapping = 0;
+    PyDec_Type.tp_hash = (hashfunc) dec_hash;
+    PyDec_Type.tp_call = 0;
+    PyDec_Type.tp_str = (reprfunc) dec_str;
+    PyDec_Type.tp_getattro = (getattrofunc) PyObject_GenericGetAttr;
+    PyDec_Type.tp_setattro = (setattrofunc) 0;
+    PyDec_Type.tp_as_buffer = (PyBufferProcs *) 0;
+    PyDec_Type.tp_flags = (Py_TPFLAGS_DEFAULT| Py_TPFLAGS_BASETYPE);
+    PyDec_Type.tp_doc = doc_decimal;
+    PyDec_Type.tp_traverse = 0;
+    PyDec_Type.tp_clear = 0;
+    PyDec_Type.tp_richcompare = dec_richcompare;
+    PyDec_Type.tp_weaklistoffset = 0;
+    PyDec_Type.tp_iter = 0;
+    PyDec_Type.tp_iternext = 0;
+    PyDec_Type.tp_methods = dec_methods;
+    PyDec_Type.tp_members = 0;
+    PyDec_Type.tp_getset = dec_getsets;
+    PyDec_Type.tp_base = 0;
+    PyDec_Type.tp_dict = 0;
+    PyDec_Type.tp_descr_get = 0;
+    PyDec_Type.tp_descr_set = 0;
+    PyDec_Type.tp_dictoffset = 0;
+    PyDec_Type.tp_init = 0;
+    PyDec_Type.tp_alloc = 0;
+    PyDec_Type.tp_new = dec_new;
+    PyDec_Type.tp_free = PyObject_Del;
+
+}
+
+static void reset_PyDecContext_Type()  {
+    PyDecContext_Type.tp_name = "decimal.Context";
+    PyDecContext_Type.tp_basicsize = sizeof(PyDecContextObject);
+    PyDecContext_Type.tp_itemsize = 0;
+    PyDecContext_Type.tp_dealloc = (destructor) context_dealloc;
+    PyDecContext_Type.tp_vectorcall_offset = 0;
+    PyDecContext_Type.tp_getattr = (getattrfunc) 0;
+    PyDecContext_Type.tp_setattr = (setattrfunc) 0;
+    PyDecContext_Type.tp_as_async = 0;
+    PyDecContext_Type.tp_repr = (reprfunc) context_repr;
+    PyDecContext_Type.tp_as_number = 0;
+    PyDecContext_Type.tp_as_sequence = 0;
+    PyDecContext_Type.tp_as_mapping = 0;
+    PyDecContext_Type.tp_hash = (hashfunc) 0;
+    PyDecContext_Type.tp_call = 0;
+    PyDecContext_Type.tp_str = (reprfunc) context_repr;
+    PyDecContext_Type.tp_getattro = (getattrofunc) context_getattr;
+    PyDecContext_Type.tp_setattro = (setattrofunc) context_setattr;
+    PyDecContext_Type.tp_as_buffer = (PyBufferProcs *) 0;
+    PyDecContext_Type.tp_flags = Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE;
+    PyDecContext_Type.tp_doc = doc_context;
+    PyDecContext_Type.tp_traverse = 0;
+    PyDecContext_Type.tp_clear = 0;
+    PyDecContext_Type.tp_richcompare = 0;
+    PyDecContext_Type.tp_weaklistoffset = 0;
+    PyDecContext_Type.tp_iter = 0;
+    PyDecContext_Type.tp_iternext = 0;
+    PyDecContext_Type.tp_methods = context_methods;
+    PyDecContext_Type.tp_members = 0;
+    PyDecContext_Type.tp_getset = context_getsets;
+    PyDecContext_Type.tp_base = 0;
+    PyDecContext_Type.tp_dict = 0;
+    PyDecContext_Type.tp_descr_get = 0;
+    PyDecContext_Type.tp_descr_set = 0;
+    PyDecContext_Type.tp_dictoffset = 0;
+    PyDecContext_Type.tp_init = context_init;
+    PyDecContext_Type.tp_alloc = 0;
+    PyDecContext_Type.tp_new = context_new;
+    PyDecContext_Type.tp_free = PyObject_Del;
+}
+
+static void reset_PyDecContextManager_Type() {
+    PyDecContextManager_Type.tp_name = "decimal.ContextManager";
+    PyDecContextManager_Type.tp_basicsize = sizeof(PyDecContextManagerObject);
+    PyDecContextManager_Type.tp_itemsize = 0;
+    PyDecContextManager_Type.tp_dealloc = (destructor) ctxmanager_dealloc;
+    PyDecContextManager_Type.tp_vectorcall_offset = 0;
+    PyDecContextManager_Type.tp_getattr = (getattrfunc) 0;
+    PyDecContextManager_Type.tp_setattr = (setattrfunc) 0;
+    PyDecContextManager_Type.tp_as_async = 0;
+    PyDecContextManager_Type.tp_repr = (reprfunc) 0;
+    PyDecContextManager_Type.tp_as_number = 0;
+    PyDecContextManager_Type.tp_as_sequence = 0;
+    PyDecContextManager_Type.tp_as_mapping = 0;
+    PyDecContextManager_Type.tp_hash = 0;
+    PyDecContextManager_Type.tp_call = 0;
+    PyDecContextManager_Type.tp_str = 0;
+    PyDecContextManager_Type.tp_getattro = (getattrofunc) PyObject_GenericGetAttr;
+    PyDecContextManager_Type.tp_setattro = (setattrofunc) 0;
+    PyDecContextManager_Type.tp_as_buffer = (PyBufferProcs *) 0;
+    PyDecContextManager_Type.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyDecContextManager_Type.tp_doc = 0;
+    PyDecContextManager_Type.tp_traverse = 0;
+    PyDecContextManager_Type.tp_clear = 0;
+    PyDecContextManager_Type.tp_richcompare = 0;
+    PyDecContextManager_Type.tp_weaklistoffset = 0;
+    PyDecContextManager_Type.tp_iter = 0;
+    PyDecContextManager_Type.tp_iternext = 0;
+    PyDecContextManager_Type.tp_methods = ctxmanager_methods;
+}
+
+static void reset_PyDecSignalDictMixin_Type() {
+	PyDecSignalDictMixin_Type.tp_name = "decimal.SignalDictMixin";
+    PyDecSignalDictMixin_Type.tp_basicsize = sizeof(PyDecSignalDictObject);
+    PyDecSignalDictMixin_Type.tp_itemsize = 0;
+    PyDecSignalDictMixin_Type.tp_dealloc = 0;
+    PyDecSignalDictMixin_Type.tp_vectorcall_offset = 0;
+    PyDecSignalDictMixin_Type.tp_getattr = (getattrfunc) 0;
+    PyDecSignalDictMixin_Type.tp_setattr = (setattrfunc) 0;
+    PyDecSignalDictMixin_Type.tp_as_async = 0;
+    PyDecSignalDictMixin_Type.tp_repr = (reprfunc) signaldict_repr;
+    PyDecSignalDictMixin_Type.tp_as_number = 0;
+    PyDecSignalDictMixin_Type.tp_as_sequence = 0;
+    PyDecSignalDictMixin_Type.tp_as_mapping = &signaldict_as_mapping;
+    PyDecSignalDictMixin_Type.tp_hash = PyObject_HashNotImplemented;
+    PyDecSignalDictMixin_Type.tp_call = 0;
+    PyDecSignalDictMixin_Type.tp_str = (reprfunc) 0;
+    PyDecSignalDictMixin_Type.tp_getattro = PyObject_GenericGetAttr;
+    PyDecSignalDictMixin_Type.tp_setattro = (setattrofunc) 0;
+    PyDecSignalDictMixin_Type.tp_as_buffer = (PyBufferProcs *) 0;
+    PyDecSignalDictMixin_Type.tp_flags = Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE;
+    PyDecSignalDictMixin_Type.tp_doc = 0;
+    PyDecSignalDictMixin_Type.tp_traverse = 0;
+    PyDecSignalDictMixin_Type.tp_clear = 0;
+    PyDecSignalDictMixin_Type.tp_richcompare = signaldict_richcompare;
+    PyDecSignalDictMixin_Type.tp_weaklistoffset = 0;
+    PyDecSignalDictMixin_Type.tp_iter = (getiterfunc)signaldict_iter;
+    PyDecSignalDictMixin_Type.tp_iternext = 0;
+    PyDecSignalDictMixin_Type.tp_methods = signaldict_methods;
+    PyDecSignalDictMixin_Type.tp_members = 0;
+    PyDecSignalDictMixin_Type.tp_getset = 0;
+    PyDecSignalDictMixin_Type.tp_base = 0;
+    PyDecSignalDictMixin_Type.tp_dict = 0;
+    PyDecSignalDictMixin_Type.tp_descr_get = 0;
+    PyDecSignalDictMixin_Type.tp_descr_set = 0;
+    PyDecSignalDictMixin_Type.tp_dictoffset = 0;
+    PyDecSignalDictMixin_Type.tp_init = (initproc)signaldict_init;
+    PyDecSignalDictMixin_Type.tp_alloc = 0;
+    PyDecSignalDictMixin_Type.tp_new = PyType_GenericNew;
+}
+
+static void reset_decimal_types() {
+    // iOS: reset the types to their default values, so they are back to their
+    // original self after a PyFinalize() / PyInitialize() pair of calls.
+    // We cannot call this function as the destructor, as type.dealloc() members
+    // will be called later, in another destructor. So we call it in the initializer.
+    reset_PyDec_Type();
+    reset_PyDecContext_Type();
+    reset_PyDecContextManager_Type();
+    reset_PyDecSignalDictMixin_Type();
+}
+#endif
+
 static struct PyModuleDef _decimal_module = {
     PyModuleDef_HEAD_INIT,
     "decimal",
@@ -5845,6 +6012,11 @@ PyInit__decimal(void)
     mpd_setminalloc(_Py_DEC_MINALLOC);
 
 
+#if TARGET_OS_IPHONE
+    // iOS: reset all types to their default values (0, mostly)
+    reset_decimal_types();
+#endif
+    
     /* Init external C-API functions */
     _py_long_multiply = PyLong_Type.tp_as_number->nb_multiply;
     _py_long_floor_divide = PyLong_Type.tp_as_number->nb_floor_divide;

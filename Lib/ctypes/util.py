@@ -75,7 +75,9 @@ elif os.name == "posix" and sys.platform == "darwin":
                     '%s.framework/%s' % (name, name)]
         # iOS addition: also search for pythonA-math.framework/pythonA-math and lib.framework/lib
         if (os.uname().machine.startswith('iP')):
-            pythonName = basename(sys.real_executable)
+            pythonName = sys.orig_argv[0]
+            if (pythonName == "python3") or (pythonName == "python"):
+                pythonName = "python3_ios"
             home, tail = os.path.split(sys.prefix)
             possible.append('%s/Frameworks/%s-%s.framework/%s-%s' % (home, pythonName, name, pythonName, name))
             possible.append('%s/Frameworks/%s.framework/%s' % (home, name, name))
