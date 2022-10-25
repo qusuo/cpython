@@ -10,7 +10,6 @@ import warnings
 from io import BytesIO, TextIOWrapper
 # iOS:
 import mistune
-from m2r import convert
 import sys, os
 
 from nbconvert.utils.version import check_version
@@ -29,7 +28,7 @@ def newline(func):
     return inner
 
 
-class LatexRenderer(mistune.Renderer):
+class LatexRenderer(mistune.HTMLRenderer):
     """Renderer for rendering markdown as LaTeX.
     Only a subset of mistune-flavored markdown is supported, which will be
     translated into a subset of LaTeX."""
@@ -146,7 +145,7 @@ class LatexRenderer(mistune.Renderer):
     def reference(self, key):
         return r'\cite{%s}' % (key, )
 
-class AsciidocRenderer(mistune.Renderer):
+class AsciidocRenderer(mistune.HTMLRenderer):
     """Renderer for rendering markdown as AsciiDoc. http://asciidoc.org
     Only a subset of mistune-flavored markdown is supported, which will be
     translated into a subset of AsciiDoc."""
@@ -326,12 +325,15 @@ def pandoc(source, fmt, to, extra_args=None, encoding="utf-8"):
     # This is not perfect (...) but it lets the conversion machine work.
     # iOS: we replaced pandoc with a mistune plugin. It's not as good but it works
     # iOS, TODO: tables in LaTeX, html in LaTeX
+    # IOS: also possible: switch to multimarkdown for latex output
+    # markdown -> rst used to be done with m2r, but it's not incompatible with docutils
+    # and m2r2 is not compatible with mistune > 0.8.4
     if (sys.platform == 'darwin' and os.uname().machine.startswith('iP')):
         if (fmt.startswith('markdown') and to.startswith('latex')):
             markdown_to_latex = mistune.Markdown(renderer=LatexRenderer())
             return markdown_to_latex(source)
-        elif (fmt.startswith('markdown') and to.startswith('rst')):
-            return convert(source) # m2r markdown to rst conversion
+        # elif (fmt.startswith('markdown') and to.startswith('rst')):
+        #    return convert(source) # m2r markdown to rst conversion
         elif (fmt.startswith('markdown') and to.startswith('asciidoc')):
             markdown_to_asciidoc = mistune.Markdown(renderer=AsciidocRenderer())
             return markdown_to_asciidoc(source)
