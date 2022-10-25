@@ -235,7 +235,7 @@ env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OS
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # First, install the "standard" pyzmq: 
-python3.11 -m pip install pyzmq  >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install pyzmq >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install certifi >> $PREFIX/make_install_osx.log 2>&1
 # Let's install prompt-toolkit for Ipython:
 python3.11 -m pip install prompt-toolkit >> $PREFIX/make_install_osx.log 2>&1
@@ -429,6 +429,85 @@ python3.11 -m pip install terminado --upgrade >> $PREFIX/make_install_osx.log 2>
 python3.11 -m pip install jupyter-core --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install nbformat --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install prometheus-client --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# Now install everything we need:
+# python3.11 -m pip install jupyter --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# install mpmath manually because the repository is 2 years ahead of Pipy:
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+pushd mpmath >> $PREFIX/make_install_osx.log 2>&1
+git pull  >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+rm -rf .eggs  >> $PREFIX/make_install_osx.log 2>&1
+python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
+# pip install . won't work anymore
+python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# Now install sympy:
+python3.11 -m pip install sympy --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# For jupyter: 
+# ipykernel (edited to cleanup sockets when we close a kernel)
+unset PYZMQ_BACKEND_CFFI
+unset PYZMQ_BACKEND
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+pushd ipykernel >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+# ipykernel has removed setup.py. Try with "pip install .", then patch on the fly.
+# python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+# ipykernel needs "-m pip install .", won't install itself with "setup.py install"
+python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1 
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+export PYZMQ_BACKEND=cffi
+# depend on ipykernel:
+# Now we can install PyZMQ. We need to compile it ourselves to make sure it uses CFFI as a backend:
+# (the wheel uses Cython)
+echo Installing PyZMQ for OSX  >> $PREFIX/make_install_osx.log 2>&1
+# First uninstall standard pyzmq 
+python3.11 -m pip uninstall pyzmq -y >> $PREFIX/make_install_osx.log 2>&1
+# Then install our own version:
+pushd packages  >> $PREFIX/make_install_osx.log 2>&1
+downloadSource pyzmq >> $PREFIX/make_install_osx.log 2>&1
+pushd pyzmq* >> $PREFIX/make_install_osx.log 2>&1
+if [ ! -f setup_pyzmq.back.py ]; 
+then
+    cp setup.py setup_pyzmq.back.py >> $PREFIX/make_install_osx.log 2>&1
+    cp ../setup_pyzmq.py ./setup.py >> $PREFIX/make_install_osx.log 2>&1
+fi
+rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1 
+export PYZMQ_BACKEND_CFFI=1
+env PYZMQ_BACKEND_CFFI=1 CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " PYZMQ_BACKEND=cffi python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/zmq/backend/cffi >> $PREFIX/make_install_osx.log 2>&1
+cp build/lib.macosx-${OSX_VERSION}-x86_64-*/zmq/backend/cffi/_cffi.*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/zmq/backend/cffi >> $PREFIX/make_install_osx.log 2>&1
+# "-m pip install ." fails, "python3.11 setup.py install bdist_egg" works for now
+env PYZMQ_BACKEND_CFFI=1 CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " PYZMQ_BACKEND=cffi python3.11 setup.py install bdist_egg >> $PREFIX/make_install_osx.log 2>&1
+echo Done installing PyZMQ with CFFI >> $PREFIX/make_install_osx.log 2>&1
+echo PyZMQ libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
+find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# Unset so that other packages can be installed
+unset PYZMQ_BACKEND_CFFI
+unset PYZMQ_BACKEND
+python3.11 -m pip install qtpy --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install qtconsole --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# python3.11 -m pip install babel --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# notebook
+# notebook (heavily edited to adapt to touchscreens and iOS)
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+pushd notebook >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# Cython (edited for iOS, reinitialize types at each run):
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+pushd cython >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install . --install-option="--no-cython-compile" >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+# python3.11 -m pip install cython --upgrade >> $PREFIX/make_install_osx.log 2>&1
+
 # jupyter_client
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd jupyter_client >> $PREFIX/make_install_osx.log 2>&1
@@ -557,81 +636,6 @@ cp $PREFIX/Library/lib/python3.11/site-packages/_argon2_cffi_bindings/_ffi.abi3.
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource argon2-cffi-bindings >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
-# Now install everything we need:
-# python3.11 -m pip install jupyter --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# install mpmath manually because the repository is 2 years ahead of Pipy:
-pushd packages >> $PREFIX/make_install_osx.log 2>&1
-pushd mpmath >> $PREFIX/make_install_osx.log 2>&1
-git pull  >> $PREFIX/make_install_osx.log 2>&1
-rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-rm -rf .eggs  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
-# pip install . won't work anymore
-python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-# Now install sympy:
-python3.11 -m pip install sympy --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# For jupyter: 
-# ipykernel (edited to cleanup sockets when we close a kernel)
-unset PYZMQ_BACKEND_CFFI
-unset PYZMQ_BACKEND
-pushd packages >> $PREFIX/make_install_osx.log 2>&1
-pushd ipykernel >> $PREFIX/make_install_osx.log 2>&1
-rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-# ipykernel has removed setup.py. Try with "pip install .", then patch on the fly.
-# python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-# ipykernel needs "-m pip install .", won't install itself with "setup.py install"
-python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1 
-popd  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-export PYZMQ_BACKEND=cffi
-# depend on ipykernel:
-# Now we can install PyZMQ. We need to compile it ourselves to make sure it uses CFFI as a backend:
-# (the wheel uses Cython)
-echo Installing PyZMQ for OSX  >> $PREFIX/make_install_osx.log 2>&1
-# First uninstall standard pyzmq 
-python3.11 -m pip uninstall pyzmq -y >> $PREFIX/make_install_osx.log 2>&1
-# Then install our own version:
-pushd packages  >> $PREFIX/make_install_osx.log 2>&1
-downloadSource pyzmq >> $PREFIX/make_install_osx.log 2>&1
-pushd pyzmq* >> $PREFIX/make_install_osx.log 2>&1
-cp setup.py setup_pyzmq.back.py >> $PREFIX/make_install_osx.log 2>&1
-cp ../setup_pyzmq.py ./setup.py >> $PREFIX/make_install_osx.log 2>&1
-rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1 
-export PYZMQ_BACKEND_CFFI=1
-env PYZMQ_BACKEND_CFFI=1 CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " PYZMQ_BACKEND=cffi python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/zmq/backend/cffi >> $PREFIX/make_install_osx.log 2>&1
-cp build/lib.macosx-${OSX_VERSION}-x86_64-*/zmq/backend/cffi/_cffi.*.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/zmq/backend/cffi >> $PREFIX/make_install_osx.log 2>&1
-# "-m pip install ." fails, "python3.11 setup.py install bdist_egg" works for now
-env PYZMQ_BACKEND_CFFI=1 CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " PYZMQ_BACKEND=cffi python3.11 setup.py install bdist_egg >> $PREFIX/make_install_osx.log 2>&1
-echo Done installing PyZMQ with CFFI >> $PREFIX/make_install_osx.log 2>&1
-echo PyZMQ libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
-find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-# Unset so that other packages can be installed
-unset PYZMQ_BACKEND_CFFI
-unset PYZMQ_BACKEND
-python3.11 -m pip install qtpy --upgrade >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install qtconsole --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# python3.11 -m pip install babel --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# notebook
-# notebook (heavily edited to adapt to touchscreens and iOS)
-pushd packages >> $PREFIX/make_install_osx.log 2>&1
-pushd notebook >> $PREFIX/make_install_osx.log 2>&1
-rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-# Cython (edited for iOS, reinitialize types at each run):
-pushd packages >> $PREFIX/make_install_osx.log 2>&1
-pushd cython >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install . --install-option="--no-cython-compile" >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-# python3.11 -m pip install cython --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # Numpy:
 # Cython options for numpy (and other packages: PEP489_MULTI_PHASE_INIT=0, USE_DICT_VERSIONS=0 to reduce
 # amount of memory allocated and not tracked. Also in numpy/tools/cythonize.py, "--cleanup 3" to free
