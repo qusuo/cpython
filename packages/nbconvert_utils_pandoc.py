@@ -28,7 +28,7 @@ def newline(func):
     return inner
 
 
-class LatexRenderer(mistune.Renderer):
+class LatexRenderer(mistune.HTMLRenderer):
     """Renderer for rendering markdown as LaTeX.
     Only a subset of mistune-flavored markdown is supported, which will be
     translated into a subset of LaTeX."""
@@ -145,7 +145,7 @@ class LatexRenderer(mistune.Renderer):
     def reference(self, key):
         return r'\cite{%s}' % (key, )
 
-class AsciidocRenderer(mistune.Renderer):
+class AsciidocRenderer(mistune.HTMLRenderer):
     """Renderer for rendering markdown as AsciiDoc. http://asciidoc.org
     Only a subset of mistune-flavored markdown is supported, which will be
     translated into a subset of AsciiDoc."""
