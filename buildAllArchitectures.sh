@@ -146,6 +146,7 @@ echo Starting package installation  >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install pip --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install setuptools --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install setuptools-rust --upgrade >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install setuptools_scm --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # Pure-python packages that do not depend on anything, keep latest version:
 # Order of packages: packages dependent on something after the one they depend on
 python3.11 -m pip install six --upgrade >> $PREFIX/make_install_osx.log 2>&1
@@ -800,6 +801,8 @@ do
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$directory >> $PREFIX/make_install_osx.log 2>&1
 	cp $library $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$library >> $PREFIX/make_install_osx.log 2>&1
 done
+# version number is still not correct! (but why?)
+# cp matplotlib/_version.py $PREFIX/Library/lib/python3.11/site-packages/matplotlib/_version.py
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
