@@ -614,6 +614,8 @@ cp jupyter_server_services_contents_filecheckpoints.py $PREFIX/Library/lib/pytho
 cp jupyter_server_services_contents_fileio.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/services/contents/fileio.py >> $PREFIX/make_install_osx.log 2>&1
 # directory if no local access:
 cp jupyter_server_services_kernels_kernelmanager.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/services/kernels/kernelmanager.py >> $PREFIX/make_install_osx.log 2>&1
+# nbconvert writes to file, rather than open a window with the file:
+cp jupyter_server_nbconvert_handlers.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/nbconvert/handlers.py >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Add caret-color to all css files:
@@ -627,7 +629,11 @@ find $PREFIX/Library/share/jupyter -type f -name \*.css -exec sed -i bak 's/--jp
 # nbconvert has removed setup.py install. We install it and patch on the fly:
 echo Installing nbconvert and patch it for iOS  >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install nbconvert  >> $PREFIX/make_install_osx.log 2>&1
+# Edit nbconvert to convert notebooks to latex without pandoc:
 cp packages/nbconvert_utils_pandoc.py $PREFIX/Library/lib/python3.11/site-packages/nbconvert/utils/pandoc.py  >> $PREFIX/make_install_osx.log 2>&1
+cp packages/nbconvert_exporters_pdf.py $PREFIX/Library/lib/python3.11/site-packages/nbconvert/exporters/pdf.py  >> $PREFIX/make_install_osx.log 2>&1
+cp packages/Library_share_jupyter_nbconvert_templates_latex_document_contents.tex.j2 $PREFIX/Library/share/jupyter/nbconvert/templates/latex/document_contents.tex.j2 >> $PREFIX/make_install_osx.log 2>&1
+packages/Library_share_jupyter_nbconvert_templates_latex_report.tex.j2 $PREFIX/Library/share/jupyter/nbconvert/templates/latex/report.tex.j2  >> $PREFIX/make_install_osx.log 2>&1
 # argon2 for OSX: use precompiled binary. This might cause a crash later, as with cffi.
 python3.11 -m pip uninstall argon2-cffi -y >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install argon2-cffi --upgrade >> $PREFIX/make_install_osx.log 2>&1
@@ -790,6 +796,7 @@ rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf .eggs  >> $PREFIX/make_install_osx.log 2>&1
 env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT"  CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 # Need to install matplotlib from the git repository so pip gets the proper version number:
+# For version number, remember to "git push --tags" after each "git pull upstream"
 env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " python3.11 -m pip install git+https://github.com/holzschu/matplotlib.git --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # cp the dynamic libraries to build/lib.macosx.../
 echo matplotlib libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
@@ -993,7 +1000,7 @@ then
 	python3.11 -m pip install --upgrade ipysheet >> $PREFIX/make_install_osx.log 2>&1
 	python3.11 -m pip install --upgrade widgetsnbextension >> $PREFIX/make_install_osx.log 2>&1
 	# Bug fix for cell_filter (jquery, not jqueryui): 
-	cp packages/cell_filter.js $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/nbextensions/cell_filter/cell_filter.js
+	cp packages/cell_filter.js $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/nbextensions/cell_filter/cell_filter.js  >> $PREFIX/make_install_osx.log 2>&1
 	# replace template_path with template_paths to avoid errors at loading: 
 	# Remove these lines in jupyter_contrib_nbextensions is updated (above 0.5.1) or latex_envs (above 1.4.6)
 	cp packages/jupyter_contrib_nbextensions/latex_envs_latex_envs.py $PREFIX/Library/lib/python3.11/site-packages/latex_envs/latex_envs.py
@@ -1047,7 +1054,7 @@ then
 	cp -r $PREFIX/Library/lib/python3.11/site-packages/jupyter_bokeh-*.egg/share/jupyter/nbextensions/jupyter_bokeh $PREFIX/Library/share/jupyter/nbextensions/ >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
-	# pyerfa (for astropy 4.6.2)
+	# pyerfa (for astropy >= 4.6.2)
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	# pushd pyerfa  >> $PREFIX/make_install_osx.log 2>&1
 	downloadSource pyerfa  >> $PREFIX/make_install_osx.log 2>&1
@@ -1095,6 +1102,7 @@ if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
 	# pip install . pulls the old version from pip, so fails.
 #	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.11 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.11 setup.py install  >> $PREFIX/make_install_osx.log 2>&1
+	# TODO: move that to a `find . -name \*.so...`
 	echo astropy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/  >> $PREFIX/make_install_osx.log 2>&1
@@ -1112,41 +1120,39 @@ if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/cosmology/flrw  >> $PREFIX/make_install_osx.log 2>&1
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/convolution  >> $PREFIX/make_install_osx.log 2>&1
 	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/stats  >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/compiler_version.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/compiler_version.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/timeseries/periodograms/bls/_impl.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/timeseries/periodograms/bls/_impl.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/timeseries/periodograms/bls/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/timeseries/periodograms/lombscargle/implementations/cython_impl.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/timeseries/periodograms/lombscargle/implementations/cython_impl.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/timeseries/periodograms/lombscargle/implementations/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/wcs/_wcs.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/wcs/_wcs.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/wcs/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/time/_parse_times.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/time/_parse_times.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/time/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/io/ascii/cparser.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/io/ascii/cparser.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/io/ascii/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/io/fits/compression.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/io/fits/compression.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/io/fits/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/io/fits/_utils.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/io/fits/_utils.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/io/fits/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/io/votable/tablewriter.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/io/votable/tablewriter.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/io/votable/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/utils/_compiler.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/utils/_compiler.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/utils/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/utils/xml/_iterparser.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/utils/xml/_iterparser.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/utils/xml/ >> $PREFIX/make_install_osx.log 2>&1
-#    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/modeling/_projections.cpython-311-darwin.so \
-# $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/modeling/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/table/_np_utils.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/table/_np_utils.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/table/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/table/_column_mixins.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/table/_column_mixins.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/table/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/cosmology/flrw/scalar_inv_efuncs.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/cosmology/flrw/scalar_inv_efuncs.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/cosmology/flrw/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/convolution/_convolve.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/convolution/_convolve.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/convolution/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/stats/_stats.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/stats/_stats.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/stats/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/stats/_fast_sigma_clip.cpython-311-darwin.so \
+    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/stats/_fast_sigma_clip.cpython-311-darwin.so \
 $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/stats/ >> $PREFIX/make_install_osx.log 2>&1
 	# Making a single astropy dynamic library:
 	echo Making a single astropy library for OSX: >> $PREFIX/make_install_osx.log 2>&1
@@ -1252,7 +1258,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/stats/ >> $PR
 	# PyProj (interface for Proj)
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf pyproj-*  >> $PREFIX/make_install_osx.log 2>&1
-	env PROJ_VERSION=8.0.1 pip3.11 download pyproj --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
+	env PROJ_VERSION=9.1.0 pip3.11 download pyproj --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
 	tar xvzf pyproj-*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 	rm pyproj-*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 	pushd pyproj-* >> $PREFIX/make_install_osx.log 2>&1
@@ -1265,7 +1271,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/stats/ >> $PR
 		LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -F $PREFIX/Frameworks_macosx/ -framework libproj" \
 		LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 $DEBUG -F $PREFIX/Frameworks_macosx/ -framework libproj" \
 		PLATFORM=macosx \
-		PROJ_VERSION=8.0.1 \
+		PROJ_VERSION=9.1.0 \
 		python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT -I $PREFIX/Frameworks_macosx/include " \
 		CFLAGS="-isysroot $OSX_SDKROOT $DEBUG -I $PREFIX/Frameworks_macosx/include " \
@@ -1273,7 +1279,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/stats/ >> $PR
 		LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -F $PREFIX/Frameworks_macosx/ -framework libproj" \
 		LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 $DEBUG -F $PREFIX/Frameworks_macosx/ -framework libproj" \
 		PLATFORM=macosx \
-		PROJ_VERSION=8.0.1 \
+		PROJ_VERSION=9.1.0 \
 		python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
 	echo "pyproj libraries for OSX: "  >> $PREFIX/make_install_osx.log 2>&1
 	find . -name \*.so  >> $PREFIX/make_install_osx.log 2>&1
@@ -1417,6 +1423,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/astropy/stats/ >> $PR
 	    popd  >> $PREFIX/make_install_osx.log 2>&1
 	    popd  >> $PREFIX/make_install_osx.log 2>&1
 	    unset LIBRARY_PATH
+	    # TODO: add scikit-image
 	fi
 # scipy
 if [ $USE_FORTRAN == 1 ];
@@ -1427,112 +1434,12 @@ then
 	cp -r $PREFIX/Library $PREFIX/with_scipy >> $PREFIX/make_install_osx.log 2>&1
 	export PYTHONHOME=$PREFIX/with_scipy/Library/
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
-	pushd scipy  >> $PREFIX/make_install_osx.log 2>&1
+	downloadSource scipy >> $PREFIX/make_install_osx.log 2>&1
+	pushd scipy-*  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-	cp site_original.cfg site.cfg >> $PREFIX/make_install_osx.log 2>&1
-	# "git pull upstream" does not work with scipy, and creates a mashup of modifications. 
-	# It's difficult to stay up to date. This is v1.7.1:
-	sed -i bak "s|__main_directory__|${PREFIX}/Frameworks_macosx|" site.cfg >> $PREFIX/make_install_osx.log 2>&1
-	# Only for OSX: gfortran needs -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib:
-	sed -i bak "s|-lgfortran|-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib &|g" site.cfg >> $PREFIX/make_install_osx.log 2>&1
-	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-	# pip install . : can't install because version number is not PEP440
- 	echo "Installing scipy:" >> $PREFIX/make_install_osx.log 2>&1
- 	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
- 	echo "After install" >> $PREFIX/make_install_osx.log 2>&1
- 	ls -d $PYTHONHOME/lib/python3.11/site-packages/scipy*  >> $PREFIX/make_install_osx.log 2>&1
-	echo scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
-	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
-	echo number of scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
-	find build -name \*.so -print | wc -l >> $PREFIX/make_install_osx.log 2>&1
-	# 95 libraries by the last count
-	# copy them to build/lib.macosx:
-	for library in scipy/odr/__odrpack.cpython-311-darwin.so scipy/linalg/cython_blas.cpython-311-darwin.so scipy/linalg/_flapack.cpython-311-darwin.so scipy/linalg/_flinalg.cpython-311-darwin.so scipy/linalg/cython_lapack.cpython-311-darwin.so scipy/linalg/_fblas.cpython-311-darwin.so scipy/linalg/_interpolative.cpython-311-darwin.so scipy/optimize/_trlib/_trlib.cpython-311-darwin.so scipy/optimize/_zeros.cpython-311-darwin.so scipy/optimize/__nnls.cpython-311-darwin.so scipy/optimize/minpack2.cpython-311-darwin.so scipy/optimize/_lbfgsb.cpython-311-darwin.so scipy/optimize/_minpack.cpython-311-darwin.so scipy/optimize/_slsqp.cpython-311-darwin.so scipy/optimize/_cobyla.cpython-311-darwin.so scipy/integrate/_test_odeint_banded.cpython-311-darwin.so scipy/integrate/vode.cpython-311-darwin.so scipy/integrate/lsoda.cpython-311-darwin.so scipy/integrate/_quadpack.cpython-311-darwin.so scipy/integrate/_odepack.cpython-311-darwin.so scipy/integrate/_dop.cpython-311-darwin.so scipy/special/_ellip_harm_2.cpython-311-darwin.so scipy/special/_ufuncs.cpython-311-darwin.so scipy/special/_ufuncs_cxx.cpython-311-darwin.so scipy/sparse/linalg/isolve/_iterative.cpython-311-darwin.so scipy/sparse/linalg/eigen/arpack/_arpack.cpython-311-darwin.so scipy/sparse/linalg/dsolve/_superlu.cpython-311-darwin.so scipy/spatial/qhull.cpython-311-darwin.so scipy/interpolate/dfitpack.cpython-311-darwin.so scipy/io/_test_fortran.cpython-311-darwin.so scipy/stats/mvn.cpython-311-darwin.so scipy/stats/statlib.cpython-311-darwin.so
-	do
-		directory=$(dirname $library)
-		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$directory >> $PREFIX/make_install_osx.log 2>&1
-		cp ./build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/$library $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$library >> $PREFIX/make_install_osx.log 2>&1
-		# Fix the reference to libopenblas.dylib -> openblas.framework
-		if [[ $(otool -l $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$library | grep libopenblas) ]];
-		then 
-			install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$library  >> $PREFIX/make_install_osx.log 2>&1
-		fi
-	done
-	# Making a big scipy library to load many modules (67 out of 95):
-	echo "Making a big scipy library to load many modules"  >> $PREFIX/make_install_osx.log 2>&1
-	pushd build/temp.macosx-${OSX_VERSION}-x86_64-cpython-311  >> $PREFIX/make_install_osx.log 2>&1
-	clang -v -undefined error -dynamiclib \
-		-isysroot $OSX_SDKROOT \
-		-lz -lm -lc++ \
-		-lpython3.11 \
-		-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11 \
-		-L. \
-		-O3 -Wall  \
-		`find scipy/_lib -name \*.o` \
-		`find scipy/cluster -name \*.o` \
-		`find scipy/fft -name \*.o` \
-		`find scipy/fftpack -name \*.o` \
-		scipy/integrate/tests/_test_multivariate.o \
-		`find scipy/interpolate -name \*.o` \
-		`find scipy/io -name \*.o` \
-		scipy/linalg/_solve_toeplitz.o \
-		scipy/linalg/_matfuncs_sqrtm_triu.o \
-		scipy/linalg/_decomp_update.o \
-		`find scipy/ndimage -name \*.o` \
-		scipy/optimize/tnc/moduleTNC.o \
-		scipy/optimize/tnc/tnc.o \
-		scipy/optimize/_lsap_module.o \
-		-lrectangular_lsap \
-		scipy/optimize/_bglu_dense.o \
-		`find scipy/optimize/_highs -name \*.o` \
-		-lbasiclu \
-		scipy/optimize/_lsq/givens_elimination.o \
-		scipy/optimize/zeros.o \
-		scipy/optimize/_group_columns.o \
-		`find scipy/signal -name \*.o` \
-		`find build/src.macosx-${OSX_VERSION}-x86_64-3.11/scipy/signal -name \*.o`\
-		`find scipy/spatial/ckdtree -name \*.o` \
-		`find scipy/sparse/csgraph -name \*.o` \
-		`find scipy/sparse/sparsetools -name \*.o` \
-		scipy/sparse/_csparsetools.o \
-		scipy/spatial/ckdtree.o \
-		scipy/spatial/_voronoi.o \
-		scipy/spatial/_hausdorff.o \
-		scipy/spatial/src/distance_wrap.o \
-		scipy/spatial/src/distance_pybind.o \
-		scipy/spatial/transform/rotation.o \
-		`find . -name specfunmodule.o` \
-		`find . -name fortranobject.o -path '*/special/*'` \
-		scipy/special/cython_special.o \
-		scipy/special/sf_error.o \
-		`find . -name _logit.o` \
-		scipy/special/amos_wrappers.o \
-		scipy/special/cdf_wrappers.o \
-		scipy/special/specfun_wrappers.o \
-		-lsc_amos -lsc_cephes -lsc_mach -lsc_cdf -lsc_specfun -lrootfind \
-		scipy/special/_comb.o \
-		scipy/special/_test_round.o \
-		`find scipy/stats/ -name \*.o` \
-		-L$PREFIX/Library/lib \
-		`find $PREFIX/Library/lib/python3.11/site-packages -name libnpymath.a` \
-		`find $PREFIX/Library/lib/python3.11/site-packages -name libnpyrandom.a` \
-		-L/usr/local/lib -lgfortran \
-		-L$PREFIX/Frameworks_macosx/lib -lopenblas \
-		-o ../scipy.so  >> $PREFIX/make_install_osx.log 2>&1
-	echo "Done"  >> $PREFIX/make_install_osx.log 2>&1
-	popd  >> $PREFIX/make_install_osx.log 2>&1
-	cp build/scipy.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/ >> $PREFIX/make_install_osx.log 2>&1
-	# Fix the reference to libopenblas.dylib -> openblas.framework
-	install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/scipy.so  >> $PREFIX/make_install_osx.log 2>&1
-	popd  >> $PREFIX/make_install_osx.log 2>&1
-	popd  >> $PREFIX/make_install_osx.log 2>&1
-	# Trying scipy 1.8.1:
-	pushd packages >> $PREFIX/make_install_osx.log 2>&1
-	pushd scipy-1.8.1  >> $PREFIX/make_install_osx.log 2>&1
-	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-	cp site_original.cfg site.cfg >> $PREFIX/make_install_osx.log 2>&1
-	# git pull upstream tags/v1.7.1 == get v1.7.1 from upstream (this one compiles)
-	# v1.7.2 fails at compiling, for syntax error.
+	pwd >> $PREFIX/make_install_osx.log 2>&1
+	ls ../*.cfg >> $PREFIX/make_install_osx.log 2>&1
+	cp ../site_original_scipy.cfg site.cfg >> $PREFIX/make_install_osx.log 2>&1
 	sed -i bak "s|__main_directory__|${PREFIX}/Frameworks_macosx|" site.cfg >> $PREFIX/make_install_osx.log 2>&1
 	# Only for OSX: gfortran needs -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib:
 	sed -i bak "s|-lgfortran|-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib &|g" site.cfg >> $PREFIX/make_install_osx.log 2>&1
@@ -1545,30 +1452,66 @@ then
 	echo done. >> $PREFIX/make_install_osx.log 2>&1
 	# pip install . : can't install because version number is not PEP440
 	# Don't install (for now), compile only
- 	# echo "Installing scipy:" >> $PREFIX/make_install_osx.log 2>&1
- 	# env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
- 	# echo "After install" >> $PREFIX/make_install_osx.log 2>&1
- 	# ls -d $PYTHONHOME/lib/python3.11/site-packages/scipy*  >> $PREFIX/make_install_osx.log 2>&1
+ 	echo "Installing scipy:" >> $PREFIX/make_install_osx.log 2>&1
+ 	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
+ 	echo "After install" >> $PREFIX/make_install_osx.log 2>&1
+ 	ls -d $PYTHONHOME/lib/python3.11/site-packages/scipy*  >> $PREFIX/make_install_osx.log 2>&1
 	echo scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	echo number of scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print | wc -l >> $PREFIX/make_install_osx.log 2>&1
-	# 95 libraries by the last count
+	# 111 libraries by the last count (as of 1.9.3):
 	# copy them to build/lib.macosx:
 	pushd build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311 >> $PREFIX/make_install_osx.log 2>&1
-	for library in `find scipy -name \*.so`
+	for library in \
+scipy/odr/__odrpack.cpython-311-darwin.so \
+scipy/linalg/cython_lapack.cpython-311-darwin.so \
+scipy/linalg/cython_blas.cpython-311-darwin.so \
+scipy/linalg/_fblas.cpython-311-darwin.so \
+scipy/linalg/_flapack.cpython-311-darwin.so \
+scipy/linalg/_flinalg.cpython-311-darwin.so \
+scipy/linalg/_interpolative.cpython-311-darwin.so \
+scipy/optimize/_lbfgsb.cpython-311-darwin.so \
+scipy/optimize/_trlib/_trlib.cpython-311-darwin.so \
+scipy/optimize/_minpack.cpython-311-darwin.so \
+scipy/optimize/_minpack2.cpython-311-darwin.so \
+scipy/optimize/_cobyla.cpython-311-darwin.so \
+scipy/optimize/__nnls.cpython-311-darwin.so \
+scipy/optimize/cython_optimize/_zeros.cpython-311-darwin.so \
+scipy/optimize/_slsqp.cpython-311-darwin.so \
+scipy/integrate/_quadpack.cpython-311-darwin.so \
+scipy/integrate/_vode.cpython-311-darwin.so \
+scipy/integrate/_dop.cpython-311-darwin.so \
+scipy/integrate/_test_odeint_banded.cpython-311-darwin.so \
+scipy/integrate/_odepack.cpython-311-darwin.so \
+scipy/integrate/_lsoda.cpython-311-darwin.so \
+scipy/io/_test_fortran.cpython-311-darwin.so \
+scipy/special/_ufuncs_cxx.cpython-311-darwin.so \
+scipy/special/_ellip_harm_2.cpython-311-darwin.so \
+scipy/special/_ufuncs.cpython-311-darwin.so \
+scipy/interpolate/dfitpack.cpython-311-darwin.so \
+scipy/sparse/linalg/_eigen/arpack/_arpack.cpython-311-darwin.so \
+scipy/sparse/linalg/_propack/_cpropack.cpython-311-darwin.so \
+scipy/sparse/linalg/_propack/_zpropack.cpython-311-darwin.so \
+scipy/sparse/linalg/_propack/_dpropack.cpython-311-darwin.so \
+scipy/sparse/linalg/_propack/_spropack.cpython-311-darwin.so \
+scipy/sparse/linalg/_isolve/_iterative.cpython-311-darwin.so \
+scipy/sparse/linalg/_dsolve/_superlu.cpython-311-darwin.so \
+scipy/spatial/_qhull.cpython-311-darwin.so \
+scipy/stats/_statlib.cpython-311-darwin.so \
+scipy/stats/_mvn.cpython-311-darwin.so
 	do
 		directory=$(dirname $library)
-		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/scipy-1.8.1/$directory >> $PREFIX/make_install_osx.log 2>&1
-		cp $library $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/scipy-1.8.1/$library >> $PREFIX/make_install_osx.log 2>&1
+		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$directory >> $PREFIX/make_install_osx.log 2>&1
+		cp $library $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$library >> $PREFIX/make_install_osx.log 2>&1
 		# Fix the reference to libopenblas.dylib -> openblas.framework
-		if [[ $(otool -l $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/scipy-1.8.1/$library | grep libopenblas) ]];
+		if [[ $(otool -l $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$library | grep libopenblas) ]];
 		then 
-			install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/scipy-1.8.1/$library  >> $PREFIX/make_install_osx.log 2>&1
+			install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$library  >> $PREFIX/make_install_osx.log 2>&1
 		fi
 	done
 	popd >> $PREFIX/make_install_osx.log 2>&1
-	# Making a big scipy library to load many modules (67 out of 95):
+	# Making a big scipy library to load many modules (75 out of 111):
 	echo "Making a big scipy library to load many modules"  >> $PREFIX/make_install_osx.log 2>&1
 	currentDir=${PWD:1} # current directory, minus first character
 	pushd build/temp.macosx-${OSX_VERSION}-x86_64-cpython-311  >> $PREFIX/make_install_osx.log 2>&1
@@ -1589,22 +1532,26 @@ then
 		scipy/linalg/_solve_toeplitz.o \
 		scipy/linalg/_matfuncs_sqrtm_triu.o \
 		scipy/linalg/_decomp_update.o \
+		scipy/linalg/_cythonized_array_utils.o \
+		scipy/linalg/_matfuncs_expm.o \
 		`find scipy/ndimage -name \*.o` \
 		scipy/optimize/tnc/_moduleTNC.o \
 		scipy/optimize/tnc/tnc.o \
-		scipy/optimize/_lsap_module.o \
+		scipy/optimize/_lsap.o \
 		-lrectangular_lsap \
 		scipy/optimize/_bglu_dense.o \
 		`find scipy/optimize/_highs -name \*.o` \
 		-lbasiclu \
 		scipy/optimize/_lsq/givens_elimination.o \
 		scipy/optimize/zeros.o \
-		scipy/optimize/_group_columns.o \
+        scipy/optimize/_directmodule.o -l_direct_lib \
+        scipy/optimize/_group_columns.o \
 		`find scipy/signal -name \*.o` \
 		`find scipy/spatial/ckdtree -name \*.o` \
 		`find scipy/sparse/csgraph -name \*.o` \
 		`find scipy/sparse/sparsetools -name \*.o` \
 		`find $currentDir/scipy/_lib/unuran/unuran -name \*.o` \
+		`find $currentDir/scipy/_lib/highs -name \*.o` \
 		scipy/sparse/_csparsetools.o \
 		scipy/spatial/_ckdtree.o \
 		scipy/spatial/_voronoi.o \
@@ -1612,11 +1559,10 @@ then
 		scipy/spatial/src/distance_wrap.o \
 		scipy/spatial/src/distance_pybind.o \
 		scipy/spatial/transform/_rotation.o \
-		`find . -name specfunmodule.o` \
+		`find . -name _specfunmodule.o` \
 		`find . -name fortranobject.o -path '*/special/*'` \
 		scipy/special/cython_special.o \
 		scipy/special/sf_error.o \
-		`find . -name _logit.o` \
 		scipy/special/amos_wrappers.o \
 		scipy/special/cdf_wrappers.o \
 		scipy/special/specfun_wrappers.o \
@@ -1624,6 +1570,7 @@ then
 		scipy/special/_comb.o \
 		scipy/special/_test_round.o \
 		`find scipy/stats/ -name \*.o` \
+		`find $currentDir/scipy/stats/_boost -name \*.o` \
 		-L$PREFIX/Library/lib \
 		`find $PREFIX/Library/lib/python3.11/site-packages -name libnpymath.a` \
 		`find $PREFIX/Library/lib/python3.11/site-packages -name libnpyrandom.a` \
@@ -1632,9 +1579,9 @@ then
 		-o ../scipy.so  >> $PREFIX/make_install_osx.log 2>&1
 	echo "Done"  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
-	cp build/scipy.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/scipy-1.8.1 >> $PREFIX/make_install_osx.log 2>&1
+	cp build/scipy.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11 >> $PREFIX/make_install_osx.log 2>&1
 	# Fix the reference to libopenblas.dylib -> openblas.framework
-	install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/scipy-1.8.1/scipy.so  >> $PREFIX/make_install_osx.log 2>&1
+	install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/scipy.so  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# seaborn: data position solved with SEABORN_DATA, set in main App. Let's install it by default. 
@@ -1652,14 +1599,14 @@ then
 	# We build the non-cpp-version of protobuf. Slower, but more reliable.
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf protobuf*  >> $PREFIX/make_install_osx.log 2>&1
-	python3.11 -m pip download protobuf==3.18.0 --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
+	python3.11 -m pip download protobuf==3.20.1 --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
 	# If the version number changes, re-install protoc from release: 
 	# (protoc, system install, needs to have the same version number as protobuf)
 	# https://github.com/protocolbuffers/protobuf/releases
 	# Apparently coremltools can work with any protobuf version
-	tar xvzf protobuf-3.18.0.tar.gz   >> $PREFIX/make_install_osx.log 2>&1
-	rm protobuf-3.18.0.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
-	pushd protobuf-3.18.0  >> $PREFIX/make_install_osx.log 2>&1
+	tar xvzf protobuf-3.20.1.tar.gz   >> $PREFIX/make_install_osx.log 2>&1
+	rm protobuf-3.20.1.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
+	pushd protobuf-3.20.1  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
     python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
     python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
@@ -1671,6 +1618,8 @@ then
 	pushd coremltools >> $PREFIX/make_install_osx.log 2>&1
 	mkdir -p build_osx >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf  build_osx/*  >> $PREFIX/make_install_osx.log 2>&1
+	rm -f coremltools/*.so  >> $PREFIX/make_install_osx.log 2>&1
+	rm -f build/lib/coremltools/*.so  >> $PREFIX/make_install_osx.log 2>&1
 	BUILD_TAG=$(python3.11 ./scripts/build_tag.py)
 	pushd build_osx >> $PREFIX/make_install_osx.log 2>&1
 	# Now compile. This is extracted from scripts/build.sh
@@ -1683,7 +1632,7 @@ then
     -DBUILD_TAG=$BUILD_TAG \
     .. >> $PREFIX/make_install_osx.log 2>&1
     make >> $PREFIX/make_install_osx.log 2>&1
-    make dist_macosx_10_16_intel >> $PREFIX/make_install_osx.log 2>&1
+    make dist_macosx_10_15_x86_64 >> $PREFIX/make_install_osx.log 2>&1
     cp dist/coremltools*.whl dist/coremltools.zip >> $PREFIX/make_install_osx.log 2>&1
 	pushd dist >> $PREFIX/make_install_osx.log 2>&1
 	unzip coremltools.zip >> $PREFIX/make_install_osx.log 2>&1
@@ -1695,7 +1644,7 @@ then
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
-	# Now scikit-learn:
+	# Now scikit-learn (upgraded to 1.1.3):
 	# scikit-learn would like a compiler with "-fopenmp" for more efficiency, but it will install without. 
 	# The llvm-project repository has a compiler with "-fopenmp", and you'll also need to add the directory to "-L":
 	# ../llvm-project/build_osx/bin/clang -fopenmp ~/src/test.c -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -arch arm64 -miphoneos-version-min=14.0 -L ../llvm-project/build-iphoneos/lib
@@ -1704,15 +1653,75 @@ then
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	pushd scikit-learn >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
+	# force rebuilding of Cython files:
+	find sklearn -name \*.pyx -exec touch {} \; -print >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" PLATFORM=macosx python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
 	# Last time, something installed scikit-learn==1.0.1 -- without uninstalling sklearn==1.0.dev0. WHO?
 	echo scikit-learn libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	echo number of scikit-learn libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print | wc -l >> $PREFIX/make_install_osx.log 2>&1
-	# 53 libraries by the last count
+	# 59 libraries by the last count
 	# copy them to build/lib.macosx:
-	for library in sklearn/tree/_splitter.cpython-311-darwin.so sklearn/tree/_tree.cpython-311-darwin.so sklearn/tree/_utils.cpython-311-darwin.so sklearn/tree/_criterion.cpython-311-darwin.so sklearn/metrics/cluster/_expected_mutual_info_fast.cpython-311-darwin.so sklearn/metrics/_pairwise_fast.cpython-311-darwin.so sklearn/ensemble/_gradient_boosting.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/_binning.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/_bitset.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/splitting.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/common.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/_gradient_boosting.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/histogram.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/_loss.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/_predictor.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/utils.cpython-311-darwin.so sklearn/cluster/_k_means_elkan.cpython-311-darwin.so sklearn/cluster/_hierarchical_fast.cpython-311-darwin.so sklearn/cluster/_k_means_fast.cpython-311-darwin.so sklearn/cluster/_dbscan_inner.cpython-311-darwin.so sklearn/cluster/_k_means_lloyd.cpython-311-darwin.so sklearn/feature_extraction/_hashing_fast.cpython-311-darwin.so sklearn/__check_build/_check_build.cpython-311-darwin.so sklearn/datasets/_svmlight_format_fast.cpython-311-darwin.so sklearn/linear_model/_sgd_fast.cpython-311-darwin.so sklearn/linear_model/_cd_fast.cpython-311-darwin.so sklearn/linear_model/_sag_fast.cpython-311-darwin.so sklearn/utils/sparsefuncs_fast.cpython-311-darwin.so sklearn/utils/murmurhash.cpython-311-darwin.so sklearn/utils/_fast_dict.cpython-311-darwin.so sklearn/utils/_cython_blas.cpython-311-darwin.so sklearn/utils/_logistic_sigmoid.cpython-311-darwin.so sklearn/utils/_weight_vector.cpython-311-darwin.so sklearn/utils/arrayfuncs.cpython-311-darwin.so sklearn/utils/graph_shortest_path.cpython-311-darwin.so sklearn/utils/_seq_dataset.cpython-311-darwin.so sklearn/utils/_openmp_helpers.cpython-311-darwin.so sklearn/utils/_random.cpython-311-darwin.so sklearn/svm/_liblinear.cpython-311-darwin.so sklearn/svm/_libsvm.cpython-311-darwin.so sklearn/svm/_newrand.cpython-311-darwin.so sklearn/svm/_libsvm_sparse.cpython-311-darwin.so sklearn/manifold/_barnes_hut_tsne.cpython-311-darwin.so sklearn/manifold/_utils.cpython-311-darwin.so sklearn/_isotonic.cpython-311-darwin.so sklearn/preprocessing/_csr_polynomial_expansion.cpython-311-darwin.so sklearn/decomposition/_cdnmf_fast.cpython-311-darwin.so sklearn/decomposition/_online_lda_fast.cpython-311-darwin.so sklearn/neighbors/_kd_tree.cpython-311-darwin.so sklearn/neighbors/_dist_metrics.cpython-311-darwin.so sklearn/neighbors/_quad_tree.cpython-311-darwin.so sklearn/neighbors/_ball_tree.cpython-311-darwin.so sklearn/neighbors/_typedefs.cpython-311-darwin.so
+	for library in sklearn/tree/_utils.cpython-311-darwin.so \
+		sklearn/tree/_splitter.cpython-311-darwin.so \
+		sklearn/tree/_tree.cpython-311-darwin.so \
+		sklearn/tree/_criterion.cpython-311-darwin.so \
+		sklearn/metrics/cluster/_expected_mutual_info_fast.cpython-311-darwin.so \
+		sklearn/metrics/_dist_metrics.cpython-311-darwin.so \
+		sklearn/metrics/_pairwise_fast.cpython-311-darwin.so \
+		sklearn/metrics/_pairwise_distances_reduction.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/_bitset.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/histogram.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/_binning.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/common.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/_predictor.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/_gradient_boosting.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/utils.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/splitting.cpython-311-darwin.so \
+		sklearn/ensemble/_gradient_boosting.cpython-311-darwin.so \
+		sklearn/cluster/_k_means_elkan.cpython-311-darwin.so \
+		sklearn/cluster/_k_means_common.cpython-311-darwin.so \
+		sklearn/cluster/_k_means_minibatch.cpython-311-darwin.so \
+		sklearn/cluster/_k_means_lloyd.cpython-311-darwin.so \
+		sklearn/cluster/_dbscan_inner.cpython-311-darwin.so \
+		sklearn/cluster/_hierarchical_fast.cpython-311-darwin.so \
+		sklearn/feature_extraction/_hashing_fast.cpython-311-darwin.so \
+		sklearn/__check_build/_check_build.cpython-311-darwin.so \
+		sklearn/_loss/_loss.cpython-311-darwin.so \
+		sklearn/datasets/_svmlight_format_fast.cpython-311-darwin.so \
+		sklearn/linear_model/_sag_fast.cpython-311-darwin.so \
+		sklearn/linear_model/_sgd_fast.cpython-311-darwin.so \
+		sklearn/linear_model/_cd_fast.cpython-311-darwin.so \
+		sklearn/utils/_logistic_sigmoid.cpython-311-darwin.so \
+		sklearn/utils/_readonly_array_wrapper.cpython-311-darwin.so \
+		sklearn/utils/_openmp_helpers.cpython-311-darwin.so \
+		sklearn/utils/_random.cpython-311-darwin.so \
+		sklearn/utils/_vector_sentinel.cpython-311-darwin.so \
+		sklearn/utils/_heap.cpython-311-darwin.so \
+		sklearn/utils/_sorting.cpython-311-darwin.so \
+		sklearn/utils/_weight_vector.cpython-311-darwin.so \
+		sklearn/utils/_cython_blas.cpython-311-darwin.so \
+		sklearn/utils/sparsefuncs_fast.cpython-311-darwin.so \
+		sklearn/utils/_fast_dict.cpython-311-darwin.so \
+		sklearn/utils/arrayfuncs.cpython-311-darwin.so \
+		sklearn/utils/murmurhash.cpython-311-darwin.so \
+		sklearn/utils/_seq_dataset.cpython-311-darwin.so \
+		sklearn/utils/_typedefs.cpython-311-darwin.so \
+		sklearn/svm/_newrand.cpython-311-darwin.so \
+		sklearn/svm/_libsvm.cpython-311-darwin.so \
+		sklearn/svm/_liblinear.cpython-311-darwin.so \
+		sklearn/svm/_libsvm_sparse.cpython-311-darwin.so \
+		sklearn/manifold/_utils.cpython-311-darwin.so \
+		sklearn/manifold/_barnes_hut_tsne.cpython-311-darwin.so \
+		sklearn/_isotonic.cpython-311-darwin.so \
+		sklearn/preprocessing/_csr_polynomial_expansion.cpython-311-darwin.so \
+		sklearn/decomposition/_cdnmf_fast.cpython-311-darwin.so \
+		sklearn/decomposition/_online_lda_fast.cpython-311-darwin.so \
+		sklearn/neighbors/_ball_tree.cpython-311-darwin.so \
+		sklearn/neighbors/_kd_tree.cpython-311-darwin.so \
+		sklearn/neighbors/_partition_nodes.cpython-311-darwin.so \
+		sklearn/neighbors/_quad_tree.cpython-311-darwin.so
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$directory >> $PREFIX/make_install_osx.log 2>&1
@@ -2031,7 +2040,7 @@ rm -rf build/* >> $PREFIX/make_ios.log 2>&1
 export PYZMQ_BACKEND=cffi  >> $PREFIX/make_ios.log 2>&1
 export PYZMQ_BACKEND_CFFI=1 >> $PREFIX/make_ios.log 2>&1
 env PYZMQ_BACKEND_CFFI=1 CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG -I$PREFIX" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG -I$PREFIX" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG  -I$PREFIX" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.11 -lc++ -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.11" PLATFORM=iphoneos PYZMQ_BACKEND=cffi python3.11 setup.py build  >> $PREFIX/make_ios.log 2>&1
-mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/zmq/backend/cffi >> $PREFIX/make_install_osx.log 2>&1
+mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/zmq/backend/cffi >> $PREFIX/make_ios.log 2>&1
 cp build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/zmq/backend/cffi/_cffi.*.so $PREFIX/build/lib.darwin-arm64-3.11/zmq/backend/cffi/  >> $PREFIX/make_ios.log 2>&1
 echo PyZMQ libraries for iOS: >> $PREFIX/make_ios.log 2>&1
 find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
@@ -2597,7 +2606,7 @@ CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT $DEBUG 
 LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT $DEBUG -F $PREFIX/Frameworks_iphoneos/ -framework libgdal" \
 LDSHARED="clang -v -arch arm64 -miphoneos-version-min=14.0 -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -L$PREFIX -lpython3.11 $DEBUG -F $PREFIX/Frameworks_iphoneos/ -framework ios_system -framework libproj" \
 PLATFORM=iphoneos \
-PROJ_VERSION=8.0.1 \
+PROJ_VERSION=9.1.0 \
 	python3.11 setup.py build >> $PREFIX/make_ios.log 2>&1
 echo "pyproj libraries for iOS: "  >> $PREFIX/make_ios.log 2>&1
 find . -name \*.so  >> $PREFIX/make_ios.log 2>&1
@@ -2720,13 +2729,14 @@ fi
 if [ $USE_FORTRAN == 1 ];
 then
 	export PYTHONHOME=$PREFIX/with_scipy/Library/
-	# scipy
+	# scipy-1.9.3
 	pushd packages >> $PREFIX/make_ios.log 2>&1
-	pushd scipy  >> $PREFIX/make_ios.log 2>&1
+    downloadSource scipy  >> $PREFIX/make_ios.log 2>&1
+	pushd scipy-*  >> $PREFIX/make_ios.log 2>&1
 	rm -rf build/* >> $PREFIX/make_ios.log 2>&1
-	echo Building scipy, environment= >>  $PREFIX/make_ios.log 2>&1
+	echo Building scipy_1.9.3, environment= >>  $PREFIX/make_ios.log 2>&1
 	set >>  $PREFIX/make_ios.log 2>&1
-	cp site_original.cfg site.cfg >> $PREFIX/make_ios.log 2>&1
+	cp ../site_original_scipy.cfg site.cfg >> $PREFIX/make_ios.log 2>&1
 	sed -i bak "s|__main_directory__|${PREFIX}/Frameworks_iphoneos|" site.cfg >> $PREFIX/make_ios.log 2>&1
 	# make sure all frameworks are linked with python3.11
 	# -falign-functions=8: see https://github.com/Homebrew/homebrew-core/pull/70096
@@ -2741,123 +2751,60 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 	find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
 	echo number of scipy libraries for iOS: >> $PREFIX/make_ios.log 2>&1
 	find build -name \*.so -print | wc -l >> $PREFIX/make_ios.log 2>&1
-	# 95 libraries! We do this automatically:
-	for library in scipy/odr/__odrpack.cpython-311-darwin.so scipy/linalg/cython_blas.cpython-311-darwin.so scipy/linalg/_flapack.cpython-311-darwin.so scipy/linalg/_flinalg.cpython-311-darwin.so scipy/linalg/cython_lapack.cpython-311-darwin.so scipy/linalg/_fblas.cpython-311-darwin.so scipy/linalg/_interpolative.cpython-311-darwin.so scipy/optimize/_trlib/_trlib.cpython-311-darwin.so scipy/optimize/_zeros.cpython-311-darwin.so scipy/optimize/__nnls.cpython-311-darwin.so scipy/optimize/minpack2.cpython-311-darwin.so scipy/optimize/_lbfgsb.cpython-311-darwin.so scipy/optimize/_minpack.cpython-311-darwin.so scipy/optimize/_slsqp.cpython-311-darwin.so scipy/optimize/_cobyla.cpython-311-darwin.so scipy/integrate/_test_odeint_banded.cpython-311-darwin.so scipy/integrate/vode.cpython-311-darwin.so scipy/integrate/lsoda.cpython-311-darwin.so scipy/integrate/_quadpack.cpython-311-darwin.so scipy/integrate/_odepack.cpython-311-darwin.so scipy/integrate/_dop.cpython-311-darwin.so scipy/special/_ellip_harm_2.cpython-311-darwin.so scipy/special/_ufuncs.cpython-311-darwin.so scipy/special/_ufuncs_cxx.cpython-311-darwin.so scipy/sparse/linalg/isolve/_iterative.cpython-311-darwin.so scipy/sparse/linalg/eigen/arpack/_arpack.cpython-311-darwin.so scipy/sparse/linalg/dsolve/_superlu.cpython-311-darwin.so scipy/spatial/qhull.cpython-311-darwin.so scipy/interpolate/dfitpack.cpython-311-darwin.so scipy/io/_test_fortran.cpython-311-darwin.so scipy/stats/mvn.cpython-311-darwin.so scipy/stats/statlib.cpython-311-darwin.so
+	# 111 libraries (as of 1.9.3)! We do this automatically:
+	# copy them to build/lib.macosx:
+	pushd build/lib.macosx-12.6-arm64-cpython-311 >> $PREFIX/make_ios.log 2>&1
+	for library in \
+scipy/odr/__odrpack.cpython-311-darwin.so \
+scipy/linalg/cython_lapack.cpython-311-darwin.so \
+scipy/linalg/cython_blas.cpython-311-darwin.so \
+scipy/linalg/_fblas.cpython-311-darwin.so \
+scipy/linalg/_flapack.cpython-311-darwin.so \
+scipy/linalg/_flinalg.cpython-311-darwin.so \
+scipy/linalg/_interpolative.cpython-311-darwin.so \
+scipy/optimize/_lbfgsb.cpython-311-darwin.so \
+scipy/optimize/_trlib/_trlib.cpython-311-darwin.so \
+scipy/optimize/_minpack.cpython-311-darwin.so \
+scipy/optimize/_minpack2.cpython-311-darwin.so \
+scipy/optimize/_cobyla.cpython-311-darwin.so \
+scipy/optimize/__nnls.cpython-311-darwin.so \
+scipy/optimize/cython_optimize/_zeros.cpython-311-darwin.so \
+scipy/optimize/_slsqp.cpython-311-darwin.so \
+scipy/integrate/_quadpack.cpython-311-darwin.so \
+scipy/integrate/_vode.cpython-311-darwin.so \
+scipy/integrate/_dop.cpython-311-darwin.so \
+scipy/integrate/_test_odeint_banded.cpython-311-darwin.so \
+scipy/integrate/_odepack.cpython-311-darwin.so \
+scipy/integrate/_lsoda.cpython-311-darwin.so \
+scipy/io/_test_fortran.cpython-311-darwin.so \
+scipy/special/_ufuncs_cxx.cpython-311-darwin.so \
+scipy/special/_ellip_harm_2.cpython-311-darwin.so \
+scipy/special/_ufuncs.cpython-311-darwin.so \
+scipy/interpolate/dfitpack.cpython-311-darwin.so \
+scipy/sparse/linalg/_eigen/arpack/_arpack.cpython-311-darwin.so \
+scipy/sparse/linalg/_propack/_cpropack.cpython-311-darwin.so \
+scipy/sparse/linalg/_propack/_zpropack.cpython-311-darwin.so \
+scipy/sparse/linalg/_propack/_dpropack.cpython-311-darwin.so \
+scipy/sparse/linalg/_propack/_spropack.cpython-311-darwin.so \
+scipy/sparse/linalg/_isolve/_iterative.cpython-311-darwin.so \
+scipy/sparse/linalg/_dsolve/_superlu.cpython-311-darwin.so \
+scipy/spatial/_qhull.cpython-311-darwin.so \
+scipy/stats/_statlib.cpython-311-darwin.so \
+scipy/stats/_mvn.cpython-311-darwin.so
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-12.4-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp $library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 		# Fix the reference to libopenblas.dylib -> openblas.framework
 		if [[ $(otool -l $PREFIX/build/lib.darwin-arm64-3.11/$library | grep libopenblas) ]];
 		then 
 			install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.darwin-arm64-3.11/$library  >> $PREFIX/make_ios.log 2>&1
-		fi		
-	done
-	# Making a big scipy library to load many modules (67 out of 95):
-	pushd build/temp.macosx-12.4-arm64-cpython-311  >> $PREFIX/make_ios.log 2>&1
-	clang -v -undefined error -dynamiclib \
-		-arch arm64 -miphoneos-version-min=14.0 \
-		-isysroot $IOS_SDKROOT \
-		-lz -lm -lc++ \
-		-lpython3.11 \
-		-L$PREFIX/build/lib.darwin-arm64-3.11 \
-		-L. \
-		-O3 -Wall  \
-		`find scipy/_lib -name \*.o` \
-		`find scipy/cluster -name \*.o` \
-		`find scipy/fft -name \*.o` \
-		`find scipy/fftpack -name \*.o` \
-		scipy/integrate/tests/_test_multivariate.o \
-		`find scipy/interpolate -name \*.o` \
-		`find scipy/io -name \*.o` \
-		scipy/linalg/_solve_toeplitz.o \
-		scipy/linalg/_matfuncs_sqrtm_triu.o \
-		scipy/linalg/_decomp_update.o \
-		`find scipy/ndimage -name \*.o` \
-		scipy/optimize/tnc/moduleTNC.o \
-		scipy/optimize/tnc/tnc.o \
-		scipy/optimize/_lsap_module.o \
-		-lrectangular_lsap \
-		scipy/optimize/_bglu_dense.o \
-		`find scipy/optimize/_highs -name \*.o` \
-		-lbasiclu \
-		scipy/optimize/_lsq/givens_elimination.o \
-		scipy/optimize/zeros.o \
-		scipy/optimize/_group_columns.o \
-		`find scipy/signal -name \*.o` \
-		`find build/src.macosx-12.4-arm64-3.11/scipy/signal -name \*.o`\
-		`find scipy/spatial/ckdtree -name \*.o` \
-		`find scipy/sparse/csgraph -name \*.o` \
-		`find scipy/sparse/sparsetools -name \*.o` \
-		scipy/sparse/_csparsetools.o \
-		scipy/spatial/ckdtree.o \
-		scipy/spatial/_voronoi.o \
-		scipy/spatial/_hausdorff.o \
-		scipy/spatial/src/distance_wrap.o \
-		scipy/spatial/src/distance_pybind.o \
-		scipy/spatial/transform/rotation.o \
-		`find . -name specfunmodule.o` \
-		`find . -name fortranobject.o -path '*/special/*'` \
-		scipy/special/cython_special.o \
-		scipy/special/sf_error.o \
-		`find . -name _logit.o` \
-		scipy/special/amos_wrappers.o \
-		scipy/special/cdf_wrappers.o \
-		scipy/special/specfun_wrappers.o \
-		-lsc_amos -lsc_cephes -lsc_mach -lsc_cdf -lsc_specfun -lrootfind \
-		scipy/special/_comb.o \
-		scipy/special/_test_round.o \
-		`find scipy/stats/ -name \*.o` \
-		-L$PREFIX/Library/lib \
-		`find $PREFIX/Library/lib/python3.11/site-packages -name libnpymath.a` \
-		`find $PREFIX/Library/lib/python3.11/site-packages -name libnpyrandom.a` \
-		-L$PREFIX/Frameworks_iphoneos/lib -lopenblas -lgfortran \
-		-F$PREFIX/Frameworks_iphoneos -framework ios_system \
-		-o ../scipy.so  >> $PREFIX/make_ios.log 2>&1
-	popd  >> $PREFIX/make_ios.log 2>&1	
-	cp build/scipy.so $PREFIX/build/lib.darwin-arm64-3.11/ >> $PREFIX/make_ios.log 2>&1
-	# Fix the reference to libopenblas.dylib -> openblas.framework
-	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.darwin-arm64-3.11/scipy.so  >> $PREFIX/make_ios.log 2>&1
-	popd  >> $PREFIX/make_ios.log 2>&1
-	popd  >> $PREFIX/make_ios.log 2>&1
-	# scipy-1.8.1
-	pushd packages >> $PREFIX/make_ios.log 2>&1
-	pushd scipy-1.8.1  >> $PREFIX/make_ios.log 2>&1
-	rm -rf build/* >> $PREFIX/make_ios.log 2>&1
-	echo Building scipy_1.8.1, environment= >>  $PREFIX/make_ios.log 2>&1
-	set >>  $PREFIX/make_ios.log 2>&1
-	cp site_original.cfg site.cfg >> $PREFIX/make_ios.log 2>&1
-	sed -i bak "s|__main_directory__|${PREFIX}/Frameworks_iphoneos|" site.cfg >> $PREFIX/make_ios.log 2>&1
-	# make sure all frameworks are linked with python3.11
-	# -falign-functions=8: see https://github.com/Homebrew/homebrew-core/pull/70096
-	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 \
-CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX $DEBUG" \
-  CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG -falign-functions=8" \
-CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" \
- LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.11 -lpython3.11 $DEBUG" \
-LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.11  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.11 $DEBUG" \
-PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" python3.11 setup.py build >> $PREFIX/make_ios.log 2>&1
-	echo scipy libraries for iOS: >> $PREFIX/make_ios.log 2>&1
-	find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
-	echo number of scipy libraries for iOS: >> $PREFIX/make_ios.log 2>&1
-	find build -name \*.so -print | wc -l >> $PREFIX/make_ios.log 2>&1
-	# 95 libraries! We do this automatically:
-	# copy them to build/lib.macosx:
-	pushd build/lib.macosx-12.4-arm64-cpython-311 >> $PREFIX/make_install_osx.log 2>&1
-	for library in `find scipy -name \*.so`
-	do
-		directory=$(dirname $library)
-		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/scipy-1.8.1/$directory >> $PREFIX/make_ios.log 2>&1
-		cp $library $PREFIX/build/lib.darwin-arm64-3.11/scipy-1.8.1/$library >> $PREFIX/make_ios.log 2>&1
-		# Fix the reference to libopenblas.dylib -> openblas.framework
-		if [[ $(otool -l $PREFIX/build/lib.darwin-arm64-3.11/scipy-1.8.1/$library | grep libopenblas) ]];
-		then 
-			install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.darwin-arm64-3.11/scipy-1.8.1/$library  >> $PREFIX/make_ios.log 2>&1
 		fi
 	done
 	popd >> $PREFIX/make_ios.log 2>&1
-	# Making a big scipy library to load many modules (67 out of 95):
-	pushd build/temp.macosx-12.4-arm64-cpython-311  >> $PREFIX/make_ios.log 2>&1
+	# Making a big scipy library to load many modules (75 out of 111):
+	currentDir=${PWD:1} # current directory, minus first character
+	pushd build/temp.macosx-12.6-arm64-cpython-311  >> $PREFIX/make_ios.log 2>&1
 	clang -v -undefined error -dynamiclib \
 		-arch arm64 -miphoneos-version-min=14.0 \
 		-isysroot $IOS_SDKROOT \
@@ -2876,22 +2823,26 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 		scipy/linalg/_solve_toeplitz.o \
 		scipy/linalg/_matfuncs_sqrtm_triu.o \
 		scipy/linalg/_decomp_update.o \
+		scipy/linalg/_cythonized_array_utils.o \
+		scipy/linalg/_matfuncs_expm.o \
 		`find scipy/ndimage -name \*.o` \
 		scipy/optimize/tnc/_moduleTNC.o \
 		scipy/optimize/tnc/tnc.o \
-		scipy/optimize/_lsap_module.o \
+		scipy/optimize/_lsap.o \
 		-lrectangular_lsap \
 		scipy/optimize/_bglu_dense.o \
 		`find scipy/optimize/_highs -name \*.o` \
 		-lbasiclu \
 		scipy/optimize/_lsq/givens_elimination.o \
 		scipy/optimize/zeros.o \
-		scipy/optimize/_group_columns.o \
+        scipy/optimize/_directmodule.o -l_direct_lib \
+        scipy/optimize/_group_columns.o \
 		`find scipy/signal -name \*.o` \
-		`find build/src.macosx-12.4-arm64-3.11/scipy/signal -name \*.o`\
 		`find scipy/spatial/ckdtree -name \*.o` \
 		`find scipy/sparse/csgraph -name \*.o` \
 		`find scipy/sparse/sparsetools -name \*.o` \
+		`find $currentDir/scipy/_lib/unuran/unuran -name \*.o` \
+		`find $currentDir/scipy/_lib/highs -name \*.o` \
 		scipy/sparse/_csparsetools.o \
 		scipy/spatial/_ckdtree.o \
 		scipy/spatial/_voronoi.o \
@@ -2899,11 +2850,10 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 		scipy/spatial/src/distance_wrap.o \
 		scipy/spatial/src/distance_pybind.o \
 		scipy/spatial/transform/_rotation.o \
-		`find . -name specfunmodule.o` \
+		`find . -name _specfunmodule.o` \
 		`find . -name fortranobject.o -path '*/special/*'` \
 		scipy/special/cython_special.o \
 		scipy/special/sf_error.o \
-		`find . -name _logit.o` \
 		scipy/special/amos_wrappers.o \
 		scipy/special/cdf_wrappers.o \
 		scipy/special/specfun_wrappers.o \
@@ -2911,6 +2861,7 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 		scipy/special/_comb.o \
 		scipy/special/_test_round.o \
 		`find scipy/stats/ -name \*.o` \
+		`find $currentDir/scipy/stats/_boost -name \*.o` \
 		-L$PREFIX/Library/lib \
 		`find $PREFIX/Library/lib/python3.11/site-packages -name libnpymath.a` \
 		`find $PREFIX/Library/lib/python3.11/site-packages -name libnpyrandom.a` \
@@ -2918,9 +2869,9 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 		-F$PREFIX/Frameworks_iphoneos -framework ios_system \
 		-o ../scipy.so  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1	
-	cp build/scipy.so $PREFIX/build/lib.darwin-arm64-3.11/scipy-1.8.1 >> $PREFIX/make_ios.log 2>&1
+	cp build/scipy.so $PREFIX/build/lib.darwin-arm64-3.11 >> $PREFIX/make_ios.log 2>&1
 	# Fix the reference to libopenblas.dylib -> openblas.framework
-	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.darwin-arm64-3.11/scipy-1.8.1/scipy.so  >> $PREFIX/make_ios.log 2>&1
+	install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.darwin-arm64-3.11/scipy.so  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	# coremltools:
@@ -2928,6 +2879,8 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 	pushd coremltools >> $PREFIX/make_ios.log 2>&1
 	mkdir -p build_ios >> $PREFIX/make_ios.log 2>&1
 	rm -rf  build_ios/*  >> $PREFIX/make_ios.log 2>&1
+	rm -f coremltools/*.so  >> $PREFIX/make_ios.log 2>&1
+	rm -f build/lib/coremltools/*.so  >> $PREFIX/make_ios.log 2>&1
 	BUILD_TAG=$(python3.11 ./scripts/build_tag.py)
 	pushd build_ios >> $PREFIX/make_ios.log 2>&1
 	# Now compile. This is extracted from scripts/build.sh
@@ -2942,9 +2895,9 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
      -DCMAKE_OSX_SYSROOT=${IOS_SDKROOT} \
      -DCMAKE_C_FLAGS="-arch arm64 -target arm64-apple-darwin19.6.0 -O2 -D_LIBCPP_STRING_H_HAS_CONST_OVERLOADS -miphoneos-version-min=14 -I$PREFIX " \
      -DCMAKE_CXX_FLAGS="-arch arm64 -target arm64-apple-darwin19.6.0 -O2 -D_LIBCPP_STRING_H_HAS_CONST_OVERLOADS -miphoneos-version-min=14 -I$PREFIX " \
-     -DCMAKE_MODULE_LINKER_FLAGS="-nostdlib -O2 -lobjc -lc -lc++ -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.11 -miphoneos-version-min=14 -F$PREFIX/Frameworks_iphoneos -framework ios_system  -L$PREFIX/build/lib.darwin-arm64-3.11 $DEBUG" \
-     -DCMAKE_SHARED_LINKER_FLAGS="-nostdlib -O2 -lobjc -lc -lc++ -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.11 -miphoneos-version-min=14 -F$PREFIX/Frameworks_iphoneos -framework ios_system  -L$PREFIX/build/lib.darwin-arm64-3.11 $DEBUG" \
-     -DCMAKE_EXE_LINKER_FLAGS="-nostdlib -O2 -lobjc -lc -lc++ -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.11 -miphoneos-version-min=14 -F$PREFIX/Frameworks_iphoneos -framework ios_system  -L$PREFIX/build/lib.darwin-arm64-3.11 $DEBUG" \
+     -DCMAKE_MODULE_LINKER_FLAGS="-nostdlib -O2 -lobjc -lc -lc++ -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.11 -miphoneos-version-min=14 -F$PREFIX/Frameworks_iphoneos -framework ios_system -framework Accelerate -framework Metal -L$PREFIX/build/lib.darwin-arm64-3.11 $DEBUG" \
+     -DCMAKE_SHARED_LINKER_FLAGS="-nostdlib -O2 -lobjc -lc -lc++ -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.11 -miphoneos-version-min=14 -F$PREFIX/Frameworks_iphoneos -framework ios_system -framework Accelerate -framework Metal -L$PREFIX/build/lib.darwin-arm64-3.11 $DEBUG" \
+     -DCMAKE_EXE_LINKER_FLAGS="-nostdlib -O2 -lobjc -lc -lc++ -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.11 -miphoneos-version-min=14 -F$PREFIX/Frameworks_iphoneos -framework ios_system -framework Accelerate -framework Metal -L$PREFIX/build/lib.darwin-arm64-3.11 $DEBUG" \
      ..  >> $PREFIX/make_ios.log 2>&1
     # 1st make, will conclude in error:
     make  >> $PREFIX/make_ios.log 2>&1
@@ -2954,7 +2907,7 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
     cp ../build_osx/deps/protobuf/cmake/protoc ./deps/protobuf/cmake/protoc  >> $PREFIX/make_ios.log 2>&1
     # 3rd make, will work:
     make  >> $PREFIX/make_ios.log 2>&1
-    make dist_macosx_10_16_intel >> $PREFIX/make_ios.log 2>&1
+    make dist_macosx_10_15_x86_64 >> $PREFIX/make_ios.log 2>&1
     cp dist/coremltools*.whl dist/coremltools.zip >> $PREFIX/make_ios.log 2>&1
 	pushd dist >> $PREFIX/make_ios.log 2>&1
 	unzip coremltools.zip >> $PREFIX/make_ios.log 2>&1
@@ -2985,13 +2938,71 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 python3.11 setup.py build >> $PREFIX/mak
 	find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
 	echo number of scikit-learn libraries for iOS: >> $PREFIX/make_ios.log 2>&1
 	find build -name \*.so -print | wc -l >> $PREFIX/make_ios.log 2>&1
-	# 53 libraries by the last count
+	# 59 libraries by the last count
 	# copy them to build/lib.macosx:
-	for library in sklearn/tree/_splitter.cpython-311-darwin.so sklearn/tree/_tree.cpython-311-darwin.so sklearn/tree/_utils.cpython-311-darwin.so sklearn/tree/_criterion.cpython-311-darwin.so sklearn/metrics/cluster/_expected_mutual_info_fast.cpython-311-darwin.so sklearn/metrics/_pairwise_fast.cpython-311-darwin.so sklearn/ensemble/_gradient_boosting.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/_binning.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/_bitset.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/splitting.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/common.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/_gradient_boosting.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/histogram.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/_loss.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/_predictor.cpython-311-darwin.so sklearn/ensemble/_hist_gradient_boosting/utils.cpython-311-darwin.so sklearn/cluster/_k_means_elkan.cpython-311-darwin.so sklearn/cluster/_hierarchical_fast.cpython-311-darwin.so sklearn/cluster/_k_means_fast.cpython-311-darwin.so sklearn/cluster/_dbscan_inner.cpython-311-darwin.so sklearn/cluster/_k_means_lloyd.cpython-311-darwin.so sklearn/feature_extraction/_hashing_fast.cpython-311-darwin.so sklearn/__check_build/_check_build.cpython-311-darwin.so sklearn/datasets/_svmlight_format_fast.cpython-311-darwin.so sklearn/linear_model/_sgd_fast.cpython-311-darwin.so sklearn/linear_model/_cd_fast.cpython-311-darwin.so sklearn/linear_model/_sag_fast.cpython-311-darwin.so sklearn/utils/sparsefuncs_fast.cpython-311-darwin.so sklearn/utils/murmurhash.cpython-311-darwin.so sklearn/utils/_fast_dict.cpython-311-darwin.so sklearn/utils/_cython_blas.cpython-311-darwin.so sklearn/utils/_logistic_sigmoid.cpython-311-darwin.so sklearn/utils/_weight_vector.cpython-311-darwin.so sklearn/utils/arrayfuncs.cpython-311-darwin.so sklearn/utils/graph_shortest_path.cpython-311-darwin.so sklearn/utils/_seq_dataset.cpython-311-darwin.so sklearn/utils/_openmp_helpers.cpython-311-darwin.so sklearn/utils/_random.cpython-311-darwin.so sklearn/svm/_liblinear.cpython-311-darwin.so sklearn/svm/_libsvm.cpython-311-darwin.so sklearn/svm/_newrand.cpython-311-darwin.so sklearn/svm/_libsvm_sparse.cpython-311-darwin.so sklearn/manifold/_barnes_hut_tsne.cpython-311-darwin.so sklearn/manifold/_utils.cpython-311-darwin.so sklearn/_isotonic.cpython-311-darwin.so sklearn/preprocessing/_csr_polynomial_expansion.cpython-311-darwin.so sklearn/decomposition/_cdnmf_fast.cpython-311-darwin.so sklearn/decomposition/_online_lda_fast.cpython-311-darwin.so sklearn/neighbors/_kd_tree.cpython-311-darwin.so sklearn/neighbors/_dist_metrics.cpython-311-darwin.so sklearn/neighbors/_quad_tree.cpython-311-darwin.so sklearn/neighbors/_ball_tree.cpython-311-darwin.so sklearn/neighbors/_typedefs.cpython-311-darwin.so
+	for library in sklearn/tree/_utils.cpython-311-darwin.so \
+		sklearn/tree/_splitter.cpython-311-darwin.so \
+		sklearn/tree/_tree.cpython-311-darwin.so \
+		sklearn/tree/_criterion.cpython-311-darwin.so \
+		sklearn/metrics/cluster/_expected_mutual_info_fast.cpython-311-darwin.so \
+		sklearn/metrics/_dist_metrics.cpython-311-darwin.so \
+		sklearn/metrics/_pairwise_fast.cpython-311-darwin.so \
+		sklearn/metrics/_pairwise_distances_reduction.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/_bitset.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/histogram.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/_binning.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/common.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/_predictor.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/_gradient_boosting.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/utils.cpython-311-darwin.so \
+		sklearn/ensemble/_hist_gradient_boosting/splitting.cpython-311-darwin.so \
+		sklearn/ensemble/_gradient_boosting.cpython-311-darwin.so \
+		sklearn/cluster/_k_means_elkan.cpython-311-darwin.so \
+		sklearn/cluster/_k_means_common.cpython-311-darwin.so \
+		sklearn/cluster/_k_means_minibatch.cpython-311-darwin.so \
+		sklearn/cluster/_k_means_lloyd.cpython-311-darwin.so \
+		sklearn/cluster/_dbscan_inner.cpython-311-darwin.so \
+		sklearn/cluster/_hierarchical_fast.cpython-311-darwin.so \
+		sklearn/feature_extraction/_hashing_fast.cpython-311-darwin.so \
+		sklearn/__check_build/_check_build.cpython-311-darwin.so \
+		sklearn/_loss/_loss.cpython-311-darwin.so \
+		sklearn/datasets/_svmlight_format_fast.cpython-311-darwin.so \
+		sklearn/linear_model/_sag_fast.cpython-311-darwin.so \
+		sklearn/linear_model/_sgd_fast.cpython-311-darwin.so \
+		sklearn/linear_model/_cd_fast.cpython-311-darwin.so \
+		sklearn/utils/_logistic_sigmoid.cpython-311-darwin.so \
+		sklearn/utils/_readonly_array_wrapper.cpython-311-darwin.so \
+		sklearn/utils/_openmp_helpers.cpython-311-darwin.so \
+		sklearn/utils/_random.cpython-311-darwin.so \
+		sklearn/utils/_vector_sentinel.cpython-311-darwin.so \
+		sklearn/utils/_heap.cpython-311-darwin.so \
+		sklearn/utils/_sorting.cpython-311-darwin.so \
+		sklearn/utils/_weight_vector.cpython-311-darwin.so \
+		sklearn/utils/_cython_blas.cpython-311-darwin.so \
+		sklearn/utils/sparsefuncs_fast.cpython-311-darwin.so \
+		sklearn/utils/_fast_dict.cpython-311-darwin.so \
+		sklearn/utils/arrayfuncs.cpython-311-darwin.so \
+		sklearn/utils/murmurhash.cpython-311-darwin.so \
+		sklearn/utils/_seq_dataset.cpython-311-darwin.so \
+		sklearn/utils/_typedefs.cpython-311-darwin.so \
+		sklearn/svm/_newrand.cpython-311-darwin.so \
+		sklearn/svm/_libsvm.cpython-311-darwin.so \
+		sklearn/svm/_liblinear.cpython-311-darwin.so \
+		sklearn/svm/_libsvm_sparse.cpython-311-darwin.so \
+		sklearn/manifold/_utils.cpython-311-darwin.so \
+		sklearn/manifold/_barnes_hut_tsne.cpython-311-darwin.so \
+		sklearn/_isotonic.cpython-311-darwin.so \
+		sklearn/preprocessing/_csr_polynomial_expansion.cpython-311-darwin.so \
+		sklearn/decomposition/_cdnmf_fast.cpython-311-darwin.so \
+		sklearn/decomposition/_online_lda_fast.cpython-311-darwin.so \
+		sklearn/neighbors/_ball_tree.cpython-311-darwin.so \
+		sklearn/neighbors/_kd_tree.cpython-311-darwin.so \
+		sklearn/neighbors/_partition_nodes.cpython-311-darwin.so \
+		sklearn/neighbors/_quad_tree.cpython-311-darwin.so
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-12.4-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp ./build/lib.macosx-12.6-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 	done
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
@@ -3014,8 +3025,8 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 python3.11 setup.py build >> $PREFIX/mak
     # qutip/cy/*.so qutip/control/*.so	
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/qutip/cy >> $PREFIX/make_ios.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/qutip/control >> $PREFIX/make_ios.log 2>&1
-	cp ./build/lib.macosx-12.4-arm64-cpython-311/qutip/cy/*.so $PREFIX/build/lib.darwin-arm64-3.11/qutip/cy >> $PREFIX/make_ios.log 2>&1
-	cp ./build/lib.macosx-12.4-arm64-cpython-311/qutip/control/*.so $PREFIX/build/lib.darwin-arm64-3.11/qutip/control >> $PREFIX/make_ios.log 2>&1
+	cp ./build/lib.macosx-12.6-arm64-cpython-311/qutip/cy/*.so $PREFIX/build/lib.darwin-arm64-3.11/qutip/cy >> $PREFIX/make_ios.log 2>&1
+	cp ./build/lib.macosx-12.6-arm64-cpython-311/qutip/control/*.so $PREFIX/build/lib.darwin-arm64-3.11/qutip/control >> $PREFIX/make_ios.log 2>&1
 	  # Making a single qutip dynamic library:
 	  echo Making a single qutip library for iOS: >> $PREFIX/make_ios.log 2>&1
 	  clang -v -undefined error -dynamiclib \
@@ -3053,7 +3064,7 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 python3.11 setup.py build >> $PREFIX/mak
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-12.4-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp ./build/lib.macosx-12.6-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 	done
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
@@ -3078,7 +3089,7 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 python3.11 setup.py build >> $PREFIX/mak
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-12.4-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp ./build/lib.macosx-12.6-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 	done
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
@@ -3100,7 +3111,7 @@ GEOS_LIBRARY_PATH=$PREFIX/Frameworks_iphoneos/lib \
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-12.4-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp ./build/lib.macosx-12.6-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 	done
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1	
@@ -3684,7 +3695,7 @@ $PREFIX/build/lib.darwin-x86_64-3.11/erfa >> $PREFIX/make_simulator.log 2>&1
 		LDFLAGS="-arch x86_64 -miphonesimulator-version-min=14.0 -isysroot $SIM_SDKROOT $DEBUG -F $PREFIX/Frameworks_iphonesimulator/ -framework libproj" \
 		LDSHARED="clang -v -arch x86_64 -miphonesimulator-version-min=14.0 -undefined error -dynamiclib -isysroot $SIM_SDKROOT -lz -L$PREFIX -lpython3.11 $DEBUG -F $PREFIX/Frameworks_iphonesimulator/ -framework ios_system -framework libproj" \
 		PLATFORM=iphonesimulator \
-		PROJ_VERSION=8.0.1 \
+		PROJ_VERSION=9.1.0 \
 		python3.11 setup.py build >> $PREFIX/make_simulator.log 2>&1
 	echo "pyproj libraries for Simulator: "  >> $PREFIX/make_simulator.log 2>&1
 	find . -name \*.so  >> $PREFIX/make_simulator.log 2>&1

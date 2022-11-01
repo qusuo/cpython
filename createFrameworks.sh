@@ -82,7 +82,7 @@ touch Library/bin/python3.11
 APP=$(basename `dirname $PWD`)
 find Library -type f -name direct_url.json -exec sed -i bak  "s/file:.*packages/${APP}/g" {} \; -print
 # matplotlib: installed from git repo, so version is "git+https://github.com/", so we fix that:
-echo '{"url": "a-Shell/matplotlib-3.7.0", "dir_info": {}}' > /tmp/mpl.json
+echo '{"url": "Carnets/matplotlib-3.7.0", "dir_info": {}}' > /tmp/mpl.json
 find Library/lib/python3.11/site-packages/matplotlib-3.*.dist-info -name direct_url.json -exec mv /tmp/mpl.json {} \; -print
 find Library -type f -name direct_url.jsonbak -delete
 cp $PREFIX/build/lib.darwin-arm64-3.11/_sysconfigdata__darwin_darwin.py $PREFIX/Library/lib/python3.11/_sysconfigdata__darwin_darwin.py
@@ -114,7 +114,7 @@ if [ -e "with_scipy/Library" ];then
 APP=$(basename `dirname $PWD`)
 find with_scipy/Library -type f -name direct_url.json -exec sed -i bak  "s/file:.*packages/${APP}/g" {} \; -print
 # matplotlib: (see above)
-echo '{"url": "a-Shell/matplotlib-3.7.0", "dir_info": {}}' > /tmp/mpl.json
+echo '{"url": "Carnets/matplotlib-3.7.0", "dir_info": {}}' > /tmp/mpl.json
 find with_scipy/Library/lib/python3.11/site-packages/matplotlib-3.*.dist-info -name direct_url.json -exec mv /tmp/mpl.json {} \; -print
 find with_scipy/Library -type f -name direct_url.jsonbak -delete
 cp $PREFIX/build/lib.darwin-arm64-3.11/_sysconfigdata__darwin_darwin.py $PREFIX/with_scipy/Library/lib/python3.11/_sysconfigdata__darwin_darwin.py
