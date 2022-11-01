@@ -11,6 +11,7 @@ from io import BytesIO, TextIOWrapper
 # iOS:
 import mistune
 import sys, os
+from docutils.utils import column_width
 
 from nbconvert.utils.version import check_version
 
@@ -20,13 +21,12 @@ _minimal_version = "1.12.1"
 _maximal_version = "3.0.0"
 
 # iOS: markdown to latex renderer based on mistune
-def newline(func):
+def addNewline(func):
     """Insert double newline at the beginning of string."""
     def inner(*args, **argv):
         return '\n\n%s' % func(*args, **argv)
 
     return inner
-
 
 class LatexRenderer(mistune.HTMLRenderer):
     """Renderer for rendering markdown as LaTeX.
@@ -40,19 +40,47 @@ class LatexRenderer(mistune.HTMLRenderer):
     def not_support(self, feature):
         return ('%% %s is not supported yet.' % feature)
 
-    @newline
-    def block_code(self, code, lang=None):
-        """Ref: http://scott.sherrillmix.com/blog/programmer/displaying-code-in-latex/"""
-        code = code.rstrip()
-        return '\\begin{verbatim}\n%s\n\\end{verbatim}' % code
+    @addNewline
+    def text(self, text):
+        return text
 
-    @newline
-    def block_quote(self, text):
-        """Ref: http://tex.stackexchange.com/a/4970/43978"""
-        return '\\begin{blockquote}%s\n\\end{blockquote}' % text
+    def link(self, link, title, text):
+        if 'javascript:' in link:
+            # for safety
+            return ''
 
-    @newline
-    def header(self, text, level, raw=None):
+        # title is ignored
+        return r'\href{%s}{%s}' % (link, text)
+
+    def image(self, src, alt="", title=None):
+        return '\n'.join([r'\begin{figure}',
+                          r'\includegraphics{%s}' % (src, ),
+                          r'\caption{%s}' % (title, ),
+                          r'\label{%s}' % (alt, ),
+                          r'\end{figure}'])
+
+    def emphasis(self, text):
+        return '\\emph{%s}' % text
+
+    def strong(self, text):
+        return '\\textbf{%s}' % text
+
+    def codespan(self, text):
+        return '\\texttt{%s}' % text
+
+    def linebreak(self):
+        return r'\\'
+
+    def inline_html(self, html):
+        return self.not_support('Inline HTML') +  '\n% ' + html
+
+    @addNewline
+    def paragraph(self, text):
+        return '%s' % text
+
+    def heading(self, text, level):
+        # Remove any leading/trailing \n:
+        text = text.lstrip('\n').rstrip('\n')
         if level == 4:
             return '\\paragraph{%s}' % (text)
 
@@ -60,14 +88,40 @@ class LatexRenderer(mistune.HTMLRenderer):
             return self.not_support('Header > 4') + '\n' + text
 
         section = ('sub'*(level-1)) + 'section'
-        return '\\%s{%s}' % (section, text)
+        return '\n\\%s{%s}\n' % (section, text)
 
-    @newline
-    def hrule(self):
+    def newline(self):
+        return ''
+
+    @addNewline
+    def thematic_break(self):
         """Ref: http://tex.stackexchange.com/a/17126/43978"""
         return r'\hrulefill'
 
-    @newline
+    @addNewline
+    def block_text(self, text):
+        return text
+
+    @addNewline
+    def block_code(self, code, lang=None):
+        """Ref: http://scott.sherrillmix.com/blog/programmer/displaying-code-in-latex/"""
+        code = code.rstrip()
+        return '\\begin{verbatim}\n%s\n\\end{verbatim}' % code
+
+    @addNewline
+    def block_quote(self, text):
+        """Ref: http://tex.stackexchange.com/a/4970/43978"""
+        return '\\begin{blockquote}%s\n\\end{blockquote}' % text
+
+    @addNewline
+    def block_html(self, html):
+        return html 
+
+    @addNewline
+    def block_error(self, html):
+        return html
+
+    @addNewline
     def list(self, body, ordered=True):
         if ordered:
             return '\\begin{enumerate}\n%s\\end{enumerate}' % body
@@ -77,10 +131,10 @@ class LatexRenderer(mistune.HTMLRenderer):
     def list_item(self, text):
         return '    \\item %s\n' % text
 
-    @newline
-    def paragraph(self, text):
-        return '%s' % text
+    def finalize(self, data):
+        return ''.join(data)
 
+    # Functions not found in BaseRenderer anymore
     def table(self, header, body):
         return self.not_support('Table environment') + '\n% ' + header +  '\n% ' + body
 
@@ -94,15 +148,6 @@ class LatexRenderer(mistune.HTMLRenderer):
         """Ref: http://tex.stackexchange.com/q/14667/43978"""
         return '\\textbf{%s}' % text
 
-    def emphasis(self, text):
-        return '\\emph{%s}' % text
-
-    def codespan(self, text):
-        return '\\texttt{%s}' % text
-
-    def linebreak(self):
-        return r'\\'
-
     def strikethrough(self, text):
         return '\\sout{%s}' % text
 
@@ -111,27 +156,6 @@ class LatexRenderer(mistune.HTMLRenderer):
             return r'\href{mailto:%s}{%s}' % (link, link)
         else:
             return r'\url{%s}' % link
-
-    def link(self, link, title, text):
-        if 'javascript:' in link:
-            # for safety
-            return ''
-
-        # title is ignored
-        return r'\href{%s}{%s}' % (link, text)
-
-    def image(self, src, title, text):
-        return '\n'.join([r'\begin{figure}',
-                          r'\includegraphics{%s}' % (src, ),
-                          r'\caption{%s}' % (title, ),
-                          r'\label{%s}' % (text, ),
-                          r'\end{figure}'])
-
-    def inline_html(self, html):
-        return self.not_support('Inline HTML') +  '\n% ' + html
-
-    def block_html(self, html):
-        return self.not_support('Block HTML') +  '\n% ' + html
 
     def footnotes(self, text):
         return text
@@ -174,7 +198,7 @@ class AsciidocRenderer(mistune.HTMLRenderer):
         first_line = '____________________________________________________________________'
         return '\n' + first_line + text + '\n' + first_line
 
-    def header(self, text, level, raw=None):
+    def heading(self, text, level):
         return '\n{0}\n{1}\n'.format(text,
                                      self.hmarks[level] * column_width(text))
     def hrule(self):
@@ -321,6 +345,7 @@ def pandoc(source, fmt, to, extra_args=None, encoding="utf-8"):
     if extra_args:
         cmd.extend(extra_args)
 
+    print("Entering pandoc(), source= ", source, " fmt= ", fmt, " to= ", to, file=sys.__stderr__)
     # iOS: we cannot call pandoc, so we just don't convert markdown cells.
     # This is not perfect (...) but it lets the conversion machine work.
     # iOS: we replaced pandoc with a mistune plugin. It's not as good but it works
@@ -330,15 +355,15 @@ def pandoc(source, fmt, to, extra_args=None, encoding="utf-8"):
     # and m2r2 is not compatible with mistune > 0.8.4
     if (sys.platform == 'darwin' and os.uname().machine.startswith('iP')):
         if (fmt.startswith('markdown') and to.startswith('latex')):
+            print("Rendering using LatexRenderer inside pandoc.py", file=sys.__stderr__)
             markdown_to_latex = mistune.Markdown(renderer=LatexRenderer())
             return markdown_to_latex(source)
-        # elif (fmt.startswith('markdown') and to.startswith('rst')):
-        #    return convert(source) # m2r markdown to rst conversion
         elif (fmt.startswith('markdown') and to.startswith('asciidoc')):
+            # This one works for asciidoc
+            print("Rendering using asciidoc inside pandoc.py", file=sys.__stderr__)
             markdown_to_asciidoc = mistune.Markdown(renderer=AsciidocRenderer())
             return markdown_to_asciidoc(source)
-        else:
-            return source
+        return source
 
     # this will raise an exception that will pop us out of here
     check_pandoc_version()
