@@ -58,6 +58,18 @@ def respond_zip(handler, name, output, resources):
     for filename, data in output_files.items():
         zipf.writestr(os.path.basename(filename), data)
     zipf.close()
+    # iOS: write zip file directly to disk:
+    if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):
+        filename = os.path.splitext(name)[0] + ".zip"
+        directory = resources["metadata"]["path"]
+        # if we cannot save the zip file locally, save it in Carnets home directory:
+        if not os.access(directory, os.X_OK | os.W_OK):
+            directory = os.path.join(os.path.expanduser('~'), 'Documents')
+        f = open(directory + "/" + filename, "wb")
+        f.write(buffer.getbuffer())
+        f.close()
+        handler.finish("File " + filename + " saved successfully")
+        return True
 
     handler.finish(buffer.getvalue())
     return True
@@ -141,12 +153,15 @@ class NbconvertFileHandler(JupyterHandler):
         # Force download if requested
         if self.get_argument("download", "false").lower() == "true":
             filename = os.path.splitext(name)[0] + resources["output_extension"]
-            # iOS: write file directly here:
+            # iOS: write file directly to disk:
+            # TODO: check that we have write permission on directory
             if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):
-                # Save file directly to disk:
-                f = open(filename, "w")
+                if not os.access(ext_resources_dir, os.X_OK | os.W_OK):
+                    ext_resources_dir = os.path.join(os.path.expanduser('~'), 'Documents')
+                f = open(ext_resources_dir + "/" + filename, "w")
                 f.write(output)
                 f.close()
+                self.finish("File " + filename + " saved successfully")
                 return
             self.set_attachment_header(filename)
 

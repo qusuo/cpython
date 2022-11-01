@@ -178,6 +178,7 @@ class PDFExporter(LatexExporter):
         return self.run_command(self.bib_command, filename, 1, log_error, raise_on_failure)
 
     def from_notebook_node(self, nb, resources=None, **kw):
+        # iOS: warn the user early of the issue:
         if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):
             raise OSError(
                 "Carnets cannot create PDF from LaTeX at the moment. "

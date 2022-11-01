@@ -345,7 +345,6 @@ def pandoc(source, fmt, to, extra_args=None, encoding="utf-8"):
     if extra_args:
         cmd.extend(extra_args)
 
-    print("Entering pandoc(), source= ", source, " fmt= ", fmt, " to= ", to, file=sys.__stderr__)
     # iOS: we cannot call pandoc, so we just don't convert markdown cells.
     # This is not perfect (...) but it lets the conversion machine work.
     # iOS: we replaced pandoc with a mistune plugin. It's not as good but it works
@@ -355,12 +354,10 @@ def pandoc(source, fmt, to, extra_args=None, encoding="utf-8"):
     # and m2r2 is not compatible with mistune > 0.8.4
     if (sys.platform == 'darwin' and os.uname().machine.startswith('iP')):
         if (fmt.startswith('markdown') and to.startswith('latex')):
-            print("Rendering using LatexRenderer inside pandoc.py", file=sys.__stderr__)
             markdown_to_latex = mistune.Markdown(renderer=LatexRenderer())
             return markdown_to_latex(source)
         elif (fmt.startswith('markdown') and to.startswith('asciidoc')):
             # This one works for asciidoc
-            print("Rendering using asciidoc inside pandoc.py", file=sys.__stderr__)
             markdown_to_asciidoc = mistune.Markdown(renderer=AsciidocRenderer())
             return markdown_to_asciidoc(source)
         return source
