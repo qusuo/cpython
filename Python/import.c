@@ -2645,7 +2645,7 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
 		// If it did not work, we call getenv("APPDIR")
 		sprintf(newPathString, "%s/Frameworks/%S-%s.framework/%S-%s", getenv("APPDIR"), pythonName, nameC, pythonName, nameC);
 	}
-    // fprintf(stderr, "New path: %s\n", newPathString);
+    // fprintf(stderr, "New path in _imp_create_dynamic_impl: %s\n", newPathString);
     path = PyUnicode_FromString(newPathString);
     PyObject_SetAttrString(spec, "origin", path);
 #endif

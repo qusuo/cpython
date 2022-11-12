@@ -1820,6 +1820,7 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 			// Backup solution if something failed above:
 			sprintf(newPathString, "%s/Frameworks/%S-%s.framework/%S-%s",  getenv("APPDIR"), pythonName, nameC, pythonName, nameC);
 		}
+		// fprintf(stderr, "New path in py_dl_open: %s\n", newPathString);
         handle = ctypes_dlopen(newPathString, mode);
     } else {
 #endif
