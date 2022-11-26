@@ -1741,8 +1741,8 @@ you need to include :file:`pythread.h` to use thread-local storage.
 
 .. note::
    None of these API functions handle memory management on behalf of the
-   :c:expr:`void*` values.  You need to allocate and deallocate them yourself.
-   If the :c:expr:`void*` values happen to be :c:expr:`PyObject*`, these
+   :c:type:`void*` values.  You need to allocate and deallocate them yourself.
+   If the :c:type:`void*` values happen to be :c:expr:`PyObject*`, these
    functions don't do refcount operations on them either.
 
 .. _thread-specific-storage-api:
@@ -1796,7 +1796,7 @@ is not possible due to its implementation being opaque at build time.
    Free the given *key* allocated by :c:func:`PyThread_tss_alloc`, after
    first calling :c:func:`PyThread_tss_delete` to ensure any associated
    thread locals have been unassigned. This is a no-op if the *key*
-   argument is `NULL`.
+   argument is ``NULL``.
 
    .. note::
       A freed key becomes a dangling pointer. You should reset the key to
