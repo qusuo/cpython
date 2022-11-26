@@ -14,6 +14,7 @@ import sys, os
 from docutils.utils import column_width
 
 from nbconvert.utils.version import check_version
+from nbconvert.filters.latex import escape_latex
 
 from .exceptions import ConversionException
 
@@ -66,7 +67,7 @@ class LatexRenderer(mistune.HTMLRenderer):
         return '\\textbf{%s}' % text
 
     def codespan(self, text):
-        return '\\texttt{%s}' % text
+        return '\\texttt{%s}' % escape_latex(text)
 
     def linebreak(self):
         return r'\\'
@@ -103,7 +104,7 @@ class LatexRenderer(mistune.HTMLRenderer):
         return text
 
     @addNewline
-    def block_code(self, code, lang=None):
+    def block_code(self, code, info=None):
         """Ref: http://scott.sherrillmix.com/blog/programmer/displaying-code-in-latex/"""
         code = code.rstrip()
         return '\\begin{verbatim}\n%s\n\\end{verbatim}' % code
@@ -122,13 +123,13 @@ class LatexRenderer(mistune.HTMLRenderer):
         return html
 
     @addNewline
-    def list(self, body, ordered=True):
+    def list(self, text, ordered, level, start=None):
         if ordered:
-            return '\\begin{enumerate}\n%s\\end{enumerate}' % body
+            return '\\begin{enumerate}\n%s\\end{enumerate}' % text
         else:
-            return '\\begin{itemize}\n%s\\end{itemize}' % body
+            return '\\begin{itemize}\n%s\\end{itemize}' % text
 
-    def list_item(self, text):
+    def list_item(self, text, level):
         return '    \\item %s\n' % text
 
     def finalize(self, data):
@@ -204,17 +205,17 @@ class AsciidocRenderer(mistune.HTMLRenderer):
     def hrule(self):
         return '\n\'\'\'\n'
 
-    def list(self, body, ordered=True):
+    def list(self, text, ordered, level, start=None):
         # TODO: imbricated lists. Need access to depth.
         mark = '1. ' if ordered else '- '
-        lines = body.splitlines()
+        lines = text.splitlines()
         for i, line in enumerate(lines):
             if line and not line.startswith(self.list_marker):
                 lines[i] = ' ' * len(mark) + line
         return '\n{}\n'.format(
             '\n'.join(lines)).replace(self.list_marker, mark)
 
-    def list_item(self, text):
+    def list_item(self, text, level):
         """Rendering list item snippet. Like ``<li>``."""
         return '\n' + self.list_marker + text
 
