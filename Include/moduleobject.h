@@ -34,6 +34,9 @@ PyAPI_FUNC(int) _PyModuleSpec_IsInitializing(PyObject *);
 #endif
 PyAPI_FUNC(PyModuleDef*) PyModule_GetDef(PyObject*);
 PyAPI_FUNC(void*) PyModule_GetState(PyObject*);
+// iOS addition: 
+void PyModule_ClearState(PyObject* m);
+void PyModule_ClearDict(PyObject* m);
 
 #if !defined(Py_LIMITED_API) || Py_LIMITED_API+0 >= 0x03050000
 /* New in 3.5 */

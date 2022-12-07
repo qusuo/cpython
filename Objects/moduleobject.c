@@ -574,6 +574,22 @@ PyModule_GetState(PyObject* m)
     return _PyModule_GetState(m);
 }
 
+// iOS addition: set the state pointer of a module to NULL
+void
+PyModule_ClearState(PyObject* m)
+{
+    if (!PyModule_Check(m)) {
+        PyErr_BadArgument();
+        return;
+    }
+    PyModuleObject *mod = (PyModuleObject*)m;
+    if (mod->md_state != NULL) {
+        PyMem_Free(mod->md_state);
+	}
+    if (mod->md_state != NULL)
+        mod->md_state = NULL;
+}
+
 void
 _PyModule_Clear(PyObject *m)
 {
@@ -634,6 +650,7 @@ _PyModule_Clear(PyObject *m)
 #if TARGET_OS_IPHONE
     // Cleanup module after clearing dictionary:
     if (moduleNeedsCleanup) mod->md_def->m_free(mod);
+	((PyModuleObject *)m)->md_dict = NULL;
 #endif
 }
 
@@ -699,6 +716,14 @@ _PyModule_ClearDict(PyObject *d)
 
 }
 
+
+void PyModule_ClearDict(PyObject* m) {
+    PyObject *d = ((PyModuleObject *)m)->md_dict;
+    if (d != NULL)
+        _PyModule_ClearDict(d);
+	((PyModuleObject *)m)->md_dict = NULL;
+}
+
 /*[clinic input]
 class module "PyModuleObject *" "&PyModule_Type"
 [clinic start generated code]*/
@@ -755,6 +780,10 @@ module_dealloc(PyModuleObject *m)
     Py_XDECREF(m->md_name);
     if (m->md_state != NULL)
         PyMem_Free(m->md_state);
+#if TARGET_OS_IPHONE
+    if (m->md_state != NULL)
+        m->md_state = NULL;
+#endif
     Py_TYPE(m)->tp_free((PyObject *)m);
 }
 
@@ -898,6 +927,7 @@ module_clear(PyModuleObject *m)
             return res;
     }
     Py_CLEAR(m->md_dict);
+    // iOS: don't set md_dict to NULL yet, we will still need it.
     return 0;
 }
 

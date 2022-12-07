@@ -602,6 +602,12 @@ iomodule_clear(PyObject *mod) {
     if (state->locale_module != NULL)
         Py_CLEAR(state->locale_module);
     Py_CLEAR(state->unsupported_operation);
+#if TARGET_OS_IPHONE
+    void *dict = PyModule_GetDict(mod);
+	// Erase the state, and set the pointer to NULL:
+	PyModule_ClearState(mod);
+	PyModule_ClearDict(mod);
+#endif
     return 0;
 }
 
@@ -738,7 +744,6 @@ PyInit__io(void)
     }
 
     state->initialized = 1;
-
     return m;
 
   fail:
