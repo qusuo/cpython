@@ -1,5 +1,7 @@
 #! /bin/sh
 
+# jupyter-something adds pandas-1.5.3 and pyzmq-25.0b1, which breaks things down 
+
 # Changed install prefix so multiple install coexist
 export PREFIX=$PWD
 export XCFRAMEWORKS_DIR=$PREFIX/Python-aux/
@@ -652,7 +654,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd numpy >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-export LIBRARY_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
+export LIBRARY_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/lib"
 if [ $USE_FORTRAN == 0 ];
 then
 	rm site.cfg >> $PREFIX/make_install_osx.log 2>&1
@@ -689,7 +691,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 echo Making a single numpy library for OSX: >> $PREFIX/make_install_osx.log 2>&1
 if [ $USE_FORTRAN == 1 ];
 then
-	export LIBRARY_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
+	export LIBRARY_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/lib"
 	OPENBLAS="-L $PREFIX/Frameworks_macosx/lib -lopenblas"
 	mv build/temp.macosx-${OSX_VERSION}-x86_64-3.11/numpy/core/src/common/python_xerbla.o build/temp.macosx-${OSX_VERSION}-x86_64-3.11/numpy/core/src/common/python_xerbla.op
 else
@@ -902,7 +904,7 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 # cvxopt: Requires BLAS, Lapack, uses libfftw3.a if present, uses SuiteSparse source (new submodule)
 if [ $USE_FORTRAN == 1 ];
 then
-	export LIBRARY_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
+	export LIBRARY_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/lib"
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
     downloadSource cvxopt  >> $PREFIX/make_install_osx.log 2>&1
 	pushd cvxopt-* >>  $PREFIX/make_install_osx.log 2>&1
@@ -1356,7 +1358,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/stats/ >> $PREFIX/ma
     python3.11 -m pip install contextily --upgrade >> $PREFIX/make_install_osx.log 2>&1
 	if [ $USE_FORTRAN == 1 ];	
 	then
-		export LIBRARY_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
+		export LIBRARY_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/lib"
 		# scikit-build (for OpenCV):
 		python3.11 -m pip install distro >> $PREFIX/make_install_osx.log 2>&1
 		# Submodule forked because many changes to help cmake in the right direction.
@@ -1446,7 +1448,7 @@ then
 	cp ../site_original_scipy.cfg site.cfg >> $PREFIX/make_install_osx.log 2>&1
 	sed -i bak "s|__main_directory__|${PREFIX}/Frameworks_macosx|" site.cfg >> $PREFIX/make_install_osx.log 2>&1
 	# Only for OSX: gfortran needs -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib:
-	sed -i bak "s|-lgfortran|-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib &|g" site.cfg >> $PREFIX/make_install_osx.log 2>&1
+	sed -i bak "s|-lgfortran|-L/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/lib &|g" site.cfg >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx SETUPTOOLS_USE_DISTUTILS=stdlib python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 	echo fortranobject.o files: >> $PREFIX/make_install_osx.log 2>&1
 	for object in `find build -name fortranobject.o`
@@ -1835,12 +1837,31 @@ scipy/stats/_mvn.cpython-311-darwin.so
 	echo number of statsmodels libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print | wc -l >> $PREFIX/make_install_osx.log 2>&1
 	# copy them to build/lib.macosx:
-	for library in statsmodels/robust/_qn.cpython-311-darwin.so statsmodels/nonparametric/_smoothers_lowess.cpython-311-darwin.so statsmodels/nonparametric/linbin.cpython-311-darwin.so statsmodels/tsa/statespace/_simulation_smoother.cpython-311-darwin.so statsmodels/tsa/statespace/_representation.cpython-311-darwin.so statsmodels/tsa/statespace/_kalman_filter.cpython-311-darwin.so statsmodels/tsa/statespace/_tools.cpython-311-darwin.so statsmodels/tsa/statespace/_smoothers/_univariate_diffuse.cpython-311-darwin.so statsmodels/tsa/statespace/_smoothers/_alternative.cpython-311-darwin.so statsmodels/tsa/statespace/_smoothers/_classical.cpython-311-darwin.so statsmodels/tsa/statespace/_smoothers/_univariate.cpython-311-darwin.so statsmodels/tsa/statespace/_smoothers/_conventional.cpython-311-darwin.so statsmodels/tsa/statespace/_cfa_simulation_smoother.cpython-311-darwin.so statsmodels/tsa/statespace/_kalman_smoother.cpython-311-darwin.so statsmodels/tsa/statespace/_initialization.cpython-311-darwin.so statsmodels/tsa/statespace/_filters/_inversions.cpython-311-darwin.so statsmodels/tsa/statespace/_filters/_univariate_diffuse.cpython-311-darwin.so statsmodels/tsa/statespace/_filters/_univariate.cpython-311-darwin.so statsmodels/tsa/statespace/_filters/_conventional.cpython-311-darwin.so statsmodels/tsa/regime_switching/_kim_smoother.cpython-311-darwin.so statsmodels/tsa/regime_switching/_hamilton_filter.cpython-311-darwin.so statsmodels/tsa/innovations/_arma_innovations.cpython-311-darwin.so statsmodels/tsa/holtwinters/_exponential_smoothers.cpython-311-darwin.so statsmodels/tsa/_innovations.cpython-311-darwin.so statsmodels/tsa/exponential_smoothing/_ets_smooth.cpython-311-darwin.so statsmodels/tsa/_stl.cpython-311-darwin.so
+	for library in statsmodels/tsa/statespace/_filters/_univariate_diffuse.cpython-311-darwin.so \
+		           statsmodels/tsa/statespace/_filters/_univariate.cpython-311-darwin.so \
+		           statsmodels/tsa/statespace/_filters/_conventional.cpython-311-darwin.so 
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$directory >> $PREFIX/make_install_osx.log 2>&1
 		cp ./build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/$library $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$library >> $PREFIX/make_install_osx.log 2>&1
 	done
+	# Making a single statsmodels dynamic library:
+	# without _filters/_univariate_diffuse, _filters/_univariate and _filters/_conventional because of a name collision with _smoothers:
+	echo Making a single statsmodels library for OSX: >> $PREFIX/make_install_osx.log 2>&1
+	clang -v -undefined error -dynamiclib \
+		-isysroot $OSX_SDKROOT \
+		-lz -lm -lc++ \
+		-lpython3.11 \
+		`find $PREFIX/Library/lib/python3.11/site-packages -name libnpymath.a` \
+		`find $PREFIX/Library/lib/python3.11/site-packages -name libnpyrandom.a` \
+		-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11 \
+		-O3 -Wall  \
+		`find build -not -path '*/_filters/*' -name \*.o` \
+		build/temp.macosx-${OSX_VERSION}-x86_64-cpython-311/statsmodels/tsa/statespace/_filters/_inversions.o \
+		-L$PREFIX/Library/lib \
+		-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-cpython-311 \
+		-o build/statsmodels.so  >> $PREFIX/make_install_osx.log 2>&1
+	cp build/statsmodels.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11 >> $PREFIX/make_install_osx.log 2>&1	
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# also pygeos:
@@ -2761,7 +2782,7 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 	find build -name \*.so -print | wc -l >> $PREFIX/make_ios.log 2>&1
 	# 111 libraries (as of 1.9.3)! We do this automatically:
 	# copy them to build/lib.macosx:
-	pushd build/lib.macosx-12.6-arm64-3.11 >> $PREFIX/make_ios.log 2>&1
+	pushd build/lib.macosx-13.1-arm64-3.11 >> $PREFIX/make_ios.log 2>&1
 	for library in \
 scipy/odr/__odrpack.cpython-311-darwin.so \
 scipy/linalg/cython_lapack.cpython-311-darwin.so \
@@ -2812,7 +2833,7 @@ scipy/stats/_mvn.cpython-311-darwin.so
 	popd >> $PREFIX/make_ios.log 2>&1
 	# Making a big scipy library to load many modules (75 out of 111):
 	currentDir=${PWD:1} # current directory, minus first character
-	pushd build/temp.macosx-12.6-arm64-3.11  >> $PREFIX/make_ios.log 2>&1
+	pushd build/temp.macosx-13.1-arm64-3.11  >> $PREFIX/make_ios.log 2>&1
 	clang -v -undefined error -dynamiclib \
 		-arch arm64 -miphoneos-version-min=14.0 \
 		-isysroot $IOS_SDKROOT \
@@ -3010,7 +3031,7 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 SETUPTOOLS_USE_DISTUTILS=stdlib python3.
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-12.6-arm64-3.11/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp ./build/lib.macosx-13.1-arm64-3.11/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 	done
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
@@ -3033,8 +3054,8 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 SETUPTOOLS_USE_DISTUTILS=stdlib python3.
     # qutip/cy/*.so qutip/control/*.so	
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/qutip/cy >> $PREFIX/make_ios.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/qutip/control >> $PREFIX/make_ios.log 2>&1
-	cp ./build/lib.macosx-12.6-arm64-cpython-311/qutip/cy/*.so $PREFIX/build/lib.darwin-arm64-3.11/qutip/cy >> $PREFIX/make_ios.log 2>&1
-	cp ./build/lib.macosx-12.6-arm64-cpython-311/qutip/control/*.so $PREFIX/build/lib.darwin-arm64-3.11/qutip/control >> $PREFIX/make_ios.log 2>&1
+	cp ./build/lib.macosx-13.1-arm64-cpython-311/qutip/cy/*.so $PREFIX/build/lib.darwin-arm64-3.11/qutip/cy >> $PREFIX/make_ios.log 2>&1
+	cp ./build/lib.macosx-13.1-arm64-cpython-311/qutip/control/*.so $PREFIX/build/lib.darwin-arm64-3.11/qutip/control >> $PREFIX/make_ios.log 2>&1
 	  # Making a single qutip dynamic library:
 	  echo Making a single qutip library for iOS: >> $PREFIX/make_ios.log 2>&1
 	  clang -v -undefined error -dynamiclib \
@@ -3072,7 +3093,7 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 SETUPTOOLS_USE_DISTUTILS=stdlib python3.
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-12.6-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp ./build/lib.macosx-13.1-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 	done
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
@@ -3093,12 +3114,34 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 SETUPTOOLS_USE_DISTUTILS=stdlib python3.
 	echo number of statsmodels libraries for iOS: >> $PREFIX/make_ios.log 2>&1
 	find build -name \*.so -print | wc -l >> $PREFIX/make_ios.log 2>&1
 	# copy them to build/lib.darwin-arm64:
-	for library in statsmodels/robust/_qn.cpython-311-darwin.so statsmodels/nonparametric/_smoothers_lowess.cpython-311-darwin.so statsmodels/nonparametric/linbin.cpython-311-darwin.so statsmodels/tsa/statespace/_simulation_smoother.cpython-311-darwin.so statsmodels/tsa/statespace/_representation.cpython-311-darwin.so statsmodels/tsa/statespace/_kalman_filter.cpython-311-darwin.so statsmodels/tsa/statespace/_tools.cpython-311-darwin.so statsmodels/tsa/statespace/_smoothers/_univariate_diffuse.cpython-311-darwin.so statsmodels/tsa/statespace/_smoothers/_alternative.cpython-311-darwin.so statsmodels/tsa/statespace/_smoothers/_classical.cpython-311-darwin.so statsmodels/tsa/statespace/_smoothers/_univariate.cpython-311-darwin.so statsmodels/tsa/statespace/_smoothers/_conventional.cpython-311-darwin.so statsmodels/tsa/statespace/_cfa_simulation_smoother.cpython-311-darwin.so statsmodels/tsa/statespace/_kalman_smoother.cpython-311-darwin.so statsmodels/tsa/statespace/_initialization.cpython-311-darwin.so statsmodels/tsa/statespace/_filters/_inversions.cpython-311-darwin.so statsmodels/tsa/statespace/_filters/_univariate_diffuse.cpython-311-darwin.so statsmodels/tsa/statespace/_filters/_univariate.cpython-311-darwin.so statsmodels/tsa/statespace/_filters/_conventional.cpython-311-darwin.so statsmodels/tsa/regime_switching/_kim_smoother.cpython-311-darwin.so statsmodels/tsa/regime_switching/_hamilton_filter.cpython-311-darwin.so statsmodels/tsa/innovations/_arma_innovations.cpython-311-darwin.so statsmodels/tsa/holtwinters/_exponential_smoothers.cpython-311-darwin.so statsmodels/tsa/_innovations.cpython-311-darwin.so statsmodels/tsa/exponential_smoothing/_ets_smooth.cpython-311-darwin.so statsmodels/tsa/_stl.cpython-311-darwin.so
+	for library in statsmodels/tsa/statespace/_filters/_univariate_diffuse.cpython-311-darwin.so \
+		           statsmodels/tsa/statespace/_filters/_univariate.cpython-311-darwin.so \
+		           statsmodels/tsa/statespace/_filters/_conventional.cpython-311-darwin.so 
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-12.6-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp ./build/lib.macosx-13.1-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 	done
+	# Making a single statsmodels dynamic library:
+	# without _filters/_univariate_diffuse, _filters/_univariate and _filters/_conventional because of a name collision with _smoothers:
+	echo Making a single statsmodels library for iOS: >> $PREFIX/make_ios.log 2>&1
+	clang -v -undefined error -dynamiclib \
+		  -isysroot $IOS_SDKROOT \
+		  -lz -lm -lc++ \
+		  -lpython3.11 \
+		  `find $PREFIX/Library/lib/python3.11/site-packages -name libnpymath.a` \
+		  `find $PREFIX/Library/lib/python3.11/site-packages -name libnpyrandom.a` \
+		  -F$PREFIX/Frameworks_iphoneos -framework ios_system \
+		  -L$PREFIX/Frameworks_iphoneos/lib \
+		  -L$PREFIX/build/lib.darwin-arm64-3.11 \
+		  -O3 -Wall -arch arm64 \
+		  -miphoneos-version-min=14.0 \
+		  `find build -not -path '*/_filters/*' -name \*.o` \
+		  build/temp.macosx-${OSX_VERSION}-arm64-cpython-311/statsmodels/tsa/statespace/_filters/_inversions.o \
+		  -L$PREFIX/Library/lib \
+		  -Lbuild/temp.macosx-${OSX_VERSION}-arm64-cpython-311 \
+		  -o build/statsmodels.so  >> $PREFIX/make_ios.log 2>&1
+	cp build/statsmodels.so $PREFIX/build/lib.darwin-arm64-3.11 >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	# also pygeos:
@@ -3119,7 +3162,7 @@ GEOS_LIBRARY_PATH=$PREFIX/Frameworks_iphoneos/lib \
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-12.6-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp ./build/lib.macosx-13.1-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 	done
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1	

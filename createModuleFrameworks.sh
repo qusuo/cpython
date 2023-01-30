@@ -362,8 +362,8 @@ then
 		xcodebuild -create-xcframework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output  XcFrameworks/$framework.xcframework
 	done 
 	
-# Single-module scipy, qutip, rasterio
-for library in scipy qutip rasterio
+# Single-module scipy, qutip, rasterio, statsmodels:
+for library in scipy qutip rasterio statsmodels
 do
 	name=${library}_all
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
@@ -495,9 +495,11 @@ done
 		sklearn/neighbors/_partition_nodes \
 		sklearn/neighbors/_quad_tree \
 		cvxopt/cholmod cvxopt/misc_solvers cvxopt/amd cvxopt/base cvxopt/umfpack cvxopt/fftw cvxopt/blas cvxopt/lapack \
-	cv2/cv2	\
-	statsmodels/robust/_qn statsmodels/nonparametric/_smoothers_lowess statsmodels/nonparametric/linbin statsmodels/tsa/statespace/_simulation_smoother statsmodels/tsa/statespace/_representation statsmodels/tsa/statespace/_kalman_filter statsmodels/tsa/statespace/_tools statsmodels/tsa/statespace/_smoothers/_univariate_diffuse statsmodels/tsa/statespace/_smoothers/_alternative statsmodels/tsa/statespace/_smoothers/_classical statsmodels/tsa/statespace/_smoothers/_univariate statsmodels/tsa/statespace/_smoothers/_conventional statsmodels/tsa/statespace/_cfa_simulation_smoother statsmodels/tsa/statespace/_kalman_smoother statsmodels/tsa/statespace/_initialization statsmodels/tsa/statespace/_filters/_inversions statsmodels/tsa/statespace/_filters/_univariate_diffuse statsmodels/tsa/statespace/_filters/_univariate statsmodels/tsa/statespace/_filters/_conventional statsmodels/tsa/regime_switching/_kim_smoother statsmodels/tsa/regime_switching/_hamilton_filter statsmodels/tsa/innovations/_arma_innovations statsmodels/tsa/holtwinters/_exponential_smoothers statsmodels/tsa/_innovations statsmodels/tsa/exponential_smoothing/_ets_smooth statsmodels/tsa/_stl \
-	pygeos/_geos pygeos/lib pygeos/_geometry cartopy/trace
+		cv2/cv2	\
+		statsmodels/tsa/statespace/_filters/_univariate_diffuse \
+		statsmodels/tsa/statespace/_filters/_univariate \
+		statsmodels/tsa/statespace/_filters/_conventional \
+		pygeos/_geos pygeos/lib pygeos/_geometry cartopy/trace
 	do
 		# replace all "/" with ".
 		name=${library//\//.}
