@@ -1804,6 +1804,30 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 				(strcmp(nameC, "rasterio._filepath") == 0) ||
 				(strcmp(nameC, "rasterio._features") == 0)) {
 			strcpy(nameC, "rasterio_all");
+		} else if ((strcmp(nameC, "statsmodels.robust._qn") == 0) ||
+				(strcmp(nameC, "statsmodels.nonparametric._smoothers_lowess") == 0) ||
+				(strcmp(nameC, "statsmodels.nonparametric.linbin") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.statespace._simulation_smoother") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.statespace._representation") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.statespace._kalman_filter") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.statespace._tools") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.statespace._smoothers._univariate_diffuse") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.statespace._smoothers._alternative") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.statespace._smoothers._classical") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.statespace._smoothers._univariate") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.statespace._smoothers._conventional") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.statespace._cfa_simulation_smoother") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.statespace._kalman_smoother") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.statespace._initialization") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.statespace._filters._inversions") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.regime_switching._kim_smoother") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.regime_switching._hamilton_filter") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.innovations._arma_innovations") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.holtwinters._exponential_smoothers") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa._innovations") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa.exponential_smoothing._ets_smooth") == 0) ||
+				(strcmp(nameC, "statsmodels.tsa._stl") == 0)) {
+			strcpy(nameC, "statsmodels_all");
 		}
 		// The goal here is to avoid repeted calls to getenv("APPDIR") by using sys.prefix 
 		// that contains almost the same information.
