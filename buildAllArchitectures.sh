@@ -1,6 +1,7 @@
 #! /bin/sh
 
 # jupyter-something adds pandas-1.5.3 and pyzmq-25.0b1, which breaks things down 
+# So far, the "fix" is to manually remove them. 
 
 # Changed install prefix so multiple install coexist
 export PREFIX=$PWD
@@ -1905,6 +1906,9 @@ scipy/stats/_mvn.cpython-311-darwin.so
 	popd  >> $PREFIX/make_install_osx.log 2>&1
     # Pure Python dependencies for pysal. 
 	python3.11 -m pip install install networkx --upgrade >> $PREFIX/make_install_osx.log 2>&1
+	echo "Fixing Iranian web site for the State Department"  >> $PREFIX/make_install_osx.log 2>&1
+	sed -i bak "s|https://blog.alifaraji.ir|https :// blog dot alifaraji dot ir|g" $PREFIX/Library/lib/python3.11/site-packages/networkx/algorithms/operators/product.py >> $PREFIX/make_install_osx.log 2>&1
+	echo "Done"  >> $PREFIX/make_install_osx.log 2>&1
 	python3.11 -m pip install install pytest --upgrade >> $PREFIX/make_install_osx.log 2>&1
 	# pysal (and mapclassify). Can't download with pip, so submodule. Pure Python, so no need to replicate for iOS and Simulator.
 	# pysal contains mapclassify.
