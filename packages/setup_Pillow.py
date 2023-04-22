@@ -431,7 +431,7 @@ class pil_build_ext(build_ext):
             "/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
         ):
             commandlinetools_sdk_path = (
-                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk"
             )
             if os.path.exists(commandlinetools_sdk_path):
                 sdk_path = commandlinetools_sdk_path

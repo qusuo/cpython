@@ -4,7 +4,7 @@ echo "Downloading frameworks..."
 sh ./downloadFrameworks.sh
 echo "Updating submodules..."
 git submodule update --init --recursive
-echo "Compiling Python 3.9..."
+echo "Compiling Python 3.11..."
 sh ./buildAllArchitectures.sh
 echo "Creating Python frameworks..."
 sh ./createFrameworks.sh
