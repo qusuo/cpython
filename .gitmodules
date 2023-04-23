@@ -41,9 +41,6 @@
 [submodule "packages/Fiona"]
 	path = packages/Fiona
 	url = https://github.com/Toblerity/Fiona
-[submodule "packages/rasterio"]
-	path = packages/rasterio
-	url = https://github.com/mapbox/rasterio.git
 [submodule "packages/pysal"]
 	path = packages/pysal
 	url = https://github.com/pysal/pysal.git
@@ -60,3 +57,6 @@
 	path = packages/statsmodels
 	url = git@github.com:statsmodels/statsmodels.git
 
+[submodule "packages/opencv-python"]
+	path = packages/opencv-python
+	url = git@github.com:holzschu/opencv-python.git
