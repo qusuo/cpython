@@ -50,9 +50,6 @@
 [submodule "packages/scikit-build"]
 	path = packages/scikit-build
 	url = https://github.com/holzschu/scikit-build.git
-[submodule "packages/opencv-python"]
-	path = packages/opencv-python
-	url = https://github.com/holzschu/opencv-python.git
 [submodule "packages/pybind11"]
 	path = packages/pybind11
 	url = git@github.com:holzschu/pybind11.git
