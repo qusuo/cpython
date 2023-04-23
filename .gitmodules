@@ -57,6 +57,6 @@
 	path = packages/statsmodels
 	url = git@github.com:statsmodels/statsmodels.git
 
-[submodule "packages/opencv-python"]
-	path = packages/opencv-python
-	url = git@github.com:holzschu/opencv-python.git
+[submodule "packages/rasterio"]
+	path = packages/rasterio
+	url = https://github.com/mapbox/rasterio.git
