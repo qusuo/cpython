@@ -4,8 +4,13 @@
 # For fast downloads, you need the jq command: https://stedolan.github.io/jq/
 # Source: https://github.com/pypa/pip/issues/1884#issuecomment-800483766
 # Can take version as an optional argument: downloadSource pyFFTW 0.12.0
-# export USE_CACHED_PACKAGES=1
+export USE_CACHED_PACKAGES=1
 
+# Function to download source, using curl for speed, pip if jq is not available:
+# For fast downloads, you need the jq command: https://stedolan.github.io/jq/
+# Source: https://github.com/pypa/pip/issues/1884#issuecomment-800483766
+# Can take version as an optional argument: downloadSource pyFFTW 0.12.0
+# If the directory already exists, do not download it unless USE_CACHED_PACKAGES has been set to 0 above.
 downloadSource() 
 {
    package=$1
@@ -14,6 +19,7 @@ downloadSource()
    	   echo using cached version of $package
    	   return
    fi
+   rm -rf $package-*
    if [ $# -eq 1 ]
    then
    	   command=.releases\[.info.version]\[\]\|select\(.packagetype==\"sdist\"\)\|.url
@@ -29,9 +35,18 @@ downloadSource()
    	   curl -OL $address
    else 
    	   # We do not have jq, let's use pip:
-   	   env NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" python3.9 -m pip download --no-deps --no-binary :all: --no-build-isolation $package $package
+   	   env NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" python3.11 -m pip download --no-deps --no-binary :all: --no-build-isolation $package $package
+   fi
+   if [ -f $package*.tar.gz ];
+   then
+	   tar xvzf $package*.tar.gz
+	   rm $package*.tar.gz
+   fi
+   if [ -f $package*.zip ];
+   then
+	   unzip $package*.zip
+	   rm $package*.zip
    fi
 }
 
-
-downloadSource pyproj
+downloadSource $@
