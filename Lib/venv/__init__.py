@@ -409,12 +409,17 @@ class EnvBuilder:
         plen = len(path)
         # iOS version: simplified script
         if ios: 
+            prompt = self.prompt if self.prompt is not None else context.env_name
+            context.prompt = '(%s)' % prompt
             for file in ['activate', 'activate.py', 'deactivate.py']:
                 srcfile = os.path.join(path, 'ios', file)
                 dstdir = binpath
                 dstfile = os.path.join(dstdir, file)
                 with open(srcfile, 'rb') as f:
                     data = f.read()
+                data = data.decode('utf-8')
+                data = data.replace('__VENV_PROMPT__', context.prompt)
+                data = data.encode('utf-8')
                 if data is not None:
                     with open(dstfile, 'wb') as f:
                         f.write(data)
@@ -510,13 +515,16 @@ def main(args=None):
                                                    'environment directory if it '
                                                    'already exists, before '
                                                    'environment creation.')
+            parser.add_argument('--prompt',
+                                help='Provides an alternative prompt prefix for '
+                                'this environment.')
             options = parser.parse_args(args)
             builder = EnvBuilder(system_site_packages=False,
                     clear=options.clear,
                     symlinks=False,
                     upgrade=False,
                     with_pip=False,
-                    prompt='',
+                    prompt=options.prompt,
                     upgrade_deps=False)
             for d in options.dirs:
                 builder.create(d)
