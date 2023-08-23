@@ -10,9 +10,9 @@ setup(
     author="Andreas Mueller",
     author_email="t3kcit+wordcloud@gmail.com",
     name='wordcloud',
-    # iOS: set version number manually
+    # iOS: set version number manually (after git pull origin 1.9.2)
     #    version=versioneer.get_version(),
-    version='1.8.1',
+    version='1.9.2',
     cmdclass=versioneer.get_cmdclass(),
     url='https://github.com/amueller/word_cloud',
     description='A little word cloud generator',

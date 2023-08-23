@@ -36,6 +36,7 @@ from setuptools import Command, setup
 from setuptools.command.bdist_egg import bdist_egg
 from setuptools.command.build_ext import build_ext
 from setuptools.command.sdist import sdist
+from setuptools.errors import OptionError
 from setuptools.extension import Extension
 
 # local script imports:
@@ -221,14 +222,7 @@ def _add_rpath(settings, path):
     """
     if sys.platform == 'darwin':
         settings['extra_link_args'].extend(['-Wl,-rpath', '-Wl,%s' % path])
-        # OSX 11 has some system libraries outside of sysroot:
-        platform = os.getenv('PLATFORM') or 'macosx'
-        if platform == 'macosx':
-            settings['extra_link_args'].extend(['-L/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/lib'])
-    else:
-        settings['runtime_library_dirs'].append(path)
-    # iOS: add our own linker flags, or it won't compile
-    if cross_compiling_iOS:
+        # iOS,OSX: add our own linker flags, or it won't compile
         platform = os.getenv('PLATFORM')
         if platform == 'iphoneos': 
             sysroot = os.getenv('IOS_SDKROOT')
@@ -236,8 +230,12 @@ def _add_rpath(settings, path):
         elif platform == 'iphonesimulator':
             sysroot = os.getenv('SIM_SDKROOT')
             settings['extra_link_args'].extend(['-arch', 'x86_64', '-miphonesimulator-version-min=14.0', '-isysroot', sysroot])
-                
-    
+        else:
+            sysroot = os.getenv('OSX_SDKROOT')
+            settings['extra_link_args'].extend(['-isysroot', sysroot])
+    else:
+        settings['runtime_library_dirs'].append(path)
+
 
 def settings_from_prefix(prefix=None):
     """load appropriate library/include settings from ZMQ prefix"""
@@ -443,7 +441,7 @@ class Configure(build_ext):
         if use_static_zmq in ('TRUE', '1'):
             settings['define_macros'].append(('ZMQ_STATIC', '1'))
 
-        if os.environ.get("PYZMQ_CYTHON_COVERAGE"):
+        if os.environ.get("PYZMQ_CYTHON_COVERAGE", "") not in {"", "0"}:
             settings['define_macros'].append(('CYTHON_TRACE', '1'))
 
         # include internal directories
@@ -489,7 +487,7 @@ class Configure(build_ext):
         zmq_prefix = cfg['zmq_prefix']
         # iOS: can't run vers for version, so provide version ourselves: 
         if cross_compiling_iOS:
-            vers = tuple((4,3,3))
+            vers = tuple((4,3,4))
         else: 
             # Standard branch, compile and run
             detected = self.test_build(zmq_prefix, self.compiler_settings)
@@ -509,7 +507,6 @@ class Configure(build_ext):
             if zmq_prefix:
                 msg.append("    ZMQ_PREFIX=%s" % zmq_prefix)
             if vers >= min_legacy_zmq:
-
                 msg.append(
                     "    Explicitly allow legacy zmq by specifying `ZMQ_PREFIX=/zmq/prefix`"
                 )
@@ -877,9 +874,7 @@ class FetchCommand(Command):
 class TestCommand(Command):
     """Custom setuptools command to run the test suite."""
 
-    description = (
-        "Test PyZMQ (must have been built inplace: `setup.py build_ext --inplace`)"
-    )
+    description = "DEPRECATED, use pytest"
 
     user_options = []
 
@@ -890,7 +885,9 @@ class TestCommand(Command):
         pass
 
     def run(self):
-        """Run the test suite with py.test"""
+        """Run the test suite with pytest"""
+        warn("Running pyzmq's tests with `setup.py test` is deprecated. Use `pytest`.")
+        time.sleep(10)
         # crude check for inplace build:
         try:
             import zmq
@@ -1134,6 +1131,18 @@ class CheckingBuildExt(build_ext):
         patch_lib_paths(ext_path, self.compiler.library_dirs)
 
     def finalize_options(self):
+        # this is normally done by super().finalize_options() but it
+        # needs to be done *before* we call configure if cython,
+        # numpy and pythran are all installed; and we can't call it
+        # after finalize_options() because that breaks pypy builds
+        # on Windows; logic copied from distutils/command/build_ext.py
+        # https://github.com/zeromq/pyzmq/pull/1872
+        if isinstance(self.parallel, str):
+            try:
+                self.parallel = int(self.parallel)
+            except ValueError:
+                raise OptionError("parallel should be an integer")
+
         # check version, to prevent confusing undefined constant errors
         self.distribution.run_command("configure")
         return super().finalize_options()
@@ -1233,7 +1242,6 @@ except Exception:
     cmdclass['build_ext'] = CheckingBuildExt
 
     class MissingCython(Command):
-
         user_options = []
 
         def initialize_options(self):
@@ -1258,7 +1266,6 @@ except Exception:
     cmdclass['cython'] = MissingCython
 
 else:
-
     suffix = '.pyx'
 
     class CythonCommand(build_ext_cython):
@@ -1284,6 +1291,18 @@ else:
             patch_lib_paths(ext_path, self.compiler.library_dirs)
 
         def finalize_options(self):
+            # this is normally done by super().finalize_options() but it
+            # needs to be done *before* we call configure if cython,
+            # numpy and pythran are all installed; and we can't call it
+            # after finalize_options() because that breaks pypy builds
+            # on Windows; logic copied from distutils/command/build_ext.py
+            # https://github.com/zeromq/pyzmq/pull/1872
+            if isinstance(self.parallel, str):
+                try:
+                    self.parallel = int(self.parallel)
+                except ValueError:
+                    raise OptionError("parallel should be an integer")
+
             self.distribution.run_command("configure")
             return super().finalize_options()
 
@@ -1306,7 +1325,7 @@ if cython:
     # set binding so that compiled methods can be inspected
     # set language-level to 3str, requires Cython 0.29
     cython_directives = {"binding": True, "language_level": "3str"}
-    if os.environ.get("PYZMQ_CYTHON_COVERAGE"):
+    if os.environ.get("PYZMQ_CYTHON_COVERAGE", "") not in {"", "0"}:
         cython_directives["linetrace"] = True
     extensions = cythonize(extensions, compiler_directives=cython_directives)
 
@@ -1351,7 +1370,7 @@ with open('README.md', encoding='utf-8') as f:
 
 setup_args = dict(
     name="pyzmq",
-    version="24.0.1",
+    version="25.1.1",
     packages=find_packages(),
     ext_modules=extensions,
     cffi_modules=cffi_modules,
@@ -1384,19 +1403,15 @@ setup_args = dict(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
     zip_safe=False,
     python_requires=">=3.6",
     install_requires=[
-        "py; implementation_name == 'pypy'",
         "cffi; implementation_name == 'pypy'",
     ],
 )
-if not os.path.exists(os.path.join("zmq", "backend", "cython", "socket.c")):
-    # this generally means pip install from git
-    # which requires Cython
-    setup_args.setdefault("setup_requires", []).append(
-        f"cython>={min_cython_version}; implementation_name == 'cpython'",
-    )
 
 setup(**setup_args)

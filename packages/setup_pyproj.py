@@ -116,12 +116,14 @@ def get_cythonize_options():
     This function gets the options to cythonize with
     """
     # Configure optional Cython coverage.
+    # legacy_implicit_noexcept is a temporary fix for Cython 3.0 with pyrpoj 3.6.0
     cythonize_options = {
         "language_level": sys.version_info[0],
         "compiler_directives": {
             "c_string_type": "str",
             "c_string_encoding": "utf-8",
             "embedsignature": True,
+            "legacy_implicit_noexcept": True,
         },
     }
     if os.environ.get("PYPROJ_FULL_COVERAGE"):

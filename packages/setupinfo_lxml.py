@@ -103,6 +103,7 @@ def ext_modules(static_include_dirs, static_library_dirs,
         from Cython.Compiler import Options
         Options.generate_cleanup_code = 3
         Options.clear_to_none = False
+        Options.legacy_implicit_noexcept = True
     elif not OPTION_WITHOUT_CYTHON and not all(c_files_exist):
         for exists, module in zip(c_files_exist, module_files):
             if not exists:
@@ -162,6 +163,7 @@ def ext_modules(static_include_dirs, static_library_dirs,
 
     cythonize_directives = {
         'binding': True,
+        "legacy_implicit_noexcept": True,
     }
     if OPTION_WITH_COVERAGE:
         cythonize_directives['linetrace'] = True
@@ -367,6 +369,7 @@ def define_macros():
     if OPTION_BUILD_LIBXML2XSLT:
         macros.append(('LIBXML_STATIC', None))
         macros.append(('LIBXSLT_STATIC', None))
+        macros.append(('LIBEXSLT_STATIC', None))
     # Disable showing C lines in tracebacks, unless explicitly requested.
     macros.append(('CYTHON_CLINE_IN_TRACEBACK', '1' if OPTION_WITH_CLINES else '0'))
     return macros
