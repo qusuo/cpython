@@ -9,14 +9,17 @@ APP=$(basename `dirname $PWD`)
 # Set to 1 if you have gfortran for arm64 installed. gfortran support is highly experimental.
 # You might need to edit the script as well.
 USE_FORTRAN=0
-if [ $APP == "Carnets" ]; 
-then
-	if [ -e "/usr/local/aarch64-apple-darwin20/lib/libgfortran.dylib" ];then
-		USE_FORTRAN=1
-	fi
+if [ -e "/usr/local/aarch64-apple-darwin20/lib/libgfortran.dylib" ];then
+	USE_FORTRAN=1
 fi
 
 OSX_VERSION=11.5 # `sw_vers -productVersion |awk -F. '{print $1"."$2}'`
+
+USE_SIMULATOR=0
+architectures=("lib.macosx-${OSX_VERSION}-x86_64-3.11 lib.darwin-arm64-3.11")
+if  [ $USE_SIMULATOR == 1 ]; then
+	architectures=("lib.macosx-${OSX_VERSION}-x86_64-3.11 lib.darwin-arm64-3.11 lib.darwin-x86_64-3.11")
+fi
 
 edit_Info_plist() 
 {
@@ -72,12 +75,12 @@ edit_Info_plist_noSimulator()
 # You can build the lzma modyle by adding the lzma headers in the Include path and adding _lzma to this list,
 # but you can't submit to the AppStore.
 # Retrying lzma with a static library version:
-for name in _bz2 _cffi_backend _crypt _ctypes _ctypes_test _curses _dbm _decimal _hashlib _lsprof _lzma _multiprocessing _opcode _posixshmem _queue _sqlite3 _ssl _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz syslog xxlimited 
+for name in _bz2 _cffi_backend _crypt _ctypes _ctypes_test _dbm _decimal _hashlib _lsprof _lzma _multiprocessing _opcode _posixshmem _queue _sqlite3 _ssl _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz syslog xxlimited rpds
 do 
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
 		framework=${package}-${name}
-		for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.11 lib.darwin-arm64-3.11 lib.darwin-x86_64-3.11
+		for architecture in $architectures
 		do
 			echo "Creating: " ${architecture}/Frameworks/${name}.framework
 			directory=build/${architecture}/Frameworks/
@@ -97,10 +100,17 @@ do
 			install_name_tool -id @rpath/$framework.framework/$framework  $directory/$framework.framework/$framework
 			
 		done
-		edit_Info_plist $framework
-		# Create the 3-architecture XCFramework:
-		rm -rf XcFrameworks/$framework.xcframework
-		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		if  [ $USE_SIMULATOR == 1 ]; then
+			edit_Info_plist $framework
+			# Create the 3-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		else
+			edit_Info_plist_noSimulator $framework
+			# Create the 2-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output XcFrameworks/$framework.xcframework
+		fi
 	done
 done
 
@@ -116,7 +126,7 @@ do
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
 		framework=${package}-${name}
-		for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.11 lib.darwin-arm64-3.11 lib.darwin-x86_64-3.11
+		for architecture in $architectures
 		do
 			echo "Creating: " ${architecture}/Frameworks/${name}.framework
 			directory=build/${architecture}/Frameworks/
@@ -136,10 +146,17 @@ do
 			install_name_tool -id @rpath/$framework.framework/$framework  $directory/$framework.framework/$framework
 			
 		done
-		edit_Info_plist $framework
-		# Create the 3-architecture XCFramework:
-		rm -rf XcFrameworks/$framework.xcframework
-		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		if  [ $USE_SIMULATOR == 1 ]; then
+			edit_Info_plist $framework
+			# Create the 3-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		else
+			edit_Info_plist_noSimulator $framework
+			# Create the 2-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output XcFrameworks/$framework.xcframework
+		fi
 	done
 done
 
@@ -152,7 +169,7 @@ do
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
 		framework=${package}-${name}
-		for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.11 lib.darwin-arm64-3.11 lib.darwin-x86_64-3.11
+		for architecture in $architectures
 		do
 			echo "Creating: " ${architecture}/Frameworks/${name}.framework
 			directory=build/${architecture}/Frameworks/
@@ -172,11 +189,17 @@ do
 			install_name_tool -id @rpath/$framework.framework/$framework  $directory/$framework.framework/$framework
 			
 		done
-		# Edit the Info.plist file:
-		edit_Info_plist $framework
-		# Create the 3-architecture XCFramework:
-		rm -rf XcFrameworks/$framework.xcframework
-		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		if  [ $USE_SIMULATOR == 1 ]; then
+			edit_Info_plist $framework
+			# Create the 3-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		else
+			edit_Info_plist_noSimulator $framework
+			# Create the 2-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output XcFrameworks/$framework.xcframework
+		fi
 	done
 done
 
@@ -186,7 +209,7 @@ do
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
 		framework=${package}-${name}
-		for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.11 lib.darwin-arm64-3.11 lib.darwin-x86_64-3.11
+		for architecture in $architectures
 		do
 			echo "Creating: " ${architecture}/Frameworks/${name}.framework
 			directory=build/${architecture}/Frameworks/
@@ -206,10 +229,17 @@ do
 			install_name_tool -id @rpath/$framework.framework/$framework  $directory/$framework.framework/$framework
 		done
 		# Edit the Info.plist file:
-		edit_Info_plist $framework
-		# Create the 3-architecture XCFramework:
-		rm -rf XcFrameworks/$framework.xcframework
-		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		if  [ $USE_SIMULATOR == 1 ]; then
+			edit_Info_plist $framework
+			# Create the 3-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		else
+			edit_Info_plist_noSimulator $framework
+			# Create the 2-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output XcFrameworks/$framework.xcframework
+		fi
 	done
 done
 
@@ -225,7 +255,7 @@ then
 		for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 		do
 			framework=${package}-${name}
-			for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.11 lib.darwin-arm64-3.11 lib.darwin-x86_64-3.11
+			for architecture in $architectures
 			do
 				echo "Creating: " ${architecture}/Frameworks/${name}.framework
 				directory=build/${architecture}/Frameworks/
@@ -246,18 +276,23 @@ then
 
 			done
 			# Edit the Info.plist file:
-			edit_Info_plist $framework
-			# Create the 3-architecture XCFramework:
-			rm -rf XcFrameworks/$framework.xcframework
-			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+			if  [ $USE_SIMULATOR == 1 ]; then
+				edit_Info_plist $framework
+				# Create the 3-architecture XCFramework:
+				rm -rf XcFrameworks/$framework.xcframework
+				xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+			else
+				edit_Info_plist_noSimulator $framework
+				# Create the 2-architecture XCFramework:
+				rm -rf XcFrameworks/$framework.xcframework
+				xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output XcFrameworks/$framework.xcframework
+			fi
 		done
 	done
 fi  # [ $APP == "a-Shell" ];
 
 
 # for Carnets specifically (or all apps with Jupyter notebooks):
-if [ $APP == "Carnets" ]; 
-then
 # astropy, shapely, pyproj: only with Carnets
 for library in erfa/ufunc \
 	shapely/speedups/_speedups shapely/vectorized/_vectorized 
@@ -267,7 +302,7 @@ do
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
 		framework=${package}-${name}
-		for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.11 lib.darwin-arm64-3.11 lib.darwin-x86_64-3.11
+		for architecture in $architectures
 		do
 			echo "Creating: " ${architecture}/Frameworks/${name}.framework
 			directory=build/${architecture}/Frameworks/
@@ -288,10 +323,17 @@ do
 			
 		done
 		# Edit the Info.plist file:
-		edit_Info_plist $framework
-		# Create the 3-architecture XCFramework:
-		rm -rf XcFrameworks/$framework.xcframework
-		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		if  [ $USE_SIMULATOR == 1 ]; then
+			edit_Info_plist $framework
+			# Create the 3-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		else
+			edit_Info_plist_noSimulator $framework
+			# Create the 2-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output XcFrameworks/$framework.xcframework
+		fi
 	done
 done
 
@@ -302,7 +344,7 @@ do
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
 		framework=${package}-${name}
-		for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.11 lib.darwin-arm64-3.11 lib.darwin-x86_64-3.11
+		for architecture in $architectures
 		do
 			echo "Creating: " ${architecture}/Frameworks/${name}.framework
 			directory=build/${architecture}/Frameworks/
@@ -322,10 +364,17 @@ do
 			install_name_tool -id @rpath/$framework.framework/$framework  $directory/$framework.framework/$framework
 		done
 		# Edit the Info.plist file:
-		edit_Info_plist $framework
-		# Create the 3-architecture XCFramework:
-		rm -rf XcFrameworks/$framework.xcframework
-		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		if  [ $USE_SIMULATOR == 1 ]; then
+			edit_Info_plist $framework
+			# Create the 3-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-x86_64-3.11/Frameworks/$framework.framework  -output  XcFrameworks/$framework.xcframework
+		else
+			edit_Info_plist_noSimulator $framework
+			# Create the 2-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output XcFrameworks/$framework.xcframework
+		fi
 	done
 done
 
@@ -361,41 +410,45 @@ then
 		rm -rf XcFrameworks/$framework.xcframework
 		xcodebuild -create-xcframework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output  XcFrameworks/$framework.xcframework
 	done 
+fi # [ $USE_FORTRAN == 1 ]
 	
-# Single-module scipy, qutip, rasterio, statsmodels:
-for library in scipy qutip rasterio statsmodels
-do
-	name=${library}_all
-	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
+if [ $APP == "Carnets" ]; then
+	# Single-module scipy, qutip, rasterio, statsmodels:
+	# Always built for OSX and iOS, not simultaor
+	architectures=("lib.macosx-${OSX_VERSION}-x86_64-3.11 lib.darwin-arm64-3.11")
+	for library in scipy qutip rasterio statsmodels
 	do
-		framework=${package}-${name}
-		for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.11 lib.darwin-arm64-3.11
+		name=${library}_all
+		for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 		do
-			echo "Creating: " ${architecture}/Frameworks/${name}.framework
-			directory=build/${architecture}/Frameworks/
-			rm -rf $directory/$framework.framework
-			mkdir -p $directory
-			mkdir -p $directory/$framework.framework
-			libraryFile=build/${architecture}/${library}
-			cp $libraryFile.so $directory/$framework.framework/$framework
-			cp plists/basic_Info.plist $directory/$framework.framework/Info.plist
-			plutil -replace CFBundleExecutable -string $framework $directory/$framework.framework/Info.plist
-			plutil -replace CFBundleName -string $framework $directory/$framework.framework/Info.plist
-			# underscore is not allowed in CFBundleIdentifier:
-			signature=${framework//_/-}
-			plutil -replace CFBundleIdentifier -string Nicolas-Holzschuch.$signature  $directory/$framework.framework/Info.plist
-			# change framework id and libpython:
-			install_name_tool -change $libpython @rpath/${package}.framework/${package}  $directory/$framework.framework/$framework
-			install_name_tool -id @rpath/$framework.framework/$framework  $directory/$framework.framework/$framework
+			framework=${package}-${name}
+			for architecture in $architectures
+			do
+				echo "Creating: " ${architecture}/Frameworks/${name}.framework
+				directory=build/${architecture}/Frameworks/
+				rm -rf $directory/$framework.framework
+				mkdir -p $directory
+				mkdir -p $directory/$framework.framework
+				libraryFile=build/${architecture}/${library}
+				cp $libraryFile.so $directory/$framework.framework/$framework
+				cp plists/basic_Info.plist $directory/$framework.framework/Info.plist
+				plutil -replace CFBundleExecutable -string $framework $directory/$framework.framework/Info.plist
+				plutil -replace CFBundleName -string $framework $directory/$framework.framework/Info.plist
+				# underscore is not allowed in CFBundleIdentifier:
+				signature=${framework//_/-}
+				plutil -replace CFBundleIdentifier -string Nicolas-Holzschuch.$signature  $directory/$framework.framework/Info.plist
+				# change framework id and libpython:
+				install_name_tool -change $libpython @rpath/${package}.framework/${package}  $directory/$framework.framework/$framework
+				install_name_tool -id @rpath/$framework.framework/$framework  $directory/$framework.framework/$framework
+			done
+			# Edit the Info.plist file:
+			edit_Info_plist_noSimulator $framework
+			# Create the 2-architecture XCFramework:
+			rm -rf XcFrameworks/$framework.xcframework
+			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output  XcFrameworks/$framework.xcframework
 		done
-		# Edit the Info.plist file:
-		edit_Info_plist_noSimulator $framework
-		# Create the 2-architecture XCFramework:
-		rm -rf XcFrameworks/$framework.xcframework
-		xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output  XcFrameworks/$framework.xcframework
 	done
-done
-	
+
 
 	# create the scipy (only those not included above) and scikit-learn modules: 
 	# also cvxopt, cv2, statsmodels, pygeos, cartopy
@@ -500,38 +553,38 @@ done
 		statsmodels/tsa/statespace/_filters/_univariate \
 		statsmodels/tsa/statespace/_filters/_conventional \
 		pygeos/_geos pygeos/lib pygeos/_geometry cartopy/trace
-	do
-		# replace all "/" with ".
-		name=${library//\//.}
-		for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 		do
-			framework=${package}-${name}
-			for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.11 lib.darwin-arm64-3.11 
+			# replace all "/" with ".
+			name=${library//\//.}
+			for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 			do
-				echo "Creating: " ${architecture}/Frameworks/${name}.framework
-				directory=build/${architecture}/Frameworks/
-				rm -rf $directory/$framework.framework
-				mkdir -p $directory
-				mkdir -p $directory/$framework.framework
-				libraryFile=build/${architecture}/${library}.cpython-311-darwin.so
-				cp $libraryFile $directory/$framework.framework/$framework
-				cp plists/basic_Info.plist $directory/$framework.framework/Info.plist
-				plutil -replace CFBundleExecutable -string $framework $directory/$framework.framework/Info.plist
-				plutil -replace CFBundleName -string $framework $directory/$framework.framework/Info.plist
-				# underscore is not allowed in CFBundleIdentifier:
-				signature=${framework//_/-}
-				plutil -replace CFBundleIdentifier -string Nicolas-Holzschuch.$signature  $directory/$framework.framework/Info.plist
-				# change framework id and libpython:
-				install_name_tool -change $libpython @rpath/${package}.framework/${package}  $directory/$framework.framework/$framework
-				install_name_tool -id @rpath/$framework.framework/$framework  $directory/$framework.framework/$framework
+				framework=${package}-${name}
+				for architecture in $architectures 
+				do
+					echo "Creating: " ${architecture}/Frameworks/${name}.framework
+					directory=build/${architecture}/Frameworks/
+					rm -rf $directory/$framework.framework
+					mkdir -p $directory
+					mkdir -p $directory/$framework.framework
+					libraryFile=build/${architecture}/${library}.cpython-311-darwin.so
+					cp $libraryFile $directory/$framework.framework/$framework
+					cp plists/basic_Info.plist $directory/$framework.framework/Info.plist
+					plutil -replace CFBundleExecutable -string $framework $directory/$framework.framework/Info.plist
+					plutil -replace CFBundleName -string $framework $directory/$framework.framework/Info.plist
+					# underscore is not allowed in CFBundleIdentifier:
+					signature=${framework//_/-}
+					plutil -replace CFBundleIdentifier -string Nicolas-Holzschuch.$signature  $directory/$framework.framework/Info.plist
+					# change framework id and libpython:
+					install_name_tool -change $libpython @rpath/${package}.framework/${package}  $directory/$framework.framework/$framework
+					install_name_tool -id @rpath/$framework.framework/$framework  $directory/$framework.framework/$framework
+				done
+				# Edit the Info.plist file:
+				edit_Info_plist_noSimulator $framework
+				# Create the 2-architecture XCFramework:
+				rm -rf XcFrameworks/$framework.xcframework
+				xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output  XcFrameworks/$framework.xcframework
 			done
-			# Edit the Info.plist file:
-			edit_Info_plist_noSimulator $framework
-			# Create the 2-architecture XCFramework:
-			rm -rf XcFrameworks/$framework.xcframework
-			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output  XcFrameworks/$framework.xcframework
 		done
-	done
 
 	# ML frameworks: 
 	for library in coremltools/libcoremlpython coremltools/libmilstoragepython coremltools/libmodelpackage
@@ -541,7 +594,7 @@ done
 		for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 		do
 			framework=${package}-${name}
-			for architecture in lib.macosx-${OSX_VERSION}-x86_64-3.11 lib.darwin-arm64-3.11 
+			for architecture in $architectures 
 			do
 				echo "Creating: " ${architecture}/Frameworks/${name}.framework
 				directory=build/${architecture}/Frameworks/
@@ -567,6 +620,5 @@ done
 			xcodebuild -create-xcframework -framework build/lib.macosx-${OSX_VERSION}-x86_64-3.11/Frameworks/$framework.framework -framework build/lib.darwin-arm64-3.11/Frameworks/$framework.framework -output XcFrameworks/$framework.xcframework
 		done
 	done
-fi # [ $USE_FORTRAN == 1 ] 
-fi  # [ $APP == "Carnets" ];
+fi # [ $APP == "Carnets" ]
 

@@ -10,6 +10,8 @@ echo "Creating Python frameworks..."
 sh ./createFrameworks.sh
 echo "Creating module frameworks..."
 sh ./createModuleFrameworks.sh
+echo "Preparing Library for upload to Apple"
+sh ./prepareForUpload.sh
 
 # If we upload all packages to a repository, uncomment and create Package.swift 
 # createPackage_swift.sh
