@@ -75,7 +75,8 @@ edit_Info_plist_noSimulator()
 # You can build the lzma modyle by adding the lzma headers in the Include path and adding _lzma to this list,
 # but you can't submit to the AppStore.
 # Retrying lzma with a static library version:
-for name in _bz2 _cffi_backend _crypt _ctypes _ctypes_test _dbm _decimal _hashlib _lsprof _lzma _multiprocessing _opcode _posixshmem _queue _sqlite3 _ssl _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz syslog xxlimited rpds
+# TODO: re-add rpds here
+for name in _bz2 _cffi_backend _crypt _ctypes _ctypes_test _dbm _decimal _hashlib _lsprof _lzma _multiprocessing _opcode _posixshmem _queue _sqlite3 _ssl _testbuffer _testcapi _testimportmultiple _testinternalcapi _testmultiphase _xxsubinterpreters _xxtestfuzz syslog xxlimited 
 do 
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
