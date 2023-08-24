@@ -301,6 +301,7 @@ rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
 # We are going to need rust to build cryptography. This might be problematic. 
 # https://cryptography.io/en/latest/faq.html#installing-cryptography-fails-with-error-can-not-find-rust-compiler
 # As of Feb. 11, 2021, rustc is unable to cross-compile a dynamic library for iOS. We stick to the old version.
+# August 2023: rustc can generate a dynamic library, but does not free or reinitialize the modules. We stick to the old version.
 env CRYPTOGRAPHY_DONT_BUILD_RUST=1 CC=clang CXX=clang++ CFLAGS="-I$PREFIX/ -I/usr/local/include/ -DCRYPTOGRAPHY_OSRANDOM_ENGINE=CRYPTOGRAPHY_OSRANDOM_ENGINE_DEV_URANDOM" LDFLAGS="-L$PREFIX/ -L/usr/local/lib" python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 env CRYPTOGRAPHY_DONT_BUILD_RUST=1 CC=clang CXX=clang++ CFLAGS="-I$PREFIX/ -I/usr/local/include/ -DCRYPTOGRAPHY_OSRANDOM_ENGINE=CRYPTOGRAPHY_OSRANDOM_ENGINE_DEV_URANDOM" LDFLAGS="-L$PREFIX/ -L/usr/local/lib" python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 echo cryptography libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
@@ -400,7 +401,10 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 popd >> $PREFIX/make_install_osx.log 2>&1
 echo done installing send2trash >> $PREFIX/make_install_osx.log 2>&1
 # end send2trash
-if [ $APP == "a-Shell" ]; 
+# The new jsonschema uses rpds, which uses Rust. It requires an edited version of maturin,
+# and is not released when leaving, which breaks when reloading.
+USE_RUST_MODULES=0
+if [ $USE_RUST_MODULES == 1 ]; 
 then
 	# rpds-py: new requirement for jsonschema, itself a requirement everywhere.
 	# Uses maturin. Do I also need maturin in the OSX install? 
@@ -414,7 +418,8 @@ then
 	python3.11 -m pip install jsonschema --upgrade >> $PREFIX/make_install_osx.log 2>&1
 	python3.11 -m pip install jupyter-events --upgrade >> $PREFIX/make_install_osx.log 2>&1
 else
-	# Rust and PyO3 have issues for now. To advance, let's compile Carnets with the old jsonschema:
+	# Rust and PyO3 have issues for now. To advance, let's compile with the old jsonschema:
+	# By cascading effects, that forces us to take the old jupyter-events
 	python3.11 -m pip install pyrsistent --upgrade >> $PREFIX/make_install_osx.log 2>&1
 	python3.11 -m pip install jsonschema==4.17.3 --upgrade >> $PREFIX/make_install_osx.log 2>&1
 	python3.11 -m pip install jupyter-events==0.6.3 --upgrade >> $PREFIX/make_install_osx.log 2>&1
@@ -448,6 +453,12 @@ python3.11 -m pip install mpmath --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # Now install sympy:
 python3.11 -m pip install sympy --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # For jupyter: 
+# jupyter_client (at version 7.4.9 because versions ipykernel-before-psutils requires jupyter-client < 8)
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+pushd jupyter_client >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
 # ipykernel (edited to cleanup sockets when we close a kernel)
 # Stuck before version 6.9.1 to avoid using 
 unset PYZMQ_BACKEND_CFFI
@@ -491,7 +502,15 @@ unset PYZMQ_BACKEND
 python3.11 -m pip install qtpy --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install qtconsole --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # python3.11 -m pip install babel --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# notebook
+# jupyterlab. No need to use submodules, we take the code directly from pip.
+pushd packages >> $PREFIX/make_install_osx.log 2>&1
+downloadSource jupyterlab >> $PREFIX/make_install_osx.log 2>&1
+pushd jupyterlab-* >> $PREFIX/make_install_osx.log 2>&1
+rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+popd  >> $PREFIX/make_install_osx.log 2>&1
+python3.11 -m pip install notebook-shim >> $PREFIX/make_install_osx.log 2>&1
 # notebook (trying unmodified new version)
 python3.11 -m pip install notebook >> $PREFIX/make_install_osx.log 2>&1
 # pushd packages >> $PREFIX/make_install_osx.log 2>&1
@@ -506,12 +525,6 @@ pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd cython >> $PREFIX/make_install_osx.log 2>&1
 # --global-option will be obsolete with pip 23.3.
 python3.11 -m pip install . --global-option="--no-cython-compile" >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-# jupyter_client (at version 7.4.9 because versions ipykernel-before-psutils requires jupyter-client < 8)
-pushd packages >> $PREFIX/make_install_osx.log 2>&1
-pushd jupyter_client >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Now: jupyter
@@ -530,20 +543,10 @@ python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install . --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install notebook-shim >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install json5 --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install jupyter-packaging  >> $PREFIX/make_install_osx.log 2>&1
 # jupyterlab-server:
 python3.11 -m pip install jupyterlab_server  >> $PREFIX/make_install_osx.log 2>&1
-# jupyterlab. No need to use submodules, we take the code directly from pip.
-pushd packages >> $PREFIX/make_install_osx.log 2>&1
-downloadSource jupyterlab >> $PREFIX/make_install_osx.log 2>&1
-pushd jupyterlab-* >> $PREFIX/make_install_osx.log 2>&1
-rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
 # Translations. All of them. 
 pip install jupyterlab-language-pack-ar-SA >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-ca-ES >> $PREFIX/make_install_osx.log 2>&1
@@ -575,45 +578,17 @@ pip install jupyterlab-language-pack-uk-UA >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-vi-VN >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-zh-CN >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-zh-TW >> $PREFIX/make_install_osx.log 2>&1
-# retrolab: Same as jupyterlab, unmodified package from pip.
-# Disabled retrolab, kept the rest. Time to start notebook v7
-pushd packages >> $PREFIX/make_install_osx.log 2>&1
-#  downloadSource retrolab >> $PREFIX/make_install_osx.log 2>&1
-#  pushd retrolab-* >> $PREFIX/make_install_osx.log 2>&1
-#  rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-#  # Disable autozoom:
-#  if [ ! -f retrolab/templates/tree.htmlbak ]; 
-#  then
-#  sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/tree.html  >> $PREFIX/make_install_osx.log 2>&1
-#  fi
-#  if [ ! -f retrolab/templates/notebooks.htmlbak ]; 
-#  then
-#  sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/notebooks.html  >> $PREFIX/make_install_osx.log 2>&1
-#  fi
-#  if [ ! -f retrolab/templates/edit.htmlbak ]; 
-#  then
-#  sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/edit.html  >> $PREFIX/make_install_osx.log 2>&1
-#  fi
-#  if [ ! -f retrolab/templates/consoles.htmlbak ]; 
-#  then
-#  sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/consoles.html  >> $PREFIX/make_install_osx.log 2>&1
-#  fi
-#  if [ ! -f retrolab/templates/terminals.htmlbak ]; 
-#  then
-#  sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" retrolab/templates/terminals.html  >> $PREFIX/make_install_osx.log 2>&1
-#  fi
-#  #
-#  python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
-#  python3.11 -m pip install . --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
-#  # python3.11 setup.py install >> $prefix/make_install_osx.log 2>&1
-#  # cp -r $PREFIX/Library/lib/python3.11/site-packages/retrolab-*.egg/share/jupyter/labextensions/@retrolab $PREFIX/Library/share/jupyter/labextensions/
-#  # cp -r $PREFIX/Library/lib/python3.11/site-packages/retrolab-*.egg/share/jupyter/lab/schemas/@retrolab $PREFIX/Library/share/jupyter/lab/schemas/
-#  # -m pip install . == tries to download everything, so no.
-#  popd  >> $PREFIX/make_install_osx.log 2>&1
+# Notebook v7: disable autozoom
+for htmlFile in tree notebooks edit console terminals
+do
+	sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" $PREFIX/Library/lib/python3.11/site-packages/notebook/templates/$htmlFile.html  >> $PREFIX/make_install_osx.log 2>&1
+	rm $PREFIX/Library/lib/python3.11/site-packages/notebook/templates/$htmlFile.htmlbak
+done
 # Disable "New console", "New terminal" and debugger buttons:
 mkdir -p $PREFIX/Library/etc/jupyter/labconfig >> $PREFIX/make_install_osx.log 2>&1
 cp Library_etc_jupyter_labconfig_page_config.json $PREFIX/Library/etc/jupyter/labconfig/page_config.json >> $PREFIX/make_install_osx.log 2>&1
 # TODO: make these changes with sed.
+# These have been updated for jupyter-server 2.7.2
 # move location of ipynb_checkpoints:
 cp jupyter_server_services_contents_filecheckpoints.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/services/contents/filecheckpoints.py >> $PREFIX/make_install_osx.log 2>&1
 # No atomic writing if no file access:
@@ -636,10 +611,11 @@ find $PREFIX/Library/share/jupyter -type f -name \*.css -exec sed -i bak 's/--jp
 echo Installing nbconvert and patch it for iOS  >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install nbconvert  >> $PREFIX/make_install_osx.log 2>&1
 # Edit nbconvert to convert notebooks to latex without pandoc:
+# These changes are for nbconvert 7.7.4
 cp packages/nbconvert_utils_pandoc.py $PREFIX/Library/lib/python3.11/site-packages/nbconvert/utils/pandoc.py  >> $PREFIX/make_install_osx.log 2>&1
 cp packages/nbconvert_exporters_pdf.py $PREFIX/Library/lib/python3.11/site-packages/nbconvert/exporters/pdf.py  >> $PREFIX/make_install_osx.log 2>&1
 cp packages/Library_share_jupyter_nbconvert_templates_latex_document_contents.tex.j2 $PREFIX/Library/share/jupyter/nbconvert/templates/latex/document_contents.tex.j2 >> $PREFIX/make_install_osx.log 2>&1
-packages/Library_share_jupyter_nbconvert_templates_latex_report.tex.j2 $PREFIX/Library/share/jupyter/nbconvert/templates/latex/report.tex.j2  >> $PREFIX/make_install_osx.log 2>&1
+cp packages/Library_share_jupyter_nbconvert_templates_latex_report.tex.j2 $PREFIX/Library/share/jupyter/nbconvert/templates/latex/report.tex.j2  >> $PREFIX/make_install_osx.log 2>&1
 # argon2 for OSX: use precompiled binary. This might cause a crash later, as with cffi.
 python3.11 -m pip uninstall argon2-cffi -y >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install argon2-cffi --upgrade >> $PREFIX/make_install_osx.log 2>&1
