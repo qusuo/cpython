@@ -400,17 +400,26 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 popd >> $PREFIX/make_install_osx.log 2>&1
 echo done installing send2trash >> $PREFIX/make_install_osx.log 2>&1
 # end send2trash
-# rpds-py: new requirement for jsonschema, itself a requirement everywhere.
-# Uses maturin. Do I also need maturin in the OSX install? 
-pushd packages >> $PREFIX/make_install_osx.log 2>&1
-downloadSource rpds_py >> $PREFIX/make_install_osx.log 2>&1
-pushd rpds_py* >> $PREFIX/make_install_osx.log 2>&1
-env RUSTFLAGS="-C link-arg=-isysroot -C link-arg=$OSX_SDKROOT" ../../python3.11 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
-cp $PREFIX/Library/lib/python3.11/site-packages/rpds/rpds.cpython-311-darwin.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/
-popd  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
+if [ $APP == "a-Shell" ]; 
+then
+	# rpds-py: new requirement for jsonschema, itself a requirement everywhere.
+	# Uses maturin. Do I also need maturin in the OSX install? 
+	pushd packages >> $PREFIX/make_install_osx.log 2>&1
+	downloadSource rpds_py >> $PREFIX/make_install_osx.log 2>&1
+	pushd rpds_py* >> $PREFIX/make_install_osx.log 2>&1
+	env RUSTFLAGS="-C link-arg=-isysroot -C link-arg=$OSX_SDKROOT" ../../python3.11 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
+	cp $PREFIX/Library/lib/python3.11/site-packages/rpds/rpds.cpython-311-darwin.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+	popd  >> $PREFIX/make_install_osx.log 2>&1
+	python3.11 -m pip install jsonschema --upgrade >> $PREFIX/make_install_osx.log 2>&1
+	python3.11 -m pip install jupyter-events --upgrade >> $PREFIX/make_install_osx.log 2>&1
+else
+	# Rust and PyO3 have issues for now. To advance, let's compile Carnets with the old jsonschema:
+	python3.11 -m pip install pyrsistent --upgrade >> $PREFIX/make_install_osx.log 2>&1
+	python3.11 -m pip install jsonschema==4.17.3 --upgrade >> $PREFIX/make_install_osx.log 2>&1
+	python3.11 -m pip install jupyter-events==0.6.3 --upgrade >> $PREFIX/make_install_osx.log 2>&1
+fi
 python3.11 -m pip install bleach --upgrade >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install jsonschema --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install ptyprocess --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install entrypoints --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install mistune --upgrade >> $PREFIX/make_install_osx.log 2>&1
@@ -440,19 +449,17 @@ python3.11 -m pip install mpmath --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install sympy --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # For jupyter: 
 # ipykernel (edited to cleanup sockets when we close a kernel)
+# Stuck before version 6.9.1 to avoid using 
 unset PYZMQ_BACKEND_CFFI
 unset PYZMQ_BACKEND
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd ipykernel >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-# ipykernel has removed setup.py. Try with "pip install .", then patch on the fly.
-# python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-# ipykernel needs "-m pip install .", won't install itself with "setup.py install"
 python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1 
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 export PYZMQ_BACKEND=cffi
-# depend on ipykernel:
+# depends on ipykernel:
 # Now we can install PyZMQ. We need to compile it ourselves to make sure it uses CFFI as a backend:
 # (the wheel uses Cython)
 echo Installing PyZMQ for OSX  >> $PREFIX/make_install_osx.log 2>&1
@@ -485,14 +492,15 @@ python3.11 -m pip install qtpy --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install qtconsole --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # python3.11 -m pip install babel --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # notebook
-# notebook (heavily edited to adapt to touchscreens and iOS)
-pushd packages >> $PREFIX/make_install_osx.log 2>&1
-pushd notebook >> $PREFIX/make_install_osx.log 2>&1
-rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 -m pip install . --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
+# notebook (trying unmodified new version)
+python3.11 -m pip install notebook >> $PREFIX/make_install_osx.log 2>&1
+# pushd packages >> $PREFIX/make_install_osx.log 2>&1
+# pushd notebook >> $PREFIX/make_install_osx.log 2>&1
+# rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
+# python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
+# python3.11 -m pip install . --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
+# popd  >> $PREFIX/make_install_osx.log 2>&1
+# popd  >> $PREFIX/make_install_osx.log 2>&1
 # Cython (edited for iOS, reinitialize types at each run):
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd cython >> $PREFIX/make_install_osx.log 2>&1
@@ -500,21 +508,20 @@ pushd cython >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install . --global-option="--no-cython-compile" >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
-# python3.11 -m pip install cython --upgrade >> $PREFIX/make_install_osx.log 2>&1
-
-# jupyter_client
+# jupyter_client (at version 7.4.9 because versions ipykernel-before-psutils requires jupyter-client < 8)
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd jupyter_client >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install .  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Now: jupyter
-python3.11 -m pip install jupyter-console --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install ipywidgets --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
 echo "Installing jupyter proper"  >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install jupyter --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
 echo "Done installing jupyter proper"  >> $PREFIX/make_install_osx.log 2>&1
 #
+# Last version of jupyter-console that doesn't require ipykernel with psutils
+python3.11 -m pip install jupyter-console==6.4.4 --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
 # jupyterlab/retrolab:
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd nbclassic  >> $PREFIX/make_install_osx.log 2>&1
@@ -1807,6 +1814,7 @@ scipy/stats/_mvn.cpython-311-darwin.so
 	# Only for version number. Not needed anymore? Must check.
 	# cp setup.py setup.pybak >> $PREFIX/make_install_osx.log 2>&1
 	# cp ../setup_statsmodels.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
+	# statsmodels compilation fails, I've applied this PR: https://github.com/statsmodels/statsmodels/pull/8961/files
 	find statsmodels -name \*.pyx -exec touch {} \; -print  >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 -isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 	# "python3.11 -m pip install ." removes the iOS extensions to Cython modules. 
