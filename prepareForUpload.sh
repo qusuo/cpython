@@ -31,8 +31,9 @@ do
 	# change direct_url.json files to have a more meaningful URL:
 	find $library -type f -name direct_url.json -exec sed -i bak  "s/file:.*packages/${APP}/g" {} \; -print
 	# matplotlib: installed from git repo, so version is "git+https://github.com/", so we fix that:
-	echo '{"url": "a-Shell/matplotlib-3.7.0", "dir_info": {}}' > /tmp/mpl.json
-	find $library/lib/python3.11/site-packages/matplotlib-3.*.dist-info -name direct_url.json -exec mv /tmp/mpl.json {} \; -print
+	# Wait and check if still needed
+	# echo '{"url": "a-Shell/matplotlib-3.7.0", "dir_info": {}}' > /tmp/mpl.json
+	# find $library/lib/python3.11/site-packages/matplotlib-3.*.dist-info -name direct_url.json -exec mv /tmp/mpl.json {} \; -print
 	find $library -type f -name direct_url.jsonbak -delete
 	cp ./build/lib.darwin-arm64-3.11/_sysconfigdata__darwin_darwin.py $library/lib/python3.11/_sysconfigdata__darwin_darwin.py
 done
