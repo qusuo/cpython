@@ -773,6 +773,8 @@ clang -v -undefined error -dynamiclib \
 cp build/PIL.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11 >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
+# contourpy also needs meson (unmodified):
+python3.11 -m pip install meson-python  >> $PREFIX/make_install_osx.log 2>&1
 # pybind11 is required for contourpy. We update it so it works with iOS:
 # python3.11 -m pip install pybind11 --upgrade  >> $PREFIX/make_install_osx.log 2>&1
 # avoid -mmacosx-version-min when compiling for iOS:
@@ -794,11 +796,13 @@ env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_S
 env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT"  CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " PLATFORM=macosx python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/contourpy  >> $PREFIX/make_install_osx.log 2>&1
 echo contourpy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
-find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
-cp ./build/lib.macosx-${OSX_VERSION}-x86_64-cpython-311/contourpy/*.so  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/contourpy/ >> $PREFIX/make_install_osx.log 2>&1
+find $PREFIX/Library/lib/python3.11/site-packages/contourpy -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
+cp $PREFIX/Library/lib/python3.11/site-packages/contourpy/*.so  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/contourpy/ >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 ## matplotlib itself:
+# matplotlib requires fonttools, but it is not used (except for pdf backend). We keep it, but it won't work
+# Should be version 3.7.2
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 pushd matplotlib  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
@@ -1747,8 +1751,6 @@ scipy/stats/_mvn.cpython-311-darwin.so
 		PLATFORM=macosx \
 		FORCE_CYTHON="True" \
 	    python3.11 -m pip install . --no-build-isolation --no-deps >> $PREFIX/make_install_osx.log 2>&1
-	    # Old method vvv . The one above ^^^ might work better.
-		# python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
 	echo "Cartopy libraries for OSX: "  >> $PREFIX/make_install_osx.log 2>&1
 	find . -name \*.so  >> $PREFIX/make_install_osx.log 2>&1
     for library in cartopy/trace.cpython-311-darwin.so
