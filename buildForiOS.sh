@@ -300,20 +300,23 @@ popd  >> $PREFIX/make_ios.log 2>&1
 
 ## contourpy: 
 pushd packages >> $PREFIX/make_ios.log 2>&1
+# Because meson cannot handle environment variables
+cp iphone-osx_basis.meson iphone-osx.meson  >> $PREFIX/make_ios.log 2>&1
+sed -i bak "s|__prefix__|${PREFIX}|" iphone-osx.meson >> $PREFIX/make_ios.log 2>&1
+# ./src/_contourpy.cpython-311-darwin.so
 pushd contourpy*  >> $PREFIX/make_ios.log 2>&1
-rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
-env CC=clang CXX=clang++ CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -I$PREFIX -I$PREFIX/Frameworks_iphoneos/include/" \
-	CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -I$PREFIX -I$PREFIX/Frameworks_iphoneos/include/" \
-	LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -framework freetype -L$PREFIX/build/lib.darwin-arm64-3.11 -lz -lpython3.11 -L$PREFIX/Frameworks_iphoneos/lib/ -ljpeg -ltiff" \
-	PLATFORM=iphoneos \
-	python3.11 setup.py build >> $PREFIX/make_ios.log 2>&1
+rm -rf build  >> $PREFIX/make_ios.log 2>&1
+mkdir build >> $PREFIX/make_ios.log 2>&1
+env CC=clang CXX=clang++ meson . build --cross-file ../iphone-osx.meson >> $PREFIX/make_ios.log 2>&1
+pushd build  >> $PREFIX/make_ios.log 2>&1
+ninja  >> $PREFIX/make_ios.log 2>&1
+popd  >> $PREFIX/make_ios.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/contourpy/  >> $PREFIX/make_ios.log 2>&1
 echo contourpy libraries for iOS: >> $PREFIX/make_ios.log 2>&1
 find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
-cp ./build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/contourpy/*.so  $PREFIX/build/lib.darwin-arm64-3.11/contourpy/ >> $PREFIX/make_ios.log 2>&1
+cp ./build/src/*.so  $PREFIX/build/lib.darwin-arm64-3.11/contourpy/ >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
-
 ## matplotlib
 pushd packages >> $PREFIX/make_ios.log 2>&1
 pushd matplotlib  >> $PREFIX/make_ios.log 2>&1
