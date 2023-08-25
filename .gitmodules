@@ -1,6 +1,3 @@
-[submodule "packages/mpmath"]
-	path = packages/mpmath
-	url = https://github.com/fredrik-johansson/mpmath.git
 [submodule "packages/ipykernel"]
 	path = packages/ipykernel
 	url = https://github.com/holzschu/ipykernel.git
