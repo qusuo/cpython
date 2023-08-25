@@ -649,7 +649,7 @@ _PyModule_Clear(PyObject *m)
         _PyModule_ClearDict(d);
 #if TARGET_OS_IPHONE
     // Cleanup module after clearing dictionary:
-    if (moduleNeedsCleanup) mod->md_def->m_free(mod);
+    if (moduleNeedsCleanup > 0) mod->md_def->m_free(mod);
 	((PyModuleObject *)m)->md_dict = NULL;
 #endif
 }
@@ -762,6 +762,15 @@ module___init___impl(PyModuleObject *self, PyObject *name, PyObject *doc)
 static void
 module_dealloc(PyModuleObject *m)
 {
+#if TARGET_OS_IPHONE 
+   	// fprintf(stderr, "# destroying %x.", m);
+   	// if (m->md_name) {
+	// 	const char* utf8name = PyUnicode_AsUTF8(m->md_name);
+	// 	fprintf(stderr, " name = %s \n", utf8name);
+	// } else {
+	// 	fprintf(stderr, " (no name)\n");
+	// }
+#endif
     int verbose = _Py_GetConfig()->verbose;
 
     PyObject_GC_UnTrack(m);
