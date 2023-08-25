@@ -2404,6 +2404,9 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
 	if ((strcmp(nameC, "numpy.core._operand_flag_tests") == 0) || 
 			(strcmp(nameC, "numpy.core._multiarray_umath") == 0) || 
 			(strcmp(nameC, "numpy.core._multiarray_tests") == 0) || 
+            (strcmp(nameC, "numpy.core._umath_tests") == 0) || 
+            (strcmp(nameC, "numpy.core._rational_tests") == 0) || 
+            (strcmp(nameC, "numpy.core._struct_ufunc_tests") == 0) || 
 			(strcmp(nameC, "numpy.core._simd") == 0) || 
 			(strcmp(nameC, "numpy.linalg.lapack_lite") == 0) || 
 			(strcmp(nameC, "numpy.linalg._umath_linalg") == 0) || 
@@ -2461,24 +2464,24 @@ _imp_create_dynamic_impl(PyObject *module, PyObject *spec, PyObject *file)
 			(strcmp(nameC, "pandas._libs.testing") == 0) ||
 			(strcmp(nameC, "pandas._libs.missing") == 0)) {
 		strcpy(nameC, "pandas_all"); // The module name is "pandas_all", to avoid confusion with pandas itself
-	} else if ((strcmp(nameC, "astropy.compiler_version") == 0) ||
+			} else if ((strcmp(nameC, "astropy.compiler_version") == 0) ||
 			(strcmp(nameC, "astropy.timeseries.periodograms.bls._impl") == 0) ||
 			(strcmp(nameC, "astropy.timeseries.periodograms.lombscargle.implementations.cython_impl") == 0) ||
 			(strcmp(nameC, "astropy.wcs._wcs") == 0) ||
 			(strcmp(nameC, "astropy.io.ascii.cparser") == 0) ||
-			(strcmp(nameC, "astropy.io.fits.compression") == 0) ||
 			(strcmp(nameC, "astropy.io.fits._utils") == 0) ||
+			(strcmp(nameC, "astropy.io.fits._tiled_compression._compression") == 0) ||
 			(strcmp(nameC, "astropy.io.votable.tablewriter") == 0) ||
 			(strcmp(nameC, "astropy.utils._compiler") == 0) ||
 			(strcmp(nameC, "astropy.utils.xml._iterparser") == 0) ||
 			(strcmp(nameC, "astropy.time._parse_times") == 0) ||
-			(strcmp(nameC, "astropy.table._np_utils") == 0) ||
 			(strcmp(nameC, "astropy.table._column_mixins") == 0) ||
+			(strcmp(nameC, "astropy.table._np_utils") == 0) ||
 			(strcmp(nameC, "astropy.cosmology.flrw.scalar_inv_efuncs") == 0) ||
 			(strcmp(nameC, "astropy.convolution._convolve") == 0) ||
-			(strcmp(nameC, "astropy.stats._fast_sigma_clip") == 0) || 
-			(strcmp(nameC, "astropy.stats._stats") == 0)) {
-		strcpy(nameC, "astropy_all");
+			(strcmp(nameC, "astropy.stats._stats") == 0) ||
+			(strcmp(nameC, "astropy.stats._fast_sigma_clip") == 0)) {
+				strcpy(nameC, "astropy_all");
 	} else if ((strcmp(nameC, "qutip.cy.checks") == 0) ||
 			(strcmp(nameC, "qutip.cy.piqs") == 0) ||
 			(strcmp(nameC, "qutip.cy.ptrace") == 0) ||
