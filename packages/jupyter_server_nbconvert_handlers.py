@@ -7,12 +7,12 @@ import sys
 import zipfile
 
 from anyio.to_thread import run_sync
+from jupyter_core.utils import ensure_async
 from nbformat import from_dict
 from tornado import web
 from tornado.log import app_log
 
 from jupyter_server.auth import authorized
-from jupyter_server.utils import ensure_async
 
 from ..base.handlers import FilesRedirectHandler, JupyterHandler, path_regex
 
@@ -27,6 +27,7 @@ else:
 
 
 def find_resource_files(output_files_dir):
+    """Find the resource files in a directory."""
     files = []
     for dirpath, _, filenames in os.walk(output_files_dir):
         files.extend([os.path.join(dirpath, f) for f in filenames])
@@ -97,13 +98,15 @@ def get_exporter(format, **kwargs):
 
 
 class NbconvertFileHandler(JupyterHandler):
+    """An nbconvert file handler."""
 
     auth_resource = AUTH_RESOURCE
-    SUPPORTED_METHODS = ("GET",)
+    SUPPORTED_METHODS = ("GET",)  # type:ignore[assignment]
 
     @web.authenticated
     @authorized
     async def get(self, format, path):
+        """Get a notebook file in a desired format."""
         self.check_xsrf_cookie()
         exporter = get_exporter(format, config=self.config, log=self.log)
 
@@ -144,7 +147,7 @@ class NbconvertFileHandler(JupyterHandler):
                 lambda: exporter.from_notebook_node(nb, resources=resource_dict)
             )
         except Exception as e:
-            self.log.exception("nbconvert failed: %s", e)
+            self.log.exception("nbconvert failed: %r", e)
             raise web.HTTPError(500, "nbconvert failed: %s" % e) from e
 
         if respond_zip(self, name, output, resources):
@@ -154,7 +157,6 @@ class NbconvertFileHandler(JupyterHandler):
         if self.get_argument("download", "false").lower() == "true":
             filename = os.path.splitext(name)[0] + resources["output_extension"]
             # iOS: write file directly to disk:
-            # TODO: check that we have write permission on directory
             if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):
                 if not os.access(ext_resources_dir, os.X_OK | os.W_OK):
                     ext_resources_dir = os.path.join(os.path.expanduser('~'), 'Documents')
@@ -174,13 +176,15 @@ class NbconvertFileHandler(JupyterHandler):
 
 
 class NbconvertPostHandler(JupyterHandler):
+    """An nbconvert post handler."""
 
-    SUPPORTED_METHODS = ("POST",)
+    SUPPORTED_METHODS = ("POST",)  # type:ignore[assignment]
     auth_resource = AUTH_RESOURCE
 
     @web.authenticated
     @authorized
     async def post(self, format):
+        """Convert a notebook file to a desired format."""
         exporter = get_exporter(format, config=self.config)
 
         model = self.get_json_body()

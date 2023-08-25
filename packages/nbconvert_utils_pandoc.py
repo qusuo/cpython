@@ -14,12 +14,11 @@ import sys, os
 from docutils.utils import column_width
 
 from nbconvert.utils.version import check_version
-from nbconvert.filters.latex import escape_latex
 
 from .exceptions import ConversionException
 
-_minimal_version = "1.12.1"
-_maximal_version = "3.0.0"
+_minimal_version = "2.14.2"
+_maximal_version = "4.0.0"
 
 # iOS: markdown to latex renderer based on mistune
 def addNewline(func):
@@ -367,10 +366,10 @@ def pandoc(source, fmt, to, extra_args=None, encoding="utf-8"):
     check_pandoc_version()
 
     # we can safely continue
-    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)  # noqa
     out, _ = p.communicate(source.encode())
-    out = TextIOWrapper(BytesIO(out), encoding, "replace").read()
-    return out.rstrip("\n")
+    out_str = TextIOWrapper(BytesIO(out), encoding, "replace").read()
+    return out_str.rstrip("\n")
 
 
 def get_pandoc_version():
@@ -385,18 +384,18 @@ def get_pandoc_version():
     PandocMissing
         If pandoc is unavailable.
     """
-    global __version
+    global __version  # noqa
 
     if __version is None:
         if not shutil.which("pandoc"):
             raise PandocMissing()
 
-        out = subprocess.check_output(["pandoc", "-v"])
+        out = subprocess.check_output(["pandoc", "-v"])  # noqa
         out_lines = out.splitlines()
         version_pattern = re.compile(r"^\d+(\.\d+){1,}$")
         for tok in out_lines[0].decode("ascii", "replace").split():
             if version_pattern.match(tok):
-                __version = tok
+                __version = tok  # type:ignore
                 break
     return __version
 
@@ -409,8 +408,8 @@ def check_pandoc_version():
     PandocMissing
         If pandoc is unavailable.
     """
-    if check_pandoc_version._cached is not None:
-        return check_pandoc_version._cached
+    if check_pandoc_version._cached is not None:  # type:ignore
+        return check_pandoc_version._cached  # type:ignore
 
     v = get_pandoc_version()
     if v is None:
@@ -423,7 +422,7 @@ def check_pandoc_version():
         )
         return False
     ok = check_version(v, _minimal_version, max_v=_maximal_version)
-    check_pandoc_version._cached = ok
+    check_pandoc_version._cached = ok  # type:ignore
     if not ok:
         warnings.warn(
             "You are using an unsupported version of pandoc (%s).\n" % v
@@ -436,7 +435,7 @@ def check_pandoc_version():
     return ok
 
 
-check_pandoc_version._cached = None
+check_pandoc_version._cached = None  # type:ignore
 
 # -----------------------------------------------------------------------------
 # Exception handling
@@ -447,10 +446,11 @@ class PandocMissing(ConversionException):
     """Exception raised when Pandoc is missing."""
 
     def __init__(self, *args, **kwargs):
+        """Initialize the exception."""
         super().__init__(
-            "Pandoc wasn't found.\n"  # noqa
-            + "Please check that pandoc is installed:\n"
-            + "https://pandoc.org/installing.html"
+            "Pandoc wasn't found.\n"
+            "Please check that pandoc is installed:\n"
+            "https://pandoc.org/installing.html"
         )
 
 
@@ -458,7 +458,8 @@ class PandocMissing(ConversionException):
 # Internal state management
 # -----------------------------------------------------------------------------
 def clean_cache():
-    global __version
+    """Clean the internal cache."""
+    global __version  # noqa
     __version = None
 
 

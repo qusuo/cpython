@@ -4,11 +4,9 @@ Utilities for file-based Contents/Checkpoints managers.
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 import errno
-import io
 import os
 import shutil
-from base64 import decodebytes
-from base64 import encodebytes
+from base64 import decodebytes, encodebytes
 from contextlib import contextmanager
 from functools import partial
 
@@ -18,8 +16,7 @@ from tornado.web import HTTPError
 from traitlets import Bool
 from traitlets.config import Configurable
 
-from jupyter_server.utils import to_api_path
-from jupyter_server.utils import to_os_path
+from jupyter_server.utils import ApiPath, to_api_path, to_os_path
 
 
 def replace_file(src, dst):
@@ -107,9 +104,9 @@ def atomic_writing(path, text=True, encoding="utf-8", log=None, **kwargs):
     if text:
         # Make sure that text files have Unix linefeeds by default
         kwargs.setdefault("newline", "\n")
-        fileobj = io.open(path, "w", encoding=encoding, **kwargs)
+        fileobj = open(path, "w", encoding=encoding, **kwargs)  # noqa
     else:
-        fileobj = io.open(path, "wb", **kwargs)
+        fileobj = open(path, "wb", **kwargs)  # noqa
 
     try:
         yield fileobj
@@ -155,9 +152,9 @@ def _simple_writing(path, text=True, encoding="utf-8", log=None, **kwargs):
     if text:
         # Make sure that text files have Unix linefeeds by default
         kwargs.setdefault("newline", "\n")
-        fileobj = io.open(path, "w", encoding=encoding, **kwargs)
+        fileobj = open(path, "w", encoding=encoding, **kwargs)  # noqa
     else:
-        fileobj = io.open(path, "wb", **kwargs)
+        fileobj = open(path, "wb", **kwargs)  # noqa
 
     try:
         yield fileobj
@@ -197,9 +194,8 @@ class FileManagerMixin(Configurable):
     @contextmanager
     def open(self, os_path, *args, **kwargs):
         """wrapper around io.open that turns permission errors into 403"""
-        with self.perm_to_403(os_path):
-            with io.open(os_path, *args, **kwargs) as f:
-                yield f
+        with self.perm_to_403(os_path), open(os_path, *args, **kwargs) as f:
+            yield f
 
     @contextmanager
     def atomic_writing(self, os_path, *args, **kwargs):
@@ -218,11 +214,12 @@ class FileManagerMixin(Configurable):
                 return
 
         with self.perm_to_403(os_path):
+            kwargs["log"] = self.log  # type:ignore
             if self.use_atomic_writing:
-                with atomic_writing(os_path, *args, log=self.log, **kwargs) as f:
+                with atomic_writing(os_path, *args, **kwargs) as f:
                     yield f
             else:
-                with _simple_writing(os_path, *args, log=self.log, **kwargs) as f:
+                with _simple_writing(os_path, *args, **kwargs) as f:
                     yield f
 
     @contextmanager
@@ -237,13 +234,13 @@ class FileManagerMixin(Configurable):
                 # but nobody should be doing that anyway.
                 if not os_path:
                     os_path = e.filename or "unknown file"
-                path = to_api_path(os_path, root=self.root_dir)
+                path = to_api_path(os_path, root=self.root_dir)  # type:ignore
                 # iOS: better error message
                 import sys
                 if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):
-                    raise HTTPError(403, u'Permission denied: %s (maybe you need to grand permission on the folder)' % path) from e
+                    raise HTTPError(403, "Permission denied: %s (maybe you need to grand permission on the folder)" % path) from e
                 else:
-                    raise HTTPError(403, u'Permission denied: %s' % path) from e
+                    raise HTTPError(403, "Permission denied: %s" % path) from e
             else:
                 raise
 
@@ -252,27 +249,30 @@ class FileManagerMixin(Configurable):
 
         like shutil.copy2, but log errors in copystat
         """
-        copy2_safe(src, dest, log=self.log)
+        copy2_safe(src, dest, log=self.log)  # type:ignore
 
     def _get_os_path(self, path):
         """Given an API path, return its file system path.
 
         Parameters
         ----------
-        path : string
+        path : str
             The relative API path to the named file.
 
         Returns
         -------
-        path : string
+        path : str
             Native, absolute OS path to for a file.
 
         Raises
         ------
         404: if path is outside root
         """
-        root = os.path.abspath(self.root_dir)
-        os_path = to_os_path(path, root)
+        root = os.path.abspath(self.root_dir)  # type:ignore
+        # to_os_path is not safe if path starts with a drive, since os.path.join discards first part
+        if os.path.splitdrive(path)[0]:
+            raise HTTPError(404, "%s is not a relative API path" % path)
+        os_path = to_os_path(ApiPath(path), root)
         if not (os.path.abspath(os_path) + os.path.sep).startswith(root):
             raise HTTPError(404, "%s is outside root contents directory" % path)
         return os_path
@@ -295,7 +295,7 @@ class FileManagerMixin(Configurable):
             if not self.use_atomic_writing or not os.path.exists(tmp_path):
                 raise HTTPError(
                     400,
-                    "Unreadable Notebook: %s %r" % (os_path, e_orig),
+                    f"Unreadable Notebook: {os_path} {e_orig!r}",
                 )
 
             # Move the bad file aside, restore the intermediate, and try again.
@@ -359,7 +359,7 @@ class FileManagerMixin(Configurable):
                 b64_bytes = content.encode("ascii")
                 bcontent = decodebytes(b64_bytes)
         except Exception as e:
-            raise HTTPError(400, "Encoding error saving %s: %s" % (os_path, e)) from e
+            raise HTTPError(400, f"Encoding error saving {os_path}: {e}") from e
 
         with self.atomic_writing(os_path, text=False) as f:
             f.write(bcontent)
@@ -375,11 +375,11 @@ class AsyncFileManagerMixin(FileManagerMixin):
 
         like shutil.copy2, but log errors in copystat
         """
-        await async_copy2_safe(src, dest, log=self.log)
+        await async_copy2_safe(src, dest, log=self.log)  # type:ignore
 
     async def _read_notebook(self, os_path, as_version=4, capture_validation_error=None):
         """Read a notebook from an os path."""
-        with self.open(os_path, "r", encoding="utf-8") as f:
+        with self.open(os_path, encoding="utf-8") as f:
             try:
                 return await run_sync(
                     partial(
@@ -400,7 +400,7 @@ class AsyncFileManagerMixin(FileManagerMixin):
             if not self.use_atomic_writing or not os.path.exists(tmp_path):
                 raise HTTPError(
                     400,
-                    "Unreadable Notebook: %s %r" % (os_path, e_orig),
+                    f"Unreadable Notebook: {os_path} {e_orig!r}",
                 )
 
             # Move the bad file aside, restore the intermediate, and try again.
@@ -467,7 +467,7 @@ class AsyncFileManagerMixin(FileManagerMixin):
                 b64_bytes = content.encode("ascii")
                 bcontent = decodebytes(b64_bytes)
         except Exception as e:
-            raise HTTPError(400, "Encoding error saving %s: %s" % (os_path, e)) from e
+            raise HTTPError(400, f"Encoding error saving {os_path}: {e}") from e
 
         with self.atomic_writing(os_path, text=False) as f:
             await run_sync(f.write, bcontent)
