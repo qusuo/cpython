@@ -400,7 +400,10 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 popd >> $PREFIX/make_install_osx.log 2>&1
 echo done installing send2trash >> $PREFIX/make_install_osx.log 2>&1
 # end send2trash
-if [ $APP == "a-Shell" ]; 
+# The new jsonschema uses rpds, which uses Rust. It requires an edited version of maturin,
+# and is not released when leaving, which breaks when reloading.
+USE_RUST_MODULES=0
+if [ $USE_RUST_MODULES == 1 ]; 
 then
 	# rpds-py: new requirement for jsonschema, itself a requirement everywhere.
 	# Uses maturin. Do I also need maturin in the OSX install? 
@@ -414,7 +417,8 @@ then
 	python3.11 -m pip install jsonschema --upgrade >> $PREFIX/make_install_osx.log 2>&1
 	python3.11 -m pip install jupyter-events --upgrade >> $PREFIX/make_install_osx.log 2>&1
 else
-	# Rust and PyO3 have issues for now. To advance, let's compile Carnets with the old jsonschema:
+	# Rust and PyO3 have issues for now. To advance, let's compile with the old jsonschema:
+	# By cascading effects, that forces us to take the old jupyter-events
 	python3.11 -m pip install pyrsistent --upgrade >> $PREFIX/make_install_osx.log 2>&1
 	python3.11 -m pip install jsonschema==4.17.3 --upgrade >> $PREFIX/make_install_osx.log 2>&1
 	python3.11 -m pip install jupyter-events==0.6.3 --upgrade >> $PREFIX/make_install_osx.log 2>&1
@@ -540,7 +544,6 @@ pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource jupyterlab >> $PREFIX/make_install_osx.log 2>&1
 pushd jupyterlab-* >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
@@ -1058,9 +1061,6 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/erfa/ >> $PREFIX/make_instal
     downloadSource astropy  >> $PREFIX/make_install_osx.log 2>&1
 	pushd astropy*  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-	# Remove dependency to jinja2 for build: 
-	# See PR https://github.com/astropy/astropy/commit/8f6ab831fb8c44d8758318faa890aaaa4cb5ac25
-    sed -i bak '/jinja2/d' pyproject.toml
 	# We need to edit the position of .astropy (updated for 4.6.2):
 	# Only do this once!
 	if [ ! -f astropy/config/paths.pybak ];
@@ -1069,15 +1069,6 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/erfa/ >> $PREFIX/make_instal
         # iOS: change homedir to HOME\/Documents\
         if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
             homedir = homedir + "\/Documents"/' astropy/config/paths.py  >> $PREFIX/make_install_osx.log 2>&1
-	fi
-	if [ ! -f astropy/convolution/convolve.pybak ];
-	then
-	sed -i bak 's/^LIBRARY_PATH = os.path.dirname(__file__)/# iOS: For load_library to work, we need to give it special arguments\
-&\
-import sys\
-if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
-	LIBRARY_PATH="astropy.convolution"\
-/' astropy/convolution/convolve.py  >> $PREFIX/make_install_osx.log 2>&1
 	fi
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 	# pip install . pulls the old version from pip, so fails.
