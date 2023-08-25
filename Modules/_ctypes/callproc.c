@@ -1603,6 +1603,7 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 				(strcmp(nameC, "numpy.random._common") == 0)) {
 			strcpy(nameC, "numpy_all"); // The module name is "numpy_all", to avoid confusion with numpy itself
 		} else if ((strcmp(nameC, "pandas.io.sas._sas") == 0) ||
+				(strcmp(nameC, "pandas.io.sas._byteswap") == 0) ||
 				(strcmp(nameC, "pandas._libs.index") == 0) ||
 				(strcmp(nameC, "pandas._libs.join") == 0) ||
 				(strcmp(nameC, "pandas._libs.parsers") == 0) ||

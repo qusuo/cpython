@@ -1675,6 +1675,7 @@ class FileFinder:
                     "numpy.random._common"]:
                         frameworkName = pythonName + "-" + "numpy_all"
                     elif fullname in ["pandas.io.sas._sas",
+                            "pandas.io.sas._byteswap", 
                             "pandas._libs.index",
                             "pandas._libs.join",
                             "pandas._libs.parsers",
