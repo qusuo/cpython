@@ -628,9 +628,9 @@ _PyModule_Clear(PyObject *m)
 				|| (strncmp(utf8name, "cartoppy.", 9) == 0)
 				|| (strncmp(utf8name, "wordcloud.", 10) == 0)
 				|| (strncmp(utf8name, "statsmodels.", 12) == 0)) {
-			// scipy.spatial._distance_pybind uses pybind, not cython. 
-			// same with scipy.fft._pocketfft.pypocketfft
-			// pybind cleanup function is already called, and can't be called twice. 
+			// scipy.spatial._distance_pybind uses pybind11, not cython. 
+			// same with scipy.fft._pocketfft.pypocketfft and contourpy
+			// pybind11 cleanup function is already called, and can't be called twice. 
 			if ((strncmp(utf8name, "scipy.spatial._distance_pybind", 30) != 0) && 
 				(strncmp(utf8name, "scipy.fft._pocketfft.pypocketfft", 32) != 0)) {
 				// iOS, debug:
