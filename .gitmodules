@@ -60,3 +60,9 @@
 [submodule "packages/rasterio"]
 	path = packages/rasterio
 	url = https://github.com/mapbox/rasterio.git
+[submodule "packages/opencv-python"]
+	path = packages/opencv-python
+	url = git@github.com:holzschu/opencv-python.git
+[submodule "packages/maturin"]
+	path = packages/maturin
+	url = git@github.com:holzschu/maturin.git
