@@ -980,13 +980,13 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 	cp packages/cell_filter.js $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/nbextensions/cell_filter/cell_filter.js  >> $PREFIX/make_install_osx.log 2>&1
 	# replace template_path with template_paths to avoid errors at loading: 
 	# Remove these lines in jupyter_contrib_nbextensions is updated (above 0.5.1) or latex_envs (above 1.4.6)
-	cp packages/jupyter_contrib_nbextensions/latex_envs_latex_envs.py $PREFIX/Library/lib/python3.11/site-packages/latex_envs/latex_envs.py
-	cp packages/jupyter_contrib_nbextensions/config_scripts/highlight_html_cfg.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/config_scripts/highlight_html_cfg.py
-	cp packages/jupyter_contrib_nbextensions/config_scripts/highlight_latex_cfg.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/config_scripts/highlight_latex_cfg.py
-	cp packages/jupyter_contrib_nbextensions/nbconvert_support/exporter_inliner.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/nbconvert_support/exporter_inliner.py
-	cp packages/jupyter_contrib_nbextensions/nbconvert_support/toc2.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/nbconvert_support/toc2.py
-	cp packages/jupyter_contrib_nbextensions/install.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/install.py
-	cp packages/jupyter_contrib_nbextensions/migrate.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/migrate.py
+	# cp packages/jupyter_contrib_nbextensions/latex_envs_latex_envs.py $PREFIX/Library/lib/python3.11/site-packages/latex_envs/latex_envs.py
+	# cp packages/jupyter_contrib_nbextensions/config_scripts/highlight_html_cfg.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/config_scripts/highlight_html_cfg.py
+	# cp packages/jupyter_contrib_nbextensions/config_scripts/highlight_latex_cfg.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/config_scripts/highlight_latex_cfg.py
+	# cp packages/jupyter_contrib_nbextensions/nbconvert_support/exporter_inliner.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/nbconvert_support/exporter_inliner.py
+	# cp packages/jupyter_contrib_nbextensions/nbconvert_support/toc2.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/nbconvert_support/toc2.py
+	# cp packages/jupyter_contrib_nbextensions/install.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/install.py
+	# cp packages/jupyter_contrib_nbextensions/migrate.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_contrib_nbextensions/migrate.py
 	# dill: preparing for the next step
 	python3.11 -m pip install dill >> $PREFIX/make_install_osx.log 2>&1
 	# bokeh: Pure Python, only one modification, where it stores data:
