@@ -73,6 +73,7 @@ define([
     }
 
     function load_ipython_extension () {
+
         var form_tgrp = $('<div/>')
             .addClass('btn-group')                                                                                 // insert a top form-group to make the form appear next to the buttons
             .appendTo('#maintoolbar-container');
@@ -126,7 +127,6 @@ define([
     }
 
     return {
-        load_jupyter_extension : load_ipython_extension,
         load_ipython_extension : load_ipython_extension
     };
 
