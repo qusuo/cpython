@@ -579,12 +579,13 @@ pip install jupyterlab-language-pack-vi-VN >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-zh-CN >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-zh-TW >> $PREFIX/make_install_osx.log 2>&1
 # Notebook v7: disable autozoom
-for htmlFile in tree notebooks edit console terminals
+for htmlFile in tree notebooks edit consoles terminals
 do
 	sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" $PREFIX/Library/lib/python3.11/site-packages/notebook/templates/$htmlFile.html  >> $PREFIX/make_install_osx.log 2>&1
-	rm $PREFIX/Library/lib/python3.11/site-packages/notebook/templates/$htmlFile.htmlbak
+	rm $PREFIX/Library/lib/python3.11/site-packages/notebook/templates/$htmlFile.htmlbak  >> $PREFIX/make_install_osx.log 2>&1
 done
 # Disable "New console", "New terminal" and debugger buttons:
+pushd packages  >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/Library/etc/jupyter/labconfig >> $PREFIX/make_install_osx.log 2>&1
 cp Library_etc_jupyter_labconfig_page_config.json $PREFIX/Library/etc/jupyter/labconfig/page_config.json >> $PREFIX/make_install_osx.log 2>&1
 # TODO: make these changes with sed.
@@ -597,7 +598,6 @@ cp jupyter_server_services_contents_fileio.py $PREFIX/Library/lib/python3.11/sit
 cp jupyter_server_services_kernels_kernelmanager.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/services/kernels/kernelmanager.py >> $PREFIX/make_install_osx.log 2>&1
 # nbconvert writes to file, rather than open a window with the file:
 cp jupyter_server_nbconvert_handlers.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/nbconvert/handlers.py >> $PREFIX/make_install_osx.log 2>&1
-popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Add caret-color to all css files:
 find $PREFIX/Library/share/jupyter -type f -name \*.css -exec sed -i bak 's/--jp-editor-cursor-color: var(--jp-ui-font-color0);/&\
@@ -1005,10 +1005,6 @@ popd  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT" CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-isysroot $OSX_SDKROOT " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " python3.11 -m pip install . --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
-	rm -rf $PREFIX/Library/share/jupyter/labextensions/@bokeh >> $PREFIX/make_install_osx.log 2>&1
-	rm -rf $PREFIX/Library/share/jupyter/nbextensions/jupyter_bokeh >> $PREFIX/make_install_osx.log 2>&1
-	cp -r $PREFIX/Library/lib/python3.11/site-packages/jupyter_bokeh-*.egg/share/jupyter/labextensions/@bokeh $PREFIX/Library/share/jupyter/labextensions/ >> $PREFIX/make_install_osx.log 2>&1
-	cp -r $PREFIX/Library/lib/python3.11/site-packages/jupyter_bokeh-*.egg/share/jupyter/nbextensions/jupyter_bokeh $PREFIX/Library/share/jupyter/nbextensions/ >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# pyerfa (for astropy >= 4.6.2)
@@ -1219,8 +1215,6 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/stats/ >> $PREFIX/ma
 	rm -rf pyproj-*  >> $PREFIX/make_install_osx.log 2>&1
 	downloadSource pyproj >> $PREFIX/make_install_osx.log 2>&1
 	# env PROJ_VERSION=9.1.0 pip3.11 download pyproj --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
-	tar xvzf pyproj-*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
-	rm pyproj-*.tar.gz >> $PREFIX/make_install_osx.log 2>&1
 	pushd pyproj-* >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
 	cp setup.py setup_bak.py >> $PREFIX/make_install_osx.log 2>&1
