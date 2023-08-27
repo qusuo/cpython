@@ -121,18 +121,22 @@ if [ $APP == "Carnets" ];
 then
 cp $PREFIX/build/lib.darwin-arm64-3.11/_sysconfigdata__darwin_darwin.py $PREFIX/with_scipy/Library/lib/python3.11/_sysconfigdata__darwin_darwin.py
 fi
-# rpds-py: new requirement for jsonschema, itself a requirement everywhere.
-# Uses maturin, installed in the host Python 3.7 distribution
-pushd packages >> $PREFIX/make_ios.log 2>&1
-pushd rpds_py* >> $PREFIX/make_ios.log 2>&1
-env SDKROOT="$OSX_SDKROOT" \
-	PYO3_CROSS_LIB_DIR="$PREFIX/build/lib.darwin-arm64-3.11/" \
-	CARGO_BUILD_TARGET="aarch64-apple-ios" \
-	CARGO_TARGET_AARCH64_APPLE_IOS_RUSTFLAGS="-C link-arg=-isysroot -C link-arg=$IOS_SDKROOT -C link-arg=-arch -C link-arg=arm64 -C link-arg=-miphoneos-version-min=14.0 -C link-arg=-L -C link-arg=$PREFIX/build/lib.darwin-arm64-3.11/ -C link-arg=-lpython3.11" \
-	CROSS_DEBUG=1 maturin build --verbose >> $PREFIX/make_ios.log 2>&1
-cp target/aarch64-apple-ios/debug/maturin/librpds.dylib $PREFIX/build/lib.darwin-arm64-3.11/rpds.cpython-311-darwin.so >> $PREFIX/make_ios.log 2>&1
-popd  >> $PREFIX/make_ios.log 2>&1
-popd  >> $PREFIX/make_ios.log 2>&1
+USE_RUST_MODULES=0
+if [ $USE_RUST_MODULES == 1 ]; 
+then
+	# rpds-py: new requirement for jsonschema, itself a requirement everywhere.
+	# Uses maturin, installed in the host Python 3.7 distribution
+	pushd packages >> $PREFIX/make_ios.log 2>&1
+	pushd rpds_py* >> $PREFIX/make_ios.log 2>&1
+	env SDKROOT="$OSX_SDKROOT" \
+		PYO3_CROSS_LIB_DIR="$PREFIX/build/lib.darwin-arm64-3.11/" \
+		CARGO_BUILD_TARGET="aarch64-apple-ios" \
+		CARGO_TARGET_AARCH64_APPLE_IOS_RUSTFLAGS="-C link-arg=-isysroot -C link-arg=$IOS_SDKROOT -C link-arg=-arch -C link-arg=arm64 -C link-arg=-miphoneos-version-min=14.0 -C link-arg=-L -C link-arg=$PREFIX/build/lib.darwin-arm64-3.11/ -C link-arg=-lpython3.11" \
+		CROSS_DEBUG=1 maturin build --verbose >> $PREFIX/make_ios.log 2>&1
+			cp target/aarch64-apple-ios/debug/maturin/librpds.dylib $PREFIX/build/lib.darwin-arm64-3.11/rpds.cpython-311-darwin.so >> $PREFIX/make_ios.log 2>&1
+			popd  >> $PREFIX/make_ios.log 2>&1
+			popd  >> $PREFIX/make_ios.log 2>&1
+fi
 # cffi: compile with iOS SDK
 echo Installing cffi for iphoneos >> $PREFIX/make_ios.log 2>&1
 pushd packages >> $PREFIX/make_ios.log 2>&1
@@ -585,59 +589,16 @@ $PREFIX/build/lib.darwin-arm64-3.11/erfa/ >> $PREFIX/make_ios.log 2>&1
 	pushd astropy*  >> $PREFIX/make_ios.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX $DEBUG" CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PANDAS/pandas/_libs/src/ -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.11  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.11 $DEBUG" PLATFORM=iphoneos NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" python3.11 setup.py build  >> $PREFIX/make_ios.log 2>&1
-	echo pandas libraries for iOS: >> $PREFIX/make_ios.log 2>&1
+	echo astropy libraries for iOS: >> $PREFIX/make_ios.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/timeseries/periodograms/bls  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/timeseries/periodograms/lombscargle/implementations  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/wcs  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/time  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/utils  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/utils/xml  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/io/ascii  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/io/fits  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/io/votable  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/modeling  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/table  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/cosmology/flrw  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/convolution  >> $PREFIX/make_ios.log 2>&1
-	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/astropy/stats  >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/compiler_version.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/timeseries/periodograms/bls/_impl.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/timeseries/periodograms/bls/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/timeseries/periodograms/lombscargle/implementations/cython_impl.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/timeseries/periodograms/lombscargle/implementations/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/wcs/_wcs.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/wcs/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/time/_parse_times.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/time/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/io/ascii/cparser.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/io/ascii/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/io/fits/compression.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/io/fits/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/io/fits/_utils.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/io/fits/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/io/votable/tablewriter.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/io/votable/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/utils/_compiler.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/utils/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/utils/xml/_iterparser.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/utils/xml/ >> $PREFIX/make_ios.log 2>&1
-#     cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/modeling/_projections.cpython-311-darwin.so \
-#      $PREFIX/build/lib.darwin-arm64-3.11/astropy/modeling/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/table/_np_utils.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/table/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/table/_column_mixins.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/table/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/cosmology/flrw/scalar_inv_efuncs.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/cosmology/flrw >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/convolution/_convolve.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/convolution/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/stats/_stats.cpython-311-darwin.so \
-      $PREFIX/build/lib.darwin-arm64-3.11/astropy/stats/ >> $PREFIX/make_ios.log 2>&1
-    cp  build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/astropy/stats/_fast_sigma_clip.cpython-311-darwin.so \
-	  $PREFIX/build/lib.darwin-arm64-3.11/astropy/stats/ >> $PREFIX/make_ios.log 2>&1
+	pushd build/lib.macosx-${OSX_VERSION}-arm64-cpython-311 >> $PREFIX/make_ios.log 2>&1
+	for library in `find astropy -name \*.so`
+	do
+		directory=$(dirname $library)
+		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
+		cp $library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+	done
+	popd >> $PREFIX/make_ios.log 2>&1
 	  # Making a single astropy dynamic library:
 	  echo Making a single astropy library for iOS: >> $PREFIX/make_ios.log 2>&1
 	  clang -v -undefined error -dynamiclib \
@@ -823,7 +784,7 @@ then
 		 -F $PREFIX/Frameworks_iphoneos/ -L$PREFIX -lpython3.11  -undefined error \
 		-o lib/python3/cv2.cpython-311-darwin.so \
 		modules/python3/CMakeFiles/opencv_python3.dir/__/src2/*.cpp.o lib/*.a 3rdparty/lib/*.a \
-		-framework Accelerate  -framework AVFoundation  -framework CoreGraphics  -framework CoreImage  -framework CoreMedia  -framework CoreVideo  -framework UIKit  -framework QuartzCore  lib/libopencv_video.a  lib/libopencv_dnn.a  3rdparty/lib/liblibprotobuf.a  lib/libopencv_calib3d.a  lib/libopencv_features2d.a  lib/libopencv_flann.a  lib/libopencv_imgproc.a  lib/libopencv_core.a  3rdparty/lib/libzlib.a  3rdparty/lib/libittnotify.a  -ldl  /Users/holzschu/src/Xcode_iPad/a-Shell/cpython/Frameworks_iphoneos/lib/libopenblas.dylib  -lm  -ldl \
+		-framework Accelerate  -framework AVFoundation  -framework CoreGraphics  -framework CoreImage  -framework CoreMedia  -framework CoreVideo  -framework UIKit  -framework QuartzCore  lib/libopencv_video.a  lib/libopencv_dnn.a  3rdparty/lib/liblibprotobuf.a  lib/libopencv_calib3d.a  lib/libopencv_features2d.a  lib/libopencv_flann.a  lib/libopencv_imgproc.a  lib/libopencv_core.a  3rdparty/lib/libzlib.a  3rdparty/lib/libittnotify.a  -ldl  $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib  -lm  -ldl \
 	-lobjc -framework Foundation  >> $PREFIX/make_ios.log 2>&1
     echo "Done creating cv2 library" >> $PREFIX/make_ios.log 2>&1	
     popd  >> $PREFIX/make_ios.log 2>&1
@@ -874,7 +835,7 @@ PLATFORM=iphoneos NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB=
 	find build -name \*.so -print | wc -l >> $PREFIX/make_ios.log 2>&1
 	# 111 libraries (as of 1.9.3)! We do this automatically:
 	# copy them to build/lib.macosx:
-	pushd build/lib.macosx-13.1-arm64-3.11 >> $PREFIX/make_ios.log 2>&1
+	pushd build/lib.macosx-${OSX_VERSION}-arm64-3.11 >> $PREFIX/make_ios.log 2>&1
 	for library in \
 scipy/odr/__odrpack.cpython-311-darwin.so \
 scipy/linalg/cython_lapack.cpython-311-darwin.so \
@@ -925,7 +886,7 @@ scipy/stats/_mvn.cpython-311-darwin.so
 	popd >> $PREFIX/make_ios.log 2>&1
 	# Making a big scipy library to load many modules (75 out of 111):
 	currentDir=${PWD:1} # current directory, minus first character
-	pushd build/temp.macosx-13.1-arm64-3.11  >> $PREFIX/make_ios.log 2>&1
+	pushd build/temp.macosx-${OSX_VERSION}-arm64-3.11  >> $PREFIX/make_ios.log 2>&1
 	clang -v -undefined error -dynamiclib \
 		-arch arm64 -miphoneos-version-min=14.0 \
 		-isysroot $IOS_SDKROOT \
@@ -1123,7 +1084,7 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 SETUPTOOLS_USE_DISTUTILS=stdlib python3.
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-13.1-arm64-3.11/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp ./build/lib.macosx-${OSX_VERSION}-arm64-3.11/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 	done
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
@@ -1146,8 +1107,8 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 SETUPTOOLS_USE_DISTUTILS=stdlib python3.
     # qutip/cy/*.so qutip/control/*.so	
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/qutip/cy >> $PREFIX/make_ios.log 2>&1
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/qutip/control >> $PREFIX/make_ios.log 2>&1
-	cp ./build/lib.macosx-13.1-arm64-cpython-311/qutip/cy/*.so $PREFIX/build/lib.darwin-arm64-3.11/qutip/cy >> $PREFIX/make_ios.log 2>&1
-	cp ./build/lib.macosx-13.1-arm64-cpython-311/qutip/control/*.so $PREFIX/build/lib.darwin-arm64-3.11/qutip/control >> $PREFIX/make_ios.log 2>&1
+	cp ./build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/qutip/cy/*.so $PREFIX/build/lib.darwin-arm64-3.11/qutip/cy >> $PREFIX/make_ios.log 2>&1
+	cp ./build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/qutip/control/*.so $PREFIX/build/lib.darwin-arm64-3.11/qutip/control >> $PREFIX/make_ios.log 2>&1
 	  # Making a single qutip dynamic library:
 	  echo Making a single qutip library for iOS: >> $PREFIX/make_ios.log 2>&1
 	  clang -v -undefined error -dynamiclib \
@@ -1185,7 +1146,7 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 SETUPTOOLS_USE_DISTUTILS=stdlib python3.
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-13.1-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp ./build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 	done
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
@@ -1197,8 +1158,8 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 SETUPTOOLS_USE_DISTUTILS=stdlib python3.
 		CPPFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX $DEBUG" \
 		CFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -I$PREFIX -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" \
 		CXXFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" \
-		LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.11 -lpython3.11 $DEBUG" \
-		LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.11  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.11 $DEBUG" \
+		LDFLAGS="-arch arm64 -miphoneos-version-min=14.0 -isysroot $IOS_SDKROOT -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.11 -lpython3.11 -L$PREFIX/build/lib.darwin-arm64-3.11/numpy $DEBUG" \
+		LDSHARED="clang -v -undefined error -dynamiclib -isysroot $IOS_SDKROOT -lz -lpython3.11  -F$PREFIX/Frameworks_iphoneos -framework ios_system -L$PREFIX/Frameworks_iphoneos/lib -L$PREFIX/build/lib.darwin-arm64-3.11 -L$PREFIX/build/lib.darwin-arm64-3.11/numpy $DEBUG" \
 		NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" \
 		PLATFORM=iphoneos python3.11 setup.py build >> $PREFIX/make_ios.log 2>&1
 	echo statsmodels libraries for iOS: >> $PREFIX/make_ios.log 2>&1
@@ -1212,7 +1173,7 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 SETUPTOOLS_USE_DISTUTILS=stdlib python3.
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-13.1-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp ./build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 	done
 	# Making a single statsmodels dynamic library:
 	# without _filters/_univariate_diffuse, _filters/_univariate and _filters/_conventional because of a name collision with _smoothers:
@@ -1254,7 +1215,7 @@ GEOS_LIBRARY_PATH=$PREFIX/Frameworks_iphoneos/lib \
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-13.1-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp ./build/lib.macosx-${OSX_VERSION}-arm64-cpython-311/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 	done
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1	

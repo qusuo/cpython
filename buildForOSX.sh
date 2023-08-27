@@ -792,7 +792,6 @@ pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource contourpy >> $PREFIX/make_install_osx.log 2>&1
 pushd contourpy*  >> $PREFIX/make_install_osx.log 2>&1
 rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT"  CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " PLATFORM=macosx python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT"  CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " PLATFORM=macosx python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/contourpy  >> $PREFIX/make_install_osx.log 2>&1
 echo contourpy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
@@ -1051,55 +1050,14 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/erfa/ >> $PREFIX/make_instal
 	# TODO: move that to a `find . -name \*.so...`
 	echo astropy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/timeseries/periodograms/bls  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/timeseries/periodograms/lombscargle/implementations  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/wcs  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/time  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/utils  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/utils/xml  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/io/ascii  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/io/fits  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/io/votable  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/modeling  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/table  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/cosmology/flrw  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/convolution  >> $PREFIX/make_install_osx.log 2>&1
-	mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/stats  >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/compiler_version.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/timeseries/periodograms/bls/_impl.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/timeseries/periodograms/bls/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/timeseries/periodograms/lombscargle/implementations/cython_impl.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/timeseries/periodograms/lombscargle/implementations/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/wcs/_wcs.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/wcs/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/time/_parse_times.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/time/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/io/ascii/cparser.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/io/ascii/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/io/fits/compression.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/io/fits/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/io/fits/_utils.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/io/fits/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/io/votable/tablewriter.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/io/votable/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/utils/_compiler.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/utils/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/utils/xml/_iterparser.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/utils/xml/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/table/_np_utils.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/table/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/table/_column_mixins.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/table/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/cosmology/flrw/scalar_inv_efuncs.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/cosmology/flrw/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/convolution/_convolve.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/convolution/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/stats/_stats.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/stats/ >> $PREFIX/make_install_osx.log 2>&1
-    cp  build/lib.macosx-*-x86_64-cpython-311/astropy/stats/_fast_sigma_clip.cpython-311-darwin.so \
-$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/astropy/stats/ >> $PREFIX/make_install_osx.log 2>&1
+	pushd build/lib.macosx-${OSX_VERSION}-x86_64-3.11 >> $PREFIX/make_install_osx.log 2>&1
+	for library in `find cartopy -name \*.so`
+	do
+		directory=$(dirname $library)
+		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$directory >> $PREFIX/make_install_osx.log 2>&1
+		cp $library $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$library >> $PREFIX/make_install_osx.log 2>&1
+	done
+	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# Making a single astropy dynamic library:
 	echo Making a single astropy library for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	clang -v -undefined error -dynamiclib \
