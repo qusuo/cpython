@@ -576,10 +576,18 @@ pip install jupyterlab-language-pack-vi-VN >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-zh-CN >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-zh-TW >> $PREFIX/make_install_osx.log 2>&1
 # Notebook v7: disable autozoom
-for htmlFile in tree notebooks edit consoles terminals
+# Notebook v7 simplification: only page.html and view.html hace scaling information, all the other include these
+# They are still present in 3 places: nbclassic, notebook, jupyter-server
+for htmlFile in page view
 do
 	sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" $PREFIX/Library/lib/python3.11/site-packages/notebook/templates/$htmlFile.html  >> $PREFIX/make_install_osx.log 2>&1
 	rm $PREFIX/Library/lib/python3.11/site-packages/notebook/templates/$htmlFile.htmlbak  >> $PREFIX/make_install_osx.log 2>&1
+	
+	sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" $PREFIX/Library/lib/python3.11/site-packages/nbclassic/templates/$htmlFile.html  >> $PREFIX/make_install_osx.log 2>&1
+	rm $PREFIX/Library/lib/python3.11/site-packages/nbclassic/templates/$htmlFile.htmlbak  >> $PREFIX/make_install_osx.log 2>&1
+
+	sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/templates/$htmlFile.html  >> $PREFIX/make_install_osx.log 2>&1
+	rm $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/templates/$htmlFile.htmlbak  >> $PREFIX/make_install_osx.log 2>&1
 done
 # Disable "New console", "New terminal" and debugger buttons:
 pushd packages  >> $PREFIX/make_install_osx.log 2>&1
@@ -1039,7 +1047,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/erfa/ >> $PREFIX/make_instal
 	sed -i bak 's/^        homedir = os.path.expanduser(...)/&\
         # iOS: change homedir to HOME\/Documents\
         if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
-            homedir = homedir + "\/Documents"/' astropy/config/paths.py  >> $PREFIX/make_install_osx.log 2>&1
+            homedir = homedir + "/Documents"' astropy/config/paths.py  >> $PREFIX/make_install_osx.log 2>&1
 	fi
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 	# pip install . pulls the old version from pip, so fails.
