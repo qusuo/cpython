@@ -5,7 +5,8 @@ export PREFIX=$PWD
 export XCFRAMEWORKS_DIR=$PREFIX/Python-aux/
 # $PREFIX/Library/bin so that the new python is in the path, 
 # ~/.cargo/bin for rustc
-export PATH=$PREFIX/Library/bin:~/.cargo/bin:$PATH
+OLD_PATH=$PATH
+export PATH=$PREFIX/Library/bin:~/.cargo/bin:$OLD_PATH
 export PYTHONPYCACHEPREFIX=$PREFIX/__pycache__
 export OSX_SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
 export DEBUG="-O3 -Wall"
@@ -576,10 +577,18 @@ pip install jupyterlab-language-pack-vi-VN >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-zh-CN >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-zh-TW >> $PREFIX/make_install_osx.log 2>&1
 # Notebook v7: disable autozoom
-for htmlFile in tree notebooks edit consoles terminals
+# Notebook v7 simplification: only page.html and view.html hace scaling information, all the other include these
+# They are still present in 3 places: nbclassic, notebook, jupyter-server
+for htmlFile in page view
 do
 	sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" $PREFIX/Library/lib/python3.11/site-packages/notebook/templates/$htmlFile.html  >> $PREFIX/make_install_osx.log 2>&1
 	rm $PREFIX/Library/lib/python3.11/site-packages/notebook/templates/$htmlFile.htmlbak  >> $PREFIX/make_install_osx.log 2>&1
+	
+	sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" $PREFIX/Library/lib/python3.11/site-packages/nbclassic/templates/$htmlFile.html  >> $PREFIX/make_install_osx.log 2>&1
+	rm $PREFIX/Library/lib/python3.11/site-packages/nbclassic/templates/$htmlFile.htmlbak  >> $PREFIX/make_install_osx.log 2>&1
+
+	sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/templates/$htmlFile.html  >> $PREFIX/make_install_osx.log 2>&1
+	rm $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/templates/$htmlFile.htmlbak  >> $PREFIX/make_install_osx.log 2>&1
 done
 # Disable "New console", "New terminal" and debugger buttons:
 pushd packages  >> $PREFIX/make_install_osx.log 2>&1
@@ -1037,9 +1046,9 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/erfa/ >> $PREFIX/make_instal
 	if [ ! -f astropy/config/paths.pybak ];
 	then
 	sed -i bak 's/^        homedir = os.path.expanduser(...)/&\
-        # iOS: change homedir to HOME\/Documents\
+        # iOS: change homedir to HOME/Documents
         if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
-            homedir = homedir + "\/Documents"/' astropy/config/paths.py  >> $PREFIX/make_install_osx.log 2>&1
+            homedir = homedir + "/Documents"' astropy/config/paths.py  >> $PREFIX/make_install_osx.log 2>&1
 	fi
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="" NPY_LAPACK_ORDER="" MATHLIB="-lm" PLATFORM=macosx python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
 	# pip install . pulls the old version from pip, so fails.
@@ -1345,73 +1354,55 @@ then
 	rm -rf $PREFIX/with_scipy/Library/*  >> $PREFIX/make_install_osx.log 2>&1
 	cp -r $PREFIX/Library $PREFIX/with_scipy >> $PREFIX/make_install_osx.log 2>&1
 	export PYTHONHOME=$PREFIX/with_scipy/Library/
+	export PATH=$PREFIX/with_scipy/Library/bin:~/.cargo/bin:$OLD_PATH
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	downloadSource scipy >> $PREFIX/make_install_osx.log 2>&1
 	pushd scipy-*  >> $PREFIX/make_install_osx.log 2>&1
-	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
-	pwd >> $PREFIX/make_install_osx.log 2>&1
-	ls ../*.cfg >> $PREFIX/make_install_osx.log 2>&1
-	cp ../site_original_scipy.cfg site.cfg >> $PREFIX/make_install_osx.log 2>&1
-	sed -i bak "s|__main_directory__|${PREFIX}/Frameworks_macosx|" site.cfg >> $PREFIX/make_install_osx.log 2>&1
-	# Only for OSX: gfortran needs -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib:
-	sed -i bak "s|-lgfortran|-L/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/lib &|g" site.cfg >> $PREFIX/make_install_osx.log 2>&1
-	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx SETUPTOOLS_USE_DISTUTILS=stdlib python3.11 setup.py build  >> $PREFIX/make_install_osx.log 2>&1
-	echo fortranobject.o files: >> $PREFIX/make_install_osx.log 2>&1
-	for object in `find build -name fortranobject.o`
-	do
-		ls -l $object >> $PREFIX/make_install_osx.log 2>&1
-	done
-	echo done. >> $PREFIX/make_install_osx.log 2>&1
-	# pip install . : can't install because version number is not PEP440
-	# Don't install (for now), compile only
- 	echo "Installing scipy:" >> $PREFIX/make_install_osx.log 2>&1
- 	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx SETUPTOOLS_USE_DISTUTILS=stdlib python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
- 	echo "After install" >> $PREFIX/make_install_osx.log 2>&1
- 	ls -d $PYTHONHOME/lib/python3.11/site-packages/scipy*  >> $PREFIX/make_install_osx.log 2>&1
+	# Separate build directories for OSX / iOS using meson
+	mkdir -p build_osx  >> $PREFIX/make_install_osx.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/lib -lgfortran" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" meson . build_osx -Duse-pythran=false -Dblas=openblas -Dlapack=openblas >> $PREFIX/make_install_osx.log 2>&1
+	pushd build_osx  >> $PREFIX/make_install_osx.log 2>&1
+	ninja  >> $PREFIX/make_install_osx.log 2>&1
 	echo scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
-	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
+	find . -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	echo number of scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
-	find build -name \*.so -print | wc -l >> $PREFIX/make_install_osx.log 2>&1
-	# 111 libraries by the last count (as of 1.9.3):
+	find . -name \*.so -print | wc -l >> $PREFIX/make_install_osx.log 2>&1
+	# 118 libraries by the last count (as of 1.11.2):
 	# copy them to build/lib.macosx:
-	pushd build/lib.macosx-${OSX_VERSION}-x86_64-3.11 >> $PREFIX/make_install_osx.log 2>&1
 	for library in \
-scipy/odr/__odrpack.cpython-311-darwin.so \
-scipy/linalg/cython_lapack.cpython-311-darwin.so \
-scipy/linalg/cython_blas.cpython-311-darwin.so \
-scipy/linalg/_fblas.cpython-311-darwin.so \
-scipy/linalg/_flapack.cpython-311-darwin.so \
-scipy/linalg/_flinalg.cpython-311-darwin.so \
-scipy/linalg/_interpolative.cpython-311-darwin.so \
-scipy/optimize/_lbfgsb.cpython-311-darwin.so \
-scipy/optimize/_trlib/_trlib.cpython-311-darwin.so \
-scipy/optimize/_minpack.cpython-311-darwin.so \
-scipy/optimize/_minpack2.cpython-311-darwin.so \
-scipy/optimize/_cobyla.cpython-311-darwin.so \
-scipy/optimize/__nnls.cpython-311-darwin.so \
-scipy/optimize/cython_optimize/_zeros.cpython-311-darwin.so \
-scipy/optimize/_slsqp.cpython-311-darwin.so \
-scipy/integrate/_quadpack.cpython-311-darwin.so \
-scipy/integrate/_vode.cpython-311-darwin.so \
-scipy/integrate/_dop.cpython-311-darwin.so \
-scipy/integrate/_test_odeint_banded.cpython-311-darwin.so \
-scipy/integrate/_odepack.cpython-311-darwin.so \
-scipy/integrate/_lsoda.cpython-311-darwin.so \
-scipy/io/_test_fortran.cpython-311-darwin.so \
-scipy/special/_ufuncs_cxx.cpython-311-darwin.so \
-scipy/special/_ellip_harm_2.cpython-311-darwin.so \
-scipy/special/_ufuncs.cpython-311-darwin.so \
-scipy/interpolate/dfitpack.cpython-311-darwin.so \
-scipy/sparse/linalg/_eigen/arpack/_arpack.cpython-311-darwin.so \
-scipy/sparse/linalg/_propack/_cpropack.cpython-311-darwin.so \
-scipy/sparse/linalg/_propack/_zpropack.cpython-311-darwin.so \
-scipy/sparse/linalg/_propack/_dpropack.cpython-311-darwin.so \
-scipy/sparse/linalg/_propack/_spropack.cpython-311-darwin.so \
-scipy/sparse/linalg/_isolve/_iterative.cpython-311-darwin.so \
-scipy/sparse/linalg/_dsolve/_superlu.cpython-311-darwin.so \
-scipy/spatial/_qhull.cpython-311-darwin.so \
-scipy/stats/_statlib.cpython-311-darwin.so \
-scipy/stats/_mvn.cpython-311-darwin.so
+		scipy/linalg/cython_lapack.cpython-311-darwin.so \
+		scipy/linalg/_decomp_lu_cython.cpython-311-darwin.so \
+		scipy/linalg/cython_blas.cpython-311-darwin.so \
+		scipy/linalg/_fblas.cpython-311-darwin.so \
+		scipy/linalg/_flapack.cpython-311-darwin.so \
+		scipy/linalg/_flinalg.cpython-311-darwin.so \
+		scipy/linalg/_interpolative.cpython-311-darwin.so \
+		scipy/optimize/_lbfgsb.cpython-311-darwin.so \
+		scipy/optimize/_trlib/_trlib.cpython-311-darwin.so \
+		scipy/optimize/_minpack2.cpython-311-darwin.so \
+		scipy/optimize/_cobyla.cpython-311-darwin.so \
+		scipy/optimize/__nnls.cpython-311-darwin.so \
+		scipy/optimize/cython_optimize/_zeros.cpython-311-darwin.so \
+		scipy/optimize/_minpack.cpython-311-darwin.so \
+		scipy/optimize/_slsqp.cpython-311-darwin.so \
+		scipy/integrate/_quadpack.cpython-311-darwin.so \
+		scipy/integrate/_vode.cpython-311-darwin.so \
+		scipy/integrate/_dop.cpython-311-darwin.so \
+		scipy/integrate/_test_odeint_banded.cpython-311-darwin.so \
+		scipy/integrate/_odepack.cpython-311-darwin.so \
+		scipy/integrate/_lsoda.cpython-311-darwin.so \
+		scipy/special/_ufuncs_cxx.cpython-311-darwin.so \
+		scipy/special/_ellip_harm_2.cpython-311-darwin.so \
+		scipy/special/_test_internal.cpython-311-darwin.so \
+		scipy/special/_ufuncs.cpython-311-darwin.so \
+		scipy/sparse/linalg/_eigen/arpack/_arpack.cpython-311-darwin.so \
+		scipy/sparse/linalg/_propack/_cpropack.cpython-311-darwin.so \
+		scipy/sparse/linalg/_propack/_zpropack.cpython-311-darwin.so \
+		scipy/sparse/linalg/_propack/_dpropack.cpython-311-darwin.so \
+		scipy/sparse/linalg/_propack/_spropack.cpython-311-darwin.so \
+		scipy/sparse/linalg/_isolve/_iterative.cpython-311-darwin.so \
+		scipy/sparse/linalg/_dsolve/_superlu.cpython-311-darwin.so \
+		scipy/spatial/_qhull.cpython-311-darwin.so \
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$directory >> $PREFIX/make_install_osx.log 2>&1
@@ -1422,11 +1413,8 @@ scipy/stats/_mvn.cpython-311-darwin.so
 			install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$library  >> $PREFIX/make_install_osx.log 2>&1
 		fi
 	done
-	popd >> $PREFIX/make_install_osx.log 2>&1
-	# Making a big scipy library to load many modules (75 out of 111):
+	# Making a big scipy library to load many modules (85 out of 118):
 	echo "Making a big scipy library to load many modules"  >> $PREFIX/make_install_osx.log 2>&1
-	currentDir=${PWD:1} # current directory, minus first character
-	pushd build/temp.macosx-${OSX_VERSION}-x86_64-3.11  >> $PREFIX/make_install_osx.log 2>&1
 	clang -v -undefined error -dynamiclib \
 		-isysroot $OSX_SDKROOT \
 		-lz -lm -lc++ \
@@ -1434,64 +1422,60 @@ scipy/stats/_mvn.cpython-311-darwin.so
 		-L$PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11 \
 		-L. \
 		-O3 -Wall  \
+		`find scipy/odr -name \*.o`\
 		`find scipy/_lib -name \*.o` \
 		`find scipy/cluster -name \*.o` \
 		`find scipy/fft -name \*.o` \
 		`find scipy/fftpack -name \*.o` \
-		scipy/integrate/tests/_test_multivariate.o \
+		scipy/integrate/_test_multivariate.cpython-311-darwin.so.p/tests__test_multivariate.c.o \
 		`find scipy/interpolate -name \*.o` \
 		`find scipy/io -name \*.o` \
-		scipy/linalg/_solve_toeplitz.o \
-		scipy/linalg/_matfuncs_sqrtm_triu.o \
-		scipy/linalg/_decomp_update.o \
-		scipy/linalg/_cythonized_array_utils.o \
-		scipy/linalg/_matfuncs_expm.o \
+		scipy/linalg/_solve_toeplitz.cpython-311-darwin.so.p/meson-generated__solve_toeplitz.c.o \
+		scipy/linalg/_matfuncs_sqrtm_triu.cpython-311-darwin.so.p/meson-generated__matfuncs_sqrtm_triu.c.o \
+		scipy/linalg/_decomp_update.cpython-311-darwin.so.p/meson-generated__decomp_update.c.o \
+		scipy/linalg/_cythonized_array_utils.cpython-311-darwin.so.p/meson-generated__cythonized_array_utils.c.o \
+		scipy/linalg/_matfuncs_expm.cpython-311-darwin.so.p/meson-generated__matfuncs_expm.c.o \
 		`find scipy/ndimage -name \*.o` \
-		scipy/optimize/tnc/_moduleTNC.o \
-		scipy/optimize/tnc/tnc.o \
-		scipy/optimize/_lsap.o \
-		-lrectangular_lsap \
-		scipy/optimize/_bglu_dense.o \
+		`find scipy/optimize/_moduleTNC.cpython-311-darwin.so.p -name \*.o` \
+		scipy/optimize/_lsap.cpython-311-darwin.so.p/_lsap.c.o \
+		-Lscipy/optimize -lrectangular_lsap \
+		scipy/optimize/_bglu_dense.cpython-311-darwin.so.p/meson-generated__bglu_dense.c.o \
 		`find scipy/optimize/_highs -name \*.o` \
-		-lbasiclu \
-		scipy/optimize/_lsq/givens_elimination.o \
-		scipy/optimize/zeros.o \
-        scipy/optimize/_directmodule.o -l_direct_lib \
-        scipy/optimize/_group_columns.o \
+		-Lscipy/optimize/_highs -lbasiclu \
+		scipy/optimize/_lsq/givens_elimination.cpython-311-darwin.so.p/meson-generated_givens_elimination.c.o \
+		scipy/optimize/_zeros.cpython-311-darwin.so.p/zeros.c.o \
+        scipy/optimize/_direct.cpython-311-darwin.so.p/*.o \
+        scipy/optimize/_group_columns.cpython-311-darwin.so.p/meson-generated__group_columns.c.o \
 		`find scipy/signal -name \*.o` \
-		`find scipy/spatial/ckdtree -name \*.o` \
+		`find scipy/spatial/_ckdtree.cpython-311-darwin.so.p -name \*.o` \
 		`find scipy/sparse/csgraph -name \*.o` \
 		`find scipy/sparse/sparsetools -name \*.o` \
-		`find $currentDir/scipy/_lib/unuran/unuran -name \*.o` \
-		`find $currentDir/scipy/_lib/highs -name \*.o` \
-		scipy/sparse/_csparsetools.o \
-		scipy/spatial/_ckdtree.o \
-		scipy/spatial/_voronoi.o \
-		scipy/spatial/_hausdorff.o \
-		scipy/spatial/src/distance_wrap.o \
-		scipy/spatial/src/distance_pybind.o \
-		scipy/spatial/transform/_rotation.o \
-		`find . -name _specfunmodule.o` \
-		`find . -name fortranobject.o -path '*/special/*'` \
-		scipy/special/cython_special.o \
-		scipy/special/sf_error.o \
-		scipy/special/amos_wrappers.o \
-		scipy/special/cdf_wrappers.o \
-		scipy/special/specfun_wrappers.o \
-		-lsc_amos -lsc_cephes -lsc_mach -lsc_cdf -lsc_specfun -lrootfind \
-		scipy/special/_comb.o \
-		scipy/special/_test_round.o \
+		scipy/sparse/_csparsetools.cpython-311-darwin.so.p/meson-generated__csparsetools.c.o \
+		scipy/spatial/_voronoi.cpython-311-darwin.so.p/meson-generated__voronoi.c.o \
+		scipy/spatial/_hausdorff.cpython-311-darwin.so.p/meson-generated__hausdorff.c.o \
+		scipy/spatial/_distance_wrap.cpython-311-darwin.so.p/src_distance_wrap.c.o \
+		scipy/spatial/_distance_pybind.cpython-311-darwin.so.p/src_distance_pybind.cpp.o \
+		scipy/spatial/transform/_rotation.cpython-311-darwin.so.p/meson-generated__rotation.c.o \
+		scipy/special/_specfun.cpython-311-darwin.so.p/meson-generated_..__specfunmodule.c.o \
+		-Lscipy -l_fortranobject \
+		`find scipy/special/cython_special.cpython-311-darwin.so.p -name \*.o` \
+		-Lscipy/special -lamos -lcephes -lspecfun -lcdflib -lmach \
+		-Lscipy/optimize -lrootfind \
+		scipy/special/_comb.cpython-311-darwin.so.p/meson-generated__comb.c.o \
 		`find scipy/stats/ -name \*.o` \
-		`find $currentDir/scipy/stats/_boost -name \*.o` \
 		-L$PREFIX/Library/lib \
 		`find $PREFIX/Library/lib/python3.11/site-packages -name libnpymath.a` \
 		`find $PREFIX/Library/lib/python3.11/site-packages -name libnpyrandom.a` \
 		-L/usr/local/lib -lgfortran \
 		-L$PREFIX/Frameworks_macosx/lib -lopenblas \
-		-o ../scipy.so  >> $PREFIX/make_install_osx.log 2>&1
+		-o scipy.so  >> $PREFIX/make_install_osx.log 2>&1
 	echo "Done"  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
-	cp build/scipy.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11 >> $PREFIX/make_install_osx.log 2>&1
+	cp build_osx/scipy.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11 >> $PREFIX/make_install_osx.log 2>&1
+ 	echo "Installing scipy:" >> $PREFIX/make_install_osx.log 2>&1
+ 	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx SETUPTOOLS_USE_DISTUTILS=stdlib python3.11 -m pip install . --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
+ 	echo "After install" >> $PREFIX/make_install_osx.log 2>&1
+ 	ls -d $PYTHONHOME/lib/python3.11/site-packages/scipy*  >> $PREFIX/make_install_osx.log 2>&1
 	# Fix the reference to libopenblas.dylib -> openblas.framework
 	install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/scipy.so  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
