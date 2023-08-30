@@ -313,6 +313,8 @@ rm -rf build  >> $PREFIX/make_ios.log 2>&1
 mkdir build >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ meson . build --cross-file ../iphone-osx.meson >> $PREFIX/make_ios.log 2>&1
 pushd build  >> $PREFIX/make_ios.log 2>&1
+# Something between ninja and meson is preventing the creation of dynamic libraries, creates bundles instead:
+sed -i bak "s/bundle/shared/" build.ninja >> $PREFIX/make_ios.log 2>&1
 ninja  >> $PREFIX/make_ios.log 2>&1
 popd  >> $PREFIX/make_ios.log 2>&1
 mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/contourpy/  >> $PREFIX/make_ios.log 2>&1

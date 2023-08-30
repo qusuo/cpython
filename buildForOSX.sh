@@ -5,7 +5,8 @@ export PREFIX=$PWD
 export XCFRAMEWORKS_DIR=$PREFIX/Python-aux/
 # $PREFIX/Library/bin so that the new python is in the path, 
 # ~/.cargo/bin for rustc
-export PATH=$PREFIX/Library/bin:~/.cargo/bin:$PATH
+OLD_PATH=$PATH
+export PATH=$PREFIX/Library/bin:~/.cargo/bin:$OLD_PATH
 export PYTHONPYCACHEPREFIX=$PREFIX/__pycache__
 export OSX_SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
 export DEBUG="-O3 -Wall"
@@ -1045,7 +1046,7 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/erfa/ >> $PREFIX/make_instal
 	if [ ! -f astropy/config/paths.pybak ];
 	then
 	sed -i bak 's/^        homedir = os.path.expanduser(...)/&\
-        # iOS: change homedir to HOME\/Documents\
+        # iOS: change homedir to HOME/Documents
         if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):\
             homedir = homedir + "/Documents"' astropy/config/paths.py  >> $PREFIX/make_install_osx.log 2>&1
 	fi
@@ -1353,6 +1354,7 @@ then
 	rm -rf $PREFIX/with_scipy/Library/*  >> $PREFIX/make_install_osx.log 2>&1
 	cp -r $PREFIX/Library $PREFIX/with_scipy >> $PREFIX/make_install_osx.log 2>&1
 	export PYTHONHOME=$PREFIX/with_scipy/Library/
+	export PATH=$PREFIX/with_scipy/Library/bin:~/.cargo/bin:$OLD_PATH
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	downloadSource scipy >> $PREFIX/make_install_osx.log 2>&1
 	pushd scipy-*  >> $PREFIX/make_install_osx.log 2>&1
