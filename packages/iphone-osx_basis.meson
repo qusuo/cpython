@@ -6,7 +6,7 @@ endian='little'
 
 [constants]
 # Meson does not read environment variables. So we use sed.
-prefix=__prefix__
+prefix = '__prefix__'
 toolchain = '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk'
 common_flags = ['-isysroot', toolchain, '-arch', 'arm64', '-miphoneos-version-min=14.0', '-I' + prefix, '-I' + prefix + '/Frameworks_iphoneos/include/']
 
