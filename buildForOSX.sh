@@ -1360,7 +1360,7 @@ then
 	pushd scipy-*  >> $PREFIX/make_install_osx.log 2>&1
 	# Separate build directories for OSX / iOS using meson
 	mkdir -p build_osx  >> $PREFIX/make_install_osx.log 2>&1
-	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/lib -lgfortran" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" meson . build_osx -Duse-pythran=false -Dblas=openblas -Dlapack=openblas >> $PREFIX/make_install_osx.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/lib -L/usr/local/lib -lgfortran" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" meson . build_osx -Duse-pythran=false -Dblas=openblas -Dlapack=openblas >> $PREFIX/make_install_osx.log 2>&1
 	pushd build_osx  >> $PREFIX/make_install_osx.log 2>&1
 	ninja  >> $PREFIX/make_install_osx.log 2>&1
 	echo scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
@@ -1402,7 +1402,7 @@ then
 		scipy/sparse/linalg/_propack/_spropack.cpython-311-darwin.so \
 		scipy/sparse/linalg/_isolve/_iterative.cpython-311-darwin.so \
 		scipy/sparse/linalg/_dsolve/_superlu.cpython-311-darwin.so \
-		scipy/spatial/_qhull.cpython-311-darwin.so \
+		scipy/spatial/_qhull.cpython-311-darwin.so
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$directory >> $PREFIX/make_install_osx.log 2>&1
@@ -1473,8 +1473,21 @@ then
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	cp build_osx/scipy.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11 >> $PREFIX/make_install_osx.log 2>&1
  	echo "Installing scipy:" >> $PREFIX/make_install_osx.log 2>&1
- 	env CC=clang CXX=clang++ SCIPY_USE_PYTHRAN=0 CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx SETUPTOOLS_USE_DISTUTILS=stdlib python3.11 -m pip install . --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
- 	echo "After install" >> $PREFIX/make_install_osx.log 2>&1
+ 	env CC=clang CXX=clang++ \
+ 		SCIPY_USE_PYTHRAN=0 \
+ 		CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" \
+ 		CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " \
+ 		LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" \
+ 		NPY_BLAS_ORDER="openblas" \
+ 		NPY_LAPACK_ORDER="openblas" \
+ 		MATHLIB="-lm" \
+ 		PLATFORM=macosx \
+ 		SETUPTOOLS_USE_DISTUTILS=stdlib \
+ 		python3.11 -m pip install . -v \
+ 		--no-deps --no-build-isolation \
+ 		-Csetup-args=-Duse-pythran=false -Csetup-args=-Dblas=openblas -Csetup-args=-Dlapack=openblas >> $PREFIX/make_install_osx.log 2>&1
+    # could also try installing with meson install --quiet --no-rebuild
+	echo "After install of scipy" >> $PREFIX/make_install_osx.log 2>&1
  	ls -d $PYTHONHOME/lib/python3.11/site-packages/scipy*  >> $PREFIX/make_install_osx.log 2>&1
 	# Fix the reference to libopenblas.dylib -> openblas.framework
 	install_name_tool -change $PREFIX/Frameworks_macosx/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/scipy.so  >> $PREFIX/make_install_osx.log 2>&1

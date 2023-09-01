@@ -606,7 +606,7 @@ _PyModule_Clear(PyObject *m)
     // 10/07/21: adding statsmodels
     // 29/10/21: added lxml, pyfftw, pygeos, wordcloud, qutip (all cython modules).
     // 02/11/21: pygeos, pyproj, fiona, statsmodels, rasterio, shapely
-    // 17/06/22: contourpy
+    // 17/06/22: removed contourpy (switch to pybind11)
     int moduleNeedsCleanup = 0;
     PyModuleObject *mod = (PyModuleObject *)m;
 	if (mod->md_name != NULL) {
@@ -630,6 +630,7 @@ _PyModule_Clear(PyObject *m)
 				|| (strncmp(utf8name, "statsmodels.", 12) == 0)) {
 			// scipy.spatial._distance_pybind uses pybind11, not cython. 
 			// same with scipy.fft._pocketfft.pypocketfft and contourpy
+			// scipy also contains a pybind11 modules, ...highspy.highs_bindings ?
 			// pybind11 cleanup function is already called, and can't be called twice. 
 			if ((strncmp(utf8name, "scipy.spatial._distance_pybind", 30) != 0) && 
 				(strncmp(utf8name, "scipy.fft._pocketfft.pypocketfft", 32) != 0)) {

@@ -820,19 +820,18 @@ then
 	pushd packages >> $PREFIX/make_ios.log 2>&1
 	pushd scipy-*  >> $PREFIX/make_ios.log 2>&1
 	# Separate build directories for OSX / iOS using meson
-	mkdir -p build_ios  >> $PREFIX/make_install_osx.log 2>&1
-	env CC=clang CXX=clang++ FC=aarch64-apple-darwin20-gfortran meson . build_ios -Duse-pythran=false -Dblas=openblas -Dlapack=openblas --cross-file ../iphone-osx.meson >> $PREFIX/make_install_osx.log 2>&1
-	pushd build_ios  >> $PREFIX/make_install_osx.log 2>&1
+	mkdir -p build_ios  >> $PREFIX/make_ios.log 2>&1
+	env CC=clang CXX=clang++ FC=aarch64-apple-darwin20-gfortran meson . build_ios -Duse-pythran=false -Dblas=openblas -Dlapack=openblas --cross-file ../iphone-osx.meson >> $PREFIX/make_ios.log 2>&1
+	pushd build_ios  >> $PREFIX/make_ios.log 2>&1
 	# Something between ninja and meson is preventing the creation of dynamic libraries, creates bundles instead:
 	sed -i bak "s/bundle/shared/" build.ninja >> $PREFIX/make_ios.log 2>&1
-	ninja  >> $PREFIX/make_install_osx.log 2>&1
-	echo scipy libraries for iOS: >> $PREFIX/make_install_osx.log 2>&1
-	find . -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
-	echo number of scipy libraries for iOS: >> $PREFIX/make_install_osx.log 2>&1
-	find . -name \*.so -print | wc -l >> $PREFIX/make_install_osx.log 2>&1
+	ninja  >> $PREFIX/make_ios.log 2>&1
+	echo scipy libraries for iOS: >> $PREFIX/make_ios.log 2>&1
+	find . -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
+	echo number of scipy libraries for iOS: >> $PREFIX/make_ios.log 2>&1
+	find . -name \*.so -print | wc -l >> $PREFIX/make_ios.log 2>&1
 	# 118 libraries (as of 1.11.2)! We do this automatically:
 	# copy them to build/lib.darwin:
-	pushd build/lib.macosx-${OSX_VERSION}-arm64-3.11 >> $PREFIX/make_ios.log 2>&1
 	for library in \
 		scipy/linalg/cython_lapack.cpython-311-darwin.so \
 		scipy/linalg/_decomp_lu_cython.cpython-311-darwin.so \
@@ -866,7 +865,7 @@ then
 		scipy/sparse/linalg/_propack/_spropack.cpython-311-darwin.so \
 		scipy/sparse/linalg/_isolve/_iterative.cpython-311-darwin.so \
 		scipy/sparse/linalg/_dsolve/_superlu.cpython-311-darwin.so \
-		scipy/spatial/_qhull.cpython-311-darwin.so \
+		scipy/spatial/_qhull.cpython-311-darwin.so
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
@@ -933,6 +932,7 @@ then
 		-o scipy.so
 	cp scipy.so $PREFIX/build/lib.darwin-arm64-3.11 >> $PREFIX/make_ios.log 2>&1
 	# Fix the reference to libopenblas.dylib -> openblas.framework
+	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	# coremltools:
