@@ -624,7 +624,7 @@ $PREFIX/build/lib.darwin-arm64-3.11/erfa/ >> $PREFIX/make_ios.log 2>&1
 # geopandas and cartopy: require Shapely, fiona, shapely
 # Shapely (interface for geos)
 pushd packages >> $PREFIX/make_ios.log 2>&1
-pushd shapely-* >> $PREFIX/make_ios.log 2>&1
+pushd Shapely-* >> $PREFIX/make_ios.log 2>&1
 rm -rf build/*  >> $PREFIX/make_ios.log 2>&1
 env CC=clang CXX=clang++ \
 	CPPFLAGS="-isysroot $IOS_SDKROOT -I$PREFIX -I $PREFIX/Frameworks_iphoneos/include -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0" \
@@ -696,7 +696,15 @@ PROJ_VERSION=9.1.0 \
 	python3.11 setup.py build >> $PREFIX/make_ios.log 2>&1
 echo "pyproj libraries for iOS: "  >> $PREFIX/make_ios.log 2>&1
 find . -name \*.so  >> $PREFIX/make_ios.log 2>&1
-   for library in pyproj/_transformer.cpython-311-darwin.so pyproj/_datadir.cpython-311-darwin.so pyproj/list.cpython-311-darwin.so pyproj/_compat.cpython-311-darwin.so pyproj/_crs.cpython-311-darwin.so pyproj/_network.cpython-311-darwin.so pyproj/_geod.cpython-311-darwin.so pyproj/database.cpython-311-darwin.so pyproj/_sync.cpython-311-darwin.so
+   for library in pyproj/_transformer.cpython-311-darwin.so \
+   	   pyproj/_datadir.cpython-311-darwin.so \
+   	   pyproj/list.cpython-311-darwin.so \
+   	   pyproj/_compat.cpython-311-darwin.so \
+   	   pyproj/_crs.cpython-311-darwin.so \
+   	   pyproj/_network.cpython-311-darwin.so \
+   	   pyproj/_geod.cpython-311-darwin.so \
+   	   pyproj/database.cpython-311-darwin.so \
+   	   pyproj/_sync.cpython-311-darwin.so
 do
 	directory=$(dirname $library)
 	mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1

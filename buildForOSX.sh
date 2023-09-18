@@ -816,7 +816,9 @@ rm -rf .eggs  >> $PREFIX/make_install_osx.log 2>&1
 env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT"  CXXFLAGS="-isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 # Need to install matplotlib from the git repository so pip gets the proper version number:
 # For version number, remember to "git push --tags" after each "git pull upstream"
-env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " python3.11 -m pip install git+https://github.com/holzschu/matplotlib.git --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# Trying again with "pip install ."
+env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " python3.11 -m pip install . --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
+# env CC=clang CXX=clang++ CFLAGS="-I /opt/X11/include/freetype2/ -isysroot $OSX_SDKROOT" LDFLAGS="-L/opt/X11/lib -isysroot $OSX_SDKROOT" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ " python3.11 -m pip install git+https://github.com/holzschu/matplotlib.git --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # cp the dynamic libraries to build/lib.macosx.../
 echo matplotlib libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
@@ -1083,9 +1085,12 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/erfa/ >> $PREFIX/make_instal
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# geopandas and cartopy: require Shapely (GEOS), fiona (GDAL), pyproj (PROJ), rtree
 	# Shapely (interface for geos)
+	# Shapely (interface for geos)
+	# Warning: changes case (shapely) and compilation method with 2.0
+	# Currently unable to load Shapely 2.0
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
-	downloadSource Shapely >> $PREFIX/make_install_osx.log 2>&1
-	pushd shapely-* >> $PREFIX/make_install_osx.log 2>&1
+	downloadSource Shapely 1.8.5 >> $PREFIX/make_install_osx.log 2>&1
+	pushd Shapely-* >> $PREFIX/make_install_osx.log 2>&1
 	cp ./setup.py setup.bak.py  >> $PREFIX/make_install_osx.log 2>&1
 	cp ../setup_Shapely.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
@@ -1171,7 +1176,8 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/erfa/ >> $PREFIX/make_instal
 	# PyProj (interface for Proj)
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf pyproj-*  >> $PREFIX/make_install_osx.log 2>&1
-	downloadSource pyproj >> $PREFIX/make_install_osx.log 2>&1
+	# pyproj 3.6.0 has issues with dynamic loading and single module pyproj_all; for the time being we stick to 3.4.1.
+	downloadSource pyproj 3.4.1 >> $PREFIX/make_install_osx.log 2>&1
 	# env PROJ_VERSION=9.1.0 pip3.11 download pyproj --no-binary :all: >> $PREFIX/make_install_osx.log 2>&1
 	pushd pyproj-* >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
@@ -1196,7 +1202,15 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/erfa/ >> $PREFIX/make_instal
 		python3.11 -m pip install . --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
 	echo "pyproj libraries for OSX: "  >> $PREFIX/make_install_osx.log 2>&1
 	find . -name \*.so  >> $PREFIX/make_install_osx.log 2>&1
-    for library in pyproj/_transformer.cpython-311-darwin.so pyproj/_datadir.cpython-311-darwin.so pyproj/list.cpython-311-darwin.so pyproj/_compat.cpython-311-darwin.so pyproj/_crs.cpython-311-darwin.so pyproj/_network.cpython-311-darwin.so pyproj/_geod.cpython-311-darwin.so pyproj/database.cpython-311-darwin.so pyproj/_sync.cpython-311-darwin.so
+    for library in pyproj/_transformer.cpython-311-darwin.so \
+    	pyproj/_datadir.cpython-311-darwin.so \
+    	pyproj/list.cpython-311-darwin.so \
+    	pyproj/_compat.cpython-311-darwin.so \
+    	pyproj/_crs.cpython-311-darwin.so \
+    	pyproj/_network.cpython-311-darwin.so \
+    	pyproj/_geod.cpython-311-darwin.so \
+    	pyproj/database.cpython-311-darwin.so \
+    	pyproj/_sync.cpython-311-darwin.so
 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$directory >> $PREFIX/make_install_osx.log 2>&1
@@ -1209,7 +1223,6 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/erfa/ >> $PREFIX/make_instal
 		-O3 -Wall \
 		`find build -name \*.o` \
 		-L$PREFIX/Library/lib \
-		-Lbuild/temp.macosx-${OSX_VERSION}-x86_64-3.11 \
 		-F$PREFIX/Frameworks_macosx -framework libproj \
 		-o build/pyproj.so >> $PREFIX/make_install_osx.log 2>&1
 	cp build/pyproj.so $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11 >> $PREFIX/make_install_osx.log 2>&1

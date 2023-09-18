@@ -294,11 +294,8 @@ fi  # [ $APP == "a-Shell" ];
 
 
 # astropy, shapely, pyproj
-# build/lib.macosx-11.5-x86_64-cpython-311/shapely/_geos.cpython-311-darwin.so
-# build/lib.macosx-11.5-x86_64-cpython-311/shapely/lib.cpython-311-darwin.so
-# build/lib.macosx-11.5-x86_64-cpython-311/shapely/_geometry_helpers.cpython-311-darwin.so
 for library in erfa/ufunc \
-	shapely/_geos shapely/lib shapely/_geometry_helpers
+	shapely/speedups/_speedups shapely/vectorized/_vectorized 
 do
 	# replace all "/" with "."
 	name=${library//\//.}
