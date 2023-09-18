@@ -293,12 +293,11 @@ then
 fi  # [ $APP == "a-Shell" ];
 
 
-# for Carnets specifically (or all apps with Jupyter notebooks):
-# astropy, shapely, pyproj: only with Carnets
+# astropy, shapely, pyproj
 for library in erfa/ufunc \
 	shapely/speedups/_speedups shapely/vectorized/_vectorized 
 do
-	# replace all "/" with ".
+	# replace all "/" with "."
 	name=${library//\//.}
 	for package in python3_ios pythonA pythonB pythonC pythonD pythonE
 	do
