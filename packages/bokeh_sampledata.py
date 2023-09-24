@@ -167,7 +167,7 @@ def _bokeh_dir(create: bool = False) -> Path:
     import sys
     import os
     if (sys.platform == "darwin" and os.uname().machine.startswith("iP")):
-        bokeh_dir = Path("~").expanduser() / "Documents/.bokeh")
+        bokeh_dir = Path("~").expanduser() / "Documents/.bokeh"
     else:
         bokeh_dir = Path("~").expanduser() / ".bokeh"
     if not bokeh_dir.exists():

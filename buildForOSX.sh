@@ -499,7 +499,11 @@ unset PYZMQ_BACKEND
 python3.11 -m pip install qtpy --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install qtconsole --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # python3.11 -m pip install babel --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# jupyterlab-server. Needs to set to the proper version number to avoid updating jsonschema
+# jupyterlab_server 2.24.0 is the last version to work with jsonschema 4.17.3
+python3.11 -m pip install jupyterlab_server==2.24.0  >> $PREFIX/make_install_osx.log 2>&1
 # jupyterlab. No need to use submodules, we take the code directly from pip.
+echo "Installing jupyterlab from Pip source"  >> $PREFIX/make_install_osx.log 2>&1
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource jupyterlab >> $PREFIX/make_install_osx.log 2>&1
 pushd jupyterlab-* >> $PREFIX/make_install_osx.log 2>&1
@@ -507,6 +511,7 @@ rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
+echo "Done installing jupyterlab from Pip source"  >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install notebook-shim >> $PREFIX/make_install_osx.log 2>&1
 # notebook (trying unmodified new version)
 python3.11 -m pip install notebook >> $PREFIX/make_install_osx.log 2>&1
@@ -543,8 +548,6 @@ python3.11 -m pip install . --no-deps --no-build-isolation >> $PREFIX/make_insta
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install json5 --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# jupyterlab-server:
-python3.11 -m pip install jupyterlab_server  >> $PREFIX/make_install_osx.log 2>&1
 # Translations. All of them. 
 pip install jupyterlab-language-pack-ar-SA >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-ca-ES >> $PREFIX/make_install_osx.log 2>&1
@@ -1085,9 +1088,8 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/erfa/ >> $PREFIX/make_instal
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# geopandas and cartopy: require Shapely (GEOS), fiona (GDAL), pyproj (PROJ), rtree
 	# Shapely (interface for geos)
-	# Shapely (interface for geos)
 	# Warning: changes case (shapely) and compilation method with 2.0
-	# Currently unable to load Shapely 2.0
+	# Currently unable to load Shapely 2.0, stick to 1.8.5
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	downloadSource Shapely 1.8.5 >> $PREFIX/make_install_osx.log 2>&1
 	pushd Shapely-* >> $PREFIX/make_install_osx.log 2>&1
