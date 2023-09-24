@@ -14,10 +14,10 @@ for library in $libraries
 do
 	# Cleanup install directory from binary files:
 	find $library -name __pycache__ -exec rm -rf {} \; >& find.log
-	find $library -name \*.pyc -delete
-	find $library -name \*.so -delete
-	find $library -name \*.a -delete
-	find $library -name \*.dylib -delete
+	find $library -type f -name \*.pyc -delete
+	find $library -type f -name \*.so -delete
+	find $library -type f -name \*.a -delete
+	find $library -type f -name \*.dylib -delete
 	# Also remove MS Windows executables:
 	find $library -name \*.exe -delete
 	find $library -name \*.dll -delete
@@ -25,6 +25,8 @@ do
 	rm -f $library/bin/python3.11
 	rm -f $library/bin/python3
 	rm -rf $library/lib/python3.11/lib-dynload
+	# remove the cbc executable:
+	find $library -type f -name cbc -delete
 	# Create fake binaries for pip
 	touch $library/bin/python3
 	touch $library/bin/python3.11
@@ -37,4 +39,5 @@ do
 	find $library -type f -name direct_url.jsonbak -delete
 	cp ./build/lib.darwin-arm64-3.11/_sysconfigdata__darwin_darwin.py $library/lib/python3.11/_sysconfigdata__darwin_darwin.py
 done
+
 

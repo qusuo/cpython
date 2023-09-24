@@ -1742,6 +1742,8 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 				(strcmp(nameC, "scipy.sparse.csgraph._shortest_path") == 0) ||
 				(strcmp(nameC, "scipy.sparse.csgraph._tools") == 0) ||
 				(strcmp(nameC, "scipy.sparse.csgraph._traversal") == 0) ||
+				// The former is the name being used:
+				(strcmp(nameC, "scipy.sparse._sparsetools") == 0) ||
 				(strcmp(nameC, "scipy.sparse.sparsetools._sparsetools") == 0) ||
 				(strcmp(nameC, "scipy.spatial._ckdtree") == 0) ||
 				(strcmp(nameC, "scipy.spatial._distance_pybind") == 0) ||
@@ -1839,7 +1841,7 @@ static PyObject *py_dl_open(PyObject *self, PyObject *args)
 				(strcmp(nameC, "statsmodels.tsa.holtwinters._exponential_smoothers") == 0) ||
 				(strcmp(nameC, "statsmodels.tsa._innovations") == 0) ||
 				(strcmp(nameC, "statsmodels.tsa.exponential_smoothing._ets_smooth") == 0) ||
-				(strcmp(nameC, "statsmodels.tsa._stl") == 0)) {
+				(strcmp(nameC, "statsmodels.tsa.stl._stl") == 0)) {
 			strcpy(nameC, "statsmodels_all");
 		}
 		// The goal here is to avoid repeted calls to getenv("APPDIR") by using sys.prefix 

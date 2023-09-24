@@ -499,7 +499,11 @@ unset PYZMQ_BACKEND
 python3.11 -m pip install qtpy --upgrade >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install qtconsole --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # python3.11 -m pip install babel --upgrade >> $PREFIX/make_install_osx.log 2>&1
+# jupyterlab-server. Needs to set to the proper version number to avoid updating jsonschema
+# jupyterlab_server 2.24.0 is the last version to work with jsonschema 4.17.3
+python3.11 -m pip install jupyterlab_server==2.24.0  >> $PREFIX/make_install_osx.log 2>&1
 # jupyterlab. No need to use submodules, we take the code directly from pip.
+echo "Installing jupyterlab from Pip source"  >> $PREFIX/make_install_osx.log 2>&1
 pushd packages >> $PREFIX/make_install_osx.log 2>&1
 downloadSource jupyterlab >> $PREFIX/make_install_osx.log 2>&1
 pushd jupyterlab-* >> $PREFIX/make_install_osx.log 2>&1
@@ -507,6 +511,7 @@ rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
+echo "Done installing jupyterlab from Pip source"  >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install notebook-shim >> $PREFIX/make_install_osx.log 2>&1
 # notebook (trying unmodified new version)
 python3.11 -m pip install notebook >> $PREFIX/make_install_osx.log 2>&1
@@ -543,8 +548,6 @@ python3.11 -m pip install . --no-deps --no-build-isolation >> $PREFIX/make_insta
 popd  >> $PREFIX/make_install_osx.log 2>&1
 popd  >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install json5 --upgrade >> $PREFIX/make_install_osx.log 2>&1
-# jupyterlab-server:
-python3.11 -m pip install jupyterlab_server  >> $PREFIX/make_install_osx.log 2>&1
 # Translations. All of them. 
 pip install jupyterlab-language-pack-ar-SA >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-ca-ES >> $PREFIX/make_install_osx.log 2>&1
@@ -1241,6 +1244,8 @@ $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/erfa/ >> $PREFIX/make_instal
 	popd  >> $PREFIX/make_install_osx.log 2>&1
     # geopandas now
     python3.11 -m pip install geopandas >> $PREFIX/make_install_osx.log 2>&1
+    # Disable warning about Shapely 2.0. Obviously remove when Shapely 2.0 is installed.
+    cp packages/geopandas__compat.py $PYTHONHOME/lib/python3.11/site-packages/geopandas/_compat.py
     # Packages used by geopandas:
     # rasterio: must use submodule since the Pip version does not include the Cython sources:
 	python3.11 -m pip install snuggs >> $PREFIX/make_install_osx.log 2>&1
@@ -1375,13 +1380,13 @@ then
 	mkdir -p build_osx  >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG -L/Library/Developer/CommandLineTools/SDKs/MacOSX12.0.sdk/usr/lib -L/usr/local/lib -lgfortran" LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" meson . build_osx -Duse-pythran=false -Dblas=openblas -Dlapack=openblas >> $PREFIX/make_install_osx.log 2>&1
 	pushd build_osx  >> $PREFIX/make_install_osx.log 2>&1
-	ninja  >> $PREFIX/make_install_osx.log 2>&1
+	ninja >> $PREFIX/make_install_osx.log 2>&1
 	echo scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find . -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	echo number of scipy libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find . -name \*.so -print | wc -l >> $PREFIX/make_install_osx.log 2>&1
 	# 118 libraries by the last count (as of 1.11.2):
-	# copy them to build/lib.macosx:
+	# copy them to build/lib.macosx (only those not included in the big library):
 	for library in \
 		scipy/linalg/cython_lapack.cpython-311-darwin.so \
 		scipy/linalg/_decomp_lu_cython.cpython-311-darwin.so \
@@ -1516,22 +1521,22 @@ then
 	echo "Done installing gym" >> $PREFIX/make_install_osx.log 2>&1
 	# Protobuf (required for coremltools, for starter):
 	# Requires protoc with the same version number in the PATH: 
-	# curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.17.3/protoc-3.17.3-osx-x86_64.zip
+	# curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.20.3/protoc-3.20.3-osx-x86_64.zip
 	# and follow instructions
 	# We build the non-cpp-version of protobuf. Slower, but more reliable.
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf protobuf*  >> $PREFIX/make_install_osx.log 2>&1
-	python3.11 -m pip download protobuf==3.20.1 --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
+	python3.11 -m pip download protobuf==3.20.3 --no-binary :all:  >> $PREFIX/make_install_osx.log 2>&1
 	# If the version number changes, re-install protoc from release: 
 	# (protoc, system install, needs to have the same version number as protobuf)
 	# https://github.com/protocolbuffers/protobuf/releases
-	# Apparently coremltools can work with any protobuf version
-	tar xvzf protobuf-3.20.1.tar.gz   >> $PREFIX/make_install_osx.log 2>&1
-	rm protobuf-3.20.1.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
-	pushd protobuf-3.20.1  >> $PREFIX/make_install_osx.log 2>&1
+	# coremltools 7.0: protobuf==3.20.3; python_version >= "3.7"
+	tar xvzf protobuf-3.20.3.tar.gz   >> $PREFIX/make_install_osx.log 2>&1
+	rm protobuf-3.20.3.tar.gz  >> $PREFIX/make_install_osx.log 2>&1
+	pushd protobuf-3.20.3  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
     python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
-    python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
+    python3.11 -m pip install . --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# coremltools:
@@ -1577,78 +1582,22 @@ then
  	rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
  	# force rebuilding of Cython files:
  	find sklearn -name \*.pyx -exec touch {} \; -print >> $PREFIX/make_install_osx.log 2>&1
- 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" PLATFORM=macosx SETUPTOOLS_USE_DISTUTILS=stdlib python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
+ 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" PLATFORM=macosx SETUPTOOLS_USE_DISTUTILS=stdlib python3.11 -m pip install . --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
  	# Last time, something installed scikit-learn==1.0.1 -- without uninstalling sklearn==1.0.dev0. WHO?
  	echo scikit-learn libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
  	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
  	echo number of scikit-learn libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
  	find build -name \*.so -print | wc -l >> $PREFIX/make_install_osx.log 2>&1
- 	# 59 libraries by the last count
- 	# copy them to build/lib.macosx:
- 	for library in sklearn/tree/_utils.cpython-311-darwin.so \
- 		sklearn/tree/_splitter.cpython-311-darwin.so \
- 		sklearn/tree/_tree.cpython-311-darwin.so \
- 		sklearn/tree/_criterion.cpython-311-darwin.so \
- 		sklearn/metrics/cluster/_expected_mutual_info_fast.cpython-311-darwin.so \
- 		sklearn/metrics/_dist_metrics.cpython-311-darwin.so \
- 		sklearn/metrics/_pairwise_fast.cpython-311-darwin.so \
- 		sklearn/metrics/_pairwise_distances_reduction.cpython-311-darwin.so \
- 		sklearn/ensemble/_hist_gradient_boosting/_bitset.cpython-311-darwin.so \
- 		sklearn/ensemble/_hist_gradient_boosting/histogram.cpython-311-darwin.so \
- 		sklearn/ensemble/_hist_gradient_boosting/_binning.cpython-311-darwin.so \
- 		sklearn/ensemble/_hist_gradient_boosting/common.cpython-311-darwin.so \
- 		sklearn/ensemble/_hist_gradient_boosting/_predictor.cpython-311-darwin.so \
- 		sklearn/ensemble/_hist_gradient_boosting/_gradient_boosting.cpython-311-darwin.so \
- 		sklearn/ensemble/_hist_gradient_boosting/utils.cpython-311-darwin.so \
- 		sklearn/ensemble/_hist_gradient_boosting/splitting.cpython-311-darwin.so \
- 		sklearn/ensemble/_gradient_boosting.cpython-311-darwin.so \
- 		sklearn/cluster/_k_means_elkan.cpython-311-darwin.so \
- 		sklearn/cluster/_k_means_common.cpython-311-darwin.so \
- 		sklearn/cluster/_k_means_minibatch.cpython-311-darwin.so \
- 		sklearn/cluster/_k_means_lloyd.cpython-311-darwin.so \
- 		sklearn/cluster/_dbscan_inner.cpython-311-darwin.so \
- 		sklearn/cluster/_hierarchical_fast.cpython-311-darwin.so \
- 		sklearn/feature_extraction/_hashing_fast.cpython-311-darwin.so \
- 		sklearn/__check_build/_check_build.cpython-311-darwin.so \
- 		sklearn/_loss/_loss.cpython-311-darwin.so \
- 		sklearn/datasets/_svmlight_format_fast.cpython-311-darwin.so \
- 		sklearn/linear_model/_sag_fast.cpython-311-darwin.so \
- 		sklearn/linear_model/_sgd_fast.cpython-311-darwin.so \
- 		sklearn/linear_model/_cd_fast.cpython-311-darwin.so \
- 		sklearn/utils/_logistic_sigmoid.cpython-311-darwin.so \
- 		sklearn/utils/_readonly_array_wrapper.cpython-311-darwin.so \
- 		sklearn/utils/_openmp_helpers.cpython-311-darwin.so \
- 		sklearn/utils/_random.cpython-311-darwin.so \
- 		sklearn/utils/_vector_sentinel.cpython-311-darwin.so \
- 		sklearn/utils/_heap.cpython-311-darwin.so \
- 		sklearn/utils/_sorting.cpython-311-darwin.so \
- 		sklearn/utils/_weight_vector.cpython-311-darwin.so \
- 		sklearn/utils/_cython_blas.cpython-311-darwin.so \
- 		sklearn/utils/sparsefuncs_fast.cpython-311-darwin.so \
- 		sklearn/utils/_fast_dict.cpython-311-darwin.so \
- 		sklearn/utils/arrayfuncs.cpython-311-darwin.so \
- 		sklearn/utils/murmurhash.cpython-311-darwin.so \
- 		sklearn/utils/_seq_dataset.cpython-311-darwin.so \
- 		sklearn/utils/_typedefs.cpython-311-darwin.so \
- 		sklearn/svm/_newrand.cpython-311-darwin.so \
- 		sklearn/svm/_libsvm.cpython-311-darwin.so \
- 		sklearn/svm/_liblinear.cpython-311-darwin.so \
- 		sklearn/svm/_libsvm_sparse.cpython-311-darwin.so \
- 		sklearn/manifold/_utils.cpython-311-darwin.so \
- 		sklearn/manifold/_barnes_hut_tsne.cpython-311-darwin.so \
- 		sklearn/_isotonic.cpython-311-darwin.so \
- 		sklearn/preprocessing/_csr_polynomial_expansion.cpython-311-darwin.so \
- 		sklearn/decomposition/_cdnmf_fast.cpython-311-darwin.so \
- 		sklearn/decomposition/_online_lda_fast.cpython-311-darwin.so \
- 		sklearn/neighbors/_ball_tree.cpython-311-darwin.so \
- 		sklearn/neighbors/_kd_tree.cpython-311-darwin.so \
- 		sklearn/neighbors/_partition_nodes.cpython-311-darwin.so \
- 		sklearn/neighbors/_quad_tree.cpython-311-darwin.so
+ 	# 64 libraries by the last count
+ 	# copy them all to build/lib.macosx:
+	pushd build/lib.macosx-${OSX_VERSION}-x86_64-3.11 >> $PREFIX/make_install_osx.log 2>&1
+ 	for library in `find sklearn -name \*.so` 
  	do
  		directory=$(dirname $library)
  		mkdir -p $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$directory >> $PREFIX/make_install_osx.log 2>&1
- 		cp ./build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$library $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$library >> $PREFIX/make_install_osx.log 2>&1
+ 		cp $library $PREFIX/build/lib.macosx-${OSX_VERSION}-x86_64-3.11/$library >> $PREFIX/make_install_osx.log 2>&1
  	done
+ 	popd  >> $PREFIX/make_install_osx.log 2>&1
  	popd  >> $PREFIX/make_install_osx.log 2>&1
  	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# qutip. Need submodule because pip does not include Cython source
@@ -1660,7 +1609,8 @@ then
 	# force rebuilding of Cython files:
 	find qutip -name \*.pyx -exec touch {} \; -print >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
-	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
+	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.11 -m pip install . --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
+	# 20 libraries by the last count (v 4.7.1, now trying 4.7.3)
 	echo qutip libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	echo number of qutip libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
@@ -1746,12 +1696,13 @@ then
 	env CC=clang CXX=clang++ CPPFLAGS="-DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 -isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 	# "python3.11 -m pip install ." removes the iOS extensions to Cython modules. 
 	# python3.11 setup.py install used to fail, it now works.
-	env CC=clang CXX=clang++ CPPFLAGS="-DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 -isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
+	# Back to "pip install ."
+	env CC=clang CXX=clang++ CPPFLAGS="-DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 -isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.11 -m pip install . --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
 	echo statsmodels libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print  >> $PREFIX/make_install_osx.log 2>&1
 	echo number of statsmodels libraries for OSX: >> $PREFIX/make_install_osx.log 2>&1
 	find build -name \*.so -print | wc -l >> $PREFIX/make_install_osx.log 2>&1
-	# copy them to build/lib.macosx:
+	# copy them to build/lib.macosx (except those included in the big lib):
 	for library in statsmodels/tsa/statespace/_filters/_univariate_diffuse.cpython-311-darwin.so \
 		           statsmodels/tsa/statespace/_filters/_univariate.cpython-311-darwin.so \
 		           statsmodels/tsa/statespace/_filters/_conventional.cpython-311-darwin.so 
@@ -1786,6 +1737,8 @@ then
 	pushd pygeos-* >> $PREFIX/make_install_osx.log 2>&1
 	# Only change: zip-safe = false
 	cp ../setup_pygeos.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
+	# Disable check on pygeos/shapely compatibility
+	cp ../pygeos_io.py ./pygeos/io.py  >> $PREFIX/make_install_osx.log 2>&1
 	rm -rf build/*  >> $PREFIX/make_install_osx.log 2>&1
 	touch pygeos/*.pyx  >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ \
@@ -1800,6 +1753,7 @@ then
 		python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
 	# Here: "python3.11 -m pip install ." removes the iOS elements from Cythonized source code.
 	# python3.11 setup.py install used to not work, seems to work now.
+	# Back to pip install . to remove a pip warning
 	env CC=clang CXX=clang++ \
 		CPPFLAGS="-isysroot $OSX_SDKROOT -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 -I $PREFIX/Frameworks_macosx/include" \
 		CFLAGS="-isysroot $OSX_SDKROOT $DEBUG  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 -I $PREFIX/Frameworks_macosx/include/" \
@@ -1809,7 +1763,7 @@ then
 		PLATFORM=macosx \
 		GEOS_INCLUDE_PATH=$PREFIX/Frameworks_macosx/include \
 		GEOS_LIBRARY_PATH=$PREFIX/Frameworks_macosx/lib \
-		python3.11 setup.py install >> $PREFIX/make_install_osx.log 2>&1
+		python3.11 -m pip install . --no-deps --no-build-isolation >> $PREFIX/make_install_osx.log 2>&1
 	for library in pygeos/_geos.cpython-311-darwin.so pygeos/lib.cpython-311-darwin.so pygeos/_geometry.cpython-311-darwin.so
 	do
 		directory=$(dirname $library)
@@ -1842,16 +1796,13 @@ then
 	pushd pysal >> $PREFIX/make_install_osx.log 2>&1
 	# Disabled giddy and splot, as it installs quantecon, which installs numba, which installs llvmlite, which uses a JIT compiler.
 	# segregation==v2.0.0 for the same reason
+	# setup momepy version to 0.5.4 to avoid the update to Shapely
 	cp ../requirements_pysal.txt ./requirements.txt >> $PREFIX/make_install_osx.log 2>&1
 	cp ../setup_pysal.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
 	cp ../frozen_pysal.py ./pysal/frozen.py >> $PREFIX/make_install_osx.log 2>&1
 	cp ../base_pysal.py ./pysal/base.py >> $PREFIX/make_install_osx.log 2>&1
 	# Here, we need "python3.11 -m pip install .", as "python3.11 setup.py install" does not install actually
 	env CC=clang CXX=clang++ CPPFLAGS="-isysroot $OSX_SDKROOT" CFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG" CXXFLAGS="-isysroot $OSX_SDKROOT  -DCYTHON_PEP489_MULTI_PHASE_INIT=0 -DCYTHON_USE_DICT_VERSIONS=0 $DEBUG " LDFLAGS="-isysroot $OSX_SDKROOT $DEBUG " LDSHARED="clang -v -undefined error -dynamiclib -isysroot $OSX_SDKROOT -lz -L$PREFIX -lpython3.11 -lc++ $DEBUG" NPY_BLAS_ORDER="openblas" NPY_LAPACK_ORDER="openblas" MATHLIB="-lm" PLATFORM=macosx python3.11 -m pip install . >> $PREFIX/make_install_osx.log 2>&1
-    # Also need to update access/datasets.py:
-	# TODO: check access/datasets (new version)
-	# cp $PYTHONHOME/lib/python3.11/site-packages/access/datasets.py  $PYTHONHOME/lib/python3.11/site-packages/access/datasets.bak
-	# cp ../datasets_pysal_access.py $PYTHONHOME/lib/python3.11/site-packages/access/datasets.py
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# Not needed anymore. Or so it seems.
