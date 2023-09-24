@@ -835,6 +835,12 @@ then
 	pushd build_ios  >> $PREFIX/make_ios.log 2>&1
 	# Something between ninja and meson is preventing the creation of dynamic libraries, creates bundles instead:
 	sed -i bak "s/bundle/shared/" build.ninja >> $PREFIX/make_ios.log 2>&1
+	# meson wants to use "-undefined dynamic_lookup", which is deprecated on iOS. 
+	# We need "-undefined error" to make sure all libraries have been linked.
+	sed -i bak "s/dynamic_lookup/error/g" build.ninja >> $PREFIX/make_ios.log 2>&1
+	# Correct location for numpy libraries:
+	sed -i bak "s/with_scipy\/Library\/lib\/python3.11\/site-packages\/numpy\/core\/include\/..\/lib/build\/lib.darwin-arm64-3.11\/numpy/g" build.ninja >> $PREFIX/make_ios.log 2>&1
+	sed -i bak "s/with_scipy\/Library\/lib\/python3.11\/site-packages\/numpy\/core\/include\/..\/..\/random\/lib/build\/lib.darwin-arm64-3.11\/numpy/g" build.ninja >> $PREFIX/make_ios.log 2>&1
 	ninja  >> $PREFIX/make_ios.log 2>&1
 	echo scipy libraries for iOS: >> $PREFIX/make_ios.log 2>&1
 	find . -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
@@ -885,8 +891,13 @@ then
 		then 
 			install_name_tool -change $PREFIX/Frameworks_iphoneos/lib/libopenblas.dylib @rpath/openblas.framework/openblas  $PREFIX/build/lib.darwin-arm64-3.11/$library  >> $PREFIX/make_ios.log 2>&1
 		fi
+		if [[ $(otool -l $PREFIX/build/lib.darwin-arm64-3.11/$library | grep libgfortran) ]];
+		then 
+			install_name_tool -change /usr/local/aarch64-apple-darwin20/lib/libgfortran.5.dylib @rpath/libgfortran.framework/libgfortran  $PREFIX/build/lib.darwin-arm64-3.11/$library  >> $PREFIX/make_ios.log 2>&1
+		fi
 	done
 	# Making a big scipy library to load many modules (85 out of 118):
+	echo "Making a big scipy library to load many modules"  >> $PREFIX/make_ios.log 2>&1
 	clang -v -undefined error -dynamiclib \
 		-arch arm64 -miphoneos-version-min=14.0 \
 		-isysroot $IOS_SDKROOT \
@@ -939,9 +950,9 @@ then
 		-L$PREFIX/build/lib.darwin-arm64-3.11/numpy -lnpymath -lnpyrandom \
 		-L$PREFIX/Frameworks_iphoneos/lib -lgfortran \
 		-F$PREFIX/Frameworks_iphoneos -framework ios_system -framework openblas\
-		-o scipy.so
+		-o scipy.so  >> $PREFIX/make_ios.log 2>&1
+	echo "Done"  >> $PREFIX/make_ios.log 2>&1
 	cp scipy.so $PREFIX/build/lib.darwin-arm64-3.11 >> $PREFIX/make_ios.log 2>&1
-	# Fix the reference to libopenblas.dylib -> openblas.framework
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
@@ -1009,72 +1020,16 @@ PLATFORM=iphoneos PYODIDE_PACKAGE_ABI=1 SETUPTOOLS_USE_DISTUTILS=stdlib python3.
 	find build -name \*.so -print  >> $PREFIX/make_ios.log 2>&1
 	echo number of scikit-learn libraries for iOS: >> $PREFIX/make_ios.log 2>&1
 	find build -name \*.so -print | wc -l >> $PREFIX/make_ios.log 2>&1
-	# 59 libraries by the last count
+	# 64 libraries by the last count
 	# copy them to build/lib.macosx:
-	for library in sklearn/tree/_utils.cpython-311-darwin.so \
-		sklearn/tree/_splitter.cpython-311-darwin.so \
-		sklearn/tree/_tree.cpython-311-darwin.so \
-		sklearn/tree/_criterion.cpython-311-darwin.so \
-		sklearn/metrics/cluster/_expected_mutual_info_fast.cpython-311-darwin.so \
-		sklearn/metrics/_dist_metrics.cpython-311-darwin.so \
-		sklearn/metrics/_pairwise_fast.cpython-311-darwin.so \
-		sklearn/metrics/_pairwise_distances_reduction.cpython-311-darwin.so \
-		sklearn/ensemble/_hist_gradient_boosting/_bitset.cpython-311-darwin.so \
-		sklearn/ensemble/_hist_gradient_boosting/histogram.cpython-311-darwin.so \
-		sklearn/ensemble/_hist_gradient_boosting/_binning.cpython-311-darwin.so \
-		sklearn/ensemble/_hist_gradient_boosting/common.cpython-311-darwin.so \
-		sklearn/ensemble/_hist_gradient_boosting/_predictor.cpython-311-darwin.so \
-		sklearn/ensemble/_hist_gradient_boosting/_gradient_boosting.cpython-311-darwin.so \
-		sklearn/ensemble/_hist_gradient_boosting/utils.cpython-311-darwin.so \
-		sklearn/ensemble/_hist_gradient_boosting/splitting.cpython-311-darwin.so \
-		sklearn/ensemble/_gradient_boosting.cpython-311-darwin.so \
-		sklearn/cluster/_k_means_elkan.cpython-311-darwin.so \
-		sklearn/cluster/_k_means_common.cpython-311-darwin.so \
-		sklearn/cluster/_k_means_minibatch.cpython-311-darwin.so \
-		sklearn/cluster/_k_means_lloyd.cpython-311-darwin.so \
-		sklearn/cluster/_dbscan_inner.cpython-311-darwin.so \
-		sklearn/cluster/_hierarchical_fast.cpython-311-darwin.so \
-		sklearn/feature_extraction/_hashing_fast.cpython-311-darwin.so \
-		sklearn/__check_build/_check_build.cpython-311-darwin.so \
-		sklearn/_loss/_loss.cpython-311-darwin.so \
-		sklearn/datasets/_svmlight_format_fast.cpython-311-darwin.so \
-		sklearn/linear_model/_sag_fast.cpython-311-darwin.so \
-		sklearn/linear_model/_sgd_fast.cpython-311-darwin.so \
-		sklearn/linear_model/_cd_fast.cpython-311-darwin.so \
-		sklearn/utils/_logistic_sigmoid.cpython-311-darwin.so \
-		sklearn/utils/_readonly_array_wrapper.cpython-311-darwin.so \
-		sklearn/utils/_openmp_helpers.cpython-311-darwin.so \
-		sklearn/utils/_random.cpython-311-darwin.so \
-		sklearn/utils/_vector_sentinel.cpython-311-darwin.so \
-		sklearn/utils/_heap.cpython-311-darwin.so \
-		sklearn/utils/_sorting.cpython-311-darwin.so \
-		sklearn/utils/_weight_vector.cpython-311-darwin.so \
-		sklearn/utils/_cython_blas.cpython-311-darwin.so \
-		sklearn/utils/sparsefuncs_fast.cpython-311-darwin.so \
-		sklearn/utils/_fast_dict.cpython-311-darwin.so \
-		sklearn/utils/arrayfuncs.cpython-311-darwin.so \
-		sklearn/utils/murmurhash.cpython-311-darwin.so \
-		sklearn/utils/_seq_dataset.cpython-311-darwin.so \
-		sklearn/utils/_typedefs.cpython-311-darwin.so \
-		sklearn/svm/_newrand.cpython-311-darwin.so \
-		sklearn/svm/_libsvm.cpython-311-darwin.so \
-		sklearn/svm/_liblinear.cpython-311-darwin.so \
-		sklearn/svm/_libsvm_sparse.cpython-311-darwin.so \
-		sklearn/manifold/_utils.cpython-311-darwin.so \
-		sklearn/manifold/_barnes_hut_tsne.cpython-311-darwin.so \
-		sklearn/_isotonic.cpython-311-darwin.so \
-		sklearn/preprocessing/_csr_polynomial_expansion.cpython-311-darwin.so \
-		sklearn/decomposition/_cdnmf_fast.cpython-311-darwin.so \
-		sklearn/decomposition/_online_lda_fast.cpython-311-darwin.so \
-		sklearn/neighbors/_ball_tree.cpython-311-darwin.so \
-		sklearn/neighbors/_kd_tree.cpython-311-darwin.so \
-		sklearn/neighbors/_partition_nodes.cpython-311-darwin.so \
-		sklearn/neighbors/_quad_tree.cpython-311-darwin.so
-	do
+	pushd build/lib.macosx-${OSX_VERSION}-arm64-3.11 >> $PREFIX/make_ios.log 2>&1
+ 	for library in `find sklearn -name \*.so` 
+ 	do
 		directory=$(dirname $library)
 		mkdir -p $PREFIX/build/lib.darwin-arm64-3.11/$directory >> $PREFIX/make_ios.log 2>&1
-		cp ./build/lib.macosx-${OSX_VERSION}-arm64-3.11/$library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
+		cp $library $PREFIX/build/lib.darwin-arm64-3.11/$library >> $PREFIX/make_ios.log 2>&1
 	done
+	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	popd  >> $PREFIX/make_ios.log 2>&1
 	# qutip. Can't download with pip, so submodule (also faster with submodule):

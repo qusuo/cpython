@@ -1814,6 +1814,7 @@ class FileFinder:
                                       "scipy.sparse.csgraph._shortest_path",
                                       "scipy.sparse.csgraph._tools",
                                       "scipy.sparse.csgraph._traversal",
+                                      "scipy.sparse._sparsetools",
                                       "scipy.sparse.sparsetools._sparsetools",
                                       "scipy.spatial._ckdtree",
                                       "scipy.spatial._distance_pybind",
@@ -1911,7 +1912,7 @@ class FileFinder:
                             "statsmodels.tsa.holtwinters._exponential_smoothers",
                             "statsmodels.tsa._innovations",
                             "statsmodels.tsa.exponential_smoothing._ets_smooth",
-                            "statsmodels.tsa._stl"]:
+                            "statsmodels.tsa.stl._stl"]:
                         frameworkName = pythonName + "-" + "statsmodels_all"
                     else:
                         frameworkName = pythonName + "-" + fullname

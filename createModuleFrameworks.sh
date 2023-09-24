@@ -452,8 +452,8 @@ if [ $APP == "Carnets" ]; then
 
 	# create the scipy (only those not included above) and scikit-learn modules: 
 	# also cvxopt, cv2, statsmodels, pygeos, cartopy
-	for library in scipy/odr/__odrpack \
-		scipy/linalg/cython_lapack \
+	for library in scipy/linalg/cython_lapack \
+		scipy/linalg/_decomp_lu_cython \
 		scipy/linalg/cython_blas \
 		scipy/linalg/_fblas \
 		scipy/linalg/_flapack \
@@ -461,11 +461,11 @@ if [ $APP == "Carnets" ]; then
 		scipy/linalg/_interpolative \
 		scipy/optimize/_lbfgsb \
 		scipy/optimize/_trlib/_trlib \
-		scipy/optimize/_minpack \
 		scipy/optimize/_minpack2 \
 		scipy/optimize/_cobyla \
 		scipy/optimize/__nnls \
 		scipy/optimize/cython_optimize/_zeros \
+		scipy/optimize/_minpack \
 		scipy/optimize/_slsqp \
 		scipy/integrate/_quadpack \
 		scipy/integrate/_vode \
@@ -473,11 +473,10 @@ if [ $APP == "Carnets" ]; then
 		scipy/integrate/_test_odeint_banded \
 		scipy/integrate/_odepack \
 		scipy/integrate/_lsoda \
-		scipy/io/_test_fortran \
 		scipy/special/_ufuncs_cxx \
 		scipy/special/_ellip_harm_2 \
+		scipy/special/_test_internal \
 		scipy/special/_ufuncs \
-		scipy/interpolate/dfitpack \
 		scipy/sparse/linalg/_eigen/arpack/_arpack \
 		scipy/sparse/linalg/_propack/_cpropack \
 		scipy/sparse/linalg/_propack/_zpropack \
@@ -486,16 +485,18 @@ if [ $APP == "Carnets" ]; then
 		scipy/sparse/linalg/_isolve/_iterative \
 		scipy/sparse/linalg/_dsolve/_superlu \
 		scipy/spatial/_qhull \
-		scipy/stats/_statlib \
-		scipy/stats/_mvn \
 		sklearn/tree/_utils \
 		sklearn/tree/_splitter \
 		sklearn/tree/_tree \
 		sklearn/tree/_criterion \
 		sklearn/metrics/cluster/_expected_mutual_info_fast \
 		sklearn/metrics/_dist_metrics \
+		sklearn/metrics/_pairwise_distances_reduction/_base \
+		sklearn/metrics/_pairwise_distances_reduction/_datasets_pair \
+		sklearn/metrics/_pairwise_distances_reduction/_middle_term_computer \
+		sklearn/metrics/_pairwise_distances_reduction/_radius_neighbors \
+		sklearn/metrics/_pairwise_distances_reduction/_argkmin \
 		sklearn/metrics/_pairwise_fast \
-		sklearn/metrics/_pairwise_distances_reduction \
 		sklearn/ensemble/_hist_gradient_boosting/_bitset \
 		sklearn/ensemble/_hist_gradient_boosting/histogram \
 		sklearn/ensemble/_hist_gradient_boosting/_binning \
@@ -523,6 +524,7 @@ if [ $APP == "Carnets" ]; then
 		sklearn/utils/_openmp_helpers \
 		sklearn/utils/_random \
 		sklearn/utils/_vector_sentinel \
+		sklearn/utils/_isfinite \
 		sklearn/utils/_heap \
 		sklearn/utils/_sorting \
 		sklearn/utils/_weight_vector \
