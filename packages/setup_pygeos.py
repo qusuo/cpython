@@ -9,6 +9,11 @@ from pkg_resources import parse_version
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext as _build_ext
 
+
+# ensure the current directory is on sys.path so versioneer can be imported
+# when pip uses PEP 517/518 build rules.
+# https://github.com/python-versioneer/python-versioneer/issues/193
+sys.path.append(os.path.dirname(__file__))
 import versioneer
 
 # Skip Cython build if not available
@@ -192,9 +197,12 @@ else:
         ),
     ]
 
+    # Configure optional Cython coverage.
+    # legacy_implicit_noexcept is a temporary fix for Cython 3.0 with pygeos 0.14.0
     ext_modules += cythonize(
         cython_modules,
-        compiler_directives={"language_level": "3"},
+        compiler_directives={"language_level": "3",
+                             "legacy_implicit_noexcept": True},
         # enable once Cython >= 0.3 is released
         # define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
     )
@@ -226,7 +234,7 @@ setup(
         "test": ["pytest"],
         "docs": ["sphinx", "numpydoc"],
     },
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     include_package_data=True,
     ext_modules=ext_modules,
     # iOS: need to prevent zipping the module

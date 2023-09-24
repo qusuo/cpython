@@ -17,7 +17,7 @@ cpp_args = c_args
 cpp_link_args = ['-isysroot', toolchain, '-shared', '-arch', 'arm64', '-miphoneos-version-min=14.0', '-v', '-undefined', 'error', '-F' + prefix + '/Frameworks_iphoneos', '-framework', 'ios_system', '-framework', 'freetype', '-L' + prefix + '/build/lib.darwin-arm64-3.11', '-lz',  '-lpython3.11', '-L' + prefix + '/Frameworks_iphoneos/lib/',  '-ljpeg',  '-ltiff']
 c_link_args = cpp_link_args
 fortran_args = ['-arch', 'arm64', '-miphoneos-version-min=11.0', '-Wa,-miphoneos-version-min=11.0']
-fortran_link_args = ['-Wl,-platform_version', '-Wl,ios', '-Wl,14.0.0', '-Wl,16.4', '-Wa,-miphoneos-version-min=11.0']
+fortran_link_args = ['-Wl,-platform_version', '-Wl,ios', '-Wl,14.0.0', '-Wl,16.4', '-Wa,-miphoneos-version-min=11.0',  '-Wl,-L' + prefix + '/build/lib.darwin-arm64-3.11', '-Wl,-lpython3.11',  '-Wl,-F' + prefix + '/Frameworks_iphoneos', '-Wl,-framework', '-Wl,ios_system']
 
 
 [target_machine]
