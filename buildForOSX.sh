@@ -320,9 +320,9 @@ then
 	then
 		sed -i bak 's/^    split = name.split/    # iOS: we can only load frameworks:\
     if sys.platform == "darwin" and os.uname().machine.startswith("iP"):\
-        pythonName = sys.orig_argv[0]
-        if (pythonName == "python3") or (pythonName == "python"):
-            pythonName = "python3_ios"
+        pythonName = sys.orig_argv[0]\
+        if (pythonName == "python3") or (pythonName == "python"):\
+            pythonName = "python3_ios"\
         frameworkName = pythonName + "-" + name\
         home, tail = os.path.split(sys.prefix)\
         full_path = os.path.join(home, "Frameworks", frameworkName + ".framework", frameworkName)\
