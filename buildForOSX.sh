@@ -568,7 +568,8 @@ pip install jupyterlab-language-pack-ja-JP >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-ko-KR >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-lt-LT >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-nl-NL >> $PREFIX/make_install_osx.log 2>&1
-pip install jupyterlab-language-pack-no-NO >> $PREFIX/make_install_osx.log 2>&1
+# Norwegian causes an issue with iOS (at least)
+# pip install jupyterlab-language-pack-no-NO >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-pl-PL >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-pt-BR >> $PREFIX/make_install_osx.log 2>&1
 pip install jupyterlab-language-pack-ro-RO >> $PREFIX/make_install_osx.log 2>&1
@@ -582,7 +583,7 @@ pip install jupyterlab-language-pack-zh-TW >> $PREFIX/make_install_osx.log 2>&1
 # Notebook v7: disable autozoom
 # Notebook v7 simplification: only page.html and view.html hace scaling information, all the other include these
 # They are still present in 3 places: nbclassic, notebook, jupyter-server
-for htmlFile in page view
+for htmlFile in page view notebook notebooks edit tree 
 do
 	sed -i bak "s/initial-scale=1/&, maximum-scale=1.0/" $PREFIX/Library/lib/python3.11/site-packages/notebook/templates/$htmlFile.html  >> $PREFIX/make_install_osx.log 2>&1
 	rm $PREFIX/Library/lib/python3.11/site-packages/notebook/templates/$htmlFile.htmlbak  >> $PREFIX/make_install_osx.log 2>&1
@@ -1776,6 +1777,8 @@ then
 	python3.11 -m pip install install networkx --upgrade >> $PREFIX/make_install_osx.log 2>&1
 	echo "Fixing Iranian web site for the State Department"  >> $PREFIX/make_install_osx.log 2>&1
 	sed -i bak "s|https://blog.alifaraji.ir|https ://Address_removed_by_request_of_the_US_State_Department|g" $PYTHONHOME/lib/python3.11/site-packages/networkx/algorithms/operators/product.py >> $PREFIX/make_install_osx.log 2>&1
+	# If you don't remove the backup file, AppStore inspection will fail too:
+	rm  $PYTHONHOME/lib/python3.11/site-packages/networkx/algorithms/operators/product.pybak  >> $PREFIX/make_install_osx.log 2>&1
 	echo "Done"  >> $PREFIX/make_install_osx.log 2>&1
 	python3.11 -m pip install install pytest --upgrade >> $PREFIX/make_install_osx.log 2>&1
 	# pysal (and mapclassify). Can't download with pip, so submodule. Pure Python, so no need to replicate for iOS and Simulator.
