@@ -954,7 +954,11 @@ PyObject *PyCodec_BackslashReplaceErrors(PyObject *exc)
     return Py_BuildValue("(Nn)", res, end);
 }
 
+#if !TARGET_OS_IPHONE
 static _PyUnicode_Name_CAPI *ucnhash_capi = NULL;
+#else
+static __thread _PyUnicode_Name_CAPI *ucnhash_capi = NULL;
+#endif
 
 PyObject *PyCodec_NameReplaceErrors(PyObject *exc)
 {
@@ -1406,7 +1410,11 @@ static PyObject *surrogateescape_errors(PyObject *self, PyObject *exc)
 
 static int _PyCodecRegistry_Init(void)
 {
+#if TARGET_OS_IPHONE
+    static __thread struct {
+#else 
     static struct {
+#endif
         const char *name;
         PyMethodDef def;
     } methods[] =
@@ -1512,6 +1520,17 @@ static int _PyCodecRegistry_Init(void)
     if (interp->codec_error_registry == NULL) {
         return -1;
     }
+
+#if TARGET_OS_IPHONE
+	methods[0].def.ml_meth = strict_errors;
+	methods[1].def.ml_meth = ignore_errors;
+	methods[2].def.ml_meth = replace_errors;
+	methods[3].def.ml_meth = xmlcharrefreplace_errors;
+	methods[4].def.ml_meth = backslashreplace_errors;
+	methods[5].def.ml_meth = namereplace_errors;
+	methods[6].def.ml_meth = surrogatepass_errors;
+	methods[7].def.ml_meth = surrogateescape_errors;
+#endif
 
     for (size_t i = 0; i < Py_ARRAY_LENGTH(methods); ++i) {
         PyObject *func = PyCFunction_NewEx(&methods[i].def, NULL, NULL);
