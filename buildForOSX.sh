@@ -1540,6 +1540,8 @@ then
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	popd  >> $PREFIX/make_install_osx.log 2>&1
 	# coremltools:
+	python3.11 -m pip install cattrs  >> $PREFIX/make_install_osx.log 2>&1
+	python3.11 -m pip install --upgrade pyyaml >> $PREFIX/make_install_osx.log 2>&1
 	python3.11 -m pip install tqdm  >> $PREFIX/make_install_osx.log 2>&1
 	pushd packages >> $PREFIX/make_install_osx.log 2>&1
 	pushd coremltools >> $PREFIX/make_install_osx.log 2>&1
