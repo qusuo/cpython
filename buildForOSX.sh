@@ -329,7 +329,7 @@ then
         if os.path.isfile(full_path):\
             return load_lib(full_path, cdecl)\
     # Not iOS case: test all possible suffixes and libraries:\
-/&' lib/Crypto/Util/_raw_api.py  >> $PREFIX/make_install_osx.log 2>&1
+&/' lib/Crypto/Util/_raw_api.py  >> $PREFIX/make_install_osx.log 2>&1
 	fi
 	rm -rf build/* >> $PREFIX/make_install_osx.log 2>&1
 	env CC=clang CXX=clang++ CFLAGS="-I$PREFIX/ -I/usr/local/include/" LDFLAGS="-L$PREFIX/ -L/usr/local/lib" python3.11 setup.py build >> $PREFIX/make_install_osx.log 2>&1
