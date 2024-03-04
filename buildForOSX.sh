@@ -501,6 +501,8 @@ python3.11 -m pip install qtconsole --upgrade >> $PREFIX/make_install_osx.log 2>
 # python3.11 -m pip install babel --upgrade >> $PREFIX/make_install_osx.log 2>&1
 # jupyterlab-server. Needs to set to the proper version number to avoid updating jsonschema
 # jupyterlab_server 2.24.0 is the last version to work with jsonschema 4.17.3
+# Same issue with jupyter_server (2.10.0 is OK, 2.10.1 is not)
+python3.11 -m pip install jupyter_server==2.10.0  >> $PREFIX/make_install_osx.log 2>&1
 python3.11 -m pip install jupyterlab_server==2.24.0  >> $PREFIX/make_install_osx.log 2>&1
 # jupyterlab. No need to use submodules, we take the code directly from pip.
 echo "Installing jupyterlab from Pip source"  >> $PREFIX/make_install_osx.log 2>&1
@@ -599,7 +601,7 @@ pushd packages  >> $PREFIX/make_install_osx.log 2>&1
 mkdir -p $PREFIX/Library/etc/jupyter/labconfig >> $PREFIX/make_install_osx.log 2>&1
 cp Library_etc_jupyter_labconfig_page_config.json $PREFIX/Library/etc/jupyter/labconfig/page_config.json >> $PREFIX/make_install_osx.log 2>&1
 # TODO: make these changes with sed.
-# These have been updated for jupyter-server 2.7.2
+# These have been updated for jupyter-server 2.10.0
 # move location of ipynb_checkpoints:
 cp jupyter_server_services_contents_filecheckpoints.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/services/contents/filecheckpoints.py >> $PREFIX/make_install_osx.log 2>&1
 # No atomic writing if no file access:
@@ -608,6 +610,8 @@ cp jupyter_server_services_contents_fileio.py $PREFIX/Library/lib/python3.11/sit
 cp jupyter_server_services_kernels_kernelmanager.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/services/kernels/kernelmanager.py >> $PREFIX/make_install_osx.log 2>&1
 # nbconvert writes to file, rather than open a window with the file:
 cp jupyter_server_nbconvert_handlers.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/nbconvert/handlers.py >> $PREFIX/make_install_osx.log 2>&1
+# Do not create new files in "/", but in the current directory instead:
+cp  jupyter_server_services_contents_handlers.py $PREFIX/Library/lib/python3.11/site-packages/jupyter_server/services/contents/handlers.py
 popd  >> $PREFIX/make_install_osx.log 2>&1
 # Add caret-color to all css files:
 find $PREFIX/Library/share/jupyter -type f -name \*.css -exec sed -i bak 's/--jp-editor-cursor-color: var(--jp-ui-font-color0);/&\
@@ -1801,6 +1805,8 @@ then
 	# Disabled giddy and splot, as it installs quantecon, which installs numba, which installs llvmlite, which uses a JIT compiler.
 	# segregation==v2.0.0 for the same reason
 	# setup momepy version to 0.5.4 to avoid the update to Shapely
+	# setup libpysal to ==4.7.0 for the same reason
+	# setup pointpats to ==2.2.0 to avoid an update (we edited pointpats) 
 	cp ../requirements_pysal.txt ./requirements.txt >> $PREFIX/make_install_osx.log 2>&1
 	cp ../setup_pysal.py ./setup.py  >> $PREFIX/make_install_osx.log 2>&1
 	cp ../frozen_pysal.py ./pysal/frozen.py >> $PREFIX/make_install_osx.log 2>&1

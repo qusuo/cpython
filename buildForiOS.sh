@@ -77,6 +77,7 @@ cp -r $XCFRAMEWORKS_DIR/libgdal.xcframework/ios-arm64/libgdal.framework/Headers 
 cp -r $XCFRAMEWORKS_DIR/libgdal.xcframework/ios-arm64/libgdal.framework  $PREFIX/Frameworks_iphoneos/
 cp -r $XCFRAMEWORKS_DIR/libproj.xcframework/ios-arm64/libproj.framework/Headers/* $PREFIX/Frameworks_iphoneos/include
 cp -r $XCFRAMEWORKS_DIR/libproj.xcframework/ios-arm64/libproj.framework  $PREFIX/Frameworks_iphoneos/
+cp ios_error.h $PREFIX/Frameworks_iphoneos/include 
 
 find . -name \*.o -delete
 rm libpython3.11.dylib
@@ -116,6 +117,8 @@ rm -rf build/lib.darwin-arm64-3.11
 make >& make_ios.log
 mkdir -p  build/lib.darwin-arm64-3.11
 cp libpython3.11.dylib build/lib.darwin-arm64-3.11
+# Required for coremltools
+cp libpython3.11.dylib $PREFIX/Frameworks_iphoneos/lib/
 # Don't install for iOS
 # Compilation of specific packages:
 cp $PREFIX/build/lib.darwin-arm64-3.11/_sysconfigdata__darwin_darwin.py $PREFIX/Library/lib/python3.11/_sysconfigdata__darwin_darwin.py
