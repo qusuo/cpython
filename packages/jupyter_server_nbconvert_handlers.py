@@ -12,7 +12,7 @@ from nbformat import from_dict
 from tornado import web
 from tornado.log import app_log
 
-from jupyter_server.auth import authorized
+from jupyter_server.auth.decorator import authorized
 
 from ..base.handlers import FilesRedirectHandler, JupyterHandler, path_regex
 
@@ -188,6 +188,7 @@ class NbconvertPostHandler(JupyterHandler):
         exporter = get_exporter(format, config=self.config)
 
         model = self.get_json_body()
+        assert model is not None
         name = model.get("name", "notebook.ipynb")
         nbnode = from_dict(model["content"])
 
