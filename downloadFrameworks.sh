@@ -4,7 +4,7 @@ curl -OL https://github.com/holzschu/ios_system/releases/download/v3.0.1/ios_err
 mkdir -p Python-aux
 pushd Python-aux
 
-for library in 
+for library in \
 libpng \
 libffi \
 libzmq \
@@ -27,9 +27,9 @@ libgeos_c \
 libgeos \
 liblzma
 do 
-	curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/$library.xcframework.zip
-	rm -rf $library.xcframework 
-	unzip -q $library.xcframework.zip
+    curl -OL https://github.com/holzschu/Python-aux/releases/download/1.0/$library.xcframework.zip
+    rm -rf $library.xcframework 
+    unzip -q $library.xcframework.zip
 done
 
 curl -OL https://github.com/holzschu/ios_system/releases/download/v3.0.1/ios_system.xcframework.zip
